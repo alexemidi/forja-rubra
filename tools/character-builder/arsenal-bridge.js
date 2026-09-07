@@ -18,7 +18,7 @@ shopFilterButton.type='button';shopFilterButton.className='search-mode-button sh
 searchRow.insertBefore(shopFilterButton,document.querySelector('.sort-control'));
 const shopActions=document.createElement('nav');
 shopActions.className='embedded-shop-actions';
-shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button><button type="button" data-redo-initial>Refazer escolhas</button>';
+shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button>';
 document.body.prepend(shopActions);
 function syncEmbeddedShopActions(){
   shopActions.querySelectorAll('[data-shop-view]').forEach(button=>button.classList.toggle('active',button.dataset.shopView===(arsenalInitialState.mode==='backpack'?'backpack':state.view)));
@@ -99,7 +99,6 @@ function applyArsenalContext(context){
   document.body.classList.toggle('embedded-shop',mode==='shop');
   shopActions.hidden=mode==='initial';kind.hidden=mode!=='initial';advancedFilters.hidden=mode!=='initial'||initialChoice?.type!=='arma';
   shopFilterButton.hidden=mode!=='shop';
-  shopActions.querySelector('[data-redo-initial]').hidden=mode!=='backpack';
   state.backpackMode=state.backpackMode||'list';
   if(mode==='initial'){
     state.type=initialChoice.type;state.category=initialChoice.category||'todos';state.specific='convencional';state.combat='todos';state.grip='todos';state.search='';
@@ -137,7 +136,6 @@ function proposeOperation(type,message={}){
 }
 shopActions.addEventListener('click',event=>{
   if(event.target.closest('[data-shop-cart]'))return openCartDecision(false);
-  if(event.target.closest('[data-redo-initial]')){postArsenal('redo-initial-request');return}
   const view=event.target.closest('[data-shop-view]');if(!view)return;
   if(view.dataset.shopView==='backpack'){if(cartItems.length)openCartDecision(true);else postArsenal('close-shop')}
   else postArsenal('open-shop');

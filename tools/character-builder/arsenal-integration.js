@@ -79,6 +79,7 @@ function sendArsenal(type,details={}){document.getElementById('characterArsenal'
 function syncInitialItemFooter(){
   if(state.step!==8)return;
   const saved=arsenalState(),title=saved.complete?(arsenalShopOpen?'Comprar itens':'Itens adquiridos'):currentItemChoice()?.title||'Equipamento inicial';
+  document.getElementById('redoInitialItemsButton').hidden=!saved.complete||arsenalShopOpen;
   document.getElementById('nextButton').textContent=saved.complete?(arsenalShopOpen?'Confirmar compra':'Continuar →'):saved.pending?'Confirmar escolha →':'Pular escolha →';
   document.getElementById('nextButton').disabled=false;
   document.getElementById('stageTitle').textContent=saved.complete?title:'Itens iniciais';document.getElementById('stageDescription').textContent='';
@@ -89,6 +90,15 @@ function syncInitialItemFooter(){
 function unclaimedAutomaticGrants(){const saved=arsenalState();return automaticStartingGrants().filter(grant=>!saved.grants[grant.id])}
 function finalizeInitialItems(){document.getElementById('nextButton').disabled=true;sendArsenal('finalize',{operationId:'finalize:'+arsenalState().ruleSignature,automaticGrants:unclaimedAutomaticGrants(),finalize:true})}
 function advanceInitialItemChoice(){const saved=arsenalState();saved.pending=null;saved.choiceIndex++;if(!currentItemChoice())finalizeInitialItems();else{persistNow();renderStage()}}
+function redoInitialItems(){
+  const saved=arsenalState(),profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{"profiles":[]}');
+  for(const profile of profiles.profiles||[])profile.backpack=(profile.backpack||[]).filter(item=>item.acquisition?.source!=='initial');
+  saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles);
+  Object.keys(saved.grants).filter(id=>id.startsWith('choice:')||id.startsWith('base:')).forEach(id=>delete saved.grants[id]);
+  saved.operations={};saved.choiceIndex=0;saved.pending=null;saved.complete=false;saved.unresolved=[];arsenalShopOpen=false;
+  state.completed=state.completed.filter(step=>step!==8);
+  if(persistNow()){toast('Você poderá escolher novamente os itens iniciais. Os itens de origem foram mantidos.');renderStage()}
+}
 const renderBeforeArsenal=renderStage;
 renderStage=function(){
   const frame=document.getElementById('characterArsenal');
@@ -134,6 +144,11 @@ function acceptArsenalOperation(message){
   syncInitialItemFooter();
 }
 document.addEventListener('click',event=>{
+  if(event.target.closest?.('#redoInitialItemsButton')){
+    event.preventDefault();event.stopImmediatePropagation();
+    if(window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))redoInitialItems();
+    return;
+  }
   if(!event.target.closest?.('#nextButton'))return;
   if(state.step===9){
     event.preventDefault();event.stopImmediatePropagation();
@@ -165,17 +180,7 @@ window.addEventListener('message',event=>{
     else sendArsenal('scroll-items',{delta});
     return;
   }
-  if(message.type==='redo-initial-request'&&!window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))return;
-  if(message.type==='redo-initial-request'||message.type==='redo-initial'){
-    const saved=arsenalState(),profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{"profiles":[]}');
-    for(const profile of profiles.profiles||[])profile.backpack=(profile.backpack||[]).filter(item=>item.acquisition?.source!=='initial');
-    saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles);
-    Object.keys(saved.grants).filter(id=>id.startsWith('choice:')||id.startsWith('base:')).forEach(id=>delete saved.grants[id]);
-    saved.operations={};saved.choiceIndex=0;saved.pending=null;saved.complete=false;saved.unresolved=[];arsenalShopOpen=false;
-    state.completed=state.completed.filter(step=>step!==8);
-    if(persistNow()){toast('Você poderá escolher novamente os itens iniciais. Os itens de origem foram mantidos.');renderStage()}
-    return;
-  }
+  if(message.type==='redo-initial-request'||message.type==='redo-initial'){if(window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))redoInitialItems();return}
   if(message.type==='candidate'){arsenalState().pending=message.itemId?{itemId:message.itemId,itemName:message.itemName,options:message.options||{}}:null;persistNow();syncInitialItemFooter();return}
   if(message.type==='operation'){acceptArsenalOperation(message);return}
   if(message.type==='money'&&financesState().startingLevel===1){financesState().levelOneTibars=Math.max(0,Number(message.value)||0);persistNow();sendArsenal('funds',{context:{funds:remainingFunds(),startingMoney:startingFunds()}});return}
