@@ -1,0 +1,17 @@
+Livros/
+Fichas/
+backups/
+tmp/
+output/
+node_modules/
+*.pdf
+*.xls*
+*.doc*
+*.zip
+*.bak
+* - Backup.html
+__pycache__/
+.DS_Store
+Thumbs.db
+playwright-report/
+test-results/

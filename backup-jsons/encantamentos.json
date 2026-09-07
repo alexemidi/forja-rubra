@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "1.0.0",
+  "livroOrigemId": "basico",
+  "regras": {
+    "maximoEncantos": 3,
+    "precosAdicionais": [0, 18000, 36000, 72000],
+    "modificadoresCdFabricacao": [0, 10, 15, 20],
+    "cdBaseItemEncantado": 20,
+    "divisorCustoFabricacao": 3,
+    "categorias": [
+      { "quantidade": 1, "id": "menor", "nome": "Menor", "custoPm": 1, "bonusPv": 10, "bonusRd": 10, "resistencia": 5 },
+      { "quantidade": 2, "id": "medio", "nome": "Médio", "custoPm": 2, "bonusPv": 20, "bonusRd": 20, "resistencia": 10 },
+      { "quantidade": 3, "id": "maior", "nome": "Maior", "custoPm": 3, "bonusPv": 40, "bonusRd": 40, "resistencia": 20 }
+    ],
+    "itensEspecificos": {
+      "aceitamEncantos": false,
+      "cdPorCategoria": { "menor": 30, "medio": 40, "maior": 50 },
+      "oficioPorTipo": { "arma": "Ofício (armeiro)", "armadura": "Ofício (armeiro)", "escudo": "Ofício (armeiro)", "acessorio": "Ofício (artesão)" }
+    }
+  },
+  "encantamentos": [
+    {
+      "id": "abascanto",
+      "nome": "Abascanto",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe resistência a magia +5.",
+      "efeitos": [{ "tipo": "resistencia_magia", "bonus": 5 }]
+    },
+    {
+      "id": "abencoado",
+      "nome": "Abençoado",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de trevas 10 e +5 em testes de resistência contra efeitos de necromancia. Um item abençoado é decorado com gravuras de símbolos sagrados de deuses do Bem.",
+      "efeitos": [{ "tipo": "reducao_dano_tipo", "tipoDanoId": "trevas", "valor": 10 }, { "tipo": "bonus_resistencia_condicional", "bonus": 5, "condicao": "efeito_de_necromancia" }]
+    },
+    {
+      "id": "acrobatico",
+      "nome": "Acrobático",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe +5 em Acrobacia e ignora a penalidade de armadura do item para testes dessa perícia.",
+      "efeitos": [{ "tipo": "bonus_pericia", "periciaId": "acrobacia", "bonus": 5 }, { "tipo": "ignorar_penalidade_armadura", "periciaId": "acrobacia" }]
+    },
+    {
+      "id": "alado",
+      "nome": "Alado",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode gastar 2 PM para fazer asas emergirem de suas costas e receber deslocamento de voo 12m com duração sustentada.",
+      "efeitos": [{ "tipo": "conceder_deslocamento", "modo": "voo", "metros": 12, "custoPm": 2, "duracao": "sustentada" }]
+    },
+    {
+      "id": "animado",
+      "nome": "Animado",
+      "aplicacoesIds": ["escudo"],
+      "descricao": "Você pode gastar uma ação de movimento e 1 PM para fazer o escudo flutuar ao seu redor até o fim da cena. Você recebe o mesmo bônus na Defesa que receberia se estivesse empunhando o escudo, mas fica com as duas mãos livres. Você só pode ser protegido por um escudo ao mesmo tempo.",
+      "efeitos": [{ "tipo": "escudo_animado", "acao": "movimento", "custoPm": 1, "duracao": "cena" }]
+    },
+    {
+      "id": "assustador",
+      "nome": "Assustador",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode gastar uma ação de movimento e 2 PM para gerar uma onda de medo. Inimigos em alcance curto devem passar num teste de Vontade (CD Car) ou ficam abalados até o fim da cena. Um item assustador possui manchas de sangue, ossos pendurados e outras decorações horripilantes.",
+      "efeitos": [{ "tipo": "impor_condicao", "condicaoId": "abalado", "alcance": "curto", "resistencia": "Vontade", "atributoCd": "CAR", "custoPm": 2, "duracao": "cena" }]
+    },
+    {
+      "id": "caustica",
+      "nome": "Cáustica",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de ácido 10 e pode gastar uma ação de movimento e 2 PM para fazer o item gotejar ácido. Se fizer isso, seus ataques causam +1d4 de dano de ácido até o fim da cena.",
+      "efeitos": [{ "tipo": "reducao_dano_tipo", "tipoDanoId": "acido", "valor": 10 }, { "tipo": "bonus_dano_ataques", "dano": "1d4", "tipoDanoId": "acido", "custoPm": 2, "duracao": "cena" }]
+    },
+    {
+      "id": "defensor",
+      "nome": "Defensor",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "O item é encantado para desviar golpes. O bônus na Defesa do item aumenta em +2.",
+      "efeitos": [{ "tipo": "bonus_defesa_item", "bonus": 2 }]
+    },
+    {
+      "id": "escorregadio",
+      "nome": "Escorregadio",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe +10 em testes de Acrobacia para escapar e em testes de manobra contra agarrar. Um item escorregadio parece estar sempre coberto de óleo levemente gorduroso.",
+      "efeitos": [{ "tipo": "bonus_acrobacia_escapar", "bonus": 10 }, { "tipo": "bonus_manobra_contra_agarrar", "bonus": 10 }]
+    },
+    {
+      "id": "esmagador",
+      "nome": "Esmagador",
+      "aplicacoesIds": ["escudo"],
+      "descricao": "Este escudo fornece +2 em ataques e dano e tem seu dano aumentado em um passo.",
+      "efeitos": [{ "tipo": "bonus_ataque_escudo", "bonus": 2 }, { "tipo": "bonus_dano_escudo", "bonus": 2 }, { "tipo": "aumentar_passo_dano", "passos": 1 }]
+    },
+    {
+      "id": "fantasmagorico",
+      "nome": "Fantasmagórico",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode lançar a magia Manto de Sombras. Um item fantasmagórico é cinzento e esfumaçado.",
+      "efeitos": [{ "tipo": "conceder_magia", "magiaId": "manto_de_sombras" }]
+    },
+    {
+      "id": "fortificado",
+      "nome": "Fortificado",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe 25% de chance, para escudos, ou 50% de chance, para armaduras, de ignorar o dano extra de acertos críticos e ataques furtivos.",
+      "efeitos": [{ "tipo": "chance_ignorar_dano_extra", "escudo": 25, "armadura": 50, "fontes": ["acerto_critico", "ataque_furtivo"] }]
+    },
+    {
+      "id": "gelido",
+      "nome": "Gélido",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de frio 10 e pode gastar uma ação de movimento e 2 PM para se cobrir de gelo até o fim da cena. Se fizer isso, recebe 10 PV temporários. Um item gélido é azulado e frio ao toque.",
+      "efeitos": [{ "tipo": "reducao_dano_tipo", "tipoDanoId": "frio", "valor": 10 }, { "tipo": "pv_temporarios", "valor": 10, "custoPm": 2, "duracao": "cena" }]
+    },
+    {
+      "id": "guardiao",
+      "nome": "Guardião",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "preRequisitosIds": ["defensor"],
+      "descricao": "O item emite um campo de força que desvia ataques. O bônus na Defesa do item aumenta em +4. Pré-requisito: Defensor.",
+      "efeitos": [{ "tipo": "bonus_defesa_item", "bonus": 4 }]
+    },
+    {
+      "id": "hipnotico",
+      "nome": "Hipnótico",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode gastar uma ação padrão e 3 PM para emitir luzes coloridas. Inimigos em alcance curto devem passar num teste de Vontade (CD Car) ou ficam fascinados por 1d6 rodadas. O efeito termina se qualquer criatura afetada for atacada.",
+      "efeitos": [{ "tipo": "impor_condicao", "condicaoId": "fascinado", "alcance": "curto", "resistencia": "Vontade", "atributoCd": "CAR", "custoPm": 3, "duracao": "1d6 rodadas" }]
+    },
+    {
+      "id": "ilusorio",
+      "nome": "Ilusório",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode gastar uma ação de movimento e 1 PM para fazer o item adquirir a aparência de uma roupa comum, mas mantendo suas propriedades. A magia Visão da Verdade revela o item disfarçado.",
+      "efeitos": [{ "tipo": "disfarcar_item", "aparencia": "roupa_comum", "custoPm": 1 }]
+    },
+    {
+      "id": "incandescente",
+      "nome": "Incandescente",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de fogo 10 e pode gastar uma ação de movimento e 2 PM para fazer o item emitir labaredas até o fim da cena. No início de cada um de seus turnos, você causa 1d6 pontos de dano de fogo em todas as criaturas adjacentes.",
+      "efeitos": [{ "tipo": "reducao_dano_tipo", "tipoDanoId": "fogo", "valor": 10 }, { "tipo": "dano_em_area_recorrente", "dano": "1d6", "tipoDanoId": "fogo", "area": "criaturas_adjacentes", "custoPm": 2, "duracao": "cena" }]
+    },
+    {
+      "id": "invulneravel",
+      "nome": "Invulnerável",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de dano 2, para escudos, ou 5, para armaduras.",
+      "efeitos": [{ "tipo": "reducao_dano_por_item", "escudo": 2, "armadura": 5 }]
+    },
+    {
+      "id": "opaco",
+      "nome": "Opaco",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de ácido, eletricidade, fogo e frio 10. Um item opaco parece sem cor, totalmente comum e desinteressante.",
+      "efeitos": [{ "tipo": "reducao_dano_multiplos_tipos", "tiposDanoIds": ["acido", "eletricidade", "fogo", "frio"], "valor": 10 }]
+    },
+    {
+      "id": "protetor",
+      "nome": "Protetor",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe +2 em testes de resistência.",
+      "efeitos": [{ "tipo": "bonus_testes_resistencia", "bonus": 2 }]
+    },
+    {
+      "id": "refletor",
+      "nome": "Refletor",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Uma vez por rodada, quando você é alvo de uma magia, pode gastar PM igual ao custo dela para refleti-la de volta ao conjurador. As características da magia se mantêm, mas você toma qualquer decisão exigida por ela.",
+      "efeitos": [{ "tipo": "refletir_magia", "frequencia": "uma_vez_por_rodada", "custoPm": "custo_da_magia" }]
+    },
+    {
+      "id": "relampejante",
+      "nome": "Relampejante",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe redução de eletricidade 10 e pode gastar uma ação de movimento e 2 PM para gerar arcos voltaicos até o fim da cena. Qualquer criatura que o ataque em corpo a corpo sofre 2d6 pontos de dano de eletricidade.",
+      "efeitos": [{ "tipo": "reducao_dano_tipo", "tipoDanoId": "eletricidade", "valor": 10 }, { "tipo": "dano_reativo", "dano": "2d6", "tipoDanoId": "eletricidade", "gatilho": "ataque_corpo_a_corpo", "custoPm": 2, "duracao": "cena" }]
+    },
+    {
+      "id": "reluzente",
+      "nome": "Reluzente",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você pode gastar uma ação de movimento e 2 PM para emitir um clarão de luz. Inimigos em alcance curto devem passar num teste de Reflexos (CD Car) ou ficam cegos por uma rodada.",
+      "efeitos": [{ "tipo": "impor_condicao", "condicaoId": "cego", "alcance": "curto", "resistencia": "Reflexos", "atributoCd": "CAR", "custoPm": 2, "duracao": "1 rodada" }]
+    },
+    {
+      "id": "sombrio",
+      "nome": "Sombrio",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Você recebe +5 em Furtividade e ignora a penalidade de armadura do item para testes dessa perícia. Um item sombrio é escuro, fosco e bem lubrificado, para não fazer barulho.",
+      "efeitos": [{ "tipo": "bonus_pericia", "periciaId": "furtividade", "bonus": 5 }, { "tipo": "ignorar_penalidade_armadura", "periciaId": "furtividade" }]
+    },
+    {
+      "id": "zeloso",
+      "nome": "Zeloso",
+      "aplicacoesIds": ["armadura", "escudo"],
+      "descricao": "Uma vez por rodada, se um aliado adjacente for alvo de um ataque, você pode gastar 1 PM para se tornar o alvo do ataque, que então é resolvido normalmente.",
+      "efeitos": [{ "tipo": "redirecionar_ataque", "alvoOriginal": "aliado_adjacente", "frequencia": "uma_vez_por_rodada", "custoPm": 1 }]
+    }
+  ]
+}
