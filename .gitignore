@@ -15,3 +15,4 @@ __pycache__/
 Thumbs.db
 playwright-report/
 test-results/
+backup-jsons/*.html

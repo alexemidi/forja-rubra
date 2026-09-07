@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Catálogo interativo de armas, armaduras, escudos, munições e equipamentos de Tormenta 20.">
+<title>Arsenal de Arton — Catálogo de Itens</title>
+<style>/*__STYLES__*/</style>
+</head>
+<body>
+<header class="site-header">
+  <button class="character-button" id="characterButton" type="button"><span aria-hidden="true">👤</span><span id="characterButtonLabel">Cadastrar personagem</span></button>
+  <div class="header-inner">
+    <h1>Arsenal de Arton</h1>
+    <div class="header-view-actions" aria-label="Navegação e cadastro">
+      <button class="view-button active" id="catalogViewBtn" type="button" aria-pressed="true">Catálogo</button>
+      <button class="view-button" id="backpackViewBtn" type="button" aria-pressed="false"><span aria-hidden="true">🎒</span> Mochila <span class="view-count" id="backpackViewCount">0</span></button>
+      <button class="view-button cart-button" id="cartButton" type="button"><span aria-hidden="true">🛒</span> Carrinho <span class="view-count" id="cartCount">0</span></button>
+      <button class="view-button custom-item-button" id="customItemButton" type="button"><span aria-hidden="true">＋</span> Cadastrar novo item</button>
+    </div>
+  </div>
+</header>
+
+<section class="filters-panel" id="filtersPanel" aria-label="Filtros do catálogo">
+  <div class="filters-inner">
+    <div class="search-row">
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input class="search-input" id="searchInput" type="search" autocomplete="off" placeholder="Buscar por nome, efeito, propriedade ou descrição..." aria-label="Buscar itens">
+      </div>
+      <button class="search-mode-button" id="nameOnlySearchButton" type="button" aria-pressed="false">Somente nome</button>
+      <button class="search-mode-button debug-mode-button" id="debugModeButton" type="button" aria-pressed="false" title="Permitir a correção local dos textos dos itens canônicos">🛠 Modo debug</button>
+      <span class="result-count" id="resultCount"></span>
+      <label class="sort-control"><span class="sort-label">Ordenar</span><select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
+        <option value="name">Nome: A–Z</option>
+        <option value="price-asc">Menor preço</option>
+        <option value="price-desc">Maior preço</option>
+        <option value="space-asc">Menos espaços</option>
+        <option value="type">Tipo e nome</option>
+      </select></label>
+    </div>
+    <div class="filter-row-control">
+      <div class="filter-row" id="typeFilters"><span class="filter-label">Tipo</span></div>
+      <button class="reset-button" id="resetFilters" type="button">Limpar filtros</button>
+    </div>
+    <div class="filter-row" id="specificFilters">
+      <span class="filter-label">Natureza</span>
+    </div>
+    <div class="context-filters" id="contextFilters" hidden>
+      <div class="filter-row" id="categoryFilters"></div>
+    </div>
+    <div class="weapon-filters" id="weaponFilters" hidden>
+      <div class="filter-row" id="combatFilters"></div>
+      <div class="filter-row" id="gripFilters"></div>
+    </div>
+  </div>
+</section>
+
+<main class="catalog-main">
+  <section class="catalog-view" id="catalogView">
+    <div class="catalog-heading">
+      <h2 class="catalog-title" id="catalogTitle">Todos os itens</h2>
+      <span class="catalog-note">Use a busca e os filtros para combinar critérios.</span>
+    </div>
+    <div class="inspiration-bar" id="inspirationBar" hidden>
+      <span><strong>Escolha uma inspiração.</strong> Pesquise ou filtre o catálogo e use o botão azul do item desejado.</span>
+      <button class="secondary-button inspiration-cancel-button" id="cancelInspirationButton" type="button">Cancelar inspiração</button>
+    </div>
+    <div class="items-grid" id="itemsGrid"></div>
+    <div class="empty-state" id="emptyState">
+      <h3>Nenhum item encontrado</h3>
+      <p>Tente remover algum filtro ou buscar por outro termo.</p>
+    </div>
+  </section>
+
+  <section class="backpack-view" id="backpackView" hidden>
+    <div class="backpack-header">
+      <div class="backpack-heading">
+        <h2 class="catalog-title">Itens adquiridos</h2>
+        <p>Controle quantidades, espaços, valores, melhorias e encantos dos itens adquiridos.</p>
+      </div>
+      <div class="backpack-header-actions">
+        <div class="mode-switch" aria-label="Visualização da mochila">
+          <button class="mode-button active" id="backpackListModeBtn" type="button" aria-pressed="true">☷ Lista</button>
+          <button class="mode-button" id="backpackCardsModeBtn" type="button" aria-pressed="false">▦ Cards</button>
+        </div>
+        <button class="danger-button" id="clearBackpack" type="button">Esvaziar mochila</button>
+      </div>
+    </div>
+    <div class="load-panel" id="loadPanel">
+      <label class="strength-field" for="strengthInput"><span>Força do personagem</span><input class="strength-input" id="strengthInput" type="number" step="1" value="0"></label>
+      <div class="load-stats" id="loadStats" aria-live="polite"></div>
+    </div>
+    <div class="backpack-summary" id="backpackSummary"></div>
+    <div class="backpack-list" id="backpackList"></div>
+    <div class="backpack-empty" id="backpackEmpty">
+      <h3>A mochila está vazia</h3>
+      <p>Adquira itens no catálogo para começar.</p>
+      <button class="view-button" id="emptyBackpackCatalogBtn" type="button">Voltar ao catálogo</button>
+    </div>
+  </section>
+</main>
+
+<div class="status-toast" id="statusToast" role="status" aria-live="polite"></div>
+
+<div class="app-modal" id="characterModal" hidden>
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="characterModalTitle">
+    <header class="modal-header"><h2 id="characterModalTitle">Personagens e mochilas</h2><button class="modal-close" type="button" data-close-modal="characterModal" aria-label="Fechar">×</button></header>
+    <div class="modal-body">
+      <p class="modal-note">Cada personagem possui uma mochila independente. Cadastre um novo personagem ou abra um já existente.</p>
+      <form class="character-form" id="characterForm"><input class="modal-input" id="characterNameInput" maxlength="60" autocomplete="off" placeholder="Nome do personagem" aria-label="Nome do personagem"><button class="primary-button" type="submit">Cadastrar</button></form>
+      <div class="character-list" id="characterList"></div>
+    </div>
+  </section>
+</div>
+
+<div class="app-modal" id="cartModal" hidden>
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle">
+    <header class="modal-header"><h2 id="cartModalTitle">Carrinho</h2><button class="modal-close" type="button" data-close-modal="cartModal" aria-label="Fechar">×</button></header>
+    <div class="modal-body">
+      <p class="modal-note" id="cartDecisionNote">Revise os itens da compra e escolha como deseja continuar.</p>
+      <div class="cart-list" id="cartList"></div>
+      <div class="cart-summary" id="cartSummary"></div>
+      <div class="modal-actions cart-decision-actions">
+        <button class="secondary-button" id="clearCart" type="button">Esvaziar</button>
+        <button class="secondary-button" id="cartReturnCatalog" type="button">Voltar ao catálogo</button>
+        <button class="secondary-button" id="cartViewBackpack" type="button">Ver a mochila</button>
+        <button class="primary-button" id="checkoutCart" type="button">Finalizar compra</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="app-modal" id="customItemModal" hidden>
+  <section class="modal-panel custom-item-panel" role="dialog" aria-modal="true" aria-labelledby="customItemModalTitle">
+    <header class="modal-header"><h2 id="customItemModalTitle">Cadastrar novo item</h2><button class="modal-close" type="button" data-close-modal="customItemModal" aria-label="Fechar">×</button></header>
+    <div class="modal-body">
+      <p class="modal-note" id="customItemNote">Preencha as informações conhecidas. O item será salvo neste navegador e receberá a tag “Adicionado”.</p>
+      <form class="custom-item-form" id="customItemForm">
+        <div class="custom-form-grid">
+          <label class="custom-form-field"><span>Nome do item</span><input class="modal-input" id="customItemName" name="name" maxlength="80" required autocomplete="off" placeholder="Ex. Escudo do Vigia"></label>
+          <label class="custom-form-field"><span>Tipo</span><select class="modal-input" id="customItemType" name="type">
+            <option value="item_geral">Item geral</option><option value="arma">Arma</option><option value="municao">Munição</option><option value="armadura">Armadura</option><option value="escudo">Escudo</option><option value="acessorio">Acessório</option>
+          </select></label>
+          <label class="custom-form-field"><span>Categoria</span><select class="modal-input" id="customItemCategory" name="category"></select></label>
+          <label class="custom-form-field"><span>Preço em T$</span><input class="modal-input" name="price" type="number" min="0" step="0.01" value="0" required></label>
+          <label class="custom-form-field"><span>Espaços na mochila</span><input class="modal-input" name="spaces" type="number" min="0" step="0.5" value="1" required></label>
+          <label class="custom-form-field"><span>O que concede</span><input class="modal-input" name="grant" maxlength="500" placeholder="Ex. Fornece +2 em Percepção"></label>
+          <label class="custom-form-field"><span>Habilidade, regras e uso</span><textarea class="modal-input" name="ability" maxlength="1600" placeholder="Custos, ações, condições e limitações do item"></textarea></label>
+          <label class="custom-form-field"><span>Descrição</span><textarea class="modal-input" name="description" maxlength="1200" placeholder="Aparência, origem ou descrição narrativa"></textarea></label>
+        </div>
+        <fieldset class="custom-fieldset" id="customWeaponFields" hidden><legend>Estatísticas da arma ou munição</legend><div class="custom-form-grid">
+          <label class="custom-form-field"><span>Dano</span><input class="modal-input" name="weaponDamage" value="1d6" placeholder="Ex. 1d8"></label>
+          <label class="custom-form-field"><span>Margem de crítico</span><input class="modal-input" name="criticalMargin" type="number" min="1" max="20" value="20"></label>
+          <label class="custom-form-field"><span>Multiplicador</span><input class="modal-input" name="criticalMultiplier" type="number" min="2" max="10" value="2"></label>
+          <label class="custom-form-field"><span>Combate</span><select class="modal-input" name="combat"><option value="corpo_a_corpo">Corpo a corpo</option><option value="a_distancia">À distância</option><option value="corpo_a_corpo_e_distancia">Corpo a corpo e à distância</option></select></label>
+          <label class="custom-form-field"><span>Empunhadura</span><select class="modal-input" name="grip"><option value="leve">Leve</option><option value="uma_mao">Uma mão</option><option value="duas_maos">Duas mãos</option></select></label>
+          <label class="custom-form-field"><span>Alcance</span><select class="modal-input" name="range"><option value="">—</option><option value="curto">Curto</option><option value="medio">Médio</option><option value="3m">3m</option><option value="4_5m">4,5m</option><option value="cone_de_6m">Cone de 6m</option></select></label>
+          <label class="custom-form-field"><span>Tipo de dano</span><select class="modal-input" name="damageType"><option value="corte">Corte</option><option value="impacto">Impacto</option><option value="perfuracao">Perfuração</option><option value="acido">Ácido</option><option value="eletricidade">Eletricidade</option><option value="fogo">Fogo</option><option value="frio">Frio</option><option value="trevas">Trevas</option><option value="luz">Luz</option><option value="essencia">Essência</option><option value="psiquico">Psíquico</option><option value="veneno">Veneno</option></select></label>
+        </div></fieldset>
+        <fieldset class="custom-fieldset" id="customProtectionFields" hidden><legend>Estatísticas da proteção</legend><div class="custom-form-grid">
+          <label class="custom-form-field"><span>Bônus de Defesa</span><input class="modal-input" name="defense" type="number" step="1" value="1"></label>
+          <label class="custom-form-field"><span>Penalidade de armadura</span><input class="modal-input" name="armorPenalty" type="number" max="0" step="1" value="0"></label>
+        </div></fieldset>
+        <div class="custom-form-grid">
+          <label class="custom-checkbox"><input id="customItemSpecific" name="specific" type="checkbox"> É um item mágico específico</label>
+          <label class="custom-form-field custom-magic-tier" id="customMagicTierField" hidden><span>Categoria mágica</span><select class="modal-input" name="magicTier"><option value="menor">Menor</option><option value="medio">Médio</option><option value="maior">Maior</option></select></label>
+        </div>
+        <fieldset class="custom-fieldset custom-magic-composition" id="customMagicComposition" hidden>
+          <legend>Melhorias e encantos fixos</legend>
+          <p class="custom-composition-note">Esta composição fará parte da base do item específico e não poderá ser retirada na mochila.</p>
+          <div class="custom-composition-columns">
+            <section><h3>Melhorias</h3><div class="custom-composition-slots">
+              <label class="custom-form-field"><span>1ª melhoria</span><select class="modal-input" name="fixedImprovement1" data-custom-improvement></select></label>
+              <label class="custom-form-field"><span>2ª melhoria</span><select class="modal-input" name="fixedImprovement2" data-custom-improvement></select></label>
+              <label class="custom-form-field"><span>3ª melhoria</span><select class="modal-input" name="fixedImprovement3" data-custom-improvement></select></label>
+              <label class="custom-form-field"><span>4ª melhoria</span><select class="modal-input" name="fixedImprovement4" data-custom-improvement></select></label>
+              <label class="custom-form-field custom-material-field" id="customFixedMaterialField" hidden><span>Material especial</span><select class="modal-input" name="fixedMaterial"></select></label>
+            </div></section>
+            <section><h3>Encantos</h3><div class="custom-composition-slots">
+              <label class="custom-form-field"><span>1º encanto</span><select class="modal-input" name="fixedEnchantment1" data-custom-enchantment></select></label>
+              <label class="custom-form-field"><span>2º encanto</span><select class="modal-input" name="fixedEnchantment2" data-custom-enchantment></select></label>
+              <label class="custom-form-field"><span>3º encanto</span><select class="modal-input" name="fixedEnchantment3" data-custom-enchantment></select></label>
+            </div></section>
+          </div>
+        </fieldset>
+        <div class="custom-form-actions"><button class="secondary-button" id="searchInspirationButton" type="button">Buscar inspiração</button><button class="secondary-button" type="button" data-close-modal="customItemModal">Cancelar</button><button class="primary-button" id="saveCustomItemButton" type="submit">Cadastrar item</button></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div class="app-modal" id="debugItemModal" hidden>
+  <section class="modal-panel debug-item-panel" role="dialog" aria-modal="true" aria-labelledby="debugItemModalTitle">
+    <header class="modal-header"><h2 id="debugItemModalTitle">Editar item · Modo debug</h2><button class="modal-close" type="button" data-close-modal="debugItemModal" aria-label="Fechar">×</button></header>
+    <div class="modal-body">
+      <p class="modal-note debug-warning">Esta correção fica salva somente neste navegador. O item canônico embutido no projeto não será sobrescrito.</p>
+      <form class="debug-item-form" id="debugItemForm">
+        <label class="custom-form-field"><span>Nome do item</span><input class="modal-input" id="debugItemName" name="name" maxlength="100" required autocomplete="off"></label>
+        <label class="custom-form-field"><span>Benefício / o que concede</span><textarea class="modal-input" id="debugItemGrant" name="grant" maxlength="4000"></textarea></label>
+        <label class="custom-form-field"><span>Habilidade, regras e uso</span><textarea class="modal-input" id="debugItemRules" name="rules" maxlength="8000"></textarea></label>
+        <label class="custom-form-field"><span>Descrição</span><textarea class="modal-input" id="debugItemDescription" name="description" maxlength="8000"></textarea></label>
+        <div class="debug-form-actions"><button class="secondary-button debug-restore-button" id="restoreDebugItemButton" type="button">Restaurar texto canônico</button><button class="secondary-button" type="button" data-close-modal="debugItemModal">Cancelar</button><button class="primary-button" type="submit">Salvar correção</button></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>/*__SCRIPT__*/</script>
+</body>
+</html>

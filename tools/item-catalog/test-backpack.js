@@ -247,6 +247,11 @@ assert(managedCustomCard.includes('data-action="edit-custom-item"') && managedCu
 
 persistBackpack();
 assert(JSON.parse(storage.get(CHARACTER_PROFILES_STORAGE_KEY)).profiles[0].backpack.length === 1, 'A persistência da mochila falhou.');
+assert(itemById.get('racao_de_viagem').preco.valor === 1 && itemById.get('racao_de_viagem').espacos === 0.5, 'Ração de viagem incorreta.');
+assert(itemById.get('animal_nao_combativo').preco.valor === 1 && itemById.get('animal_nao_combativo').espacos === 0, 'Animal não combativo incorreto.');
+assert(normalizeItemOptions('animal_nao_combativo',{customName:'Galinha'}).customName === 'Galinha', 'Nome do animal não foi preservado.');
+const exotic = itemById.get('instrumento_musical_exotico');
+assert(effectiveItemForOptions(exotic,{options:{customName:'Sanfona',customSpaces:2.5}}).espacos === 2.5, 'Espaços do instrumento exótico não foram aplicados.');
 
 console.log(JSON.stringify({
   status: 'ok',

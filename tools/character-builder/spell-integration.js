@@ -99,6 +99,7 @@ function spellPlan(){
     dahllan_amiga_das_plantas:{fixed:['Controlar Plantas']},
     qareen_tatuagem_mistica:{count:1},
     sereia_tritao_cancao_dos_mares:{count:2,allowed:['Amedrontar','Comando','Despedaçar','Enfeitiçar','Hipnotismo','Sono']},
+    satiro_instrumentista_magico:{fixed:['Amedrontar','Enfeitiçar','Hipnotismo','Sono']},
     silfide_magia_das_fadas:{count:2,allowed:['Criar Ilusão','Enfeitiçar','Luz','Sono']},
     suraggel_luz_sagrada:{fixed:['Luz']},suraggel_sombras_profanas:{fixed:['Escuridão']},
     moreau_coruja:{count:1,schools:['adivinhacao']},
@@ -134,6 +135,20 @@ function groupSpellIds(group){return group.fixed.length?group.fixed:[...new Set(
 function knowsCharacterSpell(id){return allLearnedSpellIds().includes(spellKey(id))}
 function allLearnedSpellIds(plan=spellPlan()){
   return [...new Set(plan.groups.filter(group=>!['reference','consult'].includes(group.kind)).flatMap(group=>groupSpellIds(group).filter(id=>group.fixed.length||basicSpellAllowed(spellById(id),group,plan)&&teurgistUnlocked(group,plan))))].filter(id=>spellById(id));
+}
+function hasNonClassSpellSource(plan=spellPlan()){
+  return plan.groups.some(group=>!group.classId&&!['reference','consult'].includes(group.kind)&&(group.count||group.fixed.length));
+}
+function advanceSpellSourceAfterChoice(current,plan=spellPlan()){
+  const saved=spellState();
+  const nextClass=plan.groups.find(group=>group.kind==='class'&&group.count&&groupSpellIds(group).length<group.count);
+  if(nextClass){saved.activeGroup=nextClass.id;saved.view='available';return}
+  const nextGrant=plan.groups.find(group=>group.kind!=='class'&&!['reference','consult'].includes(group.kind)&&group.count&&!group.fixed.length&&groupSpellIds(group).length<group.count);
+  if(nextGrant){saved.activeGroup=nextGrant.id;saved.view='available';toast('Escolha a magia de '+nextGrant.label+'.');return}
+  if(hasNonClassSpellSource(plan)){
+    saved.activeGroup=plan.groups.find(group=>!group.classId&&!['reference','consult'].includes(group.kind))?.id||current.id;
+    saved.view='learned';toast('Você pode lançar as magias exibidas em Aprendidas.');
+  }
 }
 function basicSpellAllowed(spell,group,plan){
   if(!spell||spell.circle>group.maxCircle||group.exactCircle&&spell.circle!==group.exactCircle)return false;
@@ -214,6 +229,7 @@ function chooseCharacterSpell(groupId,id){
     if(saved.selections[groupId].length===group.count){
       const updated=spellPlan(),next=updated.groups.find(other=>other.classId===group.classId&&other.teurgist&&teurgistUnlocked(other,updated)&&groupSpellIds(other).length<other.count);
       if(next)saved.activeGroup=next.id;
+      else advanceSpellSourceAfterChoice(group,updated);
     }
   }
   state.completed=state.completed.filter(step=>step!==7);
@@ -241,7 +257,7 @@ const spellCatalogUI={books:new Set(SPELL_BOOK_IDS),section:'magias',schoolRevie
 function spellCatalogTitle(){
   if(spellCatalogUI.schoolReview)return spellCatalogUI.schoolReview.candidate?'Escolha a magia a substituir':'Consulte as escolas restantes';
   if(spellCatalogUI.section==='condicoes')return 'Condições';
-  if(spellState().view==='learned')return 'Magias do personagem';
+  if(spellState().view==='learned')return hasNonClassSpellSource()?'Você pode lançar:':'Magias do personagem';
   const total=spellPlan().groups.filter(group=>group.kind!=='reference').reduce((sum,group)=>sum+group.count,0);
   return total?'Escolha '+total+(total===1?' magia':' magias'):'Consultar magias';
 }
@@ -290,6 +306,13 @@ function toggleSpellBook(id){if(!SPELL_BOOK_IDS.includes(id))return false;if(spe
 window.addEventListener('message',event=>{
   const frame=document.getElementById('spellGrimoire'),message=event.data;
   if(state.step!==7||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-t20-grimoire-v1')return;
+  if(message.type==='host-scroll'){
+    const rect=frame.getBoundingClientRect(),limit=document.querySelector('.phase-nav')?.getBoundingClientRect().bottom||0,delta=Number(message.delta)||0;
+    if(delta>0&&rect.top>limit+2)window.scrollBy({top:Math.min(delta,rect.top-limit),behavior:'auto'});
+    else if(delta<0&&rect.top<limit-2)window.scrollBy({top:Math.max(delta,rect.top-limit),behavior:'auto'});
+    else frame.contentWindow.postMessage({channel:'forja-t20-grimoire-v1',type:'scroll-items',session:grimoireSession,group:spellState().activeGroup,delta},'*');
+    return;
+  }
   if(message.type==='ready'){grimoireReady=true;document.getElementById('spellFrameStatus').hidden=true;syncGrimoire();return}
   if(message.session!==grimoireSession||message.group!==spellState().activeGroup)return;
   if(handleSchoolBridgeMessage(message)){syncGrimoire();return}

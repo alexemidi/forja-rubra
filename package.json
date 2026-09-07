@@ -1,0 +1,13 @@
+{
+  "name": "forja-t20",
+  "private": true,
+  "scripts": {
+    "build": "node tools/build.js",
+    "test": "node tools/item-catalog/test-backpack.js && node tools/character-builder/bridge-test.js && node tools/character-builder/smoke-test.js && node tools/character-builder/inventory-dom-test.js",
+    "verify": "node tools/verify-build.js && npm test"
+  },
+  "devDependencies": {
+    "acorn": "^8.18.0",
+    "jsdom": "^30.0.1"
+  }
+}

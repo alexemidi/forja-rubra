@@ -1,8 +1,9 @@
-// Only the embedded copy uses this isolated store, never the standalone Arsenal.
-const arsenalInitialState=/*__ARSENAL_STATE__*/;
+let arsenalInitialState=/*__ARSENAL_STATE__*/;
 const arsenalStorageValues={...arsenalInitialState.storage};
+let arsenalTransaction=false;
+function postArsenal(type,details={}){window.parent.postMessage({channel:'forja-arsenal-v1',session:arsenalInitialState.session,type,...details},'*')}
 const forjaArsenalStorage={
   getItem(key){return arsenalStorageValues[key]??null},
-  setItem(key,value){arsenalStorageValues[key]=String(value);window.parent.postMessage({channel:'forja-arsenal-v1',session:arsenalInitialState.session,type:'save',storage:{...arsenalStorageValues}},'*')},
-  removeItem(key){delete arsenalStorageValues[key];window.parent.postMessage({channel:'forja-arsenal-v1',session:arsenalInitialState.session,type:'save',storage:{...arsenalStorageValues}},'*')}
+  setItem(key,value){arsenalStorageValues[key]=String(value);if(!arsenalTransaction)postArsenal('save',{storage:{...arsenalStorageValues}})},
+  removeItem(key){delete arsenalStorageValues[key];if(!arsenalTransaction)postArsenal('save',{storage:{...arsenalStorageValues}})}
 };

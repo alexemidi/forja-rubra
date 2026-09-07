@@ -1,0 +1,11 @@
+const fs=require('fs');
+const path=require('path');
+const crypto=require('crypto');
+const {spawnSync}=require('child_process');
+const root=path.resolve(__dirname,'..');
+const files=['Arsenal de Arton.html','Criador de Ficha T20.html'];
+const build=()=>{const result=spawnSync(process.execPath,[path.join(__dirname,'build.js')],{cwd:root,encoding:'utf8'});if(result.status)throw new Error(result.stderr||result.stdout)};
+const hashes=()=>Object.fromEntries(files.map(file=>[file,crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex')]));
+build();const first=hashes();build();const second=hashes();
+if(JSON.stringify(first)!==JSON.stringify(second))throw new Error('A geração não é determinística.');
+console.log(JSON.stringify({status:'ok',hashes:first}));

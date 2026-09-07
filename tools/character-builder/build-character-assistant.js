@@ -10,57 +10,6 @@ const classes = readJson('backup-jsons/classes_full.json');
 const classReference = readJson('backup-jsons/referencia_poderes_classe.json');
 const workbookClassCatalog = readJson('tools/vba-import-raw-powers/classes_txt_import.json');
 const normalizedId = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-const classIdByName = new Map(classes.map(characterClass => [normalizedId(characterClass.nome), characterClass.id]));
-
-function looksLikePowerTitle(value) {
-  const line = String(value || '').trim();
-  if (!line || line.length > 72 || /[.!?,:;()[\]{}+=[\]]/.test(line) || /^Tabela\b|^Nível\b|^Habilidades?\b|^Pré-requis/i.test(line)) return false;
-  const connectors = new Set(['a', 'as', 'com', 'da', 'das', 'de', 'do', 'dos', 'e', 'em', 'na', 'nas', 'no', 'nos', 'o', 'os', 'para', 'por']);
-  return line.split(/\s+/).every(word => connectors.has(word.toLowerCase()) || /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9]/.test(word));
-}
-
-function extractSupplementalClassPowers() {
-  const lines = fs.readFileSync(path.join(root, 'classes.txt'), 'utf8').split(/\r?\n/);
-  const sections = [];
-  lines.forEach((line, index) => {
-    const match = line.trim().match(/^Tabela\s+[^:]+:\s+[OA]\s+(.+)$/i);
-    if (!match) return;
-    const classId = classIdByName.get(normalizedId(match[1]));
-    if (classId) sections.push({ classId, start: index, end: lines.length });
-  });
-  sections.forEach((section, index) => section.end = sections[index + 1]?.start || lines.length);
-
-  const extracted = [];
-  for (const section of sections) {
-    for (let index = section.start; index < section.end; index++) {
-      const marker = lines[index].search(/Pré-requisitos?\s*:/i);
-      if (marker < 0) continue;
-      let requirementSource = lines[index].slice(marker);
-      let lookAhead = index + 1;
-      while (!requirementSource.includes('.') && lookAhead < Math.min(section.end, index + 5)) requirementSource += ' ' + lines[lookAhead++].trim();
-      const requirement = (requirementSource.match(/Pré-requisitos?\s*:\s*([^.]*)/i) || [])[1]?.replace(/\s+/g, ' ').trim();
-      if (!requirement) continue;
-
-      let name = '';
-      for (let cursor = index; cursor >= Math.max(section.start, index - 28); cursor--) {
-        const line = lines[cursor].trim();
-        const bullet = line.match(/^•\s*([^.]*)\./);
-        if (bullet) { name = bullet[1].trim(); break; }
-        if (looksLikePowerTitle(line)) { name = line; break; }
-      }
-      if (!name) name = 'Poder com requisito ' + requirement;
-      extracted.push({
-        id: section.classId + '_texto_' + normalizedId(name),
-        classeIds: [section.classId],
-        livroOrigemId: classes.find(item => item.id === section.classId)?.livroOrigemId || '',
-        nome: name,
-        descricao: 'Pré-requisito consultado no texto local da classe.',
-        preRequisitosTexto: requirement
-      });
-    }
-  }
-  return extracted;
-}
 
 const structuredClassPowers = (classPowers.poderesClasseCatalogoGlobal || []).map(({ id, classeIds, livroOrigemId, nome, descricao, preRequisitosTexto }) => ({
   id, classeIds, livroOrigemId, nome, descricao, preRequisitosTexto
@@ -93,8 +42,7 @@ const arsenalSource = fs.readFileSync(path.join(root,'Arsenal de Arton.html'),'u
   .replace('<header class="site-header">','<header class="site-header" hidden aria-hidden="true" style="display:none!important">');
 const embeddedArsenalBase = arsenalSource.replace(/\blocalStorage\b/g,'forjaArsenalStorage').replace('<script>', () => '<script>\n'+fs.readFileSync(path.join(__dirname,'arsenal-storage-bridge.js'),'utf8')+'\n</script>\n<script>');
 const data = {
-  arsenalHtml: embeddedArsenalBase.replace('</body>', () => '<script>\n'+fs.readFileSync(path.join(__dirname,'arsenal-view-bridge.js'),'utf8')+'\n</script>\n</body>'),
-  arsenalShopHtml: embeddedArsenalBase.replace('</body>', () => '<script>\n'+fs.readFileSync(path.join(__dirname,'arsenal-shop-bridge.js'),'utf8')+'\n</script>\n</body>'),
+  arsenalHtml: embeddedArsenalBase.replace('</head>', () => '<style>'+fs.readFileSync(path.join(__dirname,'arsenal-embedded.css'),'utf8')+'</style></head>').replace('</body>', () => '<script>\n'+fs.readFileSync(path.join(__dirname,'arsenal-bridge.js'),'utf8')+'\n</script>\n</body>'),
   spells: spellCatalog,
   grimoireHtml,
   races: readJson('backup-jsons/races_update.json'),

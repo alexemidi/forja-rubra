@@ -3410,6 +3410,17 @@ const ADDITIONAL_STANDARD_ITEMS = [{
   equipamento: { equipavel: true, slotsPermitidos: ['vestuario'], ocupaMao: false, itemVestido: true },
   textos: { habilidade: 'Possui valor aparente de T$ 100, mas não tem valor real.', variavel: '', descricao: 'Uma joia falsificada que faz parte dos pertences de um charlatão.' },
   efeitos: []
+}, {
+  id: 'animal_nao_combativo', nome: 'Animal Não Combativo', tipo: 'item_geral', categoriaId: 'animal',
+  livroOrigemId: 'basico', livrosOrigemIds: ['basico'], origem: 'Fazendeiro',
+  preco: { valor: 1, moeda: 'T$' }, espacos: 0,
+  equipamento: { equipavel: false, slotsPermitidos: [], ocupaMao: false, itemVestido: false },
+  textos: { habilidade: '', variavel: '', descricao: 'Um animal doméstico não treinado para combate, como uma galinha, um porco ou uma ovelha.' }, efeitos: []
+}, {
+  id: 'instrumento_musical_exotico', nome: 'Instrumento Musical Exótico', tipo: 'item_geral', categoriaId: 'instrumento',
+  livroOrigemId: 'basico', livrosOrigemIds: ['basico'], preco: { valor: 35, moeda: 'T$' }, espacos: 0,
+  equipamento: { equipavel: true, slotsPermitidos: ['mao_direita', 'mao_esquerda'], ocupaMao: true, itemVestido: false },
+  textos: { habilidade: 'Os espaços ocupados são definidos pelo mestre.', variavel: '', descricao: 'Um instrumento musical incomum, de formato ou origem exótica.' }, efeitos: []
 }];
 
 const STANDARD_DESCRIPTION_OVERRIDES = {
@@ -3422,6 +3433,11 @@ const STANDARD_DESCRIPTION_OVERRIDES = {
 };
 
 ITEMS.forEach(function(item) {
+  if (item.id === 'racao_de_viagem') {
+    item.preco = { valor: 1, moeda: 'T$' };
+    item.espacos = 0.5;
+    item.textos = Object.assign({}, item.textos || {}, { descricao: 'Alimento seco e conservado, suficiente para sustentar uma pessoa durante um dia de viagem.' });
+  }
   if (!STANDARD_DESCRIPTION_OVERRIDES[item.id]) return;
   item.textos = Object.assign({}, item.textos || {}, { descricao: STANDARD_DESCRIPTION_OVERRIDES[item.id] });
 });
@@ -3485,7 +3501,6 @@ const MAGIC_RULES = ENCHANTMENT_DATA.regras || {};
 const ENCHANTMENT_SURCHARGES = MAGIC_RULES.precosAdicionais || [0, 18000, 36000, 72000];
 const ENCHANTMENT_CRAFT_BONUSES = MAGIC_RULES.modificadoresCdFabricacao || [0, 10, 15, 20];
 const MAX_ENCHANTMENTS = Number(MAGIC_RULES.maximoEncantos) || 3;
-
 function normalizeText(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -3541,6 +3556,15 @@ const ITEM_CHOICE_DEFINITIONS = {
   instrumento_musical: {
     fields: [{ id: 'customName', label: 'Nome do instrumento', type: 'text', placeholder: 'Ex. Bandolim, flauta ou lira' }]
   },
+  instrumento_musical_exotico: {
+    fields: [
+      { id: 'customName', label: 'Nome do instrumento', type: 'text', placeholder: 'Ex. Sanfona' },
+      { id: 'customSpaces', label: 'Espaços definidos pelo mestre', type: 'number', placeholder: 'Ex. 2' }
+    ]
+  },
+  animal_nao_combativo: {
+    fields: [{ id: 'customName', label: 'Nome do animal', type: 'text', placeholder: 'Ex. Galinha, porco ou ovelha' }]
+  },
   joia_de_familia: {
     fields: [{ id: 'customName', label: 'Nome da joia', type: 'text', placeholder: 'Ex. Colar, pingente, bracelete ou anel' }]
   }
@@ -3554,6 +3578,8 @@ function normalizeItemOptions(itemId, raw) {
     if (field.type === 'select') {
       const allowed = field.options.map(function(option) { return option[0]; });
       result[field.id] = allowed.includes(source[field.id]) ? source[field.id] : allowed[0];
+    } else if (field.type === 'number') {
+      result[field.id] = source[field.id] === '' || source[field.id] == null ? '' : Math.max(0, Number(source[field.id]) || 0);
     } else {
       result[field.id] = String(source[field.id] || '').trim().slice(0, 80);
     }
@@ -3710,8 +3736,10 @@ function itemChoiceLabel(itemId, fieldId, value) {
 }
 
 function effectiveItemForOptions(item, holder) {
-  if (!item || item.id !== 'ferramenta_pesada_lanca') return item;
+  if (!item) return item;
   const options = normalizeItemOptions(item.id, holder && holder.options);
+  if (item.id === 'instrumento_musical_exotico') return Object.assign({}, item, { espacos: options.customSpaces === '' ? 0 : Number(options.customSpaces) });
+  if (item.id !== 'ferramenta_pesada_lanca') return item;
   const base = itemById.get(options.weaponModel === 'maca' ? 'maca' : 'lanca');
   if (!base) return item;
   return Object.assign({}, item, {
@@ -3752,12 +3780,17 @@ function normalizeStoredEnchantment(value) {
 function normalizeBackpackEntries(parsed) {
   if (!Array.isArray(parsed)) return [];
   return parsed.filter(function(entry) {
-      return entry && itemById.has(entry.itemId);
+      return entry && entry.itemId;
     }).map(function(entry) {
+      if (!itemById.has(entry.itemId)) {
+        itemById.set(entry.itemId, prepareCatalogItem(entry.itemSnapshot || {id:entry.itemId,nome:entry.displayName || entry.itemId,tipo:'item_geral',categoriaId:'equipamento_aventura',espacos:0,preco:{valor:0,moeda:'T$'},descricao:'Referência não encontrada no catálogo. Os dados salvos foram preservados; confira o preço e os espaços antes de usar os totais.'}));
+        return {...entry,instanceId:entry.instanceId || createInstanceId(),quantity:Math.max(1,Number(entry.quantity)||1),improvements:entry.improvements||[],enchantments:entry.enchantments||[]};
+      }
       const item = itemById.get(entry.itemId);
       const quantity = Math.max(1, Math.min(9999, Math.floor(Number(entry.quantity) || 1)));
       const packageSize = ammoPackageSize(item);
       return {
+        ...entry,
         instanceId: String(entry.instanceId || createInstanceId()),
         itemId: entry.itemId,
         quantity: quantity,
@@ -3789,6 +3822,7 @@ function loadCharacterProfiles() {
       const parsed = JSON.parse(raw);
       const profiles = (Array.isArray(parsed.profiles) ? parsed.profiles : []).map(function(profile) {
         return {
+          ...profile,
           id: String(profile.id || ('personagem-' + createInstanceId())),
           name: String(profile.name || 'Personagem').trim().slice(0, 60) || 'Personagem',
           strength: normalizeStrength(profile.strength),
@@ -3849,7 +3883,7 @@ let debugEditingItemId = null;
 const state = {
   books: new Set(allBooks),
   type: 'todos',
-  specific: 'todos',
+  specific: 'convencional',
   category: 'todos',
   combat: 'todos',
   grip: 'todos',
@@ -4625,6 +4659,10 @@ function persistCharacterProfiles() {
 function persistBackpack() {
   const active = activeCharacterProfile();
   if (!active) return;
+  backpackItems.forEach(entry => {
+    const item = itemById.get(entry.itemId);
+    if (item) { entry.displayName = configuredItemName(entry, item); if (!canonicalItemById.has(item.id)) entry.itemSnapshot = item; }
+  });
   active.backpack = backpackItems;
   persistCharacterProfiles();
 }
@@ -4741,7 +4779,7 @@ function itemChoiceFieldsHtml(item, rawOptions) {
       }).join('');
       return '<div class="item-choice-field"><label for="' + escapeHtml(id) + '">' + escapeHtml(field.label) + '</label><select id="' + escapeHtml(id) + '" data-item-option="' + escapeHtml(field.id) + '">' + choices + '</select></div>';
     }
-    return '<div class="item-choice-field"><label for="' + escapeHtml(id) + '">' + escapeHtml(field.label) + '</label><input id="' + escapeHtml(id) + '" data-item-option="' + escapeHtml(field.id) + '" maxlength="80" autocomplete="off" value="' + escapeHtml(options[field.id]) + '" placeholder="' + escapeHtml(field.placeholder || '') + '"></div>';
+    return '<div class="item-choice-field"><label for="' + escapeHtml(id) + '">' + escapeHtml(field.label) + '</label><input id="' + escapeHtml(id) + '" data-item-option="' + escapeHtml(field.id) + '" type="' + (field.type === 'number' ? 'number' : 'text') + '" min="0" step="0.5" maxlength="80" autocomplete="off" value="' + escapeHtml(options[field.id]) + '" placeholder="' + escapeHtml(field.placeholder || '') + '"></div>';
   }).join('');
   return '<div class="item-choice-panel"><span class="item-choice-title">Escolhas deste item</span><div class="item-choice-grid">' + fields + '</div></div>';
 }
@@ -4782,7 +4820,17 @@ function configuredItemName(instance, item) {
   return baseName + (qualifiers.length ? ' ' + qualifiers.join(' ') : '');
 }
 
+const catalogCardCache = new WeakMap();
 function itemCard(originalItem) {
+  const key = JSON.stringify([catalogOptionsForItem(originalItem),countBackpackItem(originalItem.id),state.debugMode,state.inspirationMode]);
+  const cached = catalogCardCache.get(originalItem);
+  if (cached && cached.key === key) return cached.html;
+  const html = buildItemCard(originalItem);
+  catalogCardCache.set(originalItem, {key,html});
+  return html;
+}
+
+function buildItemCard(originalItem) {
   const options = catalogOptionsForItem(originalItem);
   const item = effectiveItemForOptions(originalItem, { options: options });
   const typeMeta = TYPE_META[item.tipo] || { label: humanize(item.tipo), icon: '◆' };
@@ -5318,14 +5366,14 @@ function refreshInventoryUI() {
   else syncCatalogAcquiredUI();
 }
 
-function addPackagesToBackpack(itemId, packageQuantity, rawOptions) {
+function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition) {
   const item = itemById.get(itemId);
   if (!item) return;
   const amount = Math.max(1, Math.floor(Number(packageQuantity) || 1));
   const options = normalizeItemOptions(itemId, rawOptions);
   const optionKey = itemOptionsKey(itemId, options);
   let instance = backpackItems.find(function(entry) {
-    return entry.itemId === itemId && itemOptionsKey(itemId, entry.options) === optionKey && entry.improvements.length === 0 && entry.enchantments.length === 0 && entry.quantity < 9999;
+    return entry.itemId === itemId && JSON.stringify(entry.acquisition || {source: 'unknown'}) === JSON.stringify(acquisition || {source: 'unknown'}) && itemOptionsKey(itemId, entry.options) === optionKey && entry.improvements.length === 0 && entry.enchantments.length === 0 && entry.quantity < 9999;
   });
   const packageSize = ammoPackageSize(item);
   if (instance) {
@@ -5336,6 +5384,8 @@ function addPackagesToBackpack(itemId, packageQuantity, rawOptions) {
     const quantity = Math.min(9999, amount);
     backpackItems.push({
       instanceId: createInstanceId(), itemId: itemId, quantity: quantity,
+      acquisition: acquisition || {source: 'unknown'},
+      displayName: item.nome,
       options: options,
       ammoRemaining: packageSize ? quantity * packageSize : undefined,
       improvements: [], enchantments: []
@@ -5379,7 +5429,12 @@ function setView(view) {
   else applyFilters();
 }
 
+let catalogRevision = 0;
+let cachedFilterKey = '';
+let cachedFilterResults = [];
 function filteredItems() {
+  const key = JSON.stringify([catalogRevision,preparedItems.length,state.type,state.specific,state.category,state.combat,state.grip,state.search,state.searchNameOnly,state.sort]);
+  if (key === cachedFilterKey) return cachedFilterResults;
   const search = normalizeText(state.search);
   const results = preparedItems.filter(function(item) {
     const typeOk = state.type === 'todos' || item.tipo === state.type;
@@ -5401,6 +5456,8 @@ function filteredItems() {
     if (state.sort === 'type') return (TYPE_META[a.tipo] && TYPE_META[a.tipo].label || a.tipo).localeCompare(TYPE_META[b.tipo] && TYPE_META[b.tipo].label || b.tipo, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR');
     return a.nome.localeCompare(b.nome, 'pt-BR');
   });
+  cachedFilterKey = key;
+  cachedFilterResults = results;
   return results;
 }
 
@@ -5411,27 +5468,45 @@ function updateTitle() {
 }
 
 function checkCatalogOverflow() {
-  itemsGrid.querySelectorAll('.item-card').forEach(function(card) {
-    if (card.classList.contains('expanded')) return;
-    const button = card.querySelector('.expand-item-button');
-    card.classList.remove('is-truncated');
-    card.style.maxHeight = 'none';
-    const fullHeight = card.scrollHeight;
+  const cards = Array.from(itemsGrid.querySelectorAll('.item-card')).filter(card => !card.classList.contains('expanded') && !card.closest('.catalog-list-entry'));
+  cards.forEach(card => { card.classList.remove('is-truncated'); card.style.maxHeight = 'none'; });
+  const heights = cards.map(card => card.scrollHeight);
+  cards.forEach((card, index) => {
     card.style.maxHeight = '';
-    const isTruncated = fullHeight > 450;
-    card.classList.toggle('is-truncated', isTruncated);
-    if (button) button.style.display = isTruncated ? 'block' : 'none';
+    card.classList.toggle('is-truncated', heights[index] > 450);
+    const button = card.querySelector('.expand-item-button');
+    if (button) button.style.display = heights[index] > 450 ? 'block' : 'none';
   });
 }
 
-function applyFilters() {
+let catalogPageSize = 48;
+let catalogQueryKey = '';
+let catalogMarkup = '';
+let searchTimer = 0;
+function applyFilters(loadMore = false) {
+  window.clearTimeout(searchTimer);
   syncFilterUI();
   updateTitle();
   const results = filteredItems();
-  itemsGrid.innerHTML = results.map(itemCard).join('');
+  const key = JSON.stringify([state.type,state.specific,state.category,state.combat,state.grip,state.search,state.searchNameOnly,state.sort,state.debugMode,state.inspirationMode]);
+  if (key !== catalogQueryKey) catalogPageSize = 48;
+  if (loadMore === true) catalogPageSize += 48;
+  catalogQueryKey = key;
+  const markup = results.slice(0, catalogPageSize).map(itemCard).join('') + (results.length > catalogPageSize ? '<button type="button" class="view-button" data-load-more style="grid-column:1/-1;justify-self:center">Carregar mais</button>' : '');
+  if (markup !== catalogMarkup || itemsGrid.querySelector('.catalog-list-entry')) {
+    const expanded = new Set(Array.from(itemsGrid.querySelectorAll('.item-card.expanded')).map(card => card.dataset.itemId));
+    if (loadMore === true && itemsGrid.insertAdjacentHTML) {
+      itemsGrid.querySelector('[data-load-more]')?.remove();
+      itemsGrid.insertAdjacentHTML('beforeend', results.slice(catalogPageSize - 48, catalogPageSize).map(itemCard).join('') + (results.length > catalogPageSize ? '<button type="button" class="view-button" data-load-more style="grid-column:1/-1;justify-self:center">Carregar mais</button>' : ''));
+    } else itemsGrid.innerHTML = markup;
+    itemsGrid.querySelectorAll('.item-card').forEach(card => {
+      if (expanded.has(card.dataset.itemId)) {card.classList.add('expanded');const button=card.querySelector('.expand-item-button');if(button){button.textContent='Recolher';button.setAttribute('aria-expanded','true')}}
+    });
+    catalogMarkup = markup;
+    checkCatalogOverflow();
+  }
   resultCount.textContent = results.length + (results.length === 1 ? ' item' : ' itens');
   emptyState.classList.toggle('visible', results.length === 0);
-  checkCatalogOverflow();
 }
 
 function getBackpackInstance(instanceId) {
@@ -5864,6 +5939,7 @@ function registerCustomItem(form) {
   }
   persistCustomItems();
   itemById.set(prepared.id, prepared);
+  catalogRevision++;
   state.type = 'todos';
   state.specific = 'todos';
   state.category = 'todos';
@@ -5900,6 +5976,7 @@ function deleteCustomItem(itemId) {
   if (customIndex >= 0) customItems.splice(customIndex, 1);
   const preparedIndex = preparedItems.findIndex(function(candidate) { return candidate.id === itemId; });
   if (preparedIndex >= 0) preparedItems.splice(preparedIndex, 1);
+  catalogRevision++;
   itemById.delete(itemId);
   catalogOptionDrafts.delete(itemId);
   cartItems = cartItems.filter(function(entry) { return entry.itemId !== itemId; });
@@ -5936,6 +6013,7 @@ function rebuildCanonicalPreparedItem(itemId) {
   if (index >= 0) preparedItems[index] = prepared;
   else preparedItems.push(prepared);
   itemById.set(itemId, prepared);
+  catalogRevision++;
   return prepared;
 }
 
@@ -6313,7 +6391,12 @@ gripFilters.addEventListener('click', function(event) {
 
 searchInput.addEventListener('input', function(event) {
   state.search = event.target.value;
-  applyFilters();
+  window.clearTimeout(searchTimer);
+  searchTimer = window.setTimeout(function() { applyFilters(); }, 120);
+});
+
+itemsGrid.addEventListener('click', function(event) {
+  if (event.target.closest('[data-load-more]')) applyFilters(true);
 });
 
 nameOnlySearchButton.addEventListener('click', function() {
@@ -6357,7 +6440,7 @@ syncInspirationModeUI();
 persistCharacterProfiles();
 syncCharacterUI();
 syncCartUI();
-setView('catalog');
+if (typeof arsenalInitialState === 'undefined') setView('catalog');
 </script>
 </body>
 </html>

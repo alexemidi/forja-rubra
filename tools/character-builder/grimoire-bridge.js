@@ -78,6 +78,10 @@
     dialog.hidden=false;dialog.querySelector('button')?.focus();
   }
   installCompactFilters();
+  document.addEventListener('wheel',event=>{
+    if(event.deltaY>0&&window.scrollY<2){event.preventDefault();window.parent.postMessage({channel,type:'host-scroll',session:context?.session,group:context?.group,delta:event.deltaY},'*')}
+    else if(event.deltaY<0&&window.scrollY<2)window.parent.postMessage({channel,type:'host-scroll',session:context?.session,group:context?.group,delta:event.deltaY},'*');
+  },{passive:false,capture:true});
   learnedSpells = new Set();
   selectedSchools = new Set();
   const baseApply = apply;
@@ -191,7 +195,9 @@
     }
   },true);
   window.addEventListener('message', event => {
-    if (event.source !== window.parent || event.data?.channel !== channel || event.data.type !== 'context') return;
+    if (event.source !== window.parent || event.data?.channel !== channel) return;
+    if(event.data.type==='scroll-items'){window.scrollBy({top:Number(event.data.delta)||0,behavior:'auto'});return}
+    if(event.data.type!=='context')return;
     const next = event.data;
     if (![next.visible, next.chosen, next.selectable, next.learned].every(Array.isArray)) return;
     const schoolsChanged=!context||context.group!==next.group||JSON.stringify(context.schools)!==JSON.stringify(next.schools);
