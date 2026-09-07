@@ -557,7 +557,7 @@ bridgeListener({source:initialChoiceWindow,data:{channel:'forja-arsenal-v1',sess
 assert.strictEqual(run('state.step'),8);assert.strictEqual(run('state.arsenal.complete'),true);
 assert(run("renderArsenal().includes('Itens adquiridos')"));assert.strictEqual(nodes.get('nextButton').textContent,'Continuar →');
 assert(run('arsenalInitialData().choice===null'),'Uma fase concluída precisa abrir a mochila, não reconstruir o catálogo de escolha.');
-assert(run("DATA.arsenalHtml.includes('🛒 Comprar itens')"));
+assert(run("DATA.arsenalHtml.includes('🏪 Comprar itens')"));
 assert(run("DATA.arsenalHtml.includes('body.initial-equipment-review .load-panel{grid-template-columns:1fr!important}')"));
 assert(!run("DATA.arsenalHtml.includes('initial-equipment-review .backpack-header-actions,')"),'Lista/Cards e Esvaziar mochila devem continuar visíveis.');
 run('renderStage()');const reviewWindow={postMessage(){}};nodes.get('characterArsenal').contentWindow=reviewWindow;const reviewSession=run('arsenalSession');

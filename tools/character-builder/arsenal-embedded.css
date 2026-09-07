@@ -16,10 +16,8 @@ body.initial-equipment .filters-inner{padding:0!important}
 body.initial-equipment .search-row{margin:0 0 8px!important}
 .initial-choice-kind{display:inline-flex;align-items:center;min-height:31px;margin-right:7px;padding:5px 12px;border:1px solid #d5aa4c;border-radius:18px;color:#efd184;background:#d5aa4c14;font-size:12px;font-weight:700}
 .initial-advanced-filter{min-height:31px;padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-muted);font-weight:700;cursor:pointer}
-.shop-filter-control{display:flex;align-items:center;gap:8px;margin-top:8px}
-.shop-filter-control>span{min-width:0;padding:5px 10px;border:1px solid var(--gold);border-radius:18px;color:#efd184;background:var(--gold-soft);font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shop-filter-control>button{min-height:31px;padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-muted);font-weight:700;cursor:pointer}
-.shop-filter-control[hidden]{display:none}
+.shop-filter-button{height:38px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-filter-button[hidden],.initial-advanced-filter[hidden]{display:none!important}
 body.embedded-shop:not(.shop-filters-open) #typeFilters,body.embedded-shop:not(.shop-filters-open) #specificFilters,body.embedded-shop:not(.shop-filters-open) #contextFilters,body.embedded-shop:not(.shop-filters-open) #weaponFilters,body.embedded-shop:not(.shop-filters-open) #resetFilters{display:none!important}
 body.initial-equipment #weaponFilters{display:none!important}
 body.initial-equipment.initial-filters-open #weaponFilters{display:block!important;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}

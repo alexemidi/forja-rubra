@@ -165,7 +165,8 @@ window.addEventListener('message',event=>{
     else sendArsenal('scroll-items',{delta});
     return;
   }
-  if(message.type==='redo-initial'){
+  if(message.type==='redo-initial-request'&&!window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))return;
+  if(message.type==='redo-initial-request'||message.type==='redo-initial'){
     const saved=arsenalState(),profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{"profiles":[]}');
     for(const profile of profiles.profiles||[])profile.backpack=(profile.backpack||[]).filter(item=>item.acquisition?.source!=='initial');
     saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles);

@@ -12,12 +12,12 @@ kind.className='initial-choice-kind';
 document.querySelector('.filters-inner').insertBefore(kind,weaponFilters);
 const advancedFilters=document.createElement('button');
 advancedFilters.type='button';advancedFilters.className='initial-advanced-filter';advancedFilters.textContent='⚙ Filtros avançados';advancedFilters.setAttribute('aria-expanded','false');kind.after(advancedFilters);
-const shopFilterControl=document.createElement('div');
-shopFilterControl.className='shop-filter-control';shopFilterControl.innerHTML='<span data-shop-filter-summary>Convencionais</span><button type="button" data-shop-filters aria-expanded="false">⚙ Filtros avançados</button>';
-document.querySelector('.filters-inner').insertBefore(shopFilterControl,document.querySelector('.search-row').nextSibling);
+const shopFilterButton=document.createElement('button');
+shopFilterButton.type='button';shopFilterButton.className='search-mode-button shop-filter-button';shopFilterButton.dataset.shopFilters='';shopFilterButton.setAttribute('aria-expanded','false');shopFilterButton.textContent='⚙ Filtros avançados · Convencionais';
+document.querySelector('.search-row').insertBefore(shopFilterButton,document.querySelector('.sort-control'));
 const shopActions=document.createElement('nav');
 shopActions.className='embedded-shop-actions';
-shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🛒 Comprar itens</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button><button type="button" data-redo-initial>Refazer escolhas</button>';
+shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button><button type="button" data-redo-initial>Refazer escolhas</button>';
 document.body.prepend(shopActions);
 function syncEmbeddedShopActions(){
   shopActions.querySelectorAll('[data-shop-view]').forEach(button=>button.classList.toggle('active',button.dataset.shopView===(arsenalInitialState.mode==='backpack'?'backpack':state.view)));
@@ -48,7 +48,9 @@ function syncShopFilterSummary(){
   if(state.category!=='todos')values.push(CATEGORY_LABELS[state.category]||humanize(state.category));
   if(state.combat!=='todos')values.push(COMBAT_LABELS[state.combat]||humanize(state.combat));
   if(state.grip!=='todos')values.push(GRIP_LABELS[state.grip]||humanize(state.grip));
-  shopFilterControl.querySelector('[data-shop-filter-summary]').textContent=values.join(' · ');
+  const summary=values.join(' · '),open=document.body.classList.contains('shop-filters-open');
+  shopFilterButton.textContent=(open?'Fechar filtros':'⚙ Filtros avançados')+' · '+summary;
+  shopFilterButton.title='Filtros aplicados: '+summary;
 }
 function findStartingItem(raw){const key=starterKey(raw);return preparedItems.find(item=>!isSpecificMagicItem(item)&&!isLiturgicalItem(item)&&starterKey(item.nome)===key)}
 function availableInitialItems(){
@@ -94,8 +96,8 @@ function applyArsenalContext(context){
   document.body.classList.toggle('initial-equipment',mode==='initial');
   document.body.classList.toggle('initial-equipment-review',mode==='backpack');
   document.body.classList.toggle('embedded-shop',mode==='shop');
-  shopActions.hidden=mode==='initial';kind.hidden=mode!=='initial';
-  shopFilterControl.hidden=mode!=='shop';
+  shopActions.hidden=mode==='initial';kind.hidden=mode!=='initial';advancedFilters.hidden=mode!=='initial'||initialChoice?.type!=='arma';
+  shopFilterButton.hidden=mode!=='shop';
   shopActions.querySelector('[data-redo-initial]').hidden=mode!=='backpack';
   state.backpackMode=state.backpackMode||'list';
   if(mode==='initial'){
@@ -134,7 +136,7 @@ function proposeOperation(type,message={}){
 }
 shopActions.addEventListener('click',event=>{
   if(event.target.closest('[data-shop-cart]'))return openCartDecision(false);
-  if(event.target.closest('[data-redo-initial]')){if(window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))postArsenal('redo-initial');return}
+  if(event.target.closest('[data-redo-initial]')){postArsenal('redo-initial-request');return}
   const view=event.target.closest('[data-shop-view]');if(!view)return;
   if(view.dataset.shopView==='backpack'){if(cartItems.length)openCartDecision(true);else postArsenal('close-shop')}
   else postArsenal('open-shop');
@@ -142,9 +144,8 @@ shopActions.addEventListener('click',event=>{
 advancedFilters.addEventListener('click',()=>{
   const open=document.body.classList.toggle('initial-filters-open');advancedFilters.setAttribute('aria-expanded',String(open));advancedFilters.textContent=open?'Fechar filtros':'⚙ Filtros avançados';
 });
-shopFilterControl.addEventListener('click',event=>{
-  const button=event.target.closest('[data-shop-filters]');if(!button)return;
-  const open=document.body.classList.toggle('shop-filters-open');button.setAttribute('aria-expanded',String(open));button.textContent=open?'Fechar filtros':'⚙ Filtros avançados';
+shopFilterButton.addEventListener('click',()=>{
+  const open=document.body.classList.toggle('shop-filters-open');shopFilterButton.setAttribute('aria-expanded',String(open));syncShopFilterSummary();
 });
 shopActions.addEventListener('input',event=>{if(event.target.matches('[data-money]'))postArsenal('money',{value:Number(event.target.value)||0})});
 document.addEventListener('click',event=>{
