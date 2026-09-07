@@ -28,6 +28,9 @@ assert(dagger.textContent.includes('Dano 1d4')&&dagger.textContent.includes('Cr�
 assert.equal(dagger.querySelectorAll('button').length,2);
 dagger.querySelector('[data-action="choice-view"]').click();
 assert.equal(c.document.querySelectorAll('.item-card').length,1);
+dagger.querySelector('[data-action="choice-view"]').click();
+assert.equal(c.getComputedStyle(dagger.querySelector('[data-choice-detail]')).display,'none','Recolher oculta o card construído');
+dagger.querySelector('[data-action="choice-view"]').click();
 assert.equal(c.document.querySelector('.initial-advanced-filter').hidden,false);
 assert.equal(c.document.getElementById('weaponFilters').offsetParent,null,'Filtros avançados começam recolhidos');
 const select=()=>dagger.querySelector('[data-action="add-to-cart"]').click();
