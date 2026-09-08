@@ -8,15 +8,9 @@ let shopFilters=null;
 let craftingMode=false;
 const baseApplyFilters=applyFilters;
 const baseSyncCartUI=syncCartUI;
-const kind=document.createElement('span');
-kind.className='initial-choice-kind';
-const searchRow=document.querySelector('.search-row');
-document.getElementById('nameOnlySearchButton').after(kind);
-const advancedFilters=document.createElement('button');
-advancedFilters.type='button';advancedFilters.className='initial-advanced-filter';advancedFilters.textContent='⚙ Filtros avançados';advancedFilters.setAttribute('aria-expanded','false');kind.after(advancedFilters);
-const shopFilterButton=document.createElement('button');
-shopFilterButton.type='button';shopFilterButton.className='search-mode-button shop-filter-button';shopFilterButton.dataset.shopFilters='';shopFilterButton.setAttribute('aria-expanded','false');shopFilterButton.textContent='⚙ Filtros avançados · Convencionais';
-searchRow.insertBefore(shopFilterButton,document.querySelector('.sort-control'));
+const advancedFilters=advancedFiltersButton;
+const baseSyncAdvancedFiltersButton=syncAdvancedFiltersButton;
+syncAdvancedFiltersButton=function(forcedLabel){if(!forcedLabel&&typeof arsenalInitialState!=='undefined'&&arsenalInitialState.mode==='initial'&&initialChoice){syncInitialFilterSummary();return}baseSyncAdvancedFiltersButton(forcedLabel)};
 const shopActions=document.createElement('nav');
 shopActions.className='embedded-shop-actions';
 shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-craft-mode hidden>🔨 Fabricar</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button>';
@@ -42,20 +36,14 @@ function initialItemFacts(item){
 }
 function syncInitialFilterSummary(){
   if(!initialChoice)return;
-  const values=[initialChoice.id==='simple'?'Armas simples':initialChoice.id==='martial'?'Armas marciais':'Armaduras permitidas'];
+  const values=[initialChoice.id==='simple'?'Armas simples':initialChoice.id==='martial'?'Armas marciais':initialChoice.id==='armor'?'Armaduras permitidas':initialChoice.title];
   if(initialChoice.type==='arma'&&state.combat!=='todos')values.push(COMBAT_LABELS[state.combat]||humanize(state.combat));
   if(initialChoice.type==='arma'&&state.grip!=='todos')values.push(GRIP_LABELS[state.grip]||humanize(state.grip));
-  kind.textContent=values.join(' · ');
-  advancedFilters.hidden=initialChoice.type!=='arma';
+  syncAdvancedFiltersButton(values.join(' · '));
+  advancedFilters.hidden=false;
 }
 function syncShopFilterSummary(){
-  const values=[state.type==='todos'?'Todos os tipos':TYPE_META[state.type]?.label||humanize(state.type),state.specific==='convencional'?'Convencionais':state.specific==='especifico'?'Específicos':state.specific==='liturgico'?'Litúrgicos':'Todas as naturezas'];
-  if(state.category!=='todos')values.push(CATEGORY_LABELS[state.category]||humanize(state.category));
-  if(state.combat!=='todos')values.push(COMBAT_LABELS[state.combat]||humanize(state.combat));
-  if(state.grip!=='todos')values.push(GRIP_LABELS[state.grip]||humanize(state.grip));
-  const summary=values.join(' · '),open=document.body.classList.contains('shop-filters-open');
-  shopFilterButton.textContent=(open?'Fechar filtros':'⚙ Filtros avançados')+' · '+summary;
-  shopFilterButton.title='Filtros aplicados: '+summary;
+  syncAdvancedFiltersButton();
 }
 function findStartingItem(raw){const key=starterKey(raw);return preparedItems.find(item=>!isSpecificMagicItem(item)&&!isLiturgicalItem(item)&&starterKey(item.nome)===key)}
 function availableInitialItems(){
@@ -100,12 +88,14 @@ function applyArsenalContext(context){
   const mode=arsenalInitialState.mode;
   initialChoice=arsenalInitialState.choice;
   selectedCandidate=arsenalInitialState.candidate||null;
+  advancedFiltersContent.hidden=true;
+  advancedFiltersButton.setAttribute('aria-expanded','false');
+  filtersPanel.classList.remove('advanced-open');
   const profile=activeCharacterProfile();if(profile){profile.strength=arsenalInitialState.strength;profile.capacityBonus=Number(arsenalInitialState.capacityBonus)||0;profile.name=arsenalInitialState.characterName||profile.name}
   document.body.classList.toggle('initial-equipment',mode==='initial');
   document.body.classList.toggle('initial-equipment-review',mode==='backpack');
   document.body.classList.toggle('embedded-shop',mode==='shop');
-  shopActions.hidden=mode==='initial';kind.hidden=mode!=='initial';advancedFilters.hidden=mode!=='initial'||initialChoice?.type!=='arma';
-  shopFilterButton.hidden=mode!=='shop';
+  shopActions.hidden=mode==='initial';advancedFilters.hidden=mode==='backpack';
   state.backpackMode=state.backpackMode||'list';
   if(mode==='initial'){
     state.type=initialChoice.type||'todos';state.category=initialChoice.category||'todos';state.specific='convencional';state.combat=initialChoice.combat||'todos';state.grip='todos';state.search='';
@@ -157,12 +147,6 @@ shopActions.addEventListener('click',event=>{
   const view=event.target.closest('[data-shop-view]');if(!view)return;
   if(view.dataset.shopView==='backpack'){if(cartItems.length)openCartDecision(true);else postArsenal('close-shop')}
   else postArsenal('open-shop');
-});
-advancedFilters.addEventListener('click',()=>{
-  const open=document.body.classList.toggle('initial-filters-open');advancedFilters.setAttribute('aria-expanded',String(open));advancedFilters.textContent=open?'Fechar filtros':'⚙ Filtros avançados';
-});
-shopFilterButton.addEventListener('click',()=>{
-  const open=document.body.classList.toggle('shop-filters-open');shopFilterButton.setAttribute('aria-expanded',String(open));syncShopFilterSummary();
 });
 shopActions.addEventListener('input',event=>{if(event.target.matches('[data-money]'))postArsenal('money',{value:Number(event.target.value)||0})});
 document.addEventListener('click',event=>{

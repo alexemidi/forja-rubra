@@ -30,8 +30,7 @@
         <input class="search-input" id="searchInput" type="search" autocomplete="off" placeholder="Buscar por nome, efeito, propriedade ou descrição..." aria-label="Buscar itens">
       </div>
       <button class="search-mode-button" id="nameOnlySearchButton" type="button" aria-pressed="false">Somente nome</button>
-      <button class="search-mode-button debug-mode-button" id="debugModeButton" type="button" aria-pressed="false" title="Permitir a correção local dos textos dos itens canônicos">🛠 Modo debug</button>
-      <span class="result-count" id="resultCount"></span>
+      <button class="search-mode-button advanced-filters-button" id="advancedFiltersButton" type="button" aria-expanded="false" aria-controls="advancedFiltersContent">⚙ Filtros avançados</button>
       <label class="sort-control"><span class="sort-label">Ordenar</span><select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
         <option value="name">Nome: A–Z</option>
         <option value="price-asc">Menor preço</option>
@@ -40,19 +39,18 @@
         <option value="type">Tipo e nome</option>
       </select></label>
     </div>
-    <div class="filter-row-control">
-      <div class="filter-row" id="typeFilters"><span class="filter-label">Tipo</span></div>
-      <button class="reset-button" id="resetFilters" type="button">Limpar filtros</button>
-    </div>
-    <div class="filter-row" id="specificFilters">
-      <span class="filter-label">Natureza</span>
-    </div>
-    <div class="context-filters" id="contextFilters" hidden>
-      <div class="filter-row" id="categoryFilters"></div>
-    </div>
-    <div class="weapon-filters" id="weaponFilters" hidden>
-      <div class="filter-row" id="combatFilters"></div>
-      <div class="filter-row" id="gripFilters"></div>
+    <div class="advanced-filters-content" id="advancedFiltersContent" hidden>
+      <div class="advanced-filter-actions">
+        <button class="search-mode-button debug-mode-button" id="debugModeButton" type="button" aria-pressed="false" title="Permitir a correção local dos textos dos itens canônicos">🛠 Modo debug</button>
+        <span class="result-count" id="resultCount"></span>
+        <button class="reset-button" id="resetFilters" type="button">Limpar filtros</button>
+      </div>
+      <div class="filter-row-control">
+        <div class="filter-row" id="typeFilters"><span class="filter-label">Tipo</span></div>
+      </div>
+      <div class="filter-row" id="specificFilters"><span class="filter-label">Natureza</span></div>
+      <div class="context-filters" id="contextFilters" hidden><div class="filter-row" id="categoryFilters"></div></div>
+      <div class="weapon-filters" id="weaponFilters" hidden><div class="filter-row" id="combatFilters"></div><div class="filter-row" id="gripFilters"></div></div>
     </div>
   </div>
 </section>

@@ -405,6 +405,8 @@ const combatFilters = document.getElementById('combatFilters');
 const gripFilters = document.getElementById('gripFilters');
 const searchInput = document.getElementById('searchInput');
 const nameOnlySearchButton = document.getElementById('nameOnlySearchButton');
+const advancedFiltersButton = document.getElementById('advancedFiltersButton');
+const advancedFiltersContent = document.getElementById('advancedFiltersContent');
 const debugModeButton = document.getElementById('debugModeButton');
 const sortSelect = document.getElementById('sortSelect');
 const itemsGrid = document.getElementById('itemsGrid');
@@ -658,6 +660,32 @@ function syncFilterUI() {
   document.querySelectorAll('.grip-chip').forEach(function(button) {
     button.classList.toggle('active', button.dataset.value === state.grip);
   });
+  syncAdvancedFiltersButton();
+}
+
+function activeFilterSummary() {
+  const parts = [];
+  if (state.type !== 'todos') {
+    let label = TYPE_META[state.type] && TYPE_META[state.type].label || humanize(state.type);
+    if (state.category !== 'todos') {
+      const category = CATEGORY_LABELS[state.category] || humanize(state.category);
+      const agreement = {leve:state.type==='arma'?'leves':'leves',pesada:'pesadas',simples:'simples',marcial:'marciais',exotica:'exóticas'};
+      label += ' ' + (agreement[state.category] || String(category).toLocaleLowerCase('pt-BR'));
+    }
+    parts.push(label);
+  }
+  if (state.type === 'arma' && state.combat !== 'todos') parts.push(COMBAT_LABELS[state.combat] || humanize(state.combat));
+  if (state.type === 'arma' && state.grip !== 'todos') parts.push(GRIP_LABELS[state.grip] || humanize(state.grip));
+  if (state.specific !== 'convencional' && state.specific !== 'todos') parts.push(state.specific === 'especifico' ? 'Específicos' : 'Litúrgicos');
+  return parts.join(' · ');
+}
+
+function syncAdvancedFiltersButton(forcedLabel) {
+  if (!advancedFiltersButton) return;
+  const summary = forcedLabel || activeFilterSummary();
+  advancedFiltersButton.textContent = '⚙ ' + (summary || 'Filtros avançados');
+  advancedFiltersButton.title = summary ? 'Filtros aplicados: ' + summary : 'Abrir filtros avançados';
+  advancedFiltersButton.classList.toggle('has-filters', Boolean(summary));
 }
 
 function formatSpaces(value) {
@@ -2460,7 +2488,7 @@ function registerCustomItem(form) {
   itemById.set(prepared.id, prepared);
   catalogRevision++;
   state.type = 'todos';
-  state.specific = 'todos';
+  state.specific = 'convencional';
   state.category = 'todos';
   state.combat = 'todos';
   state.grip = 'todos';
@@ -2931,6 +2959,14 @@ nameOnlySearchButton.addEventListener('click', function() {
   applyFilters();
 });
 
+advancedFiltersButton.addEventListener('click', function() {
+  const open = advancedFiltersContent.hidden;
+  advancedFiltersContent.hidden = !open;
+  advancedFiltersButton.setAttribute('aria-expanded', String(open));
+  filtersPanel.classList.toggle('advanced-open', open);
+  syncAdvancedFiltersButton();
+});
+
 debugModeButton.addEventListener('click', function() {
   state.debugMode = !state.debugMode;
   applyFilters();
@@ -2945,7 +2981,7 @@ sortSelect.addEventListener('change', function(event) {
 resetFilters.addEventListener('click', function() {
   state.books = new Set(allBooks);
   state.type = 'todos';
-  state.specific = 'todos';
+  state.specific = 'convencional';
   state.category = 'todos';
   state.combat = 'todos';
   state.grip = 'todos';

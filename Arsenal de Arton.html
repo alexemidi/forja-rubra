@@ -225,7 +225,7 @@
     backdrop-filter: blur(14px);
   }
   .filters-inner { max-width: 1440px; margin: 0 auto; }
-  .search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 0; }
   .search-wrap { position: relative; flex: 0 1 480px; min-width: 240px; }
   .search-icon {
     position: absolute;
@@ -260,6 +260,12 @@
   }
   .search-mode-button.active { color: #f4d795; border-color: var(--gold); background: var(--gold-soft); }
   .debug-mode-button.active { color: #ffb5b5; border-color: #df6b6b99; background: #df6b6b1b; }
+  .advanced-filters-button { max-width: 310px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .advanced-filters-button.has-filters { color: #f4d795; border-color: var(--gold); background: var(--gold-soft); }
+  .advanced-filters-content { display: grid; gap: 11px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .advanced-filters-content[hidden] { display: none !important; }
+  .advanced-filter-actions { display: flex; align-items: center; gap: 9px; }
+  .advanced-filter-actions .reset-button { margin-left: auto; }
   .result-count { flex: 0 0 auto; color: var(--text-muted); font-size: 0.78rem; white-space: nowrap; }
   .sort-control { margin-left: auto; display: flex; align-items: center; gap: 7px; }
   .filter-row-control { display: flex; align-items: center; gap: 9px; }
@@ -857,9 +863,13 @@
   }
   @media (max-width: 520px) {
     .site-header { padding-top: 68px; }
-    .search-row { align-items: stretch; flex-direction: column; }
-    .search-wrap { min-width: 0; flex-basis: auto; }
-    .sort-control { width: 100%; margin-left: 0; justify-content: space-between; }
+    .search-row { display: grid; grid-template-columns:minmax(0,1fr) auto 38px auto; align-items: stretch; gap:7px; }
+    .search-wrap { grid-column:1/-1; min-width: 0; flex-basis: auto; }
+    .advanced-filters-button { width:38px; min-width:38px; padding:0; font-size:0; }
+    .advanced-filters-button::before { content:'⚙'; font-size:16px; }
+    .sort-control { width:auto; margin-left:0; gap:0; }
+    .sort-label { display:none; }
+    .sort-select { max-width:125px; padding-left:7px; }
     .filter-row-control { align-items: stretch; flex-direction: column; }
     .filter-row-control .reset-button { align-self: flex-start; }
     .result-count { align-self: flex-end; }
@@ -930,8 +940,7 @@
         <input class="search-input" id="searchInput" type="search" autocomplete="off" placeholder="Buscar por nome, efeito, propriedade ou descrição..." aria-label="Buscar itens">
       </div>
       <button class="search-mode-button" id="nameOnlySearchButton" type="button" aria-pressed="false">Somente nome</button>
-      <button class="search-mode-button debug-mode-button" id="debugModeButton" type="button" aria-pressed="false" title="Permitir a correção local dos textos dos itens canônicos">🛠 Modo debug</button>
-      <span class="result-count" id="resultCount"></span>
+      <button class="search-mode-button advanced-filters-button" id="advancedFiltersButton" type="button" aria-expanded="false" aria-controls="advancedFiltersContent">⚙ Filtros avançados</button>
       <label class="sort-control"><span class="sort-label">Ordenar</span><select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
         <option value="name">Nome: A–Z</option>
         <option value="price-asc">Menor preço</option>
@@ -940,19 +949,18 @@
         <option value="type">Tipo e nome</option>
       </select></label>
     </div>
-    <div class="filter-row-control">
-      <div class="filter-row" id="typeFilters"><span class="filter-label">Tipo</span></div>
-      <button class="reset-button" id="resetFilters" type="button">Limpar filtros</button>
-    </div>
-    <div class="filter-row" id="specificFilters">
-      <span class="filter-label">Natureza</span>
-    </div>
-    <div class="context-filters" id="contextFilters" hidden>
-      <div class="filter-row" id="categoryFilters"></div>
-    </div>
-    <div class="weapon-filters" id="weaponFilters" hidden>
-      <div class="filter-row" id="combatFilters"></div>
-      <div class="filter-row" id="gripFilters"></div>
+    <div class="advanced-filters-content" id="advancedFiltersContent" hidden>
+      <div class="advanced-filter-actions">
+        <button class="search-mode-button debug-mode-button" id="debugModeButton" type="button" aria-pressed="false" title="Permitir a correção local dos textos dos itens canônicos">🛠 Modo debug</button>
+        <span class="result-count" id="resultCount"></span>
+        <button class="reset-button" id="resetFilters" type="button">Limpar filtros</button>
+      </div>
+      <div class="filter-row-control">
+        <div class="filter-row" id="typeFilters"><span class="filter-label">Tipo</span></div>
+      </div>
+      <div class="filter-row" id="specificFilters"><span class="filter-label">Natureza</span></div>
+      <div class="context-filters" id="contextFilters" hidden><div class="filter-row" id="categoryFilters"></div></div>
+      <div class="weapon-filters" id="weaponFilters" hidden><div class="filter-row" id="combatFilters"></div><div class="filter-row" id="gripFilters"></div></div>
     </div>
   </div>
 </section>
@@ -3909,6 +3917,8 @@ const combatFilters = document.getElementById('combatFilters');
 const gripFilters = document.getElementById('gripFilters');
 const searchInput = document.getElementById('searchInput');
 const nameOnlySearchButton = document.getElementById('nameOnlySearchButton');
+const advancedFiltersButton = document.getElementById('advancedFiltersButton');
+const advancedFiltersContent = document.getElementById('advancedFiltersContent');
 const debugModeButton = document.getElementById('debugModeButton');
 const sortSelect = document.getElementById('sortSelect');
 const itemsGrid = document.getElementById('itemsGrid');
@@ -4162,6 +4172,32 @@ function syncFilterUI() {
   document.querySelectorAll('.grip-chip').forEach(function(button) {
     button.classList.toggle('active', button.dataset.value === state.grip);
   });
+  syncAdvancedFiltersButton();
+}
+
+function activeFilterSummary() {
+  const parts = [];
+  if (state.type !== 'todos') {
+    let label = TYPE_META[state.type] && TYPE_META[state.type].label || humanize(state.type);
+    if (state.category !== 'todos') {
+      const category = CATEGORY_LABELS[state.category] || humanize(state.category);
+      const agreement = {leve:state.type==='arma'?'leves':'leves',pesada:'pesadas',simples:'simples',marcial:'marciais',exotica:'exóticas'};
+      label += ' ' + (agreement[state.category] || String(category).toLocaleLowerCase('pt-BR'));
+    }
+    parts.push(label);
+  }
+  if (state.type === 'arma' && state.combat !== 'todos') parts.push(COMBAT_LABELS[state.combat] || humanize(state.combat));
+  if (state.type === 'arma' && state.grip !== 'todos') parts.push(GRIP_LABELS[state.grip] || humanize(state.grip));
+  if (state.specific !== 'convencional' && state.specific !== 'todos') parts.push(state.specific === 'especifico' ? 'Específicos' : 'Litúrgicos');
+  return parts.join(' · ');
+}
+
+function syncAdvancedFiltersButton(forcedLabel) {
+  if (!advancedFiltersButton) return;
+  const summary = forcedLabel || activeFilterSummary();
+  advancedFiltersButton.textContent = '⚙ ' + (summary || 'Filtros avançados');
+  advancedFiltersButton.title = summary ? 'Filtros aplicados: ' + summary : 'Abrir filtros avançados';
+  advancedFiltersButton.classList.toggle('has-filters', Boolean(summary));
 }
 
 function formatSpaces(value) {
@@ -5964,7 +6000,7 @@ function registerCustomItem(form) {
   itemById.set(prepared.id, prepared);
   catalogRevision++;
   state.type = 'todos';
-  state.specific = 'todos';
+  state.specific = 'convencional';
   state.category = 'todos';
   state.combat = 'todos';
   state.grip = 'todos';
@@ -6435,6 +6471,14 @@ nameOnlySearchButton.addEventListener('click', function() {
   applyFilters();
 });
 
+advancedFiltersButton.addEventListener('click', function() {
+  const open = advancedFiltersContent.hidden;
+  advancedFiltersContent.hidden = !open;
+  advancedFiltersButton.setAttribute('aria-expanded', String(open));
+  filtersPanel.classList.toggle('advanced-open', open);
+  syncAdvancedFiltersButton();
+});
+
 debugModeButton.addEventListener('click', function() {
   state.debugMode = !state.debugMode;
   applyFilters();
@@ -6449,7 +6493,7 @@ sortSelect.addEventListener('change', function(event) {
 resetFilters.addEventListener('click', function() {
   state.books = new Set(allBooks);
   state.type = 'todos';
-  state.specific = 'todos';
+  state.specific = 'convencional';
   state.category = 'todos';
   state.combat = 'todos';
   state.grip = 'todos';

@@ -9,18 +9,14 @@ body{padding-top:0!important}
 .embedded-shop-actions button{cursor:pointer}
 .embedded-shop-actions button.active{border-color:var(--gold);color:#f4d795;background:var(--gold-soft)}
 .embedded-shop-actions[hidden]{display:none}
-body.initial-equipment .catalog-heading,body.initial-equipment #typeFilters,body.initial-equipment #specificFilters,body.initial-equipment #contextFilters,body.initial-equipment .filter-row-control,body.initial-equipment .compact-arsenal-filters,body.initial-equipment #debugModeButton,body.initial-equipment #resultCount,body.initial-equipment .chip-count,body.initial-equipment .catalog-note,body.initial-equipment .acquired-indicator{display:none!important}
+body.initial-equipment .catalog-heading,body.initial-equipment #typeFilters,body.initial-equipment #specificFilters,body.initial-equipment #contextFilters,body.initial-equipment .filter-row-control,body.initial-equipment .compact-arsenal-filters,body.initial-equipment #resultCount,body.initial-equipment .chip-count,body.initial-equipment .catalog-note,body.initial-equipment .acquired-indicator{display:none!important}
 body.initial-equipment .filters-panel{position:static!important;padding:10px 18px!important}
 .filters-inner,.catalog-main{max-width:none!important}
 body.initial-equipment .filters-inner{padding:0!important}
-body.initial-equipment .search-row{margin:0 0 8px!important}
-.initial-choice-kind{display:inline-flex;align-items:center;height:38px;max-width:230px;padding:5px 12px;border:1px solid #d5aa4c;border-radius:7px;color:#efd184;background:#d5aa4c14;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.initial-advanced-filter{height:38px;padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-muted);font-weight:700;cursor:pointer;white-space:nowrap}
-.shop-filter-button{height:38px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shop-filter-button[hidden],.initial-advanced-filter[hidden]{display:none!important}
-body.embedded-shop:not(.shop-filters-open) #typeFilters,body.embedded-shop:not(.shop-filters-open) #specificFilters,body.embedded-shop:not(.shop-filters-open) #contextFilters,body.embedded-shop:not(.shop-filters-open) #weaponFilters,body.embedded-shop:not(.shop-filters-open) #resetFilters{display:none!important}
+body.initial-equipment .search-row{margin:0!important}
 body.initial-equipment #weaponFilters{display:none!important}
-body.initial-equipment.initial-filters-open #weaponFilters{display:block!important;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+body.initial-equipment .advanced-filters-content:not([hidden]) #weaponFilters{display:block!important}
+body.initial-equipment .advanced-filters-content:not([hidden]) #weaponFilters[hidden]{display:none!important}
 body.initial-equipment #weaponFilters .filter-row{margin-top:6px}
 body.initial-equipment .items-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
 .catalog-list-entry{min-width:0;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
@@ -46,17 +42,12 @@ body.initial-equipment-review .backpack-header{padding:10px 14px}
   .embedded-shop-actions{padding:7px 9px}.embedded-shop-actions button{font-size:11px}
   .filters-panel,.catalog-main{padding-left:9px!important;padding-right:9px!important}
   body.initial-equipment .items-grid{grid-template-columns:1fr;gap:6px}
-  body.initial-equipment .search-row{display:grid!important;grid-template-columns:minmax(90px,1fr) minmax(0,1fr) 34px;gap:7px!important}
+  body.initial-equipment .search-row{display:grid!important;grid-template-columns:minmax(90px,1fr) 38px minmax(92px,auto);gap:7px!important}
   body.initial-equipment .search-wrap{grid-column:1/-1;min-width:0;width:100%}
   .search-input{min-height:34px;padding-block:7px}
   #nameOnlySearchButton{min-height:30px;padding:5px 9px;font-size:11px}
   .sort-label{display:none}.sort-control{margin:0!important;min-width:0;justify-self:end}
   .sort-select{min-height:30px;padding:5px;font-size:11px;width:100%}
   .catalog-choice-row{align-items:flex-start;min-height:68px;padding:9px}.catalog-choice-actions{flex-direction:column}.catalog-choice-actions button{min-height:30px;padding:4px 8px}.filter-label{font-size:10px}.filter-row{gap:5px}
-  body.initial-equipment .sort-control{display:none!important}
-  .initial-choice-kind{height:32px;max-width:none;padding:4px 7px;font-size:10px}
-  .initial-advanced-filter{width:34px;height:32px;padding:0;font-size:0}
-  .initial-advanced-filter::before{content:'⚙';font-size:16px}
-  .shop-filter-button{width:38px;max-width:38px;padding:0!important;font-size:0}
-  .shop-filter-button::before{content:'⚙';font-size:16px}
+  body.initial-equipment .sort-control{display:flex!important}
 }
