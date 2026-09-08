@@ -5,7 +5,7 @@ let arsenalContextKey='';
 const ARSENAL_PROFILES_KEY='arsenal-arton-character-profiles-v1';
 const STARTING_FUNDS={2:300,3:600,4:1000,5:2000,6:3000,7:5000,8:7000,9:10000,10:13000,11:19000,12:27000,13:36000,14:49000,15:66000,16:88000,17:110000,18:150000,19:200000,20:260000};
 function automaticStartingGrants(){
-  const cls=classById(state.identity.classId),proficiencies=new Set(cls?.caracteristicas?.proficiencias||[]);
+  const cls=classById(state.identity.classId),proficiencies=new Set(characterProficiencies());
   const grants=['Mochila','Saco de Dormir','Traje de Viajante'].map((name,index)=>({id:'base:'+index,name,source:'initial'}));
   if(proficiencies.has('escudos'))grants.push({id:'base:shield',name:'Escudo Leve',source:'initial'});
   for(const [kind,origin] of [['standard',selectedStandardOrigin()],['regional',state.origin.mode==='dual'?selectedRegionalOrigin():null]])
@@ -45,7 +45,7 @@ function renderStartingMoneyPanel(){
 const identityBeforeStartingMoney=renderIdentityClass;
 renderIdentityClass=function(){return identityBeforeStartingMoney()+renderStartingMoneyPanel()};
 function initialItemPlan(){
-  const cls=classById(state.identity.classId),proficiencies=new Set(cls?.caracteristicas?.proficiencias||[]),arcanist=state.identity.classId==='arcanista'||DATA.classInheritance[state.identity.classId]==='arcanista',choices=[{id:'simple',title:'Escolha uma arma simples (Opcional)',type:'arma',category:'simples'}];
+  const cls=classById(state.identity.classId),proficiencies=new Set(characterProficiencies()),arcanist=state.identity.classId==='arcanista'||DATA.classInheritance[state.identity.classId]==='arcanista',choices=[{id:'simple',title:'Escolha uma arma simples (Opcional)',type:'arma',category:'simples'}];
   if(proficiencies.has('armas_marciais'))choices.push({id:'martial',title:'Escolha uma arma marcial (Opcional)',type:'arma',category:'marcial'});
   if(!arcanist)choices.push({id:'armor',title:'Escolha uma armadura (Opcional)',type:'armadura',names:['Armadura de Couro','Couro Batido','Gibão de Peles',...(proficiencies.has('armaduras_pesadas')?['Brunea']:[])]});
   return choices;
@@ -56,14 +56,14 @@ function inventoryProfile(){
   try{profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{}')}catch{profiles={}}
   let profile=profiles.profiles?.find(item=>item.id==='ficha-ativa')||profiles.profiles?.find(item=>item.id===profiles.activeId);
   if(!profile){let legacy=[];try{legacy=JSON.parse(saved.storage['arsenal-arton-backpack-v1']||'[]')}catch{}profile={id:'ficha-ativa',backpack:Array.isArray(legacy)?legacy:[]}}
-  return {...profile,id:'ficha-ativa',name:state.identity.characterName||'Personagem',strength:finalAttrs().for};
+  return {...profile,id:'ficha-ativa',name:state.identity.characterName||'Personagem',strength:finalAttrs().for,capacityBonus:suraggelCarryingBonus()};
 }
 function characterInventory(){return inventoryProfile().backpack||[]}
 function arsenalInitialData(mode){
   const saved=arsenalState(),profile=inventoryProfile(),storage={...saved.storage};
   storage[ARSENAL_PROFILES_KEY]=JSON.stringify({activeId:'ficha-ativa',profiles:[profile]});
   mode=mode||(saved.complete?(arsenalShopOpen?'shop':'backpack'):'initial');
-  return{session:arsenalSession,storage,choice:mode==='initial'?currentItemChoice():null,candidate:mode==='initial'?saved.pending:null,mode,funds:remainingFunds(),startingLevel:financesState().startingLevel,startingMoney:startingFunds(),strength:profile.strength,characterName:profile.name};
+  return{session:arsenalSession,storage,choice:mode==='initial'?currentItemChoice():null,candidate:mode==='initial'?saved.pending:null,mode,funds:remainingFunds(),startingLevel:financesState().startingLevel,startingMoney:startingFunds(),strength:profile.strength,capacityBonus:profile.capacityBonus||0,characterName:profile.name};
 }
 function renderArsenal(){
   const saved=arsenalState(),title=saved.complete?'Itens adquiridos':currentItemChoice()?.title||'Equipamento inicial';

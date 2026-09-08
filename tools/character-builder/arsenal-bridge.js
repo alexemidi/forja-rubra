@@ -93,7 +93,7 @@ function applyArsenalContext(context){
   const mode=arsenalInitialState.mode;
   initialChoice=arsenalInitialState.choice;
   selectedCandidate=arsenalInitialState.candidate||null;
-  const profile=activeCharacterProfile();if(profile){profile.strength=arsenalInitialState.strength;profile.name=arsenalInitialState.characterName||profile.name}
+  const profile=activeCharacterProfile();if(profile){profile.strength=arsenalInitialState.strength;profile.capacityBonus=Number(arsenalInitialState.capacityBonus)||0;profile.name=arsenalInitialState.characterName||profile.name}
   document.body.classList.toggle('initial-equipment',mode==='initial');
   document.body.classList.toggle('initial-equipment-review',mode==='backpack');
   document.body.classList.toggle('embedded-shop',mode==='shop');

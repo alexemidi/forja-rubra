@@ -1114,16 +1114,16 @@ function backpackTotals() {
   }, { entries: 0, quantity: 0, spaces: 0, value: 0, unknownMaterials: 0 });
 }
 
-function carryingLimits(strength) {
+function carryingLimits(strength, capacityBonus) {
   const score = normalizeStrength(strength);
-  const normal = Math.max(0, score >= 0 ? 10 + score * 2 : 10 + score);
+  const normal = Math.max(0, score >= 0 ? 10 + score * 2 : 10 + score) + Math.max(0, Number(capacityBonus) || 0);
   return { normal: normal, maximum: normal * 2 };
 }
 
 function renderLoadStats(totals) {
   const active = activeCharacterProfile();
   const used = Number(totals && totals.spaces || 0);
-  const limits = carryingLimits(active ? active.strength : 0);
+  const limits = carryingLimits(active ? active.strength : 0, active ? active.capacityBonus : 0);
   const status = !active
     ? { label: 'Sem personagem', className: '' }
     : used > limits.maximum

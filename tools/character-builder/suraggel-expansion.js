@@ -1,5 +1,8 @@
 state.identity.suraggelChoices=Object.assign({},state.identity.suraggelChoices||{});
 function suraggelHeritage(){return state.identity.raceId==='suraggel'?state.identity.raceChoices.suraggel_heranca_substituta:''}
+function suraggelHeritageOption(){const definition=raceById('suraggel')?.habilidades?.selecionadas?.find(choice=>choice.id==='suraggel_heranca_substituta');return optionList(definition||{}).find(option=>choiceId(option)===suraggelHeritage())}
+function suraggelCarryingBonus(){return suraggelHeritage()==='heranca_de_odisseia'?2:0}
+function characterProficiencies(classId=state.identity.classId){const values=[...(classById(classId)?.caracteristicas?.proficiencias||[])];if(classId===state.identity.classId&&suraggelHeritage()==='heranca_de_werra'&&state.identity.raceChoices.suraggel_werra_proficiencia==='armas_marciais')values.push('armas_marciais');return [...new Set(values)]}
 const SURAGGEL_SKILL_OPTIONS=SKILLS.map(([id,nome])=>({id,nome}));
 const SURAGGEL_HERITAGE_CHOICES={
   heranca_de_al_gazara:[{id:'suraggel_al_gazara_atributo',nome:'Atributo aleatório',descricao:'Sorteie o atributo que recebe +1.',opcoes:ATTRS.map(([id,nome])=>({id,nome}))}],
@@ -28,6 +31,8 @@ const progressionStatsBeforeSuraggel=progressionStats;
 progressionStats=function(){const stats=progressionStatsBeforeSuraggel(),heritage=suraggelHeritage(),level=Math.max(1,Number(state.identity.plannedLevel)||1),tier=level<=4?1:level<=10?2:level<=16?3:4;if(heritage==='heranca_de_drashantyr')stats.pm++;if(heritage==='heranca_de_vitalia')stats.pv+=5*tier;if(heritage==='heranca_de_kundali')stats.defense+=2;return stats};
 const spellPlanBeforeSuraggel=spellPlan;
 spellPlan=function(){const plan=spellPlanBeforeSuraggel();if(suraggelHeritage()==='heranca_de_magika'&&!plan.groups.some(group=>group.id==='race:suraggel_magika'))plan.groups.push({id:'race:suraggel_magika',label:'Herança de Magika',description:'Escolha uma magia arcana de 1º círculo. Se aprendê-la novamente, seu custo diminui em 1 PM.',count:1,maxCircle:1,type:'arcana',schools:[],fixed:[],allowed:[],scope:'race:suraggel_magika',kind:'race',keyAttribute:state.identity.raceChoices.suraggel_magika_atributo||'int'});return plan};
+const raceAbilityTextBeforeSuraggel=raceAbilityText;
+raceAbilityText=function(){const parts=[raceAbilityTextBeforeSuraggel()],option=suraggelHeritageOption();if(option)parts.push(choiceName(option),option.descricao);for(const definition of SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[]){const chosen=chosenRaceTraitOption(definition);if(chosen)parts.push(definition.nome,choiceName(chosen),chosen.descricao)}return parts.filter(Boolean).join(' ')};
 document.addEventListener('change',event=>{if(event.target.dataset.action!=='race-choice')return;if(event.target.dataset.choiceId==='suraggel_heranca_substituta'){
   Object.keys(state.identity.raceChoices).filter(key=>key.startsWith('suraggel_')&&key!=='suraggel_heranca_substituta').forEach(key=>delete state.identity.raceChoices[key]);
   Object.keys(spellState().selections).filter(key=>key==='race:suraggel_magika').forEach(key=>delete spellState().selections[key]);

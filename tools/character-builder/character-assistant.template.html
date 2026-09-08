@@ -958,7 +958,7 @@ function generalPowerEligibility(power){
   if(circle&&magicCircleAvailable()<circle)addReason(reasons,'Requer lançar magias de '+circle+'º círculo.');
   if(/habilidade de classe Magias|\blançar magias\b/i.test(requirements)&&!magicCircleAvailable())addReason(reasons,'Requer a habilidade de classe Magias.');
   if(/lançar magias divinas/i.test(requirements)&&!['clerigo','frade','druida','ermitao','paladino','santo','usurpador'].includes(cls?.id))addReason(reasons,'Requer lançar magias divinas.');
-  const proficiencies=cls?.caracteristicas?.proficiencias||[];
+  const proficiencies=typeof characterProficiencies==='function'?characterProficiencies():cls?.caracteristicas?.proficiencias||[];
   if(/proficiência com armaduras pesadas/i.test(requirements)&&!proficiencies.includes('armaduras_pesadas'))addReason(reasons,'Requer proficiência com armaduras pesadas.');
   if(/proficiência com escudos/i.test(requirements)&&!proficiencies.includes('escudos'))addReason(reasons,'Requer proficiência com escudos.');
   if(/proficiência com a arma/i.test(requirements)&&!proficiencies.some(item=>/^armas_/.test(item)))addReason(reasons,'Requer proficiência com a arma escolhida.');

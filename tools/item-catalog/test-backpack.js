@@ -252,6 +252,7 @@ assert(itemById.get('animal_nao_combativo').preco.valor === 1 && itemById.get('a
 assert(normalizeItemOptions('animal_nao_combativo',{customName:'Galinha'}).customName === 'Galinha', 'Nome do animal não foi preservado.');
 const exotic = itemById.get('instrumento_musical_exotico');
 assert(effectiveItemForOptions(exotic,{options:{customName:'Sanfona',customSpaces:2.5}}).espacos === 2.5, 'Espaços do instrumento exótico não foram aplicados.');
+assert(carryingLimits(0,2).normal === 12 && carryingLimits(0,2).maximum === 24, 'O bônus externo de capacidade de carga não foi aplicado.');
 
 console.log(JSON.stringify({
   status: 'ok',
