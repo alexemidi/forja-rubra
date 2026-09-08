@@ -640,5 +640,7 @@ assert.strictEqual(run('passiveCharacterEffects().skillBonuses.iniciativa'),unde
 assert(run("renderChoice(DATA.races.find(race=>race.id==='duende').habilidades.selecionadas.find(choice=>choice.id==='duende_tabu')).includes('Se descumprir, sugestão:')"));
 assert(run("DUENDE_TABOO_SUGGESTIONS[11].includes('Diplomacia ou Atuação')"));
 assert.strictEqual(run('DUENDE_TABOO_SUGGESTIONS[10]'),'–3m de deslocamento enquanto o sal tocar sua pele.');
+assert.strictEqual(run("abilityHtml({id:'duende_tabu',nome:'Tabu',descricao:'texto longo'})"),'');
+assert(run("renderChoice(DATA.races.find(race=>race.id==='duende').habilidades.selecionadas.find(choice=>choice.id==='duende_tabu')).includes('duende-taboo-custom-row')"));
 assert(run("DATA.generalPowers.some(power=>Array.isArray(power.efeitos)&&power.efeitos.length)"),'Os efeitos estruturados dos poderes gerais devem chegar ao criador.');
 console.log('Efeitos verificados: Autoconfiança, armas do Zahir, poderes gerais e sugestões de descumprimento do tabu.');
