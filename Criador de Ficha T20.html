@@ -492,8 +492,7 @@ function raceAllocationSources(){
   (race?.habilidades?.selecionadas||[]).forEach(def=>{
     if(def.tipo==='atributos_flexiveis')sources.push({key:def.id,label:def.nome||'Habilidade',config:def});
     const option=selectedRaceOption(def);
-    const isAnimalNature=race.id==='duende'&&def.id==='duende_natureza'&&choiceId(option)==='animal';
-    if(option?.atributosFlexiveis&&!isAnimalNature)sources.push({key:def.id,label:def.nome||choiceName(option),config:option.atributosFlexiveis});
+    if(option?.atributosFlexiveis)sources.push({key:def.id,label:def.nome||choiceName(option),config:option.atributosFlexiveis});
   });
   return sources;
 }
@@ -505,7 +504,7 @@ function renderRacialCell(attr,bonus,sources){
     const values=allocationValues(source.key),counts=allocationCounts(values),quantity=Number(source.config.quantidade||0),repeat=Boolean(source.config.permitirRepetir),count=Number(counts[attr]||0);
     const minusDisabled=!count,plusDisabled=values.length>=quantity||(!repeat&&count);
     const shownValue=available.length===1?bonus:count*Number(source.config.valor||1);
-    return '<div class="racial-control-wrap">'+(available.length>1?'<small>'+esc(source.label)+'</small>':'')+'<div class="racial-source" title="'+esc(source.label)+'"><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="-1" '+(minusDisabled?'disabled':'')+'>−</button><output>'+(shownValue>0?'+':'')+shownValue+'</output><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="1" '+(plusDisabled?'disabled':'')+'>+</button></div></div>';
+    return '<div class="racial-control-wrap" data-allocation-key="'+esc(source.key)+'">'+(available.length>1?'<small>'+esc(source.label)+'</small>':'')+'<div class="racial-source" title="'+esc(source.label)+'"><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="-1" '+(minusDisabled?'disabled':'')+'>−</button><output>'+(shownValue>0?'+':'')+shownValue+'</output><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="1" '+(plusDisabled?'disabled':'')+'>+</button></div></div>';
   }).join('');
   return '<div class="racial-cell">'+(available.length>1?'<div class="racial-total">Total '+(bonus>0?'+':'')+bonus+'</div>':'')+controls+'</div>';
 }
@@ -542,10 +541,7 @@ function renderRacePanel(){
     }
     choices+=renderChoice(def);
     const option=selectedRaceOption(def);
-    if(option?.atributosFlexiveis){
-      if(race.id==='duende'&&def.id==='duende_natureza'&&choiceId(option)==='animal')choices+=renderAllocation(def.id,option.atributosFlexiveis,'Natureza Animal · atributo adicional');
-      else choices+='<div class="info-box blue"><strong>'+esc(def.nome||choiceName(option))+'.</strong> O modificador concedido por esta escolha aparece na coluna Racial.</div>';
-    }
+    if(option?.atributosFlexiveis)choices+='<div class="info-box blue"><strong>'+esc(def.nome||choiceName(option))+'.</strong> O modificador concedido por esta escolha aparece na coluna Racial.</div>';
   });
   (race?.habilidades?.fixas||[]).forEach(ability=>{
     if(ability.escolha?.tipo==='escolha_multipla')choices+='<div class="info-box blue"><strong>'+esc(ability.nome)+':</strong> escolha transferida para a fase 6 — Poderes.</div>';
@@ -1937,7 +1933,7 @@ const raceAbilityTextBeforeDuende=raceAbilityText;
 raceAbilityText=function(){let text=raceAbilityTextBeforeDuende();if(state.identity.raceId==='duende'&&state.identity.duendeTabuText){const consequence=state.identity.duendeTabuPenalty==='Outra consequência (com o mestre)'?state.identity.duendeTabuCustomPenalty:state.identity.duendeTabuPenalty;text+=' Tabu: '+state.identity.duendeTabuText+(consequence?' Consequência: '+consequence+'.':'')}return text};
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action="duende-tabu-preset"]');if(!button)return;const def=raceById('duende')?.habilidades?.selecionadas?.find(choice=>choice.id==='duende_tabu'),options=optionList(def),option=options.find(item=>choiceId(item)===button.dataset.value),index=options.indexOf(option);state.identity.raceChoices.duende_tabu=button.dataset.value;state.identity.duendeTabuText=option?choiceName(option):'';state.identity.duendeTabuPenalty=index>=0?DUENDE_TABOO_DEFAULT_PENALTIES[index]:'';state.identity.duendeTabuCustomPenalty='';renderStage();setTimeout(()=>document.querySelector('[data-field="duendeTabuText"]')?.focus(),20)},true);
 document.addEventListener('input',event=>{if(event.target.dataset.field==='duendeTabuText'){state.identity.duendeTabuText=event.target.value;persist()}if(event.target.dataset.field==='duendeTabuCustomPenalty'){state.identity.duendeTabuCustomPenalty=event.target.value;persist()}},true);
-document.addEventListener('change',event=>{if(event.target.dataset.field==='duendeTabuPenalty'){state.identity.duendeTabuPenalty=event.target.value;renderStage();return}if(event.target.dataset.action==='race-choice'&&event.target.dataset.choiceId==='duende_natureza'&&event.target.value==='animal')setTimeout(()=>{const target=document.querySelector('[data-allocation-key="duende_natureza"]');target?.classList.add('duende-attribute-focus');target?.scrollIntoView({behavior:'smooth',block:'center'})},60)},true);
+document.addEventListener('change',event=>{if(event.target.dataset.field==='duendeTabuPenalty'){state.identity.duendeTabuPenalty=event.target.value;renderStage();return}if(event.target.dataset.action==='race-choice'&&event.target.dataset.choiceId==='duende_natureza'&&event.target.value==='animal')setTimeout(()=>{const targets=[...document.querySelectorAll('[data-allocation-key="duende_natureza"]')];targets.forEach(target=>target.classList.add('duende-attribute-focus'));targets[0]?.closest('.attribute-matrix')?.scrollIntoView({behavior:'smooth',block:'center'})},60)},true);
 (()=>{const style=document.createElement('style');style.textContent='.duende-taboo-card{width:100%;text-align:left;color:inherit}.duende-taboo-card b{color:#efcf83}.duende-taboo-custom-row{align-items:start}.duende-taboo-consequence{display:grid;gap:8px}.duende-attribute-focus{animation:duendeAttributeGlow 1s ease-in-out 3}@keyframes duendeAttributeGlow{0%,100%{box-shadow:0 0 0 0 #4abfff00}50%{box-shadow:0 0 0 5px #4abfff77;border-radius:9px}}@media(max-width:620px){.duende-taboo-custom-row{grid-template-columns:1fr}}';document.head?.appendChild(style)})();
 
 // Presentation and final validation shared by desktop and mobile.

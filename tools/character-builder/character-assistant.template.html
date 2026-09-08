@@ -374,8 +374,7 @@ function raceAllocationSources(){
   (race?.habilidades?.selecionadas||[]).forEach(def=>{
     if(def.tipo==='atributos_flexiveis')sources.push({key:def.id,label:def.nome||'Habilidade',config:def});
     const option=selectedRaceOption(def);
-    const isAnimalNature=race.id==='duende'&&def.id==='duende_natureza'&&choiceId(option)==='animal';
-    if(option?.atributosFlexiveis&&!isAnimalNature)sources.push({key:def.id,label:def.nome||choiceName(option),config:option.atributosFlexiveis});
+    if(option?.atributosFlexiveis)sources.push({key:def.id,label:def.nome||choiceName(option),config:option.atributosFlexiveis});
   });
   return sources;
 }
@@ -387,7 +386,7 @@ function renderRacialCell(attr,bonus,sources){
     const values=allocationValues(source.key),counts=allocationCounts(values),quantity=Number(source.config.quantidade||0),repeat=Boolean(source.config.permitirRepetir),count=Number(counts[attr]||0);
     const minusDisabled=!count,plusDisabled=values.length>=quantity||(!repeat&&count);
     const shownValue=available.length===1?bonus:count*Number(source.config.valor||1);
-    return '<div class="racial-control-wrap">'+(available.length>1?'<small>'+esc(source.label)+'</small>':'')+'<div class="racial-source" title="'+esc(source.label)+'"><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="-1" '+(minusDisabled?'disabled':'')+'>−</button><output>'+(shownValue>0?'+':'')+shownValue+'</output><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="1" '+(plusDisabled?'disabled':'')+'>+</button></div></div>';
+    return '<div class="racial-control-wrap" data-allocation-key="'+esc(source.key)+'">'+(available.length>1?'<small>'+esc(source.label)+'</small>':'')+'<div class="racial-source" title="'+esc(source.label)+'"><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="-1" '+(minusDisabled?'disabled':'')+'>−</button><output>'+(shownValue>0?'+':'')+shownValue+'</output><button type="button" data-action="allocation" data-key="'+esc(source.key)+'" data-attr="'+attr+'" data-dir="1" '+(plusDisabled?'disabled':'')+'>+</button></div></div>';
   }).join('');
   return '<div class="racial-cell">'+(available.length>1?'<div class="racial-total">Total '+(bonus>0?'+':'')+bonus+'</div>':'')+controls+'</div>';
 }
@@ -424,10 +423,7 @@ function renderRacePanel(){
     }
     choices+=renderChoice(def);
     const option=selectedRaceOption(def);
-    if(option?.atributosFlexiveis){
-      if(race.id==='duende'&&def.id==='duende_natureza'&&choiceId(option)==='animal')choices+=renderAllocation(def.id,option.atributosFlexiveis,'Natureza Animal · atributo adicional');
-      else choices+='<div class="info-box blue"><strong>'+esc(def.nome||choiceName(option))+'.</strong> O modificador concedido por esta escolha aparece na coluna Racial.</div>';
-    }
+    if(option?.atributosFlexiveis)choices+='<div class="info-box blue"><strong>'+esc(def.nome||choiceName(option))+'.</strong> O modificador concedido por esta escolha aparece na coluna Racial.</div>';
   });
   (race?.habilidades?.fixas||[]).forEach(ability=>{
     if(ability.escolha?.tipo==='escolha_multipla')choices+='<div class="info-box blue"><strong>'+esc(ability.nome)+':</strong> escolha transferida para a fase 6 — Poderes.</div>';
