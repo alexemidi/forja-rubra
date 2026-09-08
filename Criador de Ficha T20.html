@@ -1829,6 +1829,42 @@ document.getElementById('spellSchoolModal').addEventListener('keydown',event=>{
 const renderStageBeforeSchools=renderStage;
 renderStage=function(){if(state.step!==7){endSchoolReview();closeSchoolDialog()}renderStageBeforeSchools();if(state.step===7)notifySchoolCompletion()};
 
+state.identity.suraggelChoices=Object.assign({},state.identity.suraggelChoices||{});
+function suraggelHeritage(){return state.identity.raceId==='suraggel'?state.identity.raceChoices.suraggel_heranca_substituta:''}
+const SURAGGEL_SKILL_OPTIONS=SKILLS.map(([id,nome])=>({id,nome}));
+const SURAGGEL_HERITAGE_CHOICES={
+  heranca_de_al_gazara:[{id:'suraggel_al_gazara_atributo',nome:'Atributo aleatório',descricao:'Sorteie o atributo que recebe +1.',opcoes:ATTRS.map(([id,nome])=>({id,nome}))}],
+  heranca_de_arboria:[{id:'suraggel_arboria_forma',nome:'Forma Selvagem',opcoes:['Ágil','Sorrateira','Veloz'].map(nome=>({id:slug(nome),nome}))}],
+  heranca_de_chacina:[{id:'suraggel_chacina_forma',nome:'Forma Selvagem',opcoes:['Feroz','Resistente'].map(nome=>({id:slug(nome),nome}))}],
+  heranca_de_magika:[{id:'suraggel_magika_atributo',nome:'Atributo-chave da magia',opcoes:[{id:'int',nome:'Inteligência'},{id:'car',nome:'Carisma'}]}],
+  heranca_de_nivenciuen:[{id:'suraggel_nivenciuen_habilidade',nome:'Habilidade élfica',opcoes:['Graça de Glórienn','Sangue Mágico'].map(nome=>({id:slug(nome),nome}))}],
+  heranca_de_werra:[{id:'suraggel_werra_proficiencia',nome:'Proficiência',opcoes:[{id:'armas_marciais',nome:'Armas marciais'},{id:'duas_armas_exoticas',nome:'Duas armas exóticas'}]}],
+  heranca_de_deathok:[1,2].map(n=>({id:'suraggel_deathok_pericia_'+n,nome:'Perícia '+n,opcoes:SURAGGEL_SKILL_OPTIONS})),
+  heranca_de_pelagia:[1,2,3].map(n=>({id:'suraggel_pelagia_pericia_'+n,nome:'Perícia '+n,opcoes:SURAGGEL_SKILL_OPTIONS})),
+  heranca_de_ramknal:[1,2].map(n=>({id:'suraggel_ramknal_pericia_'+n,nome:'Perícia '+n,opcoes:SURAGGEL_SKILL_OPTIONS.filter(option=>['acrobacia','enganacao','furtividade','jogatina','ladinagem'].includes(option.id))}))
+};
+const supplementalRaceChoicesBeforeSuraggel=supplementalRaceChoiceDefinitions;
+supplementalRaceChoiceDefinitions=function(){return [...supplementalRaceChoicesBeforeSuraggel(),...(SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[])]};
+function duplicateSuraggelChoice(){
+  const definitions=SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[],skillDefinitions=definitions.filter(def=>def.id.includes('_pericia_')),values=skillDefinitions.map(def=>state.identity.raceChoices[def.id]).filter(Boolean);
+  return values.find((value,index)=>values.indexOf(value)!==index)||'';
+}
+const raceSelectionsCompleteBeforeSuraggel=raceSelectionsComplete;
+raceSelectionsComplete=function(){return raceSelectionsCompleteBeforeSuraggel()&&!duplicateSuraggelChoice()};
+const raceMissingChoicesBeforeSuraggel=raceMissingChoices;
+raceMissingChoices=function(){const missing=raceMissingChoicesBeforeSuraggel(),duplicate=duplicateSuraggelChoice();if(duplicate)missing.push({title:'Perícias da herança',message:'Escolha perícias diferentes para esta herança.',selector:'[data-action="race-choice"][value="'+duplicate+'"]'});return missing};
+const finalAttrsBeforeSuraggel=finalAttrs;
+finalAttrs=function(){const values=finalAttrsBeforeSuraggel();if(suraggelHeritage()==='heranca_de_al_gazara'){const attr=state.identity.raceChoices.suraggel_al_gazara_atributo;if(values[attr]!==undefined)values[attr]++}return values};
+const progressionStatsBeforeSuraggel=progressionStats;
+progressionStats=function(){const stats=progressionStatsBeforeSuraggel(),heritage=suraggelHeritage(),level=Math.max(1,Number(state.identity.plannedLevel)||1),tier=level<=4?1:level<=10?2:level<=16?3:4;if(heritage==='heranca_de_drashantyr')stats.pm++;if(heritage==='heranca_de_vitalia')stats.pv+=5*tier;if(heritage==='heranca_de_kundali')stats.defense+=2;return stats};
+const spellPlanBeforeSuraggel=spellPlan;
+spellPlan=function(){const plan=spellPlanBeforeSuraggel();if(suraggelHeritage()==='heranca_de_magika'&&!plan.groups.some(group=>group.id==='race:suraggel_magika'))plan.groups.push({id:'race:suraggel_magika',label:'Herança de Magika',description:'Escolha uma magia arcana de 1º círculo. Se aprendê-la novamente, seu custo diminui em 1 PM.',count:1,maxCircle:1,type:'arcana',schools:[],fixed:[],allowed:[],scope:'race:suraggel_magika',kind:'race',keyAttribute:state.identity.raceChoices.suraggel_magika_atributo||'int'});return plan};
+document.addEventListener('change',event=>{if(event.target.dataset.action!=='race-choice')return;if(event.target.dataset.choiceId==='suraggel_heranca_substituta'){
+  Object.keys(state.identity.raceChoices).filter(key=>key.startsWith('suraggel_')&&key!=='suraggel_heranca_substituta').forEach(key=>delete state.identity.raceChoices[key]);
+  Object.keys(spellState().selections).filter(key=>key==='race:suraggel_magika').forEach(key=>delete spellState().selections[key]);
+  if(event.target.value==='heranca_de_al_gazara')state.identity.raceChoices.suraggel_al_gazara_atributo=ATTRS[Math.floor(Math.random()*ATTRS.length)][0];
+}},true);
+
 // Presentation and final validation shared by desktop and mobile.
 [PHASES[2],PHASES[3]]=[PHASES[3],PHASES[2]];
 function migrateCreationLayout(value){
@@ -2042,7 +2078,7 @@ applyOfficeChoice=function(id){const group=officePending?.source==='skill'?offic
 PHASES[8]=['Progressão','Escolha as classes e poderes recebidos após o 1º nível.'];
 PHASES.push(['Detalhes da ficha','Confira a ficha completa e exporte uma cópia preenchida em PDF.']);
 const finalAttrsBeforeProgression=finalAttrs;
-finalAttrs=function(){const values=finalAttrsBeforeProgression();for(const row of state.progression||[])if(row.powerId==='classe_aumento_de_atributo'&&values[row.powerChoice]!==undefined)values[row.powerChoice]++;return values};
+finalAttrs=function(){const values=finalAttrsBeforeProgression();for(const row of state.progression||[]){if(row.powerId==='classe_aumento_de_atributo'&&values[row.powerChoice]!==undefined)values[row.powerChoice]++;if(slug(progressionPowerById(row.powerId)?.nome)==='autoridade_eclesiastica'&&state.deity.name==='Marah')values.car++}return values};
 function progressionTier(level){return level<=4?'iniciante':level<=10?'veterano':level<=16?'campeão':'lenda'}
 function progressionPowerById(id){return DATA.classPowers.find(power=>power.id===id)}
 function progressionOwnedPowerNames(beforeIndex){return state.progression.slice(0,beforeIndex).map(row=>progressionPowerById(row.powerId)?.nome).filter(Boolean)}
@@ -2076,6 +2112,15 @@ function renderProgressionPhase(){
   return panel('Progressão de níveis','<div class="progression">'+rows+'</div><div class="inline-actions progression-add-action"><button class="button primary" data-action="add-level" type="button" '+(state.identity.plannedLevel>=20?'disabled':'')+'>+ Subir de nível</button></div>','Multiclasse usa os PV de nível subsequente e não concede novas perícias ou proficiências.');
 }
 function renderCharacterDetails(){return extractSummaryPanel(renderSummary(),'Progressão e multiclasse',true)}
+function ensureLevelClassModal(){
+  let modal=document.getElementById('levelClassModal');if(modal)return modal;
+  modal=document.createElement('div');modal.id='levelClassModal';modal.className='modal-backdrop';modal.hidden=true;
+  modal.innerHTML='<section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="levelClassTitle"><header><h3 id="levelClassTitle">Classe do novo nível</h3></header><div class="confirm-modal-body"><p>Escolha a classe que o personagem receberá neste nível. A classe anterior já vem selecionada.</p><label class="field"><span>Classe</span><select class="select" id="levelClassSelect"></select></label></div><footer><button class="button" id="levelClassCancel" type="button">Cancelar</button><button class="button primary" id="levelClassConfirm" type="button">Confirmar nível</button></footer></section>';
+  document.body.appendChild(modal);modal.querySelector('#levelClassCancel').onclick=()=>modal.hidden=true;modal.addEventListener('click',event=>{if(event.target===modal)modal.hidden=true});
+  modal.querySelector('#levelClassConfirm').onclick=()=>{const classId=modal.querySelector('#levelClassSelect').value;if(!classId)return;state.identity.plannedLevel=Math.min(20,state.identity.plannedLevel+1);state.progression.push({classId,powerId:''});modal.hidden=true;renderStage();setTimeout(()=>document.querySelector('.progression-level-row:last-child')?.scrollIntoView({behavior:'smooth',block:'start'}),40)};
+  return modal;
+}
+function openLevelClassModal(){const modal=ensureLevelClassModal(),select=modal.querySelector('#levelClassSelect'),suggested=state.progression.at(-1)?.classId||state.identity.classId;select.innerHTML=DATA.classes.map(cls=>'<option value="'+cls.id+'" '+(cls.id===suggested?'selected':'')+'>'+esc(cls.nome)+'</option>').join('');modal.hidden=false;setTimeout(()=>select.focus(),20)}
 const phaseCompleteBeforeProgression=phaseIsComplete,missingBeforeProgression=missingChoices,validationBeforeProgression=validationMessage;
 phaseIsComplete=function(step){if(step===9)return progressionMissingChoices().length===0;if(step===10)return characterPendingChoices().length===0;return phaseCompleteBeforeProgression(step)};
 missingChoices=function(step){if(step===9)return progressionMissingChoices();if(step===10)return characterPendingChoices();return missingBeforeProgression(step)};
@@ -2087,6 +2132,7 @@ renderStage=function(){
   document.getElementById('stageKicker').textContent='Fase '+state.step+' de 10';document.getElementById('stageTitle').textContent=title;document.getElementById('stageDescription').textContent=description;document.getElementById('stageRoot').innerHTML=renders[state.step-1]();document.getElementById('previousButton').disabled=state.step===1;document.getElementById('nextButton').textContent=state.step===10?'Ficha concluída':state.step===9&&state.identity.plannedLevel===1?'Pular progressão →':state.step===9?'Confirmar →':'Continuar →';document.getElementById('footerMessage').textContent=validationMessage(state.step,true);document.getElementById('footerMessage').hidden=true;document.getElementById('exportButton').hidden=!canExportCharacter();document.getElementById('redoInitialItemsButton').hidden=true;document.body?.classList.toggle('spell-stage',state.step===7);renderNav();applyCompletedChoiceAppearance();if(state.step===5)bindDeityPowerSearch();if(state.step===6)bindPowerSearch();if(state.step===7){mountGrimoire();updateSpellOptionsToggle()}persist();
 };
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action]');if(!button)return;const index=Number(button.dataset.index),row=state.progression[index];if(button.dataset.action==='class-power-preview'){row.previewPowerId=button.dataset.powerId;row.previewPowerChoice=row.powerId===row.previewPowerId?row.powerChoice:'';renderStage()}else if(button.dataset.action==='class-power-attribute'){row.previewPowerChoice=button.dataset.attr;renderStage()}else if(button.dataset.action==='class-power-select'){const power=progressionPowerById(button.dataset.powerId),verdict=classProgressionEligibility(power,index);if(!verdict.ok)return toast(verdict.reasons.join(' '));row.powerId=power.id;row.powerChoice=power.id==='classe_aumento_de_atributo'?row.previewPowerChoice:'';renderStage()}else if(button.dataset.action==='class-power-remove'){row.powerId='';row.powerChoice='';renderStage()}},true);
+document.addEventListener('click',event=>{if(!event.target.closest?.('[data-action="add-level"]'))return;event.preventDefault();event.stopImmediatePropagation();if(state.identity.plannedLevel>=20)return;openLevelClassModal()},true);
 document.addEventListener('click',event=>{if(state.step!==9||!event.target.closest?.('#nextButton'))return;event.preventDefault();event.stopImmediatePropagation();const missing=progressionMissingChoices();if(missing.length)return showMissingChoiceWarning(missing);if(!state.completed.includes(9))state.completed.push(9);state.step=10;renderStage();window.scrollTo({top:0,behavior:'smooth'})},true);
 
 let arsenalSession=0;
