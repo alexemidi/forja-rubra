@@ -18,6 +18,38 @@ if (!catalogMatch) throw new Error('Catálogo de itens não localizado para a ex
 const pdfItems = JSON.parse(catalogMatch[1]).map(item => ({id:item.id,nome:item.nome,tipo:item.tipo,categoriaId:item.categoriaId,espacos:item.espacos,equipamento:item.equipamento,arma:item.arma,armadura:item.armadura,escudo:item.escudo}));
 const pdfTemplateBase64 = fs.readFileSync(path.join(root, 'output/Ficha T20 Jogo do Ano - Otimizada v1.4.pdf')).toString('base64');
 const races = readJson('backup-jsons/races_update.json');
+const duende = races.find(race => race.id === 'duende');
+if (duende) {
+  const selected = duende.habilidades?.selecionadas || [];
+  const curse = selected.find(choice => choice.id === 'duende_presentes')?.opcoes?.find(option => option.id === 'Maldição')?.subEscolhas?.find(choice => choice.id === 'duende_maldicao_efeito');
+  if (curse) curse.opcoes = curse.opcoes.filter(option => ['coracao_de_geleia','envelhecimento_subito','loucura_do_verao','mil_verrugas','ruina_do_corpo'].includes(option.id));
+  const taboo = selected.find(choice => choice.id === 'duende_tabu');
+  const tabooTexts = [
+    'Sempre remenda as roupas de qualquer mortal que esteja dormindo sob o mesmo teto que ele.',
+    'Come apenas carne crua.',
+    'Nunca pode ouvir um agradecimento.',
+    'Sempre entra em qualquer lugar de costas.',
+    'Não revela o próprio nome.',
+    'Compõe um pequeno poema para todos que encontra, descrevendo a morte de cada um.',
+    'Não pode ver crianças em noites de lua cheia.',
+    'Nunca senta em cadeiras.',
+    'Carrega sempre consigo um pote fechado. Diz que ali dentro está seu coração.',
+    'Usa sapatos muito pequenos e reclama de dor nos pés o tempo todo. Fica enfurecido se alguém sugerir ou oferecer sapatos diferentes.',
+    'Age como se estivesse paralisado se qualquer quantidade de sal tocar sua pele.',
+    'Um dia por semana, atende por um nome diferente e demonstra personalidade um pouco diferente. Diz não lembrar de seu outro nome.',
+    'Varre qualquer cômodo onde esteja.',
+    'Tem pavor do próprio reflexo.',
+    'Nunca pode aceitar um favor sem pagar pelo menos uma moeda.',
+    'Ao passar na frente de qualquer templo, cobre os olhos com uma venda.',
+    'Rouba um garfo de qualquer casa na qual entre.',
+    'Precisa atravessar todos os espinheiros que encontra em seu caminho.',
+    'Sempre responde uma pergunta com outra pergunta.',
+    'Não pode falar a verdade durante um dia inteiro por mês. Esse dia varia a cada mês. Não pode avisar ninguém sobre a chegada desse dia, ou sobre este tabu.',
+    'Em intervalos de tempo aleatórios, lembra-se de que está atrasado para um compromisso importante e corre para longe, sumindo por algumas horas.',
+    'Não pode olhar pessoas feridas nos olhos.'
+  ];
+  if (taboo) taboo.opcoes = tabooTexts.map((text,index) => ({id:'tabu_'+String(index+1).padStart(2,'0'),nome:text,descricao:text}));
+}
 const suraggel = races.find(race => race.id === 'suraggel');
 if (suraggel) suraggel.habilidades.selecionadas.push({id:'suraggel_heranca_substituta',nome:'Herança extraplanar',descricao:'Mantenha a herança original de Aggelus ou Sulfure ou substitua-a por uma das heranças extraplanares.',tipo:'heranca',obrigatoria:true,opcoes:[{id:'suraggel_heranca_original',nome:'Herança original',descricao:'Mantenha Luz Sagrada (Aggelus) ou Sombras Profanas (Sulfure).'},...raceAndAuthority.heritages.map(entry=>({id:entry.id,nome:entry.name,descricao:entry.id==='heranca_de_werra'?'Você possui um conhecimento intuitivo para armas. Você recebe +1 em testes de ataque com armas e proficiência com armas marciais ou com duas armas exóticas.':entry.description}))]});
 
@@ -79,7 +111,7 @@ if (!template.includes(marker)) throw new Error('Marcador de dados não encontra
 if (!template.includes('/*__T20_SPELL_INTEGRATION__*/')) throw new Error('Marcador de integração com o Grimório não encontrado no template.');
 if (!template.includes('/*__T20_SPELL_STYLES__*/')) throw new Error('Marcador de estilos do Grimório não encontrado no template.');
 if (!template.includes('/*__T20_PDF_LIB__*/') || !template.includes('/*__T20_PDF_EXPORT__*/')) throw new Error('Marcadores da exportação em PDF não encontrados no template.');
-const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','creation-flow.js','progression-phase.js','arsenal-integration.js','character-sheet.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
+const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','duende-expansion.js','creation-flow.js','progression-phase.js','arsenal-integration.js','character-sheet.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
 const spellLayout = fs.readFileSync(path.join(__dirname, 'spell-layout.css'), 'utf8');
 const pdfLib = fs.readFileSync(require.resolve('pdf-lib/dist/pdf-lib.min.js'), 'utf8');
 const pdfExport = fs.readFileSync(path.join(__dirname, 'pdf-export.js'), 'utf8');

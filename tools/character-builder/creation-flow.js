@@ -73,9 +73,9 @@ function progressionMissingChoices(){
   state.progression.forEach((row,index)=>{
     const cls=classById(row.classId),level=classLevelAt(index,row.classId);
     if(!cls)missing.push({title:'Classe do nível '+(index+1),message:'Escolha a classe deste nível.',selector:'[data-action="progress-class"][data-index="'+index+'"]'});
-    else if(index>0&&powerSlotAt(cls,level)&&!DATA.classPowers.some(power=>power.id===row.powerId&&(power.classeIds||[]).includes(row.classId)))missing.push({title:'Poder do nível '+(index+1),message:'Escolha o poder de '+cls.nome+' para o nível '+(index+1)+'.',selector:'[data-action="class-power-preview"][data-index="'+index+'"]'});
+    else if(index>0&&powerSlotAt(cls,level)&&!(DATA.classPowers.some(power=>power.id===row.powerId&&(power.classeIds||[]).includes(row.classId))||progressionRacePowerById(row.powerId)))missing.push({title:'Poder do nível '+(index+1),message:'Escolha o poder de classe ou a substituição racial para o nível '+(index+1)+'.',selector:'[data-action="class-power-preview"][data-index="'+index+'"]'});
     else if(row.powerId==='classe_aumento_de_atributo'&&!row.powerChoice)missing.push({title:'Atributo do nível '+(index+1),message:'Escolha qual atributo recebe o Aumento de Atributo.',selector:'[data-action="class-power-attribute"][data-index="'+index+'"]'});
-    else if(row.powerId&&classProgressionEligibility(row,index).ok===false)missing.push({title:'Poder inválido no nível '+(index+1),message:'O poder escolhido não cumpre mais seus pré-requisitos.',selector:'[data-action="class-power-preview"][data-index="'+index+'"]'});
+    else if(row.powerId&&!progressionRacePowerById(row.powerId)&&classProgressionEligibility(progressionPowerById(row.powerId),index).ok===false)missing.push({title:'Poder inválido no nível '+(index+1),message:'O poder escolhido não cumpre mais seus pré-requisitos.',selector:'[data-action="class-power-preview"][data-index="'+index+'"]'});
   });
   return missing;
 }

@@ -9,7 +9,7 @@ function automaticStartingGrants(){
   const grants=['Mochila','Saco de Dormir','Traje de Viajante'].map((name,index)=>({id:'base:'+index,name,source:'initial'}));
   if(proficiencies.has('escudos'))grants.push({id:'base:shield',name:'Escudo Leve',source:'initial'});
   for(const [kind,origin] of [['standard',selectedStandardOrigin()],['regional',state.origin.mode==='dual'?selectedRegionalOrigin():null]])
-    (origin?.itens||[]).forEach((name,index)=>grants.push({id:'origin:'+kind+':'+(origin.id||state.origin[kind])+':'+index,name,source:'origin'}));
+    (origin?.itens||[]).forEach((name,index)=>{if(!originItemChoice(name,kind,origin,index))grants.push({id:'origin:'+kind+':'+(origin.id||state.origin[kind])+':'+index,name,source:'origin'})});
   return grants;
 }
 function automaticStartingItems(){return automaticStartingGrants().map(grant=>grant.name)}
@@ -18,12 +18,12 @@ function arsenalState(){
   if(!state.arsenal||typeof state.arsenal!=='object')state.arsenal={storage:{},choiceIndex:0,pending:null,complete:false,ruleSignature:signature,unresolved:[]};
   const saved=state.arsenal;
   if(!saved.storage||typeof saved.storage!=='object')saved.storage={};
-  if(!saved.grants){saved.grants={};if(saved.complete){initialItemPlan().forEach(choice=>saved.grants['choice:'+choice.id]=true);automaticStartingGrants().forEach(grant=>saved.grants[grant.id]=true)}}
+  if(!saved.grants){saved.grants={};if(saved.complete){initialItemPlan().forEach(choice=>saved.grants[itemChoiceGrantId(choice)]=true);automaticStartingGrants().forEach(grant=>saved.grants[grant.id]=true)}}
   if(!saved.operations)saved.operations={};
   if(saved.ruleSignature&&saved.ruleSignature!==signature){saved.pending=null;saved.choiceIndex=0;saved.complete=false;state.completed=state.completed.filter(step=>step!==8)}
   saved.ruleSignature=signature;saved.schemaVersion=2;saved.choiceIndex=Math.max(0,Number(saved.choiceIndex)||0);
   const plan=initialItemPlan();
-  while(plan[saved.choiceIndex]&&saved.grants['choice:'+plan[saved.choiceIndex].id])saved.choiceIndex++;
+  while(plan[saved.choiceIndex]&&saved.grants[itemChoiceGrantId(plan[saved.choiceIndex])])saved.choiceIndex++;
   return saved;
 }
 function financesState(){
@@ -45,11 +45,31 @@ function renderStartingMoneyPanel(){
 const identityBeforeStartingMoney=renderIdentityClass;
 renderIdentityClass=function(){return identityBeforeStartingMoney()+renderStartingMoneyPanel()};
 function initialItemPlan(){
-  const cls=classById(state.identity.classId),proficiencies=new Set(characterProficiencies()),arcanist=state.identity.classId==='arcanista'||DATA.classInheritance[state.identity.classId]==='arcanista',choices=[{id:'simple',title:'Escolha uma arma simples (Opcional)',type:'arma',category:'simples'}];
+  const cls=classById(state.identity.classId),proficiencies=new Set(characterProficiencies()),arcanist=state.identity.classId==='arcanista'||DATA.classInheritance[state.identity.classId]==='arcanista',choices=originItemChoices();choices.push({id:'simple',title:'Escolha uma arma simples (Opcional)',type:'arma',category:'simples'});
   if(proficiencies.has('armas_marciais'))choices.push({id:'martial',title:'Escolha uma arma marcial (Opcional)',type:'arma',category:'marcial'});
   if(!arcanist)choices.push({id:'armor',title:'Escolha uma armadura (Opcional)',type:'armadura',names:['Armadura de Couro','Couro Batido','Gibão de Peles',...(proficiencies.has('armaduras_pesadas')?['Brunea']:[])]});
   return choices;
 }
+function originItemChoice(name,kind,origin,index){
+  const text=slug(name).replace(/_/g,' '),base={id:'origin-'+kind+'-'+slug(origin?.id||origin?.nome||'origem')+'-'+index,title:name.replace(/\s*\(escolha um\)\s*/i,''),source:'origin'};
+  if(/cao de caca.*cavalo.*ponei.*trobo/.test(text))return{...base,names:['Cão de Caça','Cavalo','Pônei','Trobo']};
+  if(/estojo de disfarces ou.*instrumento musical/.test(text))return{...base,names:['Estojo de Disfarces','Instrumento Musical']};
+  if(/estojo de disfarces ou gazua/.test(text))return{...base,names:['Estojo de Disfarces','Gazua']};
+  if(/gazua ou instrumentos de oficio/.test(text))return{...base,names:['Gazua','Instrumentos de Ofício']};
+  if(/rolo de macarrao ou martelo de carne/.test(text))return{...base,type:'arma',names:['Rolo de Macarrão','Martelo de Carne']};
+  if(/instrumentos de oficio ou uma arma simples/.test(text))return{...base,categories:['simples'],names:['Instrumentos de Ofício'],allowNamedOrFilter:true};
+  if(/arma simples ou marcial de ataque a distancia/.test(text))return{...base,type:'arma',categories:['simples','marcial'],combat:'a_distancia'};
+  if(/arma simples corpo a corpo/.test(text))return{...base,type:'arma',categories:['simples'],combat:'corpo_a_corpo'};
+  if(/arma marcial ou exotica/.test(text))return{...base,type:'arma',categories:['marcial','exotica']};
+  if(/^uma arma marcial$/.test(text))return{...base,type:'arma',categories:['marcial']};
+  if(/^uma arma simples$/.test(text))return{...base,type:'arma',categories:['simples']};
+  if(/ferramenta pesada.*maca ou lanca/.test(text))return{...base,type:'arma',names:['Ferramenta Pesada']};
+  const price=Number((name.match(/T\$\s*([\d.]+)/i)||[])[1]?.replace(/\./g,''));
+  if(/um ou mais itens|item que voce possa fabricar|item estrangeiro|item recebido de seu mestre/.test(text))return{...base,maxPrice:price||500};
+  return null;
+}
+function originItemChoices(){const choices=[];for(const [kind,origin] of [['standard',selectedStandardOrigin()],['regional',state.origin.mode==='dual'?selectedRegionalOrigin():null]])(origin?.itens||[]).forEach((name,index)=>{const choice=originItemChoice(name,kind,origin,index);if(choice)choices.push(choice)});return choices}
+function itemChoiceGrantId(choice){return (choice?.source==='origin'?'origin-choice:':'choice:')+choice.id}
 function currentItemChoice(){return initialItemPlan()[arsenalState().choiceIndex]||null}
 function inventoryProfile(){
   const saved=arsenalState();let profiles;
@@ -59,11 +79,12 @@ function inventoryProfile(){
   return {...profile,id:'ficha-ativa',name:state.identity.characterName||'Personagem',strength:finalAttrs().for,capacityBonus:suraggelCarryingBonus()};
 }
 function characterInventory(){return inventoryProfile().backpack||[]}
+function craftingCapabilities(){const trained=allTrainedSkills().some(id=>String(id).toLowerCase().startsWith('oficio:armeiro')||slug(id)==='oficio_armeiro'||slug(skillDisplayName(id))==='oficio_armeiro'),level=Math.max(1,Number(state.identity.plannedLevel)||1),text=slug(raceAbilityText()+' '+classAbilityText()+' '+(state.progression||[]).map(row=>progressionPowerById(row.powerId)?.descricao||'').join(' ')).replace(/_/g,' ');let improvements=0;if(/fabricar.*superior.*uma melhoria|fabricar armas e armaduras superiores com uma melhoria/.test(text))improvements=1;if(state.progression.some(row=>row.classId==='inventor')||state.identity.classId==='inventor'){if(level>=2)improvements=Math.max(improvements,1);if(level>=5)improvements=2;if(level>=8)improvements=3;if(level>=11)improvements=4}return{enabled:trained,improvements,magic:state.identity.classId==='inventor'&&level>=9}}
 function arsenalInitialData(mode){
   const saved=arsenalState(),profile=inventoryProfile(),storage={...saved.storage};
   storage[ARSENAL_PROFILES_KEY]=JSON.stringify({activeId:'ficha-ativa',profiles:[profile]});
   mode=mode||(saved.complete?(arsenalShopOpen?'shop':'backpack'):'initial');
-  return{session:arsenalSession,storage,choice:mode==='initial'?currentItemChoice():null,candidate:mode==='initial'?saved.pending:null,mode,funds:remainingFunds(),startingLevel:financesState().startingLevel,startingMoney:startingFunds(),strength:profile.strength,capacityBonus:profile.capacityBonus||0,characterName:profile.name};
+  return{session:arsenalSession,storage,choice:mode==='initial'?currentItemChoice():null,candidate:mode==='initial'?saved.pending:null,mode,funds:remainingFunds(),startingLevel:financesState().startingLevel,startingMoney:startingFunds(),strength:profile.strength,capacityBonus:profile.capacityBonus||0,characterName:profile.name,crafting:craftingCapabilities()};
 }
 function renderArsenal(){
   const saved=arsenalState(),title=saved.complete?'Itens adquiridos':currentItemChoice()?.title||'Equipamento inicial';
@@ -119,11 +140,11 @@ renderStage=function(){
 };
 function acceptArsenalOperation(message){
   const saved=arsenalState(),previous=saved.operations[message.operationId];
-  if(!message.operationId||!message.storage||!['purchase','initial'].includes(message.kind))return;
+  if(!message.operationId||!message.storage||!['purchase','craft','initial'].includes(message.kind))return;
   if(previous){sendArsenal('operation-result',{...previous,operationId:message.operationId,ok:true,storage:saved.storage,context:arsenalInitialData()});return}
   const beforeArsenal=JSON.parse(JSON.stringify(saved)),beforeFinances={...financesState()};
   const total=Math.max(0,Number(message.total)||0),gift=message.kind==='purchase'&&total>remainingFunds();
-  if(message.kind==='purchase'&&!gift)financesState().spent+=total;
+  if(['purchase','craft'].includes(message.kind)&&!gift)financesState().spent+=total;
   saved.storage=message.storage;
   if(message.kind==='purchase'){
     const profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{}');
@@ -157,9 +178,9 @@ document.addEventListener('click',event=>{
   if(!choice){finalizeInitialItems();return}
   if(saved.pending){
     document.getElementById('nextButton').disabled=true;
-    const last=initialItemPlan().slice(saved.choiceIndex+1).every(item=>saved.grants['choice:'+item.id]);
-    sendArsenal('commit-choice',{operationId:'choice:'+choice.id,grantId:'choice:'+choice.id,selection:saved.pending,finalize:last,automaticGrants:last?unclaimedAutomaticGrants():[]});
-  }else{saved.grants['choice:'+choice.id]=true;advanceInitialItemChoice()}
+    const grantId=itemChoiceGrantId(choice),last=initialItemPlan().slice(saved.choiceIndex+1).every(item=>saved.grants[itemChoiceGrantId(item)]);
+    sendArsenal('commit-choice',{operationId:grantId,grantId,source:choice.source||'initial',selection:saved.pending,finalize:last,automaticGrants:last?unclaimedAutomaticGrants():[]});
+  }else{saved.grants[itemChoiceGrantId(choice)]=true;advanceInitialItemChoice()}
 },true);
 window.addEventListener('message',event=>{
   const frame=document.getElementById('characterArsenal'),message=event.data;

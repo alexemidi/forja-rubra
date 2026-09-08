@@ -265,6 +265,8 @@ function renderSpellControls(){
   const saved=spellState();
   return '<div class="spell-control-row"><div class="inline-actions"><button type="button" class="button '+(saved.view==='available'?'primary':'')+'" data-action="spell-view" data-view="available" aria-pressed="'+(saved.view==='available')+'">Disponíveis para a escolha</button><button type="button" class="button '+(saved.view==='learned'?'primary':'')+'" data-action="spell-view" data-view="learned" aria-pressed="'+(saved.view==='learned')+'">Magias do personagem</button></div><button class="button" data-action="spell-reload" type="button">Recarregar</button></div><div class="spell-library-row"><div class="spell-book-filters" aria-label="Filtrar magias por livro"><span>Livros</span>'+SPELL_BOOK_IDS.map(id=>'<button type="button" class="spell-book-chip '+(spellCatalogUI.books.has(id)?'active':'')+'" data-action="spell-book" data-book="'+esc(id)+'" aria-pressed="'+spellCatalogUI.books.has(id)+'">'+esc(BOOKS[id.replace(/-/g,'_')]||id)+'</button>').join('')+'</div><div class="spell-section-tabs" role="group" aria-label="Seções do grimório"><button type="button" data-action="spell-section" data-section="magias" class="'+(spellCatalogUI.section==='magias'?'active':'')+'" aria-pressed="'+(spellCatalogUI.section==='magias')+'">Magias</button><button type="button" data-action="spell-section" data-section="condicoes" class="'+(spellCatalogUI.section==='condicoes'?'active':'')+'" aria-pressed="'+(spellCatalogUI.section==='condicoes')+'">Condições</button></div></div>';
 }
+const renderSpellControlsWithoutRedo=renderSpellControls;
+renderSpellControls=function(){return renderSpellControlsWithoutRedo().replace('<button class="button" data-action="spell-reload"','<button class="button danger" data-action="spell-redo" type="button">Refazer escolhas</button><button class="button" data-action="spell-reload"')};
 function renderSpells(){
   const saved=spellState();
   return '<section class="panel spell-top-panel"><button type="button" class="spell-options-toggle" id="spellOptionsToggle" aria-expanded="false" aria-controls="spellOptionsContent">Fontes e opções de magia ▾</button><div class="panel-header"><h3 class="panel-title">'+esc(saved.progression?'Magias · progressão até o nível '+state.identity.plannedLevel:'Magias iniciais · nível 1')+'</h3></div><div class="panel-body" id="spellOptionsContent"><div class="spell-topbar"><div id="spellChoices">'+renderSpellChoices('sources')+'</div><div id="spellControls" class="spell-control-deck">'+renderSpellControls()+'</div></div><div id="spellExtraChoices" class="spell-extra-choices">'+renderSpellChoices('extras')+'</div></div></section><section class="panel spell-catalog-panel"><div class="panel-header"><h3 class="panel-title" id="spellCatalogTitle" aria-live="polite">'+esc(spellCatalogTitle())+'</h3></div><div class="panel-body"><p class="spell-frame-status" id="spellFrameStatus" role="status">Carregando o Grimório…</p><iframe id="spellGrimoire" class="spell-grimoire" title="Grimório de magias do personagem" sandbox="allow-scripts"></iframe></div></section>';
@@ -296,6 +298,8 @@ function refreshSpellStage(){
   renderNav();persist();syncGrimoire();
 }
 function syncSpellControls(){
+  const reload=document.querySelector('[data-action="spell-reload"]');
+  if(reload&&!document.querySelector('[data-action="spell-redo"]'))reload.insertAdjacentHTML('beforebegin','<button class="button danger" data-action="spell-redo" type="button">Refazer escolhas</button>');
   document.querySelectorAll('[data-action="spell-view"], [data-action="spell-book"], [data-action="spell-section"]').forEach(button=>{
     const action=button.dataset.action,active=action==='spell-view'?button.dataset.view===spellState().view:action==='spell-book'?spellCatalogUI.books.has(button.dataset.book):button.dataset.section===spellCatalogUI.section;
     button.classList.toggle(action==='spell-view'?'primary':'active',active);button.setAttribute('aria-pressed',String(active));
@@ -335,6 +339,11 @@ document.addEventListener('click',event=>{
     if(chooseSpellSchool(button.dataset.classId,button.dataset.school))refreshSpellStage();
   }
   if(action==='spell-reload')mountGrimoire();
+  if(action==='spell-redo'){
+    if(!confirm('Você poderá escolher novamente todas as magias opcionais deste personagem. Magias recebidas automaticamente não serão removidas.'))return;
+    saved.selections={};saved.schools={};saved.manualSchools={};saved.lockedSchools={};saved.schoolAnnouncements={};saved.memorized={};saved.activeGroup='';saved.view='available';spellCatalogUI.schoolReview=null;spellCatalogUI.section='magias';
+    const plan=spellPlan();saved.activeGroup=plan.groups.find(group=>group.count)?.id||plan.groups[0]?.id||'';refreshSpellStage();toast('Escolhas de magia liberadas para serem refeitas.');
+  }
   if(action==='summary-spells'){saved.progression=true;state.step=7;renderStage();window.scrollTo({top:0,behavior:'smooth'})}
 });
 const phaseCompleteBeforeSpells=phaseIsComplete,missingBeforeSpells=missingChoices,validationBeforeSpells=validationMessage,summaryBeforeSpells=renderSummary;

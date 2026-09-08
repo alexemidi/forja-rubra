@@ -5,6 +5,7 @@ let initialChoice=null;
 let selectedCandidate=null;
 let pendingOperation=null;
 let shopFilters=null;
+let craftingMode=false;
 const baseApplyFilters=applyFilters;
 const baseSyncCartUI=syncCartUI;
 const kind=document.createElement('span');
@@ -18,7 +19,9 @@ shopFilterButton.type='button';shopFilterButton.className='search-mode-button sh
 searchRow.insertBefore(shopFilterButton,document.querySelector('.sort-control'));
 const shopActions=document.createElement('nav');
 shopActions.className='embedded-shop-actions';
-shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button>';
+shopActions.innerHTML='<label>Dinheiro inicial · T$ <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares"><span data-balance></span></label><button type="button" data-shop-view="catalog">🏪 Comprar itens</button><button type="button" data-craft-mode hidden>🔨 Fabricar</button><button type="button" data-shop-cart>🛒 Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">🎒 Mochila</button>';
+const itemCardBeforeCrafting=itemCard;
+itemCard=function(item){const html=itemCardBeforeCrafting(item);if(!craftingMode)return html;const allowed=['arma','armadura','escudo'].includes(item.tipo)&&(!isNamedFixedMagicItem(item)||arsenalInitialState.crafting?.magic);if(!allowed)return html.replace(/<button class="acquire-button"[^>]*data-action="add-to-cart"[\s\S]*?<\/button>/,'<button class="acquire-button" type="button" disabled>Não fabricável com Ofício (armeiro)</button>');return html.replace('data-action="add-to-cart"','data-action="craft-item"').replace('<span aria-hidden="true">🛒</span> Adicionar ao carrinho','<span aria-hidden="true">🔨</span> Fabricar por ⅓ do preço')};
 document.body.prepend(shopActions);
 function syncEmbeddedShopActions(){
   shopActions.querySelectorAll('[data-shop-view]').forEach(button=>button.classList.toggle('active',button.dataset.shopView===(arsenalInitialState.mode==='backpack'?'backpack':state.view)));
@@ -27,6 +30,7 @@ function syncEmbeddedShopActions(){
   if(document.activeElement!==money)money.value=arsenalInitialState.startingMoney||'';
   money.disabled=arsenalInitialState.startingLevel!==1;
   shopActions.querySelector('[data-balance]').textContent=' · Saldo: '+formatCurrencyValue(arsenalInitialState.funds,'T$');
+  const craft=shopActions.querySelector('[data-craft-mode]');craft.hidden=arsenalInitialState.mode!=='shop'||!arsenalInitialState.crafting?.enabled;craft.classList.toggle('active',craftingMode);
 }
 syncCartUI=function(){baseSyncCartUI();syncEmbeddedShopActions()};
 function starterKey(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\([^)]*\)/g,' ').replace(/^\s*(?:uma?|\d+)\s+/,'').replace(/[^a-z0-9]+/g,' ').trim()}
@@ -56,7 +60,10 @@ function syncShopFilterSummary(){
 function findStartingItem(raw){const key=starterKey(raw);return preparedItems.find(item=>!isSpecificMagicItem(item)&&!isLiturgicalItem(item)&&starterKey(item.nome)===key)}
 function availableInitialItems(){
   let results=filteredItems().filter(item=>!isSpecificMagicItem(item)&&!isLiturgicalItem(item));
-  if(initialChoice?.names?.length){const allowed=new Set(initialChoice.names.map(starterKey));results=results.filter(item=>allowed.has(starterKey(item.nome)))}
+  if(initialChoice?.categories?.length)results=results.filter(item=>initialChoice.categories.includes(item.categoriaId));
+  if(initialChoice?.combat)results=results.filter(item=>item.arma?.combateId===initialChoice.combat);
+  if(Number.isFinite(Number(initialChoice?.maxPrice)))results=results.filter(item=>Number(item.preco?.valor||0)<=Number(initialChoice.maxPrice));
+  if(initialChoice?.names?.length){const allowed=new Set(initialChoice.names.map(starterKey));results=results.filter(item=>allowed.has(starterKey(item.nome))||(initialChoice.allowNamedOrFilter&&initialChoice.categories?.includes(item.categoriaId)))}
   return results;
 }
 function restoreCandidate(){
@@ -66,7 +73,7 @@ function restoreCandidate(){
 applyFilters=function(loadMore){
   if(arsenalInitialState.mode!=='initial'){const result=baseApplyFilters(loadMore);syncShopFilterSummary();return result}
   window.clearTimeout(searchTimer);
-  state.type=initialChoice.type;state.category=initialChoice.category||'todos';state.specific='convencional';
+  state.type=initialChoice.type||'todos';state.category=initialChoice.category||'todos';state.specific='convencional';
   syncFilterUI();
   const results=availableInitialItems();
   syncInitialFilterSummary();
@@ -101,7 +108,7 @@ function applyArsenalContext(context){
   shopFilterButton.hidden=mode!=='shop';
   state.backpackMode=state.backpackMode||'list';
   if(mode==='initial'){
-    state.type=initialChoice.type;state.category=initialChoice.category||'todos';state.specific='convencional';state.combat='todos';state.grip='todos';state.search='';
+    state.type=initialChoice.type||'todos';state.category=initialChoice.category||'todos';state.specific='convencional';state.combat=initialChoice.combat||'todos';state.grip='todos';state.search='';
     syncInitialFilterSummary();
     searchInput.value='';renderContextFilters();weaponFilters.hidden=initialChoice.type!=='arma';setView('catalog');
   }else if(mode==='backpack')setView('backpack');
@@ -116,18 +123,28 @@ function proposeOperation(type,message={}){
   const before={storage:{...arsenalStorageValues},profiles:JSON.stringify(characterProfiles),cart:JSON.stringify(cartItems)};
   const id=message.operationId||('purchase:'+createInstanceId());
   const grants=[],unresolved=[];
-  const total=type==='purchase'?cartTotalsInfo().value:0;
+  let total=type==='purchase'?cartTotalsInfo().value:0;
   const gift=type==='purchase'&&total>arsenalInitialState.funds;
   arsenalTransaction=true;
   try{
     if(type==='purchase')cartItems.forEach(entry=>addPackagesToBackpack(entry.itemId,entry.quantity,entry.options,{source:gift?'gift':'purchase',operationId:id},entry));
+    if(type==='craft'){
+      const item=itemById.get(message.itemId),options=message.options||{},instance={itemId:message.itemId,quantity:1,...options},improvementCount=(instance.improvements||[]).length,enchantmentCount=(instance.enchantments||[]).length;
+      if(!item||!['arma','armadura','escudo'].includes(item.tipo))throw new Error('Item incompatível com Ofício (armeiro).');
+      if(improvementCount>Number(arsenalInitialState.crafting?.improvements||0))throw new Error('Você ainda não pode fabricar esta quantidade de melhorias.');
+      if(enchantmentCount&&!arsenalInitialState.crafting?.magic)throw new Error('Você ainda não pode fabricar itens encantados.');
+      const value=entryValueInfo(instance,effectiveItemForOptions(item,instance));total=value.unitKnown/Number(MAGIC_RULES.divisorCustoFabricacao||3);
+      if(total>arsenalInitialState.funds)throw new Error('Saldo insuficiente para as matérias-primas.');
+      addPackagesToBackpack(item.id,1,options,{source:'craft',operationId:id});
+      message.craftCd=(enchantmentCount?Number(MAGIC_RULES.cdBaseItemEncantado||20):15)+IMPROVEMENT_CRAFT_BONUSES[Math.min(4,improvementCount)]+ENCHANTMENT_CRAFT_BONUSES[Math.min(3,enchantmentCount)];
+    }
     if(type==='initial'&&message.selection){
-      addPackagesToBackpack(message.selection.itemId,1,message.selection.options,{source:'initial',grantId:message.grantId});grants.push(message.grantId);
+      addPackagesToBackpack(message.selection.itemId,1,message.selection.options,{source:message.source||'initial',grantId:message.grantId});grants.push(message.grantId);
     }
     for(const grant of message.automaticGrants||[]){const item=findStartingItem(grant.name);if(item){addPackagesToBackpack(item.id,1,{}, {source:grant.source,grantId:grant.id});grants.push(grant.id)}else unresolved.push(grant.name)}
     if(type==='purchase')cartItems=[];
     persistBackpack();persistCart();
-    pendingOperation={operationId:id,kind:type,storage:{...arsenalStorageValues},total,gift,grants,unresolved,finalize:!!message.finalize};
+    pendingOperation={operationId:id,kind:type,storage:{...arsenalStorageValues},total,gift,grants,unresolved,finalize:!!message.finalize,craftCd:message.craftCd};
   }finally{
     Object.keys(arsenalStorageValues).forEach(key=>delete arsenalStorageValues[key]);Object.assign(arsenalStorageValues,before.storage);
     characterProfiles=JSON.parse(before.profiles);backpackItems=activeCharacterProfile()?.backpack||[];cartItems=JSON.parse(before.cart);arsenalTransaction=false;
@@ -135,6 +152,7 @@ function proposeOperation(type,message={}){
   postArsenal('operation',pendingOperation);
 }
 shopActions.addEventListener('click',event=>{
+  if(event.target.closest('[data-craft-mode]')){craftingMode=!craftingMode;applyFilters();syncEmbeddedShopActions();showToast(craftingMode?'Modo de fabricação ativo. Armas, armaduras e escudos mostram o custo em matérias-primas.':'Modo de compra ativo.');return}
   if(event.target.closest('[data-shop-cart]'))return openCartDecision(false);
   const view=event.target.closest('[data-shop-view]');if(!view)return;
   if(view.dataset.shopView==='backpack'){if(cartItems.length)openCartDecision(true);else postArsenal('close-shop')}
@@ -155,6 +173,7 @@ document.addEventListener('click',event=>{
   }
   const choice=event.target.closest?.('[data-action="add-to-cart"]');
   if(choice&&arsenalInitialState.mode==='initial'){event.preventDefault();event.stopImmediatePropagation();const item=itemById.get(choice.dataset.itemId);if(item&&availableInitialItems().some(candidate=>candidate.id===item.id))chooseCandidate(item);return}
+  const craft=event.target.closest?.('[data-action="craft-item"]');if(craft){event.preventDefault();event.stopImmediatePropagation();const item=itemById.get(craft.dataset.itemId);try{proposeOperation('craft',{itemId:item.id,options:catalogOptionsForItem(item)})}catch(error){showToast(error.message)}return}
   if(event.target.closest?.('#checkoutCart')){event.preventDefault();event.stopImmediatePropagation();if(cartItems.length)proposeOperation('purchase');return}
   if(event.target.closest?.('#cartViewBackpack')){event.preventDefault();event.stopImmediatePropagation();closeModal(cartModal);postArsenal('close-shop')}
   if(event.target.closest?.('#cartReturnCatalog')){event.preventDefault();event.stopImmediatePropagation();closeModal(cartModal);postArsenal('open-shop')}
@@ -172,9 +191,10 @@ window.addEventListener('message',event=>{
     if(!message.ok){showToast('Operação não salva. Tente confirmar novamente; o carrinho e o saldo foram preservados.');return}
     Object.keys(arsenalStorageValues).forEach(key=>delete arsenalStorageValues[key]);Object.assign(arsenalStorageValues,message.storage);
     characterProfiles=loadCharacterProfiles();backpackItems=activeCharacterProfile()?.backpack||[];cartItems=loadCart();
-    const purchase=pendingOperation.kind==='purchase';pendingOperation=null;
+    const purchase=pendingOperation.kind==='purchase',crafted=pendingOperation.kind==='craft',craftCd=pendingOperation.craftCd;pendingOperation=null;
     closeModal(cartModal);syncCartUI();
     if(purchase){showToast(message.gift?'Item adicionado como presente, sem custos.':'Compra finalizada por '+formatCurrencyValue(message.total,'T$')+'.');postArsenal('close-shop')}
+    if(crafted)showToast('Item fabricado por '+formatCurrencyValue(message.total,'T$')+'. Teste de Ofício (armeiro) CD '+craftCd+'.');
     if(message.context)applyArsenalContext(message.context);
   }
 });
