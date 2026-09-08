@@ -626,3 +626,18 @@ run("const classGroup=spellPlan().groups.find(group=>group.kind==='class');['ada
 assert.strictEqual(run('spellState().view'),'learned');
 assert(run("spellCatalogTitle()==='Você pode lançar:'"));
 assert(run("allLearnedSpellIds().includes('sono')&&allLearnedSpellIds().includes('adaga-mental')"));
+run("state=defaultState();state.identity.classId='nobre';state.identity.plannedLevel=4;state.identity.baseAttrs={for:0,des:0,con:1,int:3,sab:-1,car:7};state.skills.class=['luta','nobreza'];ensureProgression()");
+assert.strictEqual(run('characterDefenseAttribute()'),'car','Autoconfiança deve trocar DES por CAR na Defesa.');
+assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='adaga')).attack"),4,'A adaga deve usar o teste de Luta sem o bônus do espadim.');
+assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='adaga')).damage"),'1d4');
+assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='espadim')).attack"),5,'Nobreza treinada deve conceder +1 no ataque com espadim.');
+assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='espadim')).damage"),'1d8+1');
+run("state=defaultState();state.identity.raceId='qareen';state.identity.raceChoices.qareen_resistencia_elemental='fogo'");
+assert(run("pdfInitialFeatureText().includes('Resistência Elemental (RD fogo 10)')"));
+assert(run("pdfInitialFeatureText().includes('Desejos (–1 PM em magia pedida)')"));
+run("state=defaultState();state.identity.raceId='duende';state.identity.duendeTabuPenalty='–5 em Iniciativa'");
+assert.strictEqual(run('passiveCharacterEffects().skillBonuses.iniciativa'),undefined,'A sugestão por descumprimento não deve virar uma penalidade passiva permanente.');
+assert(run("renderChoice(DATA.races.find(race=>race.id==='duende').habilidades.selecionadas.find(choice=>choice.id==='duende_tabu')).includes('Se descumprir, sugestão:')"));
+assert(run("DUENDE_TABOO_SUGGESTIONS[11].includes('Diplomacia ou Atuação')"));
+assert(run("DATA.generalPowers.some(power=>Array.isArray(power.efeitos)&&power.efeitos.length)"),'Os efeitos estruturados dos poderes gerais devem chegar ao criador.');
+console.log('Efeitos verificados: Autoconfiança, armas do Zahir, poderes gerais e sugestões de descumprimento do tabu.');

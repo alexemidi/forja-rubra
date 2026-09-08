@@ -98,8 +98,8 @@ const data = {
   deities: [...readJson('backup-jsons/deuses.json').deuses, ...minorDeities.deities],
   classPowers: [...workbookClassPowers, ...legacyOnlyClassPowers],
   classInheritance: Object.fromEntries(classReference.classes.filter(item => item.varianteDaClasseId).map(item => [item.classeId, item.varianteDaClasseId])),
-  generalPowers: [...Object.values(powers.poderes || {}).flat().map(({ id, nome, categoria, livroOrigemId, preRequisitosTexto, descricao, deusesIds, racasTexto }) => ({
-    id, nome, categoria, livroOrigemId, preRequisitosTexto, descricao, deusesIds, racasTexto
+  generalPowers: [...Object.values(powers.poderes || {}).flat().map(({ id, nome, categoria, livroOrigemId, preRequisitosTexto, descricao, deusesIds, racasTexto, efeitos }) => ({
+    id, nome, categoria, livroOrigemId, preRequisitosTexto, descricao, deusesIds, racasTexto, efeitos
   })), ...minorDeities.powers]
 };
 
@@ -111,7 +111,7 @@ if (!template.includes(marker)) throw new Error('Marcador de dados não encontra
 if (!template.includes('/*__T20_SPELL_INTEGRATION__*/')) throw new Error('Marcador de integração com o Grimório não encontrado no template.');
 if (!template.includes('/*__T20_SPELL_STYLES__*/')) throw new Error('Marcador de estilos do Grimório não encontrado no template.');
 if (!template.includes('/*__T20_PDF_LIB__*/') || !template.includes('/*__T20_PDF_EXPORT__*/')) throw new Error('Marcadores da exportação em PDF não encontrados no template.');
-const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','duende-expansion.js','creation-flow.js','progression-phase.js','arsenal-integration.js','character-sheet.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
+const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','duende-expansion.js','creation-flow.js','progression-phase.js','passive-effects.js','arsenal-integration.js','character-sheet.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
 const spellLayout = fs.readFileSync(path.join(__dirname, 'spell-layout.css'), 'utf8');
 const pdfLib = fs.readFileSync(require.resolve('pdf-lib/dist/pdf-lib.min.js'), 'utf8');
 const pdfExport = fs.readFileSync(path.join(__dirname, 'pdf-export.js'), 'utf8');
