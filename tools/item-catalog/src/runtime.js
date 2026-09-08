@@ -1096,7 +1096,19 @@ function openCartDecision(fromBackpack) {
   openModal(cartModal);
 }
 
-function addItemToCart(itemId, rawOptions) {
+function ammunitionForWeapon(item) {
+  if (!item || item.tipo !== 'arma' || item.arma?.combateId !== 'a_distancia') return null;
+  const id=String(item.id||''), text=(id+' '+String(item.nome||'')).toLowerCase();
+  if (/arco/.test(text) && !/poder/.test(text)) return 'flechas';
+  if (/besta|balestra/.test(text)) return 'virotes';
+  if (/funda/.test(text)) return 'pedras';
+  if (/zarabatana/.test(text)) return 'dardos';
+  if (/canh[aã]o/.test(text)) return 'bola_de_ferro';
+  if (/pistola|mosquete|arcabuz|bacamarte|garrucha/.test(text) && !/demon/.test(text)) return 'balas';
+  return null;
+}
+
+function addItemToCart(itemId, rawOptions, settings) {
   const item = itemById.get(itemId);
   if (!item) return;
   const options = normalizeItemOptions(itemId, rawOptions);
@@ -1109,6 +1121,8 @@ function addItemToCart(itemId, rawOptions) {
   persistCart();
   syncCartUI();
   showToast(configuredItemName({ options, improvements, enchantments }, item) + ' adicionado ao carrinho.');
+  const ammunitionId=!settings?.skipAmmunitionOffer&&ammunitionForWeapon(item);
+  if(ammunitionId){const ammunition=itemById.get(ammunitionId);if(ammunition)catalogDecision('Deseja adicionar também '+ammunition.nome+' para esta arma?',[{value:'keep',label:'Não'},{value:'add',label:'Sim, adicionar',primary:true}],'Munição').then(choice=>{if(choice==='add')addItemToCart(ammunition.id,{}, {skipAmmunitionOffer:true})})}
 }
 
 function setCartQuantity(entryId, quantity) {
@@ -1205,6 +1219,16 @@ function showToast(message) {
   statusToast.classList.add('visible');
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(function() { statusToast.classList.remove('visible'); }, 2200);
+}
+
+function catalogDecision(message, actions, title) {
+  return new Promise(function(resolve) {
+    let modal=document.getElementById('catalogDecisionModal');
+    if(!modal){modal=document.createElement('div');modal.id='catalogDecisionModal';modal.className='app-modal';modal.hidden=true;document.body.appendChild(modal)}
+    modal.innerHTML='<section class="modal-panel" role="dialog" aria-modal="true"><header class="modal-header"><h2>'+escapeHtml(title||'Confirmação')+'</h2></header><div class="modal-body"><p class="modal-note">'+escapeHtml(message)+'</p><div class="decision-actions">'+actions.map(function(action){return '<button type="button" class="'+(action.danger?'danger-button':action.primary?'primary-button':'secondary-button')+'" data-catalog-decision="'+escapeHtml(action.value)+'">'+escapeHtml(action.label)+'</button>'}).join('')+'</div></div></section>';
+    modal.onclick=function(event){const button=event.target.closest?.('[data-catalog-decision]');if(!button)return;modal.hidden=true;document.body.style.overflow='';resolve(button.dataset.catalogDecision)};
+    openModal(modal);window.setTimeout(function(){modal.querySelector('button')?.focus()},20);
+  });
 }
 
 function formatCritical(critical) {
@@ -1388,7 +1412,7 @@ function buildItemCard(originalItem) {
     ? '<button class="acquire-button inspiration-select-button" type="button" data-action="select-inspiration" data-item-id="' + escapeHtml(item.id) + '"><span aria-hidden="true">✦</span> Escolher inspiração</button>'
     : upgradeActions+'<button class="acquire-button" type="button" data-action="add-to-cart" data-item-id="' + escapeHtml(item.id) + '"><span aria-hidden="true">🛒</span> Adicionar ao carrinho</button>';
   const acquisitionStatus = state.inspirationMode ? '' : '<span class="acquired-indicator' + (acquiredCount ? ' has-items' : '') + '" data-acquired-count>' +
-    (acquiredCount ? acquiredCount + (acquiredCount === 1 ? ' adquirido' : ' adquiridos') : 'Ainda não adquirido') + '</span>';
+    (acquiredCount ? '×' + acquiredCount : '') + '</span>';
   let managementControls = '';
   if (item.adicionado && !state.inspirationMode) {
     managementControls = '<div class="custom-item-management"><button class="custom-management-button" type="button" data-action="edit-custom-item" data-item-id="' + escapeHtml(item.id) + '" title="Editar ou renomear" aria-label="Editar ou renomear ' + escapeHtml(item.nome) + '">✎</button>' +
@@ -1846,7 +1870,7 @@ function syncCatalogAcquiredUI() {
     const indicator = card.querySelector('[data-acquired-count]');
     if (!indicator) return;
     indicator.classList.toggle('has-items', count > 0);
-    indicator.textContent = count ? count + (count === 1 ? ' adquirido' : ' adquiridos') : 'Ainda não adquirido';
+    indicator.textContent = count ? '×' + count : '';
   });
 }
 
@@ -2515,10 +2539,10 @@ function editCustomItem(itemId) {
   window.setTimeout(function() { customItemName.focus(); customItemName.select(); }, 0);
 }
 
-function deleteCustomItem(itemId) {
+async function deleteCustomItem(itemId) {
   const item = itemById.get(itemId);
   if (!item || !item.adicionado) return;
-  if (!window.confirm('Apagar “' + item.nome + '”? O item também será removido do carrinho e das mochilas em que estiver.')) return;
+  if (await catalogDecision('Apagar “' + item.nome + '”? O item também será removido do carrinho e das mochilas em que estiver.', [{value:'keep',label:'Não, manter'},{value:'remove',label:'Sim, apagar',danger:true}], 'Apagar item') !== 'remove') return;
   const customIndex = customItems.findIndex(function(candidate) { return candidate.id === itemId; });
   if (customIndex >= 0) customItems.splice(customIndex, 1);
   const preparedIndex = preparedItems.findIndex(function(candidate) { return candidate.id === itemId; });
@@ -2690,7 +2714,7 @@ backpackListModeBtn.addEventListener('click', function() { setBackpackMode('list
 backpackCardsModeBtn.addEventListener('click', function() { setBackpackMode('cards'); });
 document.getElementById('emptyBackpackCatalogBtn').addEventListener('click', function() { setView('catalog'); });
 
-backpackList.addEventListener('click', function(event) {
+backpackList.addEventListener('click', async function(event) {
   const actionButton = event.target.closest('button[data-action]');
   if (!actionButton) return;
   const card = actionButton.closest('[data-instance-id]');
@@ -2702,6 +2726,13 @@ backpackList.addEventListener('click', function(event) {
     renderBackpack();
   } else if (action === 'remove') {
     const item = itemById.get(instance.itemId);
+    const choices=[{value:'keep',label:'Não, manter'}];
+    if(Number(instance.quantity)>1)choices.push({value:'one',label:'Remover apenas um'});
+    choices.push({value:'all',label:'Sim, remover tudo',danger:true});
+    const decision=await catalogDecision('Deseja realmente remover '+(item ? configuredItemName(instance,item) : 'este item')+' da mochila?',choices,'Remover item');
+    if(decision==='keep')return;
+    if(decision==='one'){setInstanceQuantity(instance,Number(instance.quantity)-1);showToast('Uma unidade/pacote foi removida da mochila.');return}
+    if(decision!=='all')return;
     backpackItems = backpackItems.filter(function(entry) { return entry.instanceId !== instance.instanceId; });
     const active = activeCharacterProfile();
     if (active) active.backpack = backpackItems;
@@ -2743,9 +2774,9 @@ backpackList.addEventListener('change', function(event) {
   }
 });
 
-clearBackpack.addEventListener('click', function() {
+clearBackpack.addEventListener('click', async function() {
   if (!backpackItems.length) return;
-  if (!window.confirm('Remover todos os itens adquiridos da mochila?')) return;
+  if (await catalogDecision('Remover todos os itens adquiridos da mochila?', [{value:'keep',label:'Não, manter'},{value:'all',label:'Sim, esvaziar',danger:true}], 'Esvaziar mochila') !== 'all') return;
   backpackItems = [];
   const active = activeCharacterProfile();
   if (active) active.backpack = backpackItems;
@@ -2755,6 +2786,8 @@ clearBackpack.addEventListener('click', function() {
   refreshInventoryUI();
   showToast('Mochila esvaziada.');
 });
+
+document.addEventListener('click',function(event){const button=event.target.closest?.('button');if(!button||button.disabled)return;button.classList.remove('catalog-clicked');void button.offsetWidth;button.classList.add('catalog-clicked');window.setTimeout(function(){button.classList.remove('catalog-clicked')},360)},true);
 
 characterButton.addEventListener('click', function() {
   reopenCartAfterCharacter = false;

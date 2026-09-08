@@ -503,6 +503,7 @@ assert.strictEqual(run('grimoireContext().visible.length'),256);assert.strictEqu
 run("state.sheetView='sheet'");
 run('state.step=8;arsenalState().complete=false;renderStage()');assert.strictEqual(nodes.get('exportButton').hidden,true);
 run('state.finished=false;state.step=9;state.identity.plannedLevel=4;renderStage()');
+assert(run("renderProgressionPhase().includes('data-action=\"remove-level\"')"),'Progressão deve permitir descer um nível.');
 assert.strictEqual(run('progressionStats().pv-progressionStatsBeforePassives().pv'),6,'Duro como Pedra concede +1 PV por nível seguinte.');
 assert.strictEqual(run('progressionMissingChoices().length'),3);
 assert.strictEqual(run('canExportCharacter()'),false);

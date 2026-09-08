@@ -327,7 +327,7 @@ window.addEventListener('message',event=>{
   if(message.type!=='choose'||typeof message.id!=='string')return;
   if(chooseCharacterSpell(message.group,message.id)){refreshSpellStage()}else syncGrimoire();
 });
-document.addEventListener('click',event=>{
+document.addEventListener('click',async event=>{
   const button=event.target.closest?.('[data-action]');if(!button)return;
   const action=button.dataset.action,saved=spellState();
   if(action==='spell-source'){endSchoolReview();saved.activeGroup=button.dataset.group;saved.view='available';spellCatalogUI.section='magias';refreshSpellStage()}
@@ -340,7 +340,7 @@ document.addEventListener('click',event=>{
   }
   if(action==='spell-reload')mountGrimoire();
   if(action==='spell-redo'){
-    if(!confirm('Você poderá escolher novamente todas as magias opcionais deste personagem. Magias recebidas automaticamente não serão removidas.'))return;
+    if(!await forjaConfirm('Você poderá escolher novamente todas as magias opcionais deste personagem. Magias recebidas automaticamente não serão removidas.','Sim, refazer'))return;
     saved.selections={};saved.schools={};saved.manualSchools={};saved.lockedSchools={};saved.schoolAnnouncements={};saved.memorized={};saved.activeGroup='';saved.view='available';spellCatalogUI.schoolReview=null;spellCatalogUI.section='magias';
     const plan=spellPlan();saved.activeGroup=plan.groups.find(group=>group.count)?.id||plan.groups[0]?.id||'';refreshSpellStage();toast('Escolhas de magia liberadas para serem refeitas.');
   }

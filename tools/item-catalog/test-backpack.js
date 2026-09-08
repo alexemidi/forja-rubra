@@ -261,6 +261,11 @@ addItemToCart(sword.id,{});
 assert(cartItems.length===1&&cartItems[0].improvements[0].id==='certeira'&&cartItems[0].enchantments[0]==='formidavel','Melhorias e encantos não foram preservados no carrinho.');
 assert(cartTotalsInfo().value===entryValueInfo(cartItems[0],sword).unitKnown,'O preço da compra não incluiu melhorias e encantos.');
 cartItems=[];
+assert(ammunitionForWeapon(itemById.get('arco_curto'))==='flechas','Arco curto deve oferecer um pacote de flechas.');
+assert(ammunitionForWeapon(itemById.get('besta_leve'))==='virotes','Besta leve deve oferecer um pacote de virotes.');
+assert(ammunitionForWeapon(itemById.get('azagaia'))===null,'Arma de arremesso não deve oferecer munição separada.');
+const compactCard=itemCard(prepareCatalogItem(itemById.get('adaga')));
+assert(!compactCard.includes('Ainda não adquirido')&&compactCard.includes('Adicionar ao carrinho'),'Card deve manter a ação compacta sem texto redundante de aquisição.');
 
 console.log(JSON.stringify({
   status: 'ok',

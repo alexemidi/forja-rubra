@@ -5,6 +5,7 @@
   const style = document.createElement('style');
   style.textContent = `
     .site-header{display:none!important}
+    button.forja-clicked{animation:forjaButtonClick .32s ease-out}@keyframes forjaButtonClick{0%{transform:scale(1)}42%{transform:scale(.94);filter:brightness(1.45);box-shadow:0 0 0 3px #8edaff45}100%{transform:scale(1)}}
     .view-tabs-wrap{display:none!important}
     .learn-btn.remove-spell{border-color:#ed9945;color:#ffcc91;background:#ed994526}
     .learn-btn.replace-spell{border-color:#5ba9d8;color:#acdfff;background:#5ba9d824}
@@ -57,6 +58,7 @@
     }
   `;
   document.head.appendChild(style);
+  document.addEventListener('click',event=>{const button=event.target.closest?.('button');if(!button||button.disabled)return;button.classList.remove('forja-clicked');void button.offsetWidth;button.classList.add('forja-clicked');setTimeout(()=>button.classList.remove('forja-clicked'),360)},true);
   function installCompactFilters(){
     const all=document.getElementById('allSchoolsBtn'),schoolAll=document.querySelector?.('.filter-chip[data-escola="todas"]');
     if(!all?.parentElement||!schoolAll)return;

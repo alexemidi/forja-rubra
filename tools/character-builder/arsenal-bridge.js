@@ -129,10 +129,10 @@ function proposeOperation(type,message={}){
       addPackagesToBackpack(item.id,1,options,{source:'craft',operationId:id});
       message.craftCd=(enchantmentCount?Number(MAGIC_RULES.cdBaseItemEncantado||20):15)+IMPROVEMENT_CRAFT_BONUSES[Math.min(4,improvementCount)]+ENCHANTMENT_CRAFT_BONUSES[Math.min(3,enchantmentCount)];
     }
-    if(type==='initial'&&message.selection){
+    if(type==='initial'&&message.selection&&!backpackItems.some(entry=>entry.acquisition?.grantId===message.grantId)){
       addPackagesToBackpack(message.selection.itemId,1,message.selection.options,{source:message.source||'initial',grantId:message.grantId});grants.push(message.grantId);
     }
-    for(const grant of message.automaticGrants||[]){const item=findStartingItem(grant.name);if(item){addPackagesToBackpack(item.id,1,{}, {source:grant.source,grantId:grant.id});grants.push(grant.id)}else unresolved.push(grant.name)}
+    for(const grant of message.automaticGrants||[]){if(backpackItems.some(entry=>entry.acquisition?.grantId===grant.id)){grants.push(grant.id);continue}const item=findStartingItem(grant.name);if(item){addPackagesToBackpack(item.id,1,{}, {source:grant.source,grantId:grant.id});grants.push(grant.id)}else unresolved.push(grant.name)}
     if(type==='purchase')cartItems=[];
     persistBackpack();persistCart();
     pendingOperation={operationId:id,kind:type,storage:{...arsenalStorageValues},total,gift,grants,unresolved,finalize:!!message.finalize,craftCd:message.craftCd};

@@ -82,6 +82,8 @@ function inventoryProfile(){
   try{profiles=JSON.parse(saved.storage[ARSENAL_PROFILES_KEY]||'{}')}catch{profiles={}}
   let profile=profiles.profiles?.find(item=>item.id==='ficha-ativa')||profiles.profiles?.find(item=>item.id===profiles.activeId);
   if(!profile){let legacy=[];try{legacy=JSON.parse(saved.storage['arsenal-arton-backpack-v1']||'[]')}catch{}profile={id:'ficha-ativa',backpack:Array.isArray(legacy)?legacy:[]}}
+  const beforeCount=(profile.backpack||[]).length,seenGrants=new Set();profile.backpack=(profile.backpack||[]).filter(item=>{const grant=item.acquisition?.grantId;if(!grant)return true;if(seenGrants.has(grant))return false;seenGrants.add(grant);return true});
+  if(profile.backpack.length!==beforeCount&&profiles.profiles){const index=profiles.profiles.findIndex(item=>item.id===profile.id);if(index>=0)profiles.profiles[index]=profile;saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles)}
   return {...profile,id:'ficha-ativa',name:state.identity.characterName||'Personagem',strength:finalAttrs().for,capacityBonus:suraggelCarryingBonus()};
 }
 function characterInventory(){return inventoryProfile().backpack||[]}
@@ -122,7 +124,7 @@ function redoInitialItems(){
   for(const profile of profiles.profiles||[])profile.backpack=(profile.backpack||[]).filter(item=>item.acquisition?.source!=='initial');
   saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles);
   Object.keys(saved.grants).filter(id=>id.startsWith('choice:')||id.startsWith('base:')).forEach(id=>delete saved.grants[id]);
-  saved.operations={};saved.choiceIndex=0;saved.pending=null;saved.complete=false;saved.unresolved=[];arsenalShopOpen=false;
+  Object.keys(saved.operations||{}).filter(id=>id.startsWith('choice:')||id.startsWith('base:')||id.startsWith('finalize:')).forEach(id=>delete saved.operations[id]);saved.choiceIndex=0;saved.pending=null;saved.complete=false;saved.unresolved=[];arsenalShopOpen=false;
   state.completed=state.completed.filter(step=>step!==8);
   if(persistNow()){toast('Você poderá escolher novamente os itens iniciais. Os itens de origem foram mantidos.');renderStage()}
 }
@@ -169,10 +171,10 @@ function acceptArsenalOperation(message){
   sendArsenal('operation-result',{...result,operationId:message.operationId,ok:true,storage:saved.storage,context:arsenalInitialData()});
   syncInitialItemFooter();
 }
-document.addEventListener('click',event=>{
+document.addEventListener('click',async event=>{
   if(event.target.closest?.('#redoInitialItemsButton')){
     event.preventDefault();event.stopImmediatePropagation();
-    if(window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))redoInitialItems();
+    if(await forjaConfirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.','Sim, refazer'))redoInitialItems();
     return;
   }
   if(!event.target.closest?.('#nextButton'))return;
@@ -188,7 +190,7 @@ document.addEventListener('click',event=>{
     sendArsenal('commit-choice',{operationId:grantId,grantId,source:choice.source||'initial',selection:saved.pending,finalize:last,automaticGrants:last?unclaimedAutomaticGrants():[]});
   }else{saved.grants[itemChoiceGrantId(choice)]=true;advanceInitialItemChoice()}
 },true);
-window.addEventListener('message',event=>{
+window.addEventListener('message',async event=>{
   const frame=document.getElementById('characterArsenal'),message=event.data;
   if((state.step!==8&&!state.finished)||state.finished&&state.sheetView!=='shop'||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-arsenal-v1'||message.session!==arsenalSession)return;
   if(message.type==='ready'){document.getElementById('arsenalStatus').hidden=true;if(!arsenalState().complete&&!currentItemChoice())finalizeInitialItems();return}
@@ -201,7 +203,7 @@ window.addEventListener('message',event=>{
     else sendArsenal('scroll-items',{delta});
     return;
   }
-  if(message.type==='redo-initial-request'||message.type==='redo-initial'){if(window.confirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.'))redoInitialItems();return}
+  if(message.type==='redo-initial-request'||message.type==='redo-initial'){if(await forjaConfirm('Você poderá escolher novamente os itens iniciais. Isso não afeta os itens de origem.','Sim, refazer'))redoInitialItems();return}
   if(message.type==='candidate'){arsenalState().pending=message.itemId?{itemId:message.itemId,itemName:message.itemName,options:message.options||{}}:null;persistNow();syncInitialItemFooter();return}
   if(message.type==='operation'){acceptArsenalOperation(message);return}
   if(message.type==='money'&&financesState().startingLevel===1){financesState().levelOneTibars=Math.max(0,Number(message.value)||0);persistNow();sendArsenal('funds',{context:{funds:remainingFunds(),startingMoney:startingFunds()}});return}

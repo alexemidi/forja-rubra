@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'../..');
 const errors=[];
 const virtualConsole=new VirtualConsole();
 virtualConsole.on('jsdomError',error=>{if(!/Not implemented/.test(error.message))errors.push(error)});
-const main=new JSDOM(fs.readFileSync(path.join(root,'Criador de Ficha T20.html'),'utf8'),{runScripts:'dangerously',url:'https://forja.test/',virtualConsole,beforeParse(window){window.scrollTo=()=>{};window.confirm=()=>true;window.HTMLElement.prototype.scrollIntoView=()=>{}}});
+const main=new JSDOM(fs.readFileSync(path.join(root,'Criador de Ficha T20.html'),'utf8'),{runScripts:'dangerously',url:'https://forja.test/',virtualConsole,beforeParse(window){window.scrollTo=()=>{};window.HTMLElement.prototype.scrollIntoView=()=>{}}});
 const w=main.window;
 const run=code=>w.eval(code);
 run("state=defaultState();state.identity.characterName='Teste';state.identity.classId='arcanista';state.finances={startingLevel:1,levelOneTibars:100,spent:0};state.step=8;renderStage()");
@@ -104,6 +104,8 @@ assert(!run("renderSummary().includes('Adaga ×')"),'Resumo acompanha remoções
 run("arsenalState().storage['arsenal-arton-character-profiles-v1']=JSON.stringify({activeId:'ficha-ativa',profiles:[{id:'ficha-ativa',backpack:[{instanceId:'i',itemId:'adaga',quantity:1,improvements:[],enchantments:[],acquisition:{source:'initial'}},{instanceId:'o',itemId:'maca',quantity:1,improvements:[],enchantments:[],acquisition:{source:'origin'}}]}]});arsenalState().complete=true;arsenalShopOpen=false;renderStage()");flush();
 assert.equal(w.document.getElementById('redoInitialItemsButton').hidden,false);
 w.document.getElementById('redoInitialItemsButton').click();flush();
+assert.equal(w.document.getElementById('forjaDecisionModal').hidden,false,'Refazer escolhas usa confirmação interna, sem popup do navegador');
+run('redoInitialItems()');flush();
 assert.equal(run("characterInventory().some(item=>item.acquisition?.source==='initial')"),false);
 assert.equal(run("characterInventory().some(item=>item.acquisition?.source==='origin')"),true);
 assert.equal(run('arsenalState().complete'),false);

@@ -31,6 +31,11 @@
 .character-sheet-toolbar{position:sticky;top:68px;z-index:15;display:flex;gap:7px;flex-wrap:wrap;padding:10px;border:1px solid var(--border);border-radius:9px;background:#0d1219ee;backdrop-filter:blur(12px)}.character-roster-entry{width:100%;text-align:left}.character-sheet-ready .workspace{max-width:1380px;margin:auto}.character-sheet-ready .stage-heading{margin-top:8px}
 /*__T20_SPELL_STYLES__*/
 </style>
+<style>
+.toast{left:50%;right:auto;top:18%;bottom:auto;max-width:min(430px,calc(100vw - 28px));transform:translate(-50%,-10px);text-align:center}.toast.visible{transform:translate(-50%,0)}
+button.forja-clicked{animation:forjaButtonClick .32s ease-out}@keyframes forjaButtonClick{0%{transform:scale(1)}42%{transform:scale(.94);filter:brightness(1.45);box-shadow:0 0 0 3px #d9a84e40}100%{transform:scale(1)}}
+.forja-choice-input{width:100%;min-height:39px;padding:8px 10px;border:1px solid var(--bright);border-radius:7px;outline:0;background:var(--surface3);color:var(--text)}
+</style>
 <script>/*__T20_PDF_LIB__*/</script>
 </head>
 <body>
@@ -62,6 +67,15 @@ function persistNow(){clearTimeout(saveTimer);try{localStorage.setItem(STORAGE_K
 function persist(){clearTimeout(saveTimer);document.getElementById('saveStatus').textContent='Salvando…';saveTimer=setTimeout(persistNow,180)}
 window.addEventListener('pagehide',persistNow);
 function toast(text){const el=document.getElementById('toast');el.textContent=text;el.classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('visible'),2800)}
+function forjaDecision(message,actions,title='Confirmação',input){
+  return new Promise(resolve=>{let modal=document.getElementById('forjaDecisionModal');if(!modal){modal=document.createElement('div');modal.id='forjaDecisionModal';modal.className='modal-backdrop';modal.hidden=true;document.body.appendChild(modal)}
+    modal.innerHTML='<section class="confirm-modal" role="dialog" aria-modal="true"><header><h3>'+esc(title)+'</h3></header><div class="confirm-modal-body"><p>'+esc(message)+'</p>'+(input!==undefined?'<input class="forja-choice-input" maxlength="80" value="'+esc(input)+'">':'')+'</div><footer>'+actions.map(action=>'<button class="button '+(action.primary?'primary ':'')+(action.danger?'danger ':'')+'" type="button" data-forja-decision="'+esc(action.value)+'">'+esc(action.label)+'</button>').join('')+'</footer></section>';
+    const finish=value=>{modal.hidden=true;resolve(value)};modal.onclick=event=>{const button=event.target.closest?.('[data-forja-decision]');if(button)finish(button.dataset.forjaDecision)};modal.hidden=false;setTimeout(()=>modal.querySelector('input,button')?.focus(),20)
+  })
+}
+async function forjaConfirm(message,confirmLabel='Confirmar'){return await forjaDecision(message,[{value:'cancel',label:'Não, manter'},{value:'confirm',label:confirmLabel,primary:true}], 'Confirmação')==='confirm'}
+async function forjaPrompt(message,value=''){const result=await forjaDecision(message,[{value:'cancel',label:'Cancelar'},{value:'confirm',label:'Salvar',primary:true}],'Editar nome',value);return result==='confirm'?document.querySelector('#forjaDecisionModal input')?.value:null}
+document.addEventListener('click',event=>{const button=event.target.closest?.('button');if(!button||button.disabled)return;button.classList.remove('forja-clicked');void button.offsetWidth;button.classList.add('forja-clicked');setTimeout(()=>button.classList.remove('forja-clicked'),360)},true)
 function optionList(def){return def?.opcoes||def?.linhagem||def?.sexo||def?.chassi||def?.fonte||def?.tamanho||[]}
 function choiceId(value){return String(value?.id||value?.nome||value||'')}
 function choiceName(value){return String(value?.nome||value?.id||value||'')}
@@ -121,7 +135,7 @@ document.addEventListener('click',event=>{const button=event.target.closest('[da
 document.getElementById('phaseNav').addEventListener('click',event=>{const b=event.target.closest('[data-step]');if(!b)return;state.step=Number(b.dataset.step);renderStage();window.scrollTo({top:0,behavior:'smooth'})});
 document.getElementById('previousButton').addEventListener('click',()=>{if(state.step>1){state.step--;renderStage();window.scrollTo({top:0,behavior:'smooth'})}});
 document.getElementById('nextButton').addEventListener('click',()=>{if(state.step===9){toast('Ficha concluída e salva neste navegador.');return}if(!phaseIsComplete(state.step)){toast(validationMessage(state.step));return}if(!state.completed.includes(state.step))state.completed.push(state.step);state.step++;renderStage();window.scrollTo({top:0,behavior:'smooth'})});
-document.getElementById('resetButton').addEventListener('click',()=>{if(!confirm('Começar uma nova ficha? A ficha atual será apagada deste navegador.'))return;state=defaultState();localStorage.removeItem(STORAGE_KEY);renderStage();toast('Nova ficha iniciada.')});
+document.getElementById('resetButton').addEventListener('click',async()=>{if(!await forjaConfirm('Começar uma nova ficha? A ficha atual será apagada deste navegador.','Sim, começar'))return;state=defaultState();localStorage.removeItem(STORAGE_KEY);renderStage();toast('Nova ficha iniciada.')});
 document.getElementById('exportButton').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({schema:'forja-heroi-t20-v2',exportedAt:new Date().toISOString(),character:state},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(slug(state.identity.characterName)||'ficha-t20')+'.json';a.click();URL.revokeObjectURL(a.href);toast('Ficha exportada em JSON.')});
 function bindDeitySearch(){const input=document.getElementById('deitySearch');if(!input)return;input.addEventListener('input',()=>{const q=slug(input.value);document.querySelectorAll('.deity-card').forEach(card=>card.classList.toggle('hidden',q&&!slug(card.textContent).includes(q)))})}
 
