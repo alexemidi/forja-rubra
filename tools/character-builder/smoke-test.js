@@ -5,7 +5,7 @@ const vm = require('vm');
 
 const root = path.resolve(__dirname, '..', '..');
 const html = fs.readFileSync(path.join(root, 'Criador de Ficha T20.html'), 'utf8');
-const match = html.match(/<script>([\s\S]*?)<\/script>/);
+const match = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(entry=>entry[1].includes('const DATA ='));
 assert(match, 'O script principal não foi encontrado.');
 
 const makeNode = () => ({
@@ -53,9 +53,14 @@ const run = expression => vm.runInContext(expression, context);
 
 assert.deepStrictEqual(
   JSON.parse(run('JSON.stringify([DATA.races.length,DATA.classes.length,DATA.origins.length,DATA.regionalOrigins.length,DATA.deities.length])')),
-  [50, 33, 35, 66, 20]
+  [50, 33, 35, 66, 23]
 );
-assert.strictEqual(run('PHASES.length'), 9);
+assert.strictEqual(run('PHASES.length'), 10);
+assert.strictEqual(run('PHASES[8][0]'),'Progressão');
+assert.strictEqual(run('PHASES[9][0]'),'Detalhes da ficha');
+assert(run("DATA.classPowers.some(power=>power.id==='classe_aumento_de_atributo'&&power.classeIds.includes('barbaro'))"));
+assert.strictEqual(run("DATA.races.find(race=>race.id==='suraggel').habilidades.selecionadas.find(choice=>choice.id==='suraggel_heranca_substituta').opcoes.length"),23);
+assert(run("DATA.deities.some(deity=>deity.nome==='Gwendolynn')&&DATA.deities.some(deity=>deity.nome==='Mauziell')&&DATA.deities.some(deity=>deity.nome==='Tibar')"));
 assert.strictEqual(run('PHASES[2][0]'), 'Perícias');
 assert.strictEqual(run('PHASES[3][0]'), 'Origens');
 assert.strictEqual(run('PHASES[4][0]'), 'Divindade');
@@ -365,7 +370,7 @@ assert(!run("grimoireContext().books.includes('basico')"));
 assert(!run("toggleSpellBook('livro_inexistente')"));
 assert(run("toggleSpellBook('basico')"));
 assert(run("grimoireContext().books.includes('basico')"));
-console.log('Smoke test concluído: 9 fases, 50 raças, 33 classes e 256 magias; escolas, tradições, círculos, Teurgista, Usurpador, memorização e persistência verificados.');
+console.log('Smoke test concluído: 10 fases, 50 raças, 33 classes e 256 magias; progressão, escolas, tradições, círculos, Teurgista, Usurpador, memorização e persistência verificados.');
 spellReset('bardo');
 run("['adaga-mental','alarme'].forEach(id=>chooseCharacterSpell(spellPlan().groups[0].id,id));chooseSpellSchool('bardo','necromancia');state.step=7;notifySchoolCompletion()");
 assert.deepStrictEqual(JSON.parse(run('JSON.stringify(spellState().schools.bardo)')),['encantamento','abjuracao','necromancia']);
@@ -458,7 +463,7 @@ assert(!run("powerMissingChoices().some(item=>item.title==='Confirmar poder')"),
 
 // A fully prepared mundane level-1 character may export, but a planned level 4
 // with unassigned class powers must not expose Exportar ficha or finish the flow.
-run(`state=defaultState();state.step=9;state.identity.characterName='Teste';state.identity.playerName='Teste';
+run(`state=defaultState();state.step=10;state.identity.characterName='Teste';state.identity.playerName='Teste';
 state.identity.classId='barbaro';state.identity.raceId='anao';state.identity.baseAttrs={for:3,des:2,con:2,int:0,sab:2,car:0};
 state.skills.class=classById('barbaro').caracteristicas.pericias.escolhas.opcoes.map(option=>option.id).filter(id=>!mandatoryClassSkills().includes(id)&&id!=='oficio').slice(0,skillChoiceLimits().class);
 state.origin.standard='Acólito';state.origin.benefits=originBenefitOptions(selectedStandardOrigin()).filter(option=>!originBenefitBlocked(option)&&option.name!=='Ofício').slice(0,2).map(option=>option.id);arsenalState().complete=true;`);
@@ -466,12 +471,12 @@ assert.deepStrictEqual(JSON.parse(run('JSON.stringify([1,2,3,4,5,6,7].map(phaseI
 assert.strictEqual(run('canExportCharacter()'),true);
 run('renderStage()');assert.strictEqual(nodes.get('exportButton').hidden,false);
 run('state.step=8;arsenalState().complete=false;renderStage()');assert.strictEqual(nodes.get('exportButton').hidden,true);
-run('state.step=9;state.identity.plannedLevel=4;renderStage()');
+run('state.step=10;state.identity.plannedLevel=4;renderStage()');
 assert.strictEqual(run('progressionMissingChoices().length'),3);
 assert.strictEqual(run('canExportCharacter()'),false);
 assert.strictEqual(run('phaseIsComplete(9)'),false);
 assert.strictEqual(nodes.get('exportButton').hidden,true);
-assert(run("missingChoices(9).some(item=>item.selector==='[data-action=\"progress-power\"][data-index=\"1\"]')"));
+assert(run("missingChoices(9).some(item=>item.selector==='[data-action=\"class-power-preview\"][data-index=\"1\"]')"));
 run("state.progression[1].powerId='poder_inexistente'");assert.strictEqual(run('progressionMissingChoices().length'),3);
 assert(html.includes('id="saveStatus" hidden'));
 assert.strictEqual(nodes.get('footerMessage').hidden,true);
@@ -566,12 +571,12 @@ assert.strictEqual(run('arsenalShopOpen'),true);assert(nodes.get('characterArsen
 const shopWindow={postMessage(){}};nodes.get('characterArsenal').contentWindow=shopWindow;const shopSession=run('arsenalSession');
 bridgeListener({source:shopWindow,data:{channel:'forja-arsenal-v1',session:shopSession,type:'close-shop'}});
 assert.strictEqual(run('arsenalShopOpen'),false);assert(nodes.get('characterArsenal'));
-const arsenalNextHandler=documentEvents.filter(event=>event.name==='click'&&event.capture).at(-1).listener;
+const arsenalNextHandler=documentEvents.filter(event=>event.name==='click'&&event.capture).find(event=>event.listener.toString().includes("state.step!==8")).listener;
 arsenalNextHandler({target:{closest:selector=>selector==='#nextButton'?{}:null},preventDefault(){},stopImmediatePropagation(){}});
 assert.strictEqual(run('state.step'),9);
 assert.strictEqual(run('STARTING_FUNDS[11]'),19000);
 run("state.finances={startingLevel:11,levelOneTibars:0,spent:1000}");assert.strictEqual(run('startingFunds()'),19000);assert.strictEqual(run('remainingFunds()'),18000);
-run("state.step=9;state.identity.plannedLevel=11;state.identity.editingLevel=1;arsenalShopOpen=false;renderStage()");assert.strictEqual(nodes.get('nextButton').textContent,'Avançar para o próximo nível');
+run("state.step=9;state.identity.plannedLevel=11;state.identity.editingLevel=1;arsenalShopOpen=false;renderStage()");assert.strictEqual(nodes.get('nextButton').textContent,'Confirmar →');
 spellReset('arcanista','qareen');
 run("chooseCharacterSpell(spellPlan().groups.find(group=>group.kind==='class').id,'adaga-mental');chooseCharacterSpell('race:qareen_tatuagem_mistica','adaga-mental')");
 assert.strictEqual(nodes.get('toast').textContent,'Reduz o custo da magia em 1 PM.');

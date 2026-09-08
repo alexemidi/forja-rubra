@@ -106,7 +106,7 @@ renderStage=function(){
   if(!reuse)renderBeforeArsenal();
   if(state.step!==8){arsenalMountedOwner=null;arsenalShopOpen=false;arsenalContextKey=''}
   document.body?.classList.toggle('arsenal-stage',state.step===8);
-  if(state.step===9){document.getElementById('nextButton').textContent=Number(state.identity.editingLevel)<Number(state.identity.plannedLevel)?'Avançar para o próximo nível':'Finalizar ficha';return}
+  if(state.step===10){document.getElementById('nextButton').textContent='Ficha concluída';return}
   if(state.step!==8)return;
   syncInitialItemFooter();
   const context=arsenalInitialData();
@@ -150,10 +150,10 @@ document.addEventListener('click',event=>{
     return;
   }
   if(!event.target.closest?.('#nextButton'))return;
-  if(state.step===9){
+  if(state.step===10){
     event.preventDefault();event.stopImmediatePropagation();
     if(characterPendingChoices().length)return;
-    if(Number(state.identity.editingLevel)<Number(state.identity.plannedLevel)){state.identity.editingLevel++;persistNow();renderStage();toast('Nível em edição: '+state.identity.editingLevel+'.')}else if(persistNow())toast('Ficha finalizada e salva neste navegador.');return;
+    if(persistNow())toast('Ficha finalizada e salva neste navegador.');return;
   }
   if(state.step!==8)return;
   event.preventDefault();event.stopImmediatePropagation();
