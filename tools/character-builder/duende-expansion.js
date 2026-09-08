@@ -9,7 +9,7 @@ const DUENDE_TABOO_SUGGESTIONS=[
   '–5 em Luta ou Cavalgar.',
   '–1 na Defesa.',
   '–3m de deslocamento.',
-  'Fica paralisado enquanto o sal tocar sua pele.',
+  '–3m de deslocamento enquanto o sal tocar sua pele.',
   '–5 em Diplomacia ou Atuação.',
   '–5 em Iniciativa ou Ofício.',
   '–1 PM máximo.',
@@ -23,7 +23,7 @@ const DUENDE_TABOO_SUGGESTIONS=[
   '–5 em Cura ou Diplomacia.'
 ];
 const DUENDE_TABOO_DEFAULT_PENALTIES=[...DUENDE_TABOO_SUGGESTIONS];
-const DUENDE_TABOO_PENALTIES=[...new Set([...DUENDE_TABOO_DEFAULT_PENALTIES,...SKILLS.map(skill=>'–5 em '+skill[1]),'–1 na Defesa.','–1 PV máximo.','–1 PM máximo.','–3m de deslocamento.','Tamanho reduzido em uma categoria; roupas acompanham.','Não pode lançar uma magia conhecida, determinada por sorteio.','Fica paralisado enquanto o sal tocar sua pele.','Fica indisponível por algumas horas.','Outra consequência (com o mestre)'])];
+const DUENDE_TABOO_PENALTIES=[...new Set([...DUENDE_TABOO_DEFAULT_PENALTIES,...SKILLS.map(skill=>'–5 em '+skill[1]),'–1 na Defesa.','–1 PV máximo.','–1 PM máximo.','–3m de deslocamento.','Tamanho reduzido em uma categoria; roupas acompanham.','Não pode lançar uma magia conhecida, determinada por sorteio.','Fica indisponível por algumas horas.','Outra consequência (com o mestre)'])];
 const renderChoiceBeforeDuende=renderChoice;
 renderChoice=function(def,source='race'){
   if(source!=='race'||def.id!=='duende_tabu')return renderChoiceBeforeDuende(def,source);
