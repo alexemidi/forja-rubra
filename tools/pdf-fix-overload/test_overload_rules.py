@@ -5,7 +5,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 
-PDF = Path("output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf")
+PDF = Path("output/pdf/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf")
 SOURCE = Path("output/Ficha T20 Jogo do Ano - Otimizada v1.5.pdf")
 
 
@@ -65,6 +65,8 @@ function execute(code,event){new Function("event",code).call(documentMock,event)
 function calculate(){const event={value:fields.Deslocamento.value,target:{textSize:12}};execute(scripts.calculate,event);execute(scripts.validate,{value:event.value});fields.Deslocamento.value=event.value}
 function enter(value){execute(scripts.validate,{value});fields.Deslocamento.value=value;calculate()}
 enter(9);
+fields.CargaUsada.value=9.5;calculate();
+if(fields.Deslocamento.value!==9||fields.DeslocamentoBase.value!==9)throw Error(JSON.stringify(fields));
 fields.CargaUsada.value=11;calculate();
 if(fields.Deslocamento.value!==6||fields.DeslocamentoBase.value!==9)throw Error(JSON.stringify(fields));
 calculate();

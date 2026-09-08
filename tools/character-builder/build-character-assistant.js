@@ -16,7 +16,7 @@ const catalogSource = fs.readFileSync(path.join(root, 'tools/item-catalog/src/ca
 const catalogMatch = catalogSource.match(/const ITEMS = (\[[\s\S]*?\]);\r?\n/);
 if (!catalogMatch) throw new Error('Catálogo de itens não localizado para a exportação em PDF.');
 const pdfItems = JSON.parse(catalogMatch[1]).map(item => ({id:item.id,nome:item.nome,tipo:item.tipo,categoriaId:item.categoriaId,espacos:item.espacos,equipamento:item.equipamento,arma:item.arma,armadura:item.armadura,escudo:item.escudo}));
-const pdfTemplateBase64 = fs.readFileSync(path.join(root, 'output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf')).toString('base64');
+const pdfTemplateBase64 = fs.readFileSync(path.join(root, 'output/pdf/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf')).toString('base64');
 const races = readJson('backup-jsons/races_update.json');
 const duende = races.find(race => race.id === 'duende');
 if (duende) {
