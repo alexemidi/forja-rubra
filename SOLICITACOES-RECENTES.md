@@ -2,8 +2,21 @@
 
 Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualizado junto com as próximas implementações.
 
-## Estado atual
+## Pendentes
 
+- [ ] Conferência visual completa em Chrome/Edge desktop e largura de celular.
+- [ ] Lote 2: estado versionado e separação completa dos níveis inicial, planejado e em edição.
+- [ ] Lote 3: controlador único das nove fases.
+- [ ] Lote 4: mecanismo central de efeitos.
+- [ ] Lotes 5 a 9: inventário, interface, exportação, limpeza e qualidade final.
+
+## Em desenvolvimento
+
+- Nenhum lote neste momento.
+
+## Implementado
+
+- [x] Lote 1: documentação de desenvolvimento, comando único de verificação, validação sintática, validação dos dados, proteção contra diálogos nativos, proteção do PDF modelo e personagens de referência.
 - [x] 1. Substituir avisos nativos do navegador por notificações e janelas internas centralizadas.
 - [x] 2. Impedir duplicação de itens iniciais e de origem ao refazer escolhas, usando identificadores únicos de concessão.
 - [x] 3. Ao comprar uma arma de ataque à distância que usa munição, oferecer o conjunto compatível.
@@ -16,9 +29,14 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] 10. Fazer “Refazer escolhas” reiniciar a fase 8 na primeira escolha, sair da mochila e preservar apenas uma ocorrência de cada concessão.
 - [x] 11. Permitir descer um nível na progressão, removendo as escolhas e benefícios provenientes do último nível.
 
-## Verificação
+## Testado automaticamente
 
+- [x] `npm run check` valida sintaxe, dados, políticas, PDF, geração determinística e regressões funcionais.
+- [x] IDs duplicados, referências de classe inexistentes, preços e espaços inválidos, magias sem escola, mudanças no vocabulário de efeitos e personagens de referência são verificados.
 - [x] HTMLs finais gerados pelas fontes.
 - [x] Testes automatizados do Arsenal, Grimório, progressão, inventário e exportação executados.
-- [ ] Conferência visual manual em navegador real, desktop e celular.
 
+## Conferido visualmente
+
+- [ ] Desktop 1366×768.
+- [ ] Celular 390×844.

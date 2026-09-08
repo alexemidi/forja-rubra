@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "characters": [
+    {"id":"anao-nobre-4","raceId":"anao","classId":"nobre","level":4,"protects":["PV racial por nível","perícias","Autoconfiança","progressão"]},
+    {"id":"duende-barbaro-2","raceId":"duende","classId":"barbaro","level":2,"protects":["tabu","poder racial na progressão","redução de nível"]},
+    {"id":"suraggel-arcanista-1","raceId":"suraggel","classId":"arcanista","level":1,"protects":["linhagem original","mudança de herança","atributos"]},
+    {"id":"bardo-satiro-1","raceId":"satiro","classId":"bardo","level":1,"protects":["três escolas","magia racial","Você pode lançar"]},
+    {"id":"arcanista-1","raceId":"humano","classId":"arcanista","level":1,"protects":["magias sem escolha de escolas","memorização","sem armadura inicial"]},
+    {"id":"inventario-completo","raceId":"humano","classId":"guerreiro","level":1,"protects":["item inicial","item de origem","munição parcial","item personalizado","compra idempotente"]}
+  ]
+}
+
