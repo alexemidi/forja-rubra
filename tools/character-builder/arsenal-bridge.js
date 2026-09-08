@@ -80,6 +80,7 @@ itemsGrid.addEventListener('toggle',event=>expandInitialCard(event.target),true)
 function chooseCandidate(item){
   selectedCandidate=selectedCandidate?.itemId===item.id?null:{itemId:item.id,itemName:item.nome,options:catalogOptionsForItem(item)};
   restoreCandidate();postArsenal('candidate',selectedCandidate||{itemId:''});
+  if(selectedCandidate&&ITEM_CHOICE_DEFINITIONS[item.id]){const entry=[...itemsGrid.querySelectorAll('[data-choice-item]')].find(candidate=>candidate.dataset.choiceItem===item.id);entry?.classList.add('open');const view=entry?.querySelector('[data-action="choice-view"]');if(view)view.textContent='Recolher';expandInitialCard(entry);requestAnimationFrame(()=>{const field=entry?.querySelector('[data-item-option]');field?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true})})}
 }
 function applyArsenalContext(context){
   const previousMode=arsenalInitialState.mode;
@@ -162,6 +163,8 @@ document.addEventListener('click',event=>{
   if(event.target.closest?.('#cartViewBackpack')){event.preventDefault();event.stopImmediatePropagation();closeModal(cartModal);postArsenal('close-shop')}
   if(event.target.closest?.('#cartReturnCatalog')){event.preventDefault();event.stopImmediatePropagation();closeModal(cartModal);postArsenal('open-shop')}
 },true);
+document.addEventListener('input',event=>{const control=event.target.closest?.('[data-item-option]'),entry=control?.closest?.('[data-choice-item]');if(!entry||selectedCandidate?.itemId!==entry.dataset.choiceItem)return;const item=itemById.get(entry.dataset.choiceItem);selectedCandidate={itemId:item.id,itemName:item.nome,options:catalogOptionsForItem(item)};postArsenal('candidate',selectedCandidate)},true);
+document.addEventListener('change',event=>{const control=event.target.closest?.('[data-item-option]'),entry=control?.closest?.('[data-choice-item]');if(!entry||selectedCandidate?.itemId!==entry.dataset.choiceItem)return;const item=itemById.get(entry.dataset.choiceItem);selectedCandidate={itemId:item.id,itemName:item.nome,options:catalogOptionsForItem(item)};postArsenal('candidate',selectedCandidate)},true);
 window.addEventListener('message',event=>{
   const message=event.data;if(event.source!==window.parent||message?.channel!=='forja-arsenal-v1'||message.session!==arsenalInitialState.session)return;
   if(message.type==='context')applyArsenalContext(message.context);

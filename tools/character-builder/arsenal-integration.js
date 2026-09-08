@@ -58,7 +58,13 @@ function originItemChoice(name,kind,origin,index){
   if(/gazua ou instrumentos de oficio/.test(text))return{...base,names:['Gazua','Instrumentos de Ofício']};
   if(/rolo de macarrao ou martelo de carne/.test(text))return{...base,type:'arma',names:['Rolo de Macarrão','Martelo de Carne']};
   if(/instrumentos de oficio ou uma arma simples/.test(text))return{...base,categories:['simples'],names:['Instrumentos de Ofício'],allowNamedOrFilter:true};
+  if(/arma marcial ou (?:um )?instrumento musical/.test(text))return{...base,type:'arma',categories:['marcial'],names:['Instrumento Musical','Instrumento Musical Exótico'],allowNamedOrFilter:true};
   if(/arma simples ou marcial de ataque a distancia/.test(text))return{...base,type:'arma',categories:['simples','marcial'],combat:'a_distancia'};
+  if(/^(?:uma )?arma simples ou marcial\b/.test(text))return{...base,type:'arma',categories:['simples','marcial']};
+  if(/cota de malha ou escudo pesado/.test(text))return{...base,names:['Cota de Malha','Escudo Pesado']};
+  if(/escudo leve ou pesado/.test(text))return{...base,type:'escudo',names:['Escudo Leve','Escudo Pesado']};
+  if(/arco longo ou katana/.test(text))return{...base,type:'arma',names:['Arco Longo','Katana']};
+  if(/camisa bufante ou traje de seda/.test(text))return{...base,names:['Camisa Bufante','Traje de Seda']};
   if(/arma simples corpo a corpo/.test(text))return{...base,type:'arma',categories:['simples'],combat:'corpo_a_corpo'};
   if(/arma marcial ou exotica/.test(text))return{...base,type:'arma',categories:['marcial','exotica']};
   if(/^uma arma marcial$/.test(text))return{...base,type:'arma',categories:['marcial']};
