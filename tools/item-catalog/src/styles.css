@@ -503,6 +503,7 @@
     cursor: pointer;
   }
   .acquire-button:hover { border-color: var(--green); background: #45c58b2e; color: #c4f2da; }
+  .upgrade-purchase-button{width:36px;min-width:36px;min-height:34px;border:1px solid #5ba9d877;border-radius:7px;background:#5ba9d814;color:#c8eaff;font-size:16px;cursor:pointer}.upgrade-purchase-button:hover{border-color:#8bd4ff;background:#5ba9d82b}.purchase-upgrade-panel{width:min(820px,calc(100vw - 28px))}.purchase-upgrade-panel .modal-body{max-height:68vh;overflow:auto}
   .acquire-button.inspiration-select-button { border-color: #5ba9d890; background: #5ba9d820; color: #b9e3ff; }
   .acquire-button.inspiration-select-button:hover { border-color: #79c7f3; background: #5ba9d83a; color: #e4f5ff; }
   .acquired-indicator { color: var(--text-dim); font-size: 0.69rem; text-align: right; }

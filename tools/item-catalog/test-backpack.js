@@ -253,6 +253,14 @@ assert(normalizeItemOptions('animal_nao_combativo',{customName:'Galinha'}).custo
 const exotic = itemById.get('instrumento_musical_exotico');
 assert(effectiveItemForOptions(exotic,{options:{customName:'Sanfona',customSpaces:2.5}}).espacos === 2.5, 'Espaços do instrumento exótico não foram aplicados.');
 assert(carryingLimits(0,2).normal === 12 && carryingLimits(0,2).maximum === 24, 'O bônus externo de capacidade de carga não foi aplicado.');
+cartItems=[];
+const purchaseSword=purchaseDraft(sword.id);
+purchaseSword.improvements=[{id:'certeira',materialId:''}];
+purchaseSword.enchantments=['formidavel'];
+addItemToCart(sword.id,{});
+assert(cartItems.length===1&&cartItems[0].improvements[0].id==='certeira'&&cartItems[0].enchantments[0]==='formidavel','Melhorias e encantos não foram preservados no carrinho.');
+assert(cartTotalsInfo().value===entryValueInfo(cartItems[0],sword).unitKnown,'O preço da compra não incluiu melhorias e encantos.');
+cartItems=[];
 
 console.log(JSON.stringify({
   status: 'ok',

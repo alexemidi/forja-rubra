@@ -106,7 +106,6 @@ renderStage=function(){
   if(!reuse)renderBeforeArsenal();
   if(state.step!==8){arsenalMountedOwner=null;arsenalShopOpen=false;arsenalContextKey=''}
   document.body?.classList.toggle('arsenal-stage',state.step===8);
-  if(state.step===10){document.getElementById('nextButton').textContent='Ficha concluída';return}
   if(state.step!==8)return;
   syncInitialItemFooter();
   const context=arsenalInitialData();
@@ -150,11 +149,6 @@ document.addEventListener('click',event=>{
     return;
   }
   if(!event.target.closest?.('#nextButton'))return;
-  if(state.step===10){
-    event.preventDefault();event.stopImmediatePropagation();
-    if(characterPendingChoices().length)return;
-    if(persistNow())toast('Ficha finalizada e salva neste navegador.');return;
-  }
   if(state.step!==8)return;
   event.preventDefault();event.stopImmediatePropagation();
   const saved=arsenalState();
@@ -169,10 +163,10 @@ document.addEventListener('click',event=>{
 },true);
 window.addEventListener('message',event=>{
   const frame=document.getElementById('characterArsenal'),message=event.data;
-  if(state.step!==8||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-arsenal-v1'||message.session!==arsenalSession)return;
+  if((state.step!==8&&!state.finished)||state.finished&&state.sheetView!=='shop'||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-arsenal-v1'||message.session!==arsenalSession)return;
   if(message.type==='ready'){document.getElementById('arsenalStatus').hidden=true;if(!arsenalState().complete&&!currentItemChoice())finalizeInitialItems();return}
   if(message.type==='open-shop'&&arsenalState().complete){arsenalShopOpen=true;renderStage();return}
-  if(message.type==='close-shop'){arsenalShopOpen=false;renderStage();return}
+  if(message.type==='close-shop'){arsenalShopOpen=false;if(state.finished)state.sheetView='sheet';renderStage();return}
   if(message.type==='host-scroll'){
     const rect=frame.getBoundingClientRect(),limit=document.querySelector('.phase-nav')?.getBoundingClientRect().bottom||0,delta=Number(message.delta)||0;
     if(delta>0&&rect.top>limit+2)window.scrollBy({top:Math.min(delta,rect.top-limit),behavior:'auto'});

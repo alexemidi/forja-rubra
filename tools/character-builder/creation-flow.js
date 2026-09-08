@@ -1,5 +1,4 @@
 // Presentation and final validation shared by desktop and mobile.
-[PHASES[2],PHASES[3]]=[PHASES[3],PHASES[2]];
 function migrateCreationLayout(value){
   if(Number(value.layoutVersion||0)<4){
     const swap=step=>step===3?4:step===4?3:step;

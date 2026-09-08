@@ -17,6 +17,17 @@ const SURAGGEL_HERITAGE_CHOICES={
 };
 const supplementalRaceChoicesBeforeSuraggel=supplementalRaceChoiceDefinitions;
 supplementalRaceChoiceDefinitions=function(){return [...supplementalRaceChoicesBeforeSuraggel(),...(SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[])]};
+const renderChoiceBeforeSuraggel=renderChoice;
+renderChoice=function(def,source='race'){
+  if(source!=='race'||def.id!=='suraggel_heranca_substituta')return renderChoiceBeforeSuraggel(def,source);
+  const lineageDef=raceById('suraggel')?.habilidades?.selecionadas?.find(choice=>choice.id==='suraggel_linhagem'),lineage=selectedRaceOption(lineageDef||{});
+  if(!lineage)return '<div class="info-box blue">Escolha primeiro entre Aggelus e Sulfure para visualizar sua herança original.</div>';
+  if(state.identity.suraggelChangingHeritage)return renderChoiceBeforeSuraggel(def,source);
+  const heritage=suraggelHeritageOption(),original=suraggelHeritage()==='suraggel_heranca_original',ability=original?lineage.habilidades?.[0]:null;
+  return '<div class="choice-section suraggel-heritage-summary"><h4>Herança</h4><div class="ability-list">'+abilityHtml(ability||{nome:choiceName(heritage),descricao:heritage?.descricao||''})+'</div><button class="button" type="button" data-action="change-suraggel-heritage">Mudar herança</button></div>';
+};
+const activeSpellTraitsBeforeSuraggel=activeSpellTraits;
+activeSpellTraits=function(){const traits=activeSpellTraitsBeforeSuraggel();if(state.identity.raceId!=='suraggel'||suraggelHeritage()==='suraggel_heranca_original')return traits;return traits.filter(trait=>!['suraggel_luz_sagrada','suraggel_sombras_profanas'].includes(trait.id))};
 function duplicateSuraggelChoice(){
   const definitions=SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[],skillDefinitions=definitions.filter(def=>def.id.includes('_pericia_')),values=skillDefinitions.map(def=>state.identity.raceChoices[def.id]).filter(Boolean);
   return values.find((value,index)=>values.indexOf(value)!==index)||'';
@@ -34,7 +45,9 @@ spellPlan=function(){const plan=spellPlanBeforeSuraggel();if(suraggelHeritage()=
 const raceAbilityTextBeforeSuraggel=raceAbilityText;
 raceAbilityText=function(){const parts=[raceAbilityTextBeforeSuraggel()],option=suraggelHeritageOption();if(option)parts.push(choiceName(option),option.descricao);for(const definition of SURAGGEL_HERITAGE_CHOICES[suraggelHeritage()]||[]){const chosen=chosenRaceTraitOption(definition);if(chosen)parts.push(definition.nome,choiceName(chosen),chosen.descricao)}return parts.filter(Boolean).join(' ')};
 document.addEventListener('change',event=>{if(event.target.dataset.action!=='race-choice')return;if(event.target.dataset.choiceId==='suraggel_heranca_substituta'){
-  Object.keys(state.identity.raceChoices).filter(key=>key.startsWith('suraggel_')&&key!=='suraggel_heranca_substituta').forEach(key=>delete state.identity.raceChoices[key]);
+  Object.keys(state.identity.raceChoices).filter(key=>key.startsWith('suraggel_')&&!['suraggel_linhagem','suraggel_heranca_substituta'].includes(key)).forEach(key=>delete state.identity.raceChoices[key]);
   Object.keys(spellState().selections).filter(key=>key==='race:suraggel_magika').forEach(key=>delete spellState().selections[key]);
   if(event.target.value==='heranca_de_al_gazara')state.identity.raceChoices.suraggel_al_gazara_atributo=ATTRS[Math.floor(Math.random()*ATTRS.length)][0];
-}},true);
+  state.identity.suraggelChangingHeritage=false;
+}else if(event.target.dataset.choiceId==='suraggel_linhagem'){state.identity.raceChoices.suraggel_heranca_substituta='suraggel_heranca_original';state.identity.suraggelChangingHeritage=false}},true);
+document.addEventListener('click',event=>{if(!event.target.closest?.('[data-action="change-suraggel-heritage"]'))return;state.identity.suraggelChangingHeritage=true;renderStage()},true);

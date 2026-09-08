@@ -120,7 +120,7 @@ function proposeOperation(type,message={}){
   const gift=type==='purchase'&&total>arsenalInitialState.funds;
   arsenalTransaction=true;
   try{
-    if(type==='purchase')cartItems.forEach(entry=>addPackagesToBackpack(entry.itemId,entry.quantity,entry.options,{source:gift?'gift':'purchase',operationId:id}));
+    if(type==='purchase')cartItems.forEach(entry=>addPackagesToBackpack(entry.itemId,entry.quantity,entry.options,{source:gift?'gift':'purchase',operationId:id},entry));
     if(type==='initial'&&message.selection){
       addPackagesToBackpack(message.selection.itemId,1,message.selection.options,{source:'initial',grantId:message.grantId});grants.push(message.grantId);
     }

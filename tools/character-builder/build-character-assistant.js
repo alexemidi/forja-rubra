@@ -15,11 +15,11 @@ const normalizedId = value => String(value || '').normalize('NFD').replace(/[\u0
 const catalogSource = fs.readFileSync(path.join(root, 'tools/item-catalog/src/catalog-data.js'), 'utf8');
 const catalogMatch = catalogSource.match(/const ITEMS = (\[[\s\S]*?\]);\r?\n/);
 if (!catalogMatch) throw new Error('Catálogo de itens não localizado para a exportação em PDF.');
-const pdfItems = JSON.parse(catalogMatch[1]).map(item => ({id:item.id,nome:item.nome,tipo:item.tipo,categoriaId:item.categoriaId,espacos:item.espacos,arma:item.arma,armadura:item.armadura,escudo:item.escudo}));
+const pdfItems = JSON.parse(catalogMatch[1]).map(item => ({id:item.id,nome:item.nome,tipo:item.tipo,categoriaId:item.categoriaId,espacos:item.espacos,equipamento:item.equipamento,arma:item.arma,armadura:item.armadura,escudo:item.escudo}));
 const pdfTemplateBase64 = fs.readFileSync(path.join(root, 'output/Ficha T20 Jogo do Ano - Otimizada v1.4.pdf')).toString('base64');
 const races = readJson('backup-jsons/races_update.json');
 const suraggel = races.find(race => race.id === 'suraggel');
-if (suraggel) suraggel.habilidades.selecionadas.push({id:'suraggel_heranca_substituta',nome:'Herança extraplanar',descricao:'Mantenha a herança original de Aggelus ou Sulfure ou substitua-a por uma das heranças extraplanares.',tipo:'heranca',obrigatoria:true,opcoes:[{id:'suraggel_heranca_original',nome:'Herança original',descricao:'Mantenha Luz Sagrada (Aggelus) ou Sombras Profanas (Sulfure).'},...raceAndAuthority.heritages.map(entry=>({id:entry.id,nome:entry.name,descricao:entry.description}))]});
+if (suraggel) suraggel.habilidades.selecionadas.push({id:'suraggel_heranca_substituta',nome:'Herança extraplanar',descricao:'Mantenha a herança original de Aggelus ou Sulfure ou substitua-a por uma das heranças extraplanares.',tipo:'heranca',obrigatoria:true,opcoes:[{id:'suraggel_heranca_original',nome:'Herança original',descricao:'Mantenha Luz Sagrada (Aggelus) ou Sombras Profanas (Sulfure).'},...raceAndAuthority.heritages.map(entry=>({id:entry.id,nome:entry.name,descricao:entry.id==='heranca_de_werra'?'Você possui um conhecimento intuitivo para armas. Você recebe +1 em testes de ataque com armas e proficiência com armas marciais ou com duas armas exóticas.':entry.description}))]});
 
 const structuredClassPowers = (classPowers.poderesClasseCatalogoGlobal || []).map(({ id, classeIds, livroOrigemId, nome, descricao, preRequisitosTexto }) => ({
   id, classeIds, livroOrigemId, nome, descricao, preRequisitosTexto
@@ -79,7 +79,7 @@ if (!template.includes(marker)) throw new Error('Marcador de dados não encontra
 if (!template.includes('/*__T20_SPELL_INTEGRATION__*/')) throw new Error('Marcador de integração com o Grimório não encontrado no template.');
 if (!template.includes('/*__T20_SPELL_STYLES__*/')) throw new Error('Marcador de estilos do Grimório não encontrado no template.');
 if (!template.includes('/*__T20_PDF_LIB__*/') || !template.includes('/*__T20_PDF_EXPORT__*/')) throw new Error('Marcadores da exportação em PDF não encontrados no template.');
-const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','creation-flow.js','progression-phase.js','arsenal-integration.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
+const spellIntegration = ['spell-integration.js','spell-school-flow.js','suraggel-expansion.js','creation-flow.js','progression-phase.js','arsenal-integration.js','character-sheet.js'].map(file=>fs.readFileSync(path.join(__dirname,file),'utf8')).join('\n');
 const spellLayout = fs.readFileSync(path.join(__dirname, 'spell-layout.css'), 'utf8');
 const pdfLib = fs.readFileSync(require.resolve('pdf-lib/dist/pdf-lib.min.js'), 'utf8');
 const pdfExport = fs.readFileSync(path.join(__dirname, 'pdf-export.js'), 'utf8');

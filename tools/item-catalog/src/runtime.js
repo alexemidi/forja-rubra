@@ -347,7 +347,9 @@ function loadCart() {
         entryId: String(entry.entryId || ('carrinho-' + createInstanceId())),
         itemId: entry.itemId,
         quantity: Math.max(1, Math.min(9999, Math.floor(Number(entry.quantity) || 1))),
-        options: normalizeItemOptions(entry.itemId, entry.options)
+        options: normalizeItemOptions(entry.itemId, entry.options),
+        improvements: (Array.isArray(entry.improvements) ? entry.improvements : []).map(normalizeStoredImprovement).filter(Boolean).slice(0,4),
+        enchantments: (Array.isArray(entry.enchantments) ? entry.enchantments : []).map(normalizeStoredEnchantment).filter(Boolean).slice(0,MAX_ENCHANTMENTS)
       };
     });
   } catch (error) {
@@ -363,6 +365,7 @@ function loadBackpackMode() {
 let characterProfiles = loadCharacterProfiles();
 let backpackItems = [];
 let cartItems = loadCart();
+const purchaseDrafts = new Map();
 let expandedBackpackInstanceId = null;
 let reopenCartAfterCharacter = false;
 let editingCharacterId = null;
@@ -1017,10 +1020,9 @@ function cartTotalsInfo() {
     const originalItem = itemById.get(entry.itemId);
     if (!originalItem) return total;
     const item = effectiveItemForOptions(originalItem, entry);
-    const draft = { itemId: item.id, quantity: entry.quantity, options: entry.options, improvements: [], enchantments: [] };
-    const value = entryValueInfo(draft, item);
+    const value = entryValueInfo(entry, item);
     total.packages += entry.quantity;
-    total.spaces += improvementSpacePerUnit(draft, item) * entry.quantity;
+    total.spaces += improvementSpacePerUnit(entry, item) * entry.quantity;
     total.value += value.totalKnown;
     return total;
   }, { packages: 0, spaces: 0, value: 0 });
@@ -1038,15 +1040,15 @@ function renderCart() {
     const originalItem = itemById.get(entry.itemId);
     if (!originalItem) return '';
     const item = effectiveItemForOptions(originalItem, entry);
-    const draft = { itemId: item.id, quantity: entry.quantity, options: entry.options, improvements: [], enchantments: [] };
-    const value = entryValueInfo(draft, item);
+    const value = entryValueInfo(entry, item);
     const packageSize = ammoPackageSize(item);
-    return '<div class="cart-entry" data-cart-entry-id="' + escapeHtml(entry.entryId) + '"><div class="cart-entry-name"><strong>' + escapeHtml(configuredItemName(draft, originalItem)) +
-      '</strong><small>' + escapeHtml(formatEntryValue(value, true)) + ' · ' + formatSpaces(improvementSpacePerUnit(draft, item) * entry.quantity) +
-      ' espaços' + (packageSize ? ' · pacote com ' + packageSize : '') + '</small></div>' +
+    const upgrades=[...(entry.improvements||[]).map(choice=>improvementById.get(choice.id)?.nome),...(entry.enchantments||[]).map(id=>enchantmentById.get(id)?.nome)].filter(Boolean);
+    return '<div class="cart-entry" data-cart-entry-id="' + escapeHtml(entry.entryId) + '"><div class="cart-entry-name"><strong>' + escapeHtml(configuredItemName(entry, originalItem)) +
+      '</strong><small>' + escapeHtml(formatEntryValue(value, true)) + ' · ' + formatSpaces(improvementSpacePerUnit(entry, item) * entry.quantity) +
+      ' espaços'+(upgrades.length?' · '+escapeHtml(upgrades.join(', ')):'')+(packageSize ? ' · pacote com ' + packageSize : '') + '</small></div>' +
       '<div class="cart-quantity"><button type="button" data-action="cart-decrease" aria-label="Diminuir quantidade">−</button><span>' + entry.quantity +
       '</span><button type="button" data-action="cart-increase" aria-label="Aumentar quantidade">+</button></div>' +
-      '<button class="cart-remove" type="button" data-action="cart-remove" aria-label="Remover ' + escapeHtml(configuredItemName(draft, originalItem)) + ' do carrinho">×</button></div>';
+      '<button class="cart-remove" type="button" data-action="cart-remove" aria-label="Remover ' + escapeHtml(configuredItemName(entry, originalItem)) + ' do carrinho">×</button></div>';
   }).join('') : '<p class="modal-empty">O carrinho está vazio.</p>';
   cartSummary.innerHTML = '<div><strong>' + totals.packages + '</strong><small>' + (totals.packages === 1 ? 'Item/pacote' : 'Itens/pacotes') +
     '</small></div><div><strong>' + formatSpaces(totals.spaces) + '</strong><small>Espaços usados</small></div><div><strong>' +
@@ -1070,15 +1072,15 @@ function addItemToCart(itemId, rawOptions) {
   const item = itemById.get(itemId);
   if (!item) return;
   const options = normalizeItemOptions(itemId, rawOptions);
-  const optionKey = itemOptionsKey(itemId, options);
+  const configured=purchaseDrafts.get(itemId)||{improvements:[],enchantments:[]},improvements=(configured.improvements||[]).map(choice=>({...choice})),enchantments=[...(configured.enchantments||[])],optionKey=itemOptionsKey(itemId, options),upgradeKey=JSON.stringify([improvements,enchantments]);
   const existing = cartItems.find(function(entry) {
-    return entry.itemId === itemId && itemOptionsKey(itemId, entry.options) === optionKey;
+    return entry.itemId === itemId && itemOptionsKey(itemId, entry.options) === optionKey && JSON.stringify([entry.improvements||[],entry.enchantments||[]])===upgradeKey;
   });
   if (existing) existing.quantity = Math.min(9999, existing.quantity + 1);
-  else cartItems.push({ entryId: 'carrinho-' + createInstanceId(), itemId: itemId, quantity: 1, options: options });
+  else cartItems.push({ entryId: 'carrinho-' + createInstanceId(), itemId: itemId, quantity: 1, options: options, improvements, enchantments });
   persistCart();
   syncCartUI();
-  showToast(configuredItemName({ options: options, improvements: [], enchantments: [] }, item) + ' adicionado ao carrinho.');
+  showToast(configuredItemName({ options, improvements, enchantments }, item) + ' adicionado ao carrinho.');
 }
 
 function setCartQuantity(entryId, quantity) {
@@ -1353,9 +1355,10 @@ function buildItemCard(originalItem) {
       descriptionLabel + '</span><br>' + escapeHtml(texts.descricao) + '</p>';
   }
   if (!body) body = '<p class="no-description">Sem descrição textual cadastrada; consulte as estatísticas acima.</p>';
+  const upgradeActions = state.inspirationMode ? '' : purchaseUpgradeButtons(item);
   const primaryAction = state.inspirationMode
     ? '<button class="acquire-button inspiration-select-button" type="button" data-action="select-inspiration" data-item-id="' + escapeHtml(item.id) + '"><span aria-hidden="true">✦</span> Escolher inspiração</button>'
-    : '<button class="acquire-button" type="button" data-action="add-to-cart" data-item-id="' + escapeHtml(item.id) + '"><span aria-hidden="true">🛒</span> Adicionar ao carrinho</button>';
+    : upgradeActions+'<button class="acquire-button" type="button" data-action="add-to-cart" data-item-id="' + escapeHtml(item.id) + '"><span aria-hidden="true">🛒</span> Adicionar ao carrinho</button>';
   const acquisitionStatus = state.inspirationMode ? '' : '<span class="acquired-indicator' + (acquiredCount ? ' has-items' : '') + '" data-acquired-count>' +
     (acquiredCount ? acquiredCount + (acquiredCount === 1 ? ' adquirido' : ' adquiridos') : 'Ainda não adquirido') + '</span>';
   let managementControls = '';
@@ -1573,6 +1576,24 @@ function enchantmentEditorHtml(instance, item) {
     '<summary><span>Encantos</span><span class="improvement-counter">' + enchantmentSlotsUsed(instance.enchantments) + '/' + MAX_ENCHANTMENTS + '</span></summary>' +
     '<div class="improvement-editor"><div class="improvement-slots">' + slots + '</div>' + enchantmentDetailsHtml(instance, item) + '</div></details>';
 }
+
+function purchaseUpgradeButtons(item) {
+  if (isNamedFixedMagicItem(item) || document.body?.classList.contains('initial-equipment')) return '';
+  const hasImprovements=improvements.some(choice=>improvementAppliesToItem(choice,item)),hasEnchantments=enchantments.some(choice=>enchantmentAppliesToItem(choice,item));
+  return (hasImprovements?'<button class="upgrade-purchase-button" type="button" data-action="configure-purchase" data-kind="improvements" data-item-id="'+escapeHtml(item.id)+'" title="Adicionar melhorias" aria-label="Adicionar melhorias">🔨</button>':'')+(hasEnchantments?'<button class="upgrade-purchase-button" type="button" data-action="configure-purchase" data-kind="enchantments" data-item-id="'+escapeHtml(item.id)+'" title="Adicionar encantos" aria-label="Adicionar encantos">✨</button>':'');
+}
+function purchaseDraft(itemId){if(!purchaseDrafts.has(itemId))purchaseDrafts.set(itemId,{instanceId:'compra-'+itemId,itemId,quantity:1,options:catalogOptionsForItem(itemById.get(itemId)),improvements:[],enchantments:[]});return purchaseDrafts.get(itemId)}
+function purchaseUpgradeEditor(itemId,kind){
+  const original=itemById.get(itemId),draft=purchaseDraft(itemId),item=effectiveItemForOptions(original,draft);if(!item)return '';
+  if(kind==='enchantments')return enchantmentEditorHtml(draft,item);
+  const slots=[0,1,2,3].map(index=>'<div class="improvement-field"><label>'+(index+1)+'ª melhoria</label>'+improvementOptionsHtml(draft,item,index)+'</div>').join('');
+  return '<details class="improvements-panel" open><summary><span>Melhorias</span><span class="improvement-counter">'+draft.improvements.length+'/4</span></summary><div class="improvement-editor"><div class="improvement-slots">'+slots+materialFieldHtml(draft,item)+'</div>'+improvementDetailsHtml(draft,item)+'</div></details>';
+}
+function openPurchaseUpgrade(itemId,kind){
+  let modal=document.getElementById('purchaseUpgradeModal');if(!modal){modal=document.createElement('div');modal.id='purchaseUpgradeModal';modal.className='app-modal';document.body.appendChild(modal)}
+  const item=itemById.get(itemId);modal.dataset.itemId=itemId;modal.dataset.kind=kind;modal.innerHTML='<section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true"><header class="modal-header"><h2>'+(kind==='enchantments'?'✨ Encantos':'🔨 Melhorias')+' · '+escapeHtml(item.nome)+'</h2><button class="modal-close" type="button" data-action="close-purchase-upgrade" aria-label="Fechar">×</button></header><div class="modal-body" data-purchase-upgrade-body>'+purchaseUpgradeEditor(itemId,kind)+'</div><footer class="modal-actions"><button class="secondary-button" type="button" data-action="close-purchase-upgrade">Voltar</button><button class="primary-button" type="button" data-action="add-configured-to-cart" data-item-id="'+escapeHtml(itemId)+'">Adicionar ao carrinho</button></footer></section>';openModal(modal)
+}
+function refreshPurchaseUpgrade(){const modal=document.getElementById('purchaseUpgradeModal');if(!modal)return;modal.querySelector('[data-purchase-upgrade-body]').innerHTML=purchaseUpgradeEditor(modal.dataset.itemId,modal.dataset.kind)}
 
 function specificBaseSummaryHtml(item) {
   const baseId = item.magico && item.magico.baseItemId;
@@ -1863,14 +1884,15 @@ function refreshInventoryUI() {
   else syncCatalogAcquiredUI();
 }
 
-function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition) {
+function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition, configuration) {
   const item = itemById.get(itemId);
   if (!item) return;
   const amount = Math.max(1, Math.floor(Number(packageQuantity) || 1));
   const options = normalizeItemOptions(itemId, rawOptions);
   const optionKey = itemOptionsKey(itemId, options);
+  const configuredImprovements=(configuration?.improvements||[]).map(choice=>({...choice})),configuredEnchantments=[...(configuration?.enchantments||[])];
   let instance = backpackItems.find(function(entry) {
-    return entry.itemId === itemId && JSON.stringify(entry.acquisition || {source: 'unknown'}) === JSON.stringify(acquisition || {source: 'unknown'}) && itemOptionsKey(itemId, entry.options) === optionKey && entry.improvements.length === 0 && entry.enchantments.length === 0 && entry.quantity < 9999;
+    return entry.itemId === itemId && JSON.stringify(entry.acquisition || {source: 'unknown'}) === JSON.stringify(acquisition || {source: 'unknown'}) && itemOptionsKey(itemId, entry.options) === optionKey && JSON.stringify(entry.improvements||[])===JSON.stringify(configuredImprovements) && JSON.stringify(entry.enchantments||[])===JSON.stringify(configuredEnchantments) && entry.quantity < 9999;
   });
   const packageSize = ammoPackageSize(item);
   if (instance) {
@@ -1885,7 +1907,7 @@ function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition)
       displayName: item.nome,
       options: options,
       ammoRemaining: packageSize ? quantity * packageSize : undefined,
-      improvements: [], enchantments: []
+      improvements: configuredImprovements, enchantments: configuredEnchantments
     });
   }
 }
@@ -1901,7 +1923,7 @@ function checkoutCartToBackpack() {
     return;
   }
   const total = cartItems.reduce(function(sum, entry) { return sum + entry.quantity; }, 0);
-  cartItems.forEach(function(entry) { addPackagesToBackpack(entry.itemId, entry.quantity, entry.options); });
+  cartItems.forEach(function(entry) { addPackagesToBackpack(entry.itemId, entry.quantity, entry.options,undefined,entry); });
   cartItems = [];
   persistCart();
   refreshInventoryUI();
@@ -2599,8 +2621,15 @@ itemsGrid.addEventListener('click', function(event) {
   }
   if (button.dataset.action === 'add-to-cart') {
     addItemToCart(button.dataset.itemId, catalogOptionsForItem(itemById.get(button.dataset.itemId)));
+    return;
+  }
+  if(button.dataset.action==='configure-purchase'){
+    openPurchaseUpgrade(button.dataset.itemId,button.dataset.kind);return;
   }
 });
+
+document.addEventListener('click',function(event){const button=event.target.closest?.('#purchaseUpgradeModal button[data-action]');if(!button)return;const modal=document.getElementById('purchaseUpgradeModal');if(button.dataset.action==='close-purchase-upgrade'){closeModal(modal);return}if(button.dataset.action==='add-configured-to-cart'){addItemToCart(button.dataset.itemId,purchaseDraft(button.dataset.itemId).options);closeModal(modal)}});
+document.addEventListener('change',function(event){const modal=event.target.closest?.('#purchaseUpgradeModal');if(!modal)return;const draft=purchaseDraft(modal.dataset.itemId),item=itemById.get(modal.dataset.itemId),control=event.target,index=Number(control.dataset.slot);if(control.dataset.action==='improvement'){const choices=draft.improvements.slice();if(!control.value)choices.splice(index,1);else choices[index]={id:control.value,materialId:choices[index]?.id===control.value?choices[index].materialId:''};draft.improvements=choices.filter(Boolean);sanitizeInstanceImprovements(draft,item)}else if(control.dataset.action==='enchantment'){const choices=draft.enchantments.slice();if(!control.value)choices.splice(index,1);else choices[index]=control.value;draft.enchantments=choices.filter(Boolean);sanitizeInstanceEnchantments(draft,item)}else if(control.dataset.action==='material'){const choice=draft.improvements.find(entry=>entry.id==='material_especial');if(choice)choice.materialId=control.value}else return;refreshPurchaseUpgrade()});
 
 itemsGrid.addEventListener('input', function(event) {
   const control = event.target.closest('[data-item-option]');

@@ -275,7 +275,7 @@ function mountGrimoire(){
   grimoireSession++;grimoireReady=false;
   const status=document.getElementById('spellFrameStatus');status.hidden=false;status.textContent='Carregando o Grimório…';
   frame.srcdoc=DATA.grimoireHtml;
-  setTimeout(()=>{if(state.step===7&&!grimoireReady){const status=document.getElementById('spellFrameStatus');if(status)status.textContent='Não foi possível carregar. Use Recarregar para tentar novamente.'}},10000);
+  setTimeout(()=>{if((state.step===7||state.finished&&state.sheetView==='grimoire')&&!grimoireReady){const status=document.getElementById('spellFrameStatus');if(status)status.textContent='Não foi possível carregar. Use Recarregar para tentar novamente.'}},10000);
 }
 function grimoireContext(){
   const plan=spellPlan(),saved=spellState(),group=plan.groups.find(group=>group.id===saved.activeGroup),chosen=group?groupSpellIds(group):[],learned=allLearnedSpellIds(plan),available=group?.fixed.length?group.fixed:group?DATA.spells.filter(spell=>basicSpellAllowed(spell,group,plan)).map(spell=>spell.id):DATA.spells.filter(spell=>spell.circle===1).map(spell=>spell.id);
@@ -305,7 +305,7 @@ function syncSpellControls(){
 function toggleSpellBook(id){if(!SPELL_BOOK_IDS.includes(id))return false;if(spellCatalogUI.books.has(id))spellCatalogUI.books.delete(id);else spellCatalogUI.books.add(id);return true}
 window.addEventListener('message',event=>{
   const frame=document.getElementById('spellGrimoire'),message=event.data;
-  if(state.step!==7||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-t20-grimoire-v1')return;
+  if((state.step!==7&&!state.finished)||state.finished&&state.sheetView!=='grimoire'||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-t20-grimoire-v1')return;
   if(message.type==='host-scroll'){
     const rect=frame.getBoundingClientRect(),limit=document.querySelector('.phase-nav')?.getBoundingClientRect().bottom||0,delta=Number(message.delta)||0;
     if(delta>0&&rect.top>limit+2)window.scrollBy({top:Math.min(delta,rect.top-limit),behavior:'auto'});
