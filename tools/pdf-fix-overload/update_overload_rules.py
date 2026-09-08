@@ -66,10 +66,19 @@ event.target.textSize = 0;'''
 
 
 MOVEMENT_VALIDATE_SCRIPT = r'''var campoBase = this.getField("DeslocamentoBase");
-if (campoBase) campoBase.value = event.value;'''
+var campoExibido = this.getField("DeslocamentoExibido");
+var novoValor = event.value;
+var ultimoExibido = campoExibido ? campoExibido.value : "";
+var novoNumero = Number(String(novoValor).replace(",", "."));
+var exibidoNumero = Number(String(ultimoExibido).replace(",", "."));
+var mesmoValor = String(novoValor) == String(ultimoExibido);
+
+if (!isNaN(novoNumero) && !isNaN(exibidoNumero)) mesmoValor = novoNumero == exibidoNumero;
+if (campoBase && !mesmoValor) campoBase.value = novoValor;'''
 
 
 MOVEMENT_CALCULATE_SCRIPT = r'''var campoBase = this.getField("DeslocamentoBase");
+var campoExibido = this.getField("DeslocamentoExibido");
 var valorBase = campoBase ? campoBase.value : "";
 
 if ((valorBase === "" || valorBase === null) && event.value !== "" && event.value !== null) {
@@ -79,14 +88,18 @@ if ((valorBase === "" || valorBase === null) && event.value !== "" && event.valu
 
 if (valorBase === "" || valorBase === null) {
     event.value = "";
+    if (campoExibido) campoExibido.value = "";
 } else {
     var numeroBase = Number(String(valorBase).replace(",", "."));
     if (isNaN(numeroBase)) {
         event.value = valorBase;
+        if (campoExibido) campoExibido.value = valorBase;
     } else {
         var cargaUsada = Number(this.getField("CargaUsada").value) || 0;
         var limiteCarga = Number(this.getField("LimCarga").value) || 0;
-        event.value = cargaUsada > limiteCarga ? Math.max(0, numeroBase - 3) : numeroBase;
+        var valorExibido = cargaUsada > limiteCarga ? Math.max(0, numeroBase - 3) : numeroBase;
+        if (campoExibido) campoExibido.value = valorExibido;
+        event.value = valorExibido;
     }
 }
 
@@ -131,16 +144,16 @@ def set_javascript(writer: PdfWriter, field, trigger: str, script: str) -> None:
     actions[NameObject(trigger)] = writer._add_object(action)
 
 
-def ensure_base_field(writer: PdfWriter, acroform):
+def ensure_hidden_field(writer: PdfWriter, acroform, name: str, tooltip: str):
     for reference in acroform["/Fields"]:
-        field = find_field(reference, "DeslocamentoBase")
+        field = find_field(reference, name)
         if field is not None:
             return field
     field = DictionaryObject(
         {
             NameObject("/FT"): NameObject("/Tx"),
-            NameObject("/T"): TextStringObject("DeslocamentoBase"),
-            NameObject("/TU"): TextStringObject("Valor-base do deslocamento."),
+            NameObject("/T"): TextStringObject(name),
+            NameObject("/TU"): TextStringObject(tooltip),
             NameObject("/Ff"): NumberObject(1),
             NameObject("/V"): TextStringObject(""),
             NameObject("/DV"): TextStringObject(""),
@@ -187,7 +200,8 @@ def update_pdf(input_pdf: Path, output_pdf: Path) -> None:
     if missing:
         raise ValueError(f"Campos não encontrados: {sorted(missing)}")
 
-    ensure_base_field(writer, acroform)
+    ensure_hidden_field(writer, acroform, "DeslocamentoBase", "Valor-base do deslocamento.")
+    ensure_hidden_field(writer, acroform, "DeslocamentoExibido", "Último deslocamento calculado.")
     for name in ("Acrobacia", "Furtividade", "Ladinagem"):
         set_javascript(writer, fields[name], "/C", SKILL_SCRIPT)
     set_javascript(writer, fields["Efeitos4"], "/C", EFFECT_SCRIPT)
