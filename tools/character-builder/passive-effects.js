@@ -6,6 +6,7 @@ function selectedCharacterFeatures(){
   for(const definition of race?.habilidades?.selecionadas||[]){const option=selectedRaceOption(definition);if(option)add({...option,nome:definition.nome+' · '+choiceName(option)},'race')}
   for(const group of racePowerGroups())for(const id of state.powers.raceGroups[group.id]||[]){const option=group.options.find(item=>choiceId(item)===id);if(option)add(option,'race')}
   state.progression.forEach((row,index)=>{const cls=classById(row.classId),level=classLevelAt(index,row.classId);for(const ability of cls?.habilidades||[])if(Number(ability.nivel)===level)add(ability,'class');add(progressionPowerById(row.powerId),'class-power')});
+  for(const definition of classChoiceDescriptors(classById(state.identity.classId))){const selected=optionList(definition).find(option=>choiceId(option)===state.identity.classChoices[definition.id]);if(selected)add(selected,'class-choice')}
   for(const power of selectedGeneralPowers())add(power,'general-power');
   for(const name of originPowerNames())add(DATA.generalPowers.find(power=>slug(power.nome)===slug(name))||{nome:name,descricao:'Poder recebido pela origem.'},'origin');
   for(const name of String(state.deity.power||'').split('|').filter(Boolean))add(DATA.generalPowers.find(power=>power.nome===name)||{nome:name,descricao:'Poder concedido pela divindade.'},'deity');
@@ -19,7 +20,7 @@ function inferredFeatureEffects(feature){
 }
 function selectedFeatureEffects(){return selectedCharacterFeatures().flatMap(feature=>[...(feature.efeitos||[]).map(effect=>({...effect,feature})),...inferredFeatureEffects(feature)]) }
 const allTrainedSkillsBeforePassives=allTrainedSkills;
-allTrainedSkills=function(){const values=allTrainedSkillsBeforePassives();for(const effect of selectedFeatureEffects())if(effect.tipo==='pericia_treinada'&&effect.periciaId)values.push(effect.periciaId);return [...new Set(values)]};
+allTrainedSkills=function(){const values=allTrainedSkillsBeforePassives();for(const effect of selectedFeatureEffects())if(['pericia_treinada','treinar_pericia'].includes(effect.tipo)){for(const id of effect.pericias||[effect.periciaId])if(id)values.push(id)}return [...new Set(values)]};
 function passiveCharacterEffects(){
   const result={defenseAttribute:'des',defenseBonus:0,skillBonuses:{},movementBonus:0,pvPerLevel:0,pmPerLevel:0,pvFlat:0,pmFlat:0,sizeShift:0,reductions:[]};
   const addSkill=(id,value)=>{if(id)result.skillBonuses[id]=(result.skillBonuses[id]||0)+Number(value||0)};
@@ -28,8 +29,11 @@ function passiveCharacterEffects(){
     if(effect.tipo==='substituir_atributo_defesa')result.defenseAttribute=effect.para||result.defenseAttribute;
     if(effect.tipo==='bonus_defesa'&&!conditional)result.defenseBonus+=Number(effect.valor??effect.bonus??0);
     if(effect.tipo==='bonus_deslocamento'&&!conditional)result.movementBonus+=Number(effect.valor??effect.bonus??0);
+    if(effect.tipo==='bonus_pv'&&!conditional){const first=Number(effect.nivel1??effect.valor??effect.bonus??0),following=Number(effect.porNivelApos1??0);result.pvFlat+=first-following;result.pvPerLevel+=following}
     if(effect.tipo==='bonus_pv_por_nivel'&&!conditional)result.pvPerLevel+=Number(effect.valor??effect.bonus??0);
     if(effect.tipo==='bonus_pm_por_nivel'&&!conditional)result.pmPerLevel+=Number(effect.valor??effect.bonus??0);
+    if(effect.tipo==='bonus_pm'&&!conditional)result.pmFlat+=Number(effect.valor??effect.bonus??0);
+    if(effect.tipo==='somar_atributo_recurso'&&effect.recurso==='pm'&&!conditional)result.pmFlat+=Number(finalAttrs()[effect.atributo]||0);
     if((effect.tipo==='bonus_pericia'||effect.tipo==='penalidade_pericia')&&!conditional){for(const id of effect.pericias||[effect.periciaId])addSkill(id,effect.valor??effect.bonus??effect.penalidade)}
     if(effect.tipo==='reducao_dano'&&!conditional)result.reductions.push(effect);
   }

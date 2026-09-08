@@ -23,6 +23,7 @@ assert.equal(errors.length,0,errors.map(e=>e.message).join('\n'));
 assert.equal(c.document.querySelectorAll('.item-card').length,0,'A escolha inicial não monta cards fechados');
 const entries=[...c.document.querySelectorAll('[data-choice-item]')];
 assert.equal(entries.length,22);
+assert.equal(w.document.getElementById('redoInitialItemsButton').hidden,false,'Refazer escolhas também deve aparecer durante a seleção.');
 const dagger=entries.find(entry=>entry.dataset.choiceItem==='adaga');
 assert(dagger.textContent.includes('Dano 1d4')&&dagger.textContent.includes('Crítico 19')&&dagger.textContent.includes('Alcance Curto'));
 assert.equal(dagger.querySelectorAll('button').length,2);

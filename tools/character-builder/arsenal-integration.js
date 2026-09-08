@@ -106,7 +106,7 @@ function sendArsenal(type,details={}){document.getElementById('characterArsenal'
 function syncInitialItemFooter(){
   if(state.step!==8)return;
   const saved=arsenalState(),title=saved.complete?(arsenalShopOpen?'Comprar itens':'Itens adquiridos'):currentItemChoice()?.title||'Equipamento inicial';
-  document.getElementById('redoInitialItemsButton').hidden=!saved.complete||arsenalShopOpen;
+  document.getElementById('redoInitialItemsButton').hidden=arsenalShopOpen;
   document.getElementById('nextButton').textContent=saved.complete?(arsenalShopOpen?'Confirmar compra':'Continuar →'):saved.pending?'Confirmar escolha →':'Pular escolha →';
   document.getElementById('nextButton').disabled=false;
   document.getElementById('stageTitle').textContent=saved.complete?title:'Itens iniciais';document.getElementById('stageDescription').textContent='';
