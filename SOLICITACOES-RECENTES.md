@@ -4,6 +4,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Pendentes
 
+- [ ] Ficha pronta: completar equipamento com carga, totais e itens vestidos; quadro de armadura/escudo e valores de CD/atributo/bônus por fonte de magia; conferência visual.
+
 - [ ] Conferência visual completa em Chrome/Edge desktop e largura de celular.
 - [ ] Lote 2: extrair o estado para módulo próprio, consolidar migrações de layout e tratar falhas de gravação no cadastro de personagens.
 - [ ] Lote 3: controlador único das nove fases.
@@ -15,6 +17,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - Nenhum lote neste momento.
 
 ## Implementado
+
+- [x] Ficha pronta: identificação com rótulos sem nome repetido, perícias por A–Z ou atributo + A–Z, progressão à esquerda com descrições expansíveis, habilidades iniciais separadas, magias expansíveis e campos persistidos de condições e anotações.
 
 - [x] Organização da ficha pronta: atributos e vitais na coluna de ataques, perícias completas à direita, equipamento abaixo e progressão por nível ao lado das habilidades e proficiências. Mantidas as cores da Forja.
 
