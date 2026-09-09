@@ -77,6 +77,8 @@ assert(run("sheetMoneyAndLoad().includes('Carga usada')&&sheetMoneyAndLoad().inc
 run('state=defaultState()');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Espólio'})"),'item de T$ 2.000');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Orgulho'})"),'+2 teste por PM');
+assert.strictEqual(run("pdfFeatureText({nome:'Orgulho'})"),'Orgulho (+2 teste por PM)');
+assert.strictEqual(run("pdfFeatureText({nome:'Aumento de Atributo',sheetAttribute:'car'})"),'Aumento de Atributo (carisma)');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Aumento de Atributo',sheetAttribute:'car'})"),'carisma');
 assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('(-1PM habilidade nobre)')"));
 assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('<p>Texto completo.</p>')"));
@@ -712,8 +714,8 @@ assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='a
 assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='espadim')).attack"),5,'Nobreza treinada deve conceder +1 no ataque com espadim.');
 assert.strictEqual(run("weaponPassiveStats(DATA.pdfItems.find(item=>item.id==='espadim')).damage"),'1d8+1');
 run("state=defaultState();state.identity.raceId='qareen';state.identity.raceChoices.qareen_resistencia_elemental='fogo'");
-assert(run("pdfInitialFeatureText().includes('Resistência Elemental (RD fogo 10)')"));
-assert(run("pdfInitialFeatureText().includes('Desejos (–1 PM em magia pedida)')"));
+assert(run("pdfInitialFeatureText().includes('Resistência Elemental (RD 10 fogo)')"));
+assert(run("pdfInitialFeatureText().includes('Desejos (-1PM desejo)')"));
 run("state=defaultState();state.identity.raceId='duende';state.identity.duendeTabuPenalty='–5 em Iniciativa'");
 assert.strictEqual(run('passiveCharacterEffects().skillBonuses.iniciativa'),undefined,'A sugestão por descumprimento não deve virar uma penalidade passiva permanente.');
 assert(run("renderChoice(DATA.races.find(race=>race.id==='duende').habilidades.selecionadas.find(choice=>choice.id==='duende_tabu')).includes('Se descumprir, sugestão:')"));

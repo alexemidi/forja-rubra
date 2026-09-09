@@ -7,7 +7,7 @@
     "validate:syntax": "node tools/quality/check-syntax.js",
     "validate:data": "node tools/quality/validate-data.js",
     "validate:policies": "node tools/quality/check-policies.js",
-    "validate:pdf": "node tools/quality/check-pdf-template.js",
+    "validate:pdf": "node tools/quality/check-pdf-template.js && node tools/character-builder/pdf-preservation-test.js",
     "verify": "node tools/verify-build.js && npm test",
     "check": "npm run validate:syntax && npm run validate:data && npm run validate:policies && npm run validate:pdf && npm run verify",
     "benchmark": "node tools/item-catalog/benchmark.js && node tools/item-catalog/benchmark-cold.js"

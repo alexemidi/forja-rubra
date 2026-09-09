@@ -18,11 +18,13 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Em desenvolvimento
 
-- Nenhum lote neste momento.
+- Exportação: preservar scripts e propriedades de todos os campos, compartilhar resumos com a prévia e investigar atualização inicial no Chrome/Edge. Conferência visual e recálculo na abertura ainda pendentes.
 
 ## Implementado
 
-- [x] Novo modelo principal em output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf, download do original vazio e bloqueio dos 43 campos somente leitura. Exportação não regenera aparências nem adiciona scripts.
+- [x] Novo modelo principal em output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf, download do original vazio e bloqueio dos 43 campos somente leitura. Exportação não regenera aparências nem altera scripts dos campos. A cópia preenchida recebe uma ação separada de abertura para solicitar `this.calculateNow()` ao leitor; confirmação visual pendente.
+- [x] Exportação usa o mesmo gerador de resumos da prévia nas habilidades iniciais e progressão, incluindo atributo escolhido. Marcadores de evolução não são exportados; escolhas permanecem intactas. Catálogo completo de resumos continua pendente.
+- [x] Penalidades normais de armadura e escudo mantidas: livro básico, página impressa 153 (página 159 do PDF), determina aplicação em Acrobacia, Furtividade, Ladinagem e Atletismo para natação. Proficiência não é uma isenção dessas penalidades.
 
 - [x] PV: Constituição somada em cada nível, usando o ganho da classe recebida naquele nível.
 - [x] Defesa: ler bonusDefesa do escudo na prévia e no campo do escudo exportado.
@@ -59,6 +61,9 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Testado automaticamente
 
+- [x] Teste de preservação integrado ao `npm run check`: compara propriedades e scripts resolvendo referências indiretas de todos os campos/widgets, aparências, fontes, opções, valores padrão, permissões e ordem de cálculo após serialização. Campos protegidos não recebem valores do exportador.
+- [x] `npm run check` passou com geração determinística dos HTMLs e regressões dos resumos atualizados. A presença da ação de recálculo é verificada estruturalmente, não equivale à execução em leitor real.
+
 - [x] 33 classes × níveis 1/2/4 × CON -1/0/1; nobre nível 4 com CON 1 = 32 PV, multiclasse e redução de nível; valores da tabela de dinheiro inicial.
 
 - [x] Cliques no DOM: selecionar aumento, escolher atributo e Continuar em dois níveis consecutivos sem a validação antiga interromper a confirmação.
@@ -71,6 +76,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] Testes automatizados do Arsenal, Grimório, progressão, inventário e exportação executados.
 
 ## Conferido visualmente
+
+- [ ] Exportação: abrir as duas páginas no Chrome/Edge sem clicar em perícias, alterar dados e verificar recálculo. Em 09/09/2026, a ferramenta de navegador bloqueou acesso ao PDF local no Chrome por política de URL; Edge não está disponível na conexão. Não afirmar que o defeito visual foi resolvido até executar essa conferência. Nenhuma limitação do motor de cálculo do navegador foi comprovada por este bloqueio da ferramenta.
 
 - [ ] Conferir a nova organização da ficha pronta contra as imagens de referência, em desktop e celular.
 
