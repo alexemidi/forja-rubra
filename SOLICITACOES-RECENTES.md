@@ -4,6 +4,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Pendentes
 
+- [ ] Resumos: revisar o catálogo completo, adotar identificadores estáveis por origem para homônimos e completar escolhas dinâmicas como Duplo Feérico. Os exemplos cadastrados não equivalem à revisão de todos os poderes.
+
 - [ ] Ficha pronta: separar itens vestidos; quadro de armadura/escudo e valores de CD/atributo/bônus por fonte de magia; conferência visual. Distribuição de moedas entre TC/T$/TO e carga de moedas ainda pendentes.
 
 - [ ] Conferência visual completa em Chrome/Edge desktop e largura de celular.
@@ -17,6 +19,12 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - Nenhum lote neste momento.
 
 ## Implementado
+
+- [x] PV: Constituição somada em cada nível, usando o ganho da classe recebida naquele nível.
+- [x] Defesa: ler bonusDefesa do escudo na prévia e no campo do escudo exportado.
+- [x] Ocultar o marcador de evolução Poder de Classe na lista da ficha, mantendo as escolhas de progressão.
+- [x] Resumos dos exemplos em feature-summaries.json, com nomes completos e novo padrão de texto.
+- [x] Tabela de dinheiro inicial conferida de nível 2 a 20; nível 1 permanece manual e progressão não redefine o nível financeiro inicial.
 
 - [x] Campos de moedas e carga na ficha pronta: saldo atual em T$, TC/TO exibidos como zero, limite, carga usada dos itens e máxima. Não há distribuição manual do saldo entre metais nesta versão.
 - [x] Perícias alinhadas ao início da identificação, removendo o deslocamento vertical herdado e mantendo equipamento abaixo das duas colunas.
@@ -46,6 +54,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] 11. Permitir descer um nível na progressão, removendo as escolhas e benefícios provenientes do último nível.
 
 ## Testado automaticamente
+
+- [x] 33 classes × níveis 1/2/4 × CON -1/0/1; nobre nível 4 com CON 1 = 32 PV, multiclasse e redução de nível; valores da tabela de dinheiro inicial.
 
 - [x] Cliques no DOM: selecionar aumento, escolher atributo e Continuar em dois níveis consecutivos sem a validação antiga interromper a confirmação.
 

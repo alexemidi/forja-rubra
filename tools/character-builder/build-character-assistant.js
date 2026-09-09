@@ -85,6 +85,7 @@ const arsenalSource = fs.readFileSync(path.join(root,'Arsenal de Arton.html'),'u
   .replace('<header class="site-header">','<header class="site-header" hidden aria-hidden="true" style="display:none!important">');
 const embeddedArsenalBase = arsenalSource.replace(/\blocalStorage\b/g,'forjaArsenalStorage').replace('<script>', () => '<script>\n'+fs.readFileSync(path.join(__dirname,'arsenal-storage-bridge.js'),'utf8')+'\n</script>\n<script>');
 const data = {
+  featureSummaries: readJson('tools/character-builder/feature-summaries.json'),
   inventoryLoadData: {items:JSON.parse(catalogMatch[1]).map(({id,espacos,magico})=>({id,espacos,magico})),improvements:JSON.parse(catalogSource.match(/const IMPROVEMENT_DATA = (.*);/)[1]).melhorias.map(({id,efeitos})=>({id,efeitos}))},
   pdfTemplateBase64,
   pdfItems,

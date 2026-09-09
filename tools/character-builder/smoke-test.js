@@ -56,6 +56,19 @@ assert.deepStrictEqual(
   [50, 33, 35, 66, 23]
 );
 assert.strictEqual(run('PHASES.length'), 9);
+for(const cls of JSON.parse(run('JSON.stringify(DATA.classes)')))for(const level of [1,2,4])for(const con of [-1,0,1]){
+  run("state=defaultState();state.identity.classId="+JSON.stringify(cls.id)+";state.identity.plannedLevel="+level+";state.identity.baseAttrs.con="+con+";ensureProgression()");
+  const constitution=run('finalAttrs().con');
+  assert.strictEqual(run('progressionStatsBeforeSuraggel().pv'),cls.caracteristicas.pv.inicial+(level-1)*cls.caracteristicas.pv.porNivel+level*constitution,'PV '+cls.id+' nível '+level+' CON '+con);
+}
+run("state=defaultState();state.identity.classId='nobre';state.identity.plannedLevel=4;state.identity.baseAttrs.con=1;ensureProgression()");
+assert.strictEqual(run('progressionStats().pv'),32);
+run("state.progression[1].classId='guerreiro'");
+assert.strictEqual(run('progressionStats().pv'),33);
+run("state.identity.plannedLevel=2;ensureProgression()");
+assert.strictEqual(run('progressionStats().pv'),23);
+assert.strictEqual(run("DATA.pdfItems.find(item=>item.id==='escudo_leve').escudo.bonusDefesa"),1);
+assert.deepStrictEqual(JSON.parse(run('JSON.stringify(STARTING_FUNDS)')),{2:300,3:600,4:1000,5:2000,6:3000,7:5000,8:7000,9:10000,10:13000,11:19000,12:27000,13:36000,14:49000,15:66000,16:88000,17:110000,18:150000,19:200000,20:260000});
 run("state=defaultState();state.identity.baseAttrs.for=-1");
 assert.strictEqual(run('sheetInventoryLoad().limit'),9);
 assert.strictEqual(run('sheetInventoryLoad().maximum'),18);
@@ -63,9 +76,9 @@ assert(run("sheetMoneyAndLoad().includes('TC · Cobre')&&sheetMoneyAndLoad().inc
 assert(run("sheetMoneyAndLoad().includes('Carga usada')&&sheetMoneyAndLoad().includes('Carga máxima')"));
 run('state=defaultState()');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Espólio'})"),'item de T$ 2.000');
-assert.strictEqual(run("sheetFeatureSummary({nome:'Orgulho'})"),'cada PM +2 teste');
+assert.strictEqual(run("sheetFeatureSummary({nome:'Orgulho'})"),'+2 teste por PM');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Aumento de Atributo',sheetAttribute:'car'})"),'carisma');
-assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('(-1 PM habilidade nobre)')"));
+assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('(-1PM habilidade nobre)')"));
 assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('<p>Texto completo.</p>')"));
 assert.strictEqual(run('PHASES[8][0]'),'Progressão');
 assert.strictEqual(run('defaultState().stateSchemaVersion'),1);
