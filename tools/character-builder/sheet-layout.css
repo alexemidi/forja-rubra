@@ -1,5 +1,13 @@
 .sheet-preview-middle{grid-template-columns:minmax(0,2.15fr) minmax(330px,1fr);align-items:start}
 .sheet-preview-main{min-width:0}
+.sheet-preview-middle>.sheet-preview-skills{position:relative;top:auto;bottom:auto;align-self:start;transform:none;margin-top:0}
+.sheet-preview>.panel{position:relative;clear:both}
+.sheet-money-load{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--border);border-top:1px solid var(--border)}
+.sheet-money-load>div{display:grid;gap:8px;padding:12px;background:#111824}
+.sheet-money-load small{color:var(--muted);font-size:.62rem}
+.sheet-money-load strong{color:var(--gold2);font-size:1rem}
+.sheet-load-note{margin:10px 12px}
+@media(max-width:760px){.sheet-money-load{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .character-sheet-ready .phase-nav{display:none!important}
 .sheet-preview-identity{grid-template-columns:repeat(5,minmax(0,1fr))}
 .sheet-preview-identity>*{white-space:normal;padding:9px;font-size:.65rem}

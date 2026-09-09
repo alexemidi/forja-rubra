@@ -56,6 +56,12 @@ assert.deepStrictEqual(
   [50, 33, 35, 66, 23]
 );
 assert.strictEqual(run('PHASES.length'), 9);
+run("state=defaultState();state.identity.baseAttrs.for=-1");
+assert.strictEqual(run('sheetInventoryLoad().limit'),9);
+assert.strictEqual(run('sheetInventoryLoad().maximum'),18);
+assert(run("sheetMoneyAndLoad().includes('TC · Cobre')&&sheetMoneyAndLoad().includes('T$ · Prata')&&sheetMoneyAndLoad().includes('TO · Ouro')"));
+assert(run("sheetMoneyAndLoad().includes('Carga usada')&&sheetMoneyAndLoad().includes('Carga máxima')"));
+run('state=defaultState()');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Espólio'})"),'item de T$ 2.000');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Orgulho'})"),'cada PM +2 teste');
 assert.strictEqual(run("sheetFeatureSummary({nome:'Aumento de Atributo',sheetAttribute:'car'})"),'carisma');

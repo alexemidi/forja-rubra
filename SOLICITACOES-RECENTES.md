@@ -4,7 +4,7 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Pendentes
 
-- [ ] Ficha pronta: completar equipamento com carga, totais e itens vestidos; quadro de armadura/escudo e valores de CD/atributo/bônus por fonte de magia; conferência visual.
+- [ ] Ficha pronta: separar itens vestidos; quadro de armadura/escudo e valores de CD/atributo/bônus por fonte de magia; conferência visual. Distribuição de moedas entre TC/T$/TO e carga de moedas ainda pendentes.
 
 - [ ] Conferência visual completa em Chrome/Edge desktop e largura de celular.
 - [ ] Lote 2: extrair o estado para módulo próprio, consolidar migrações de layout e tratar falhas de gravação no cadastro de personagens.
@@ -17,6 +17,9 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - Nenhum lote neste momento.
 
 ## Implementado
+
+- [x] Campos de moedas e carga na ficha pronta: saldo atual em T$, TC/TO exibidos como zero, limite, carga usada dos itens e máxima. Não há distribuição manual do saldo entre metais nesta versão.
+- [x] Perícias alinhadas ao início da identificação, removendo o deslocamento vertical herdado e mantendo equipamento abaixo das duas colunas.
 
 - [x] Resumos curtos explícitos para os exemplos de poderes do Zahir, entre parênteses; magia da tatuagem e atributo de aumento obtidos da escolha salva. Texto completo permanece expansível.
 - [x] Corrigida regra CSS que deslocava o botão de ordenação das perícias para fora do cabeçalho.
