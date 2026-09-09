@@ -18,6 +18,9 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Implementado
 
+- [x] Resumos curtos explícitos para os exemplos de poderes do Zahir, entre parênteses; magia da tatuagem e atributo de aumento obtidos da escolha salva. Texto completo permanece expansível.
+- [x] Corrigida regra CSS que deslocava o botão de ordenação das perícias para fora do cabeçalho.
+
 - [x] Ficha pronta: identificação com rótulos sem nome repetido, perícias por A–Z ou atributo + A–Z, progressão à esquerda com descrições expansíveis, habilidades iniciais separadas, magias expansíveis e campos persistidos de condições e anotações.
 
 - [x] Organização da ficha pronta: atributos e vitais na coluna de ataques, perícias completas à direita, equipamento abaixo e progressão por nível ao lado das habilidades e proficiências. Mantidas as cores da Forja.

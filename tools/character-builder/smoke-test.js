@@ -56,6 +56,11 @@ assert.deepStrictEqual(
   [50, 33, 35, 66, 23]
 );
 assert.strictEqual(run('PHASES.length'), 9);
+assert.strictEqual(run("sheetFeatureSummary({nome:'Espólio'})"),'item de T$ 2.000');
+assert.strictEqual(run("sheetFeatureSummary({nome:'Orgulho'})"),'cada PM +2 teste');
+assert.strictEqual(run("sheetFeatureSummary({nome:'Aumento de Atributo',sheetAttribute:'car'})"),'carisma');
+assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('(-1 PM habilidade nobre)')"));
+assert(run("sheetFeatureDisclosure({nome:'Voz Límpida',descricao:'Texto completo.'}).includes('<p>Texto completo.</p>')"));
 assert.strictEqual(run('PHASES[8][0]'),'Progressão');
 assert.strictEqual(run('defaultState().stateSchemaVersion'),1);
 run("state=migratePersistedState({layoutVersion:4,identity:{initialLevel:4,plannedLevel:2,editingLevel:4},finances:{startingLevel:4,spent:75},arsenal:{storage:{custom:'preservado'}}});normalizeState()");

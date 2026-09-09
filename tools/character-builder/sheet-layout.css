@@ -4,6 +4,19 @@
 .sheet-preview-identity{grid-template-columns:repeat(5,minmax(0,1fr))}
 .sheet-preview-identity>*{white-space:normal;padding:9px;font-size:.65rem}
 .sheet-preview-skills{position:relative}
+.sheet-preview-identity small{display:block;text-align:left;color:var(--dim);font-size:.55rem;margin-bottom:5px}
+.sheet-preview-identity strong{display:block;text-align:center;color:var(--gold2);font:600 .75rem inherit}
+.sheet-preview-skills>h3{min-height:42px;display:flex;align-items:center;padding-right:145px}
+.sheet-preview-skills>.sheet-skill-order{position:absolute;right:8px;top:5px;margin:0}
+.sheet-spell-text{padding:10px;line-height:1.65;color:var(--muted)}
+.sheet-spell-text p{margin:8px 0}
+.sheet-spell-text .card-props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.sheet-spell-text .prop-row{display:flex;gap:8px;flex-wrap:wrap}
+.sheet-spell-text .prop-label,.sheet-spell-text .apr-title,.sheet-spell-text .truque-label{color:var(--gold2);font-weight:700}
+.sheet-spell-text .card-desc,.sheet-spell-text .truque-section,.sheet-spell-text .apr-section{margin:14px 0}
+.sheet-spell-text .apr-list{padding-left:20px}
+.sheet-spell-text .apr-list li{margin:8px 0}
+.sheet-spell-text .card-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .sheet-skill-order{margin:6px 10px;padding:4px 10px;font-size:.65rem}
 .sheet-notes{display:block;width:calc(100% - 20px);margin:10px;min-height:100px;resize:vertical}
 .sheet-preview-reference>.sheet-preview-box:last-child .sheet-notes{min-height:220px}
@@ -20,7 +33,7 @@
 .sheet-preview-vitals .vital{display:grid;place-items:center;min-height:64px;border:1px solid #45c58b66;border-radius:8px;background:#45c58b0b}
 .sheet-preview-vitals small{color:var(--dim);font-size:.55rem}
 .sheet-preview-vitals strong{color:#9ee6c1;font-size:1.2rem}
-.sheet-preview-skills{position:static}
+.sheet-preview-skills{position:relative}
 .sheet-preview-skills .sheet-preview-table-wrap{max-height:none;overflow:visible}
 .sheet-preview-skills .sheet-preview-table th,.sheet-preview-skills .sheet-preview-table td{padding:6px}
 .sheet-preview-second-page{display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.8fr);gap:12px;align-items:start}
