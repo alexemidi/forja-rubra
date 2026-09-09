@@ -4,6 +4,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Pendentes
 
+- [ ] Conferir visualmente PDF exportado em leitor real, incluindo recálculo e limpeza; campos e propriedades preservados por testes estruturais.
+
 - [ ] Resumos: revisar o catálogo completo, adotar identificadores estáveis por origem para homônimos e completar escolhas dinâmicas como Duplo Feérico. Os exemplos cadastrados não equivalem à revisão de todos os poderes.
 
 - [ ] Ficha pronta: separar itens vestidos; quadro de armadura/escudo e valores de CD/atributo/bônus por fonte de magia; conferência visual. Distribuição de moedas entre TC/T$/TO e carga de moedas ainda pendentes.
@@ -19,6 +21,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - Nenhum lote neste momento.
 
 ## Implementado
+
+- [x] Novo modelo principal em output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf, download do original vazio e bloqueio dos 43 campos somente leitura. Exportação não regenera aparências nem adiciona scripts.
 
 - [x] PV: Constituição somada em cada nível, usando o ganho da classe recebida naquele nível.
 - [x] Defesa: ler bonusDefesa do escudo na prévia e no campo do escudo exportado.
