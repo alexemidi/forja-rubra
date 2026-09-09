@@ -688,7 +688,7 @@ document.addEventListener('click',event=>{
 
 document.addEventListener('click',event=>{
   const next=event.target.closest?.('#nextButton');
-  if(!next||state.step===8||phaseIsComplete(state.step))return;
+  if(!next||[8,9].includes(state.step)||phaseIsComplete(state.step))return;
   event.stopImmediatePropagation();
   const items=missingChoices(state.step);
   showMissingChoiceWarning(items.length?items:[{title:'Etapa incompleta',message:validationMessage(state.step),selector:'.stage-root'}]);

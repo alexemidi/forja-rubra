@@ -16,6 +16,9 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Implementado
 
+- [x] Continuar na progressão confirma a seleção antes da validação global; avança ao próximo nível e finaliza quando não restam pendências. Botão reabilitado após a transição.
+- [x] Descrição de poder na progressão mostra nome, texto e escolhas necessárias; etiquetas redundantes removidas.
+
 - [x] Lote 1: documentação de desenvolvimento, comando único de verificação, validação sintática, validação dos dados, proteção contra diálogos nativos, proteção do PDF modelo e personagens de referência.
 - [x] Lote 2, primeira parte: versão do estado, migração dos níveis e separação do nível inicial, planejado e em edição. A consolidação completa continua pendente.
 - [x] 1. Substituir avisos nativos do navegador por notificações e janelas internas centralizadas.
@@ -31,6 +34,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] 11. Permitir descer um nível na progressão, removendo as escolhas e benefícios provenientes do último nível.
 
 ## Testado automaticamente
+
+- [x] Cliques no DOM: selecionar aumento, escolher atributo e Continuar em dois níveis consecutivos sem a validação antiga interromper a confirmação.
 
 - [x] `npm run check` valida sintaxe, dados, políticas, PDF, geração determinística e regressões funcionais.
 - [x] IDs duplicados, referências de classe inexistentes, preços e espaços inválidos, magias sem escola, mudanças no vocabulário de efeitos e personagens de referência são verificados.

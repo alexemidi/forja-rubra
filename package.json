@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "node tools/build.js",
-    "test": "node tools/item-catalog/test-backpack.js && node tools/character-builder/bridge-test.js && node tools/character-builder/smoke-test.js && node tools/character-builder/inventory-dom-test.js",
+    "test": "node tools/item-catalog/test-backpack.js && node tools/character-builder/bridge-test.js && node tools/character-builder/smoke-test.js && node tools/character-builder/inventory-dom-test.js && node tools/character-builder/progression-dom-test.js",
     "validate:syntax": "node tools/quality/check-syntax.js",
     "validate:data": "node tools/quality/validate-data.js",
     "validate:policies": "node tools/quality/check-policies.js",
