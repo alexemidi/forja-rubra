@@ -5,7 +5,7 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 ## Pendentes
 
 - [ ] Conferência visual completa em Chrome/Edge desktop e largura de celular.
-- [ ] Lote 2: estado versionado e separação completa dos níveis inicial, planejado e em edição.
+- [ ] Lote 2: extrair o estado para módulo próprio, consolidar migrações de layout e tratar falhas de gravação no cadastro de personagens.
 - [ ] Lote 3: controlador único das nove fases.
 - [ ] Lote 4: mecanismo central de efeitos.
 - [ ] Lotes 5 a 9: inventário, interface, exportação, limpeza e qualidade final.
@@ -17,6 +17,7 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 ## Implementado
 
 - [x] Lote 1: documentação de desenvolvimento, comando único de verificação, validação sintática, validação dos dados, proteção contra diálogos nativos, proteção do PDF modelo e personagens de referência.
+- [x] Lote 2, primeira parte: versão do estado, migração dos níveis e separação do nível inicial, planejado e em edição. A consolidação completa continua pendente.
 - [x] 1. Substituir avisos nativos do navegador por notificações e janelas internas centralizadas.
 - [x] 2. Impedir duplicação de itens iniciais e de origem ao refazer escolhas, usando identificadores únicos de concessão.
 - [x] 3. Ao comprar uma arma de ataque à distância que usa munição, oferecer o conjunto compatível.
@@ -33,6 +34,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 - [x] `npm run check` valida sintaxe, dados, políticas, PDF, geração determinística e regressões funcionais.
 - [x] IDs duplicados, referências de classe inexistentes, preços e espaços inválidos, magias sem escola, mudanças no vocabulário de efeitos e personagens de referência são verificados.
+- [x] Migração de fichas antigas, limites dos três níveis e preservação do nível/dinheiro inicial durante edições são verificados.
+- [x] Recarregar após descer de nível mantém o nível reduzido; selecionar personagem antigo recupera o nível inicial salvo antes de aplicar os valores padrão.
 - [x] HTMLs finais gerados pelas fontes.
 - [x] Testes automatizados do Arsenal, Grimório, progressão, inventário e exportação executados.
 

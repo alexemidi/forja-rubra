@@ -23,7 +23,7 @@ document.addEventListener('click',async event=>{
     if(action==='sheet'){state.sheetView='sheet';renderStage()}
     else if(action==='grimoire'){spellState().view='learned';state.sheetView='grimoire';renderStage()}
     else if(action==='shop'){state.sheetView='shop';renderStage()}
-    else if(action==='edit'){saveFinishedCharacter();state.editingCharacter={originalId:characterIdentifier(),originalName:state.identity.characterName||'Personagem'};state.finished=false;state.step=1;state.sheetView='';state.progressionActiveIndex=-1;document.getElementById('resetButton').hidden=false;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});toast('Modo de edição ativo. Finalize novamente para salvar as alterações.')}
+    else if(action==='edit'){saveFinishedCharacter();state.editingCharacter={originalId:characterIdentifier(),originalName:state.identity.characterName||'Personagem'};state.finished=false;state.step=1;state.sheetView='';state.progressionActiveIndex=-1;state.identity.editingLevel=1;document.getElementById('resetButton').hidden=false;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});toast('Modo de edição ativo. Finalize novamente para salvar as alterações.')}
     else if(action==='new'){saveFinishedCharacter();state=defaultState();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));document.getElementById('resetButton').hidden=false;renderStage();toast('Novo personagem iniciado.')}
     else if(action==='switch')showCharacterPicker();
     else if(action==='rename'){const name=await forjaPrompt('Novo nome do personagem:',state.identity.characterName||'');if(name?.trim()){state.identity.characterName=name.trim().slice(0,80);saveFinishedCharacter();renderStage()}}

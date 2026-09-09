@@ -27,12 +27,10 @@ function arsenalState(){
   return saved;
 }
 function financesState(){
-  const level=Math.max(1,Math.min(20,Number(state.identity.initialLevel||state.identity.plannedLevel)||1));
+  const level=validCharacterLevel(state.identity.initialLevel);
   if(!state.finances||typeof state.finances!=='object')state.finances={startingLevel:level,levelOneTibars:0,spent:0};
-  const value=state.finances;value.startingLevel=Math.max(1,Math.min(20,Number(value.startingLevel)||level));
+  const value=state.finances;value.startingLevel=level;
   value.levelOneTibars=Math.max(0,Number(value.levelOneTibars)||0);value.spent=Math.max(0,Number(value.spent)||0);
-  state.identity.initialLevel=value.startingLevel;
-  if(!state.identity.editingLevel)state.identity.editingLevel=1;
   return value;
 }
 function startingFunds(){const value=financesState();return value.startingLevel===1?value.levelOneTibars:STARTING_FUNDS[value.startingLevel]||0}
@@ -215,4 +213,10 @@ renderSummary=function(){
   return summaryBeforeArsenal()+renderStartingMoneyPanel()+panel('Mochila','<div class="ability-list">'+(items.length?items.map(item=>abilityHtml({nome:(item.displayName||item.options?.customName||item.itemName||item.itemId)+' × '+item.quantity,descricao:item.ammoRemaining!==undefined?'Munições restantes: '+item.ammoRemaining:''})).join(''):'<p class="help">A mochila está vazia.</p>')+'</div>');
 };
 document.addEventListener('input',event=>{if(event.target.dataset.field==='levelOneTibars'){financesState().levelOneTibars=Math.max(0,Number(event.target.value)||0);persist();const values=event.target.closest('.panel-body')?.querySelectorAll('.summary-card strong');if(values?.length)values[values.length-1].textContent=formatTibars(remainingFunds())}},true);
-document.addEventListener('change',event=>{if(event.target.dataset.field==='plannedLevel'&&state.step===1){state.identity.initialLevel=Number(state.identity.plannedLevel)||1;financesState().startingLevel=state.identity.initialLevel;renderStage()}},true);
+function syncInitialLevelFromPlanning(){
+  if(state.step!==1||state.editingCharacter||state.completed.includes(1))return false;
+  state.identity.initialLevel=validCharacterLevel(state.identity.plannedLevel);
+  financesState().startingLevel=state.identity.initialLevel;
+  return true;
+}
+document.addEventListener('change',event=>{if(event.target.dataset.field==='plannedLevel'&&syncInitialLevelFromPlanning())renderStage()},true);

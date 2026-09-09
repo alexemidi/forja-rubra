@@ -57,6 +57,43 @@ assert.deepStrictEqual(
 );
 assert.strictEqual(run('PHASES.length'), 9);
 assert.strictEqual(run('PHASES[8][0]'),'Progressão');
+assert.strictEqual(run('defaultState().stateSchemaVersion'),1);
+run("state=migratePersistedState({layoutVersion:4,identity:{initialLevel:4,plannedLevel:2,editingLevel:4},finances:{startingLevel:4,spent:75},arsenal:{storage:{custom:'preservado'}}});normalizeState()");
+assert.strictEqual(run('state.identity.plannedLevel'),2,'Recarregar não desfaz a redução de nível.');
+assert.strictEqual(run('state.identity.initialLevel'),4);
+assert.strictEqual(run('state.identity.editingLevel'),2);
+assert.strictEqual(run('state.finances.spent'),75);
+assert.strictEqual(run('state.arsenal.storage.custom'),'preservado');
+assert.strictEqual(run('validCharacterLevel(3.8)'),3);
+assert.strictEqual(run('validCharacterLevel(Infinity)'),1);
+run("state={layoutVersion:4,identity:{plannedLevel:6},finances:{startingLevel:2,levelOneTibars:0,spent:10}};normalizeState()");
+assert.strictEqual(run('state.identity.initialLevel'),2,'Selecionar personagem antigo migra antes de aplicar padrões.');
+assert.strictEqual(run('state.identity.plannedLevel'),6);
+assert.deepStrictEqual(
+  JSON.parse(run("JSON.stringify([defaultState().identity.initialLevel,defaultState().identity.plannedLevel,defaultState().identity.editingLevel,defaultState().finances.startingLevel])")),
+  [1,1,1,1]
+);
+assert.deepStrictEqual(
+  JSON.parse(run("JSON.stringify((({identity,finances,stateSchemaVersion})=>({identity,finances,stateSchemaVersion}))(migratePersistedState({layoutVersion:4,identity:{plannedLevel:11},finances:{startingLevel:1,levelOneTibars:50,spent:5}})))")),
+  {identity:{plannedLevel:11,initialLevel:1,editingLevel:1},finances:{startingLevel:1,levelOneTibars:50,spent:5},stateSchemaVersion:1}
+);
+assert.deepStrictEqual(
+  JSON.parse(run("JSON.stringify((({identity,finances})=>({identity,finances}))(migratePersistedState({layoutVersion:4,identity:{plannedLevel:4}})))")),
+  {identity:{plannedLevel:4,initialLevel:4,editingLevel:1},finances:{startingLevel:4,levelOneTibars:0,spent:0}}
+);
+assert.deepStrictEqual(
+  JSON.parse(run("JSON.stringify((({identity,finances})=>({identity,finances}))(migratePersistedState({layoutVersion:4,identity:{initialLevel:2,plannedLevel:6,editingLevel:99},finances:{startingLevel:20}})))")),
+  {identity:{initialLevel:2,plannedLevel:6,editingLevel:6},finances:{startingLevel:2,levelOneTibars:0,spent:0}}
+);
+run("state=defaultState();state.identity.plannedLevel=4");
+assert.strictEqual(run('syncInitialLevelFromPlanning()'),true);
+assert.strictEqual(run('state.identity.initialLevel'),4);
+run("state.completed=[1];state.identity.plannedLevel=6");
+assert.strictEqual(run('syncInitialLevelFromPlanning()'),false);
+assert.strictEqual(run('state.identity.initialLevel'),4);
+run("state.completed=[];state.editingCharacter={originalId:'teste'};state.identity.plannedLevel=8");
+assert.strictEqual(run('syncInitialLevelFromPlanning()'),false);
+assert.strictEqual(run('state.identity.initialLevel'),4);
 assert(run("DATA.classPowers.some(power=>power.id==='classe_aumento_de_atributo'&&power.classeIds.includes('barbaro'))"));
 assert.strictEqual(run("DATA.races.find(race=>race.id==='suraggel').habilidades.selecionadas.find(choice=>choice.id==='suraggel_heranca_substituta').opcoes.length"),23);
 assert.strictEqual(run("DATA.races.find(race=>race.id==='suraggel').habilidades.selecionadas.find(choice=>choice.id==='suraggel_heranca_substituta').opcoes.find(option=>option.id==='heranca_de_werra').descricao"),'Voc\u00ea possui um conhecimento intuitivo para armas. Voc\u00ea recebe +1 em testes de ataque com armas e profici\u00eancia com armas marciais ou com duas armas ex\u00f3ticas.');
@@ -634,7 +671,7 @@ const arsenalNextHandler=documentEvents.filter(event=>event.name==='click'&&even
 arsenalNextHandler({target:{closest:selector=>selector==='#nextButton'?{}:null},preventDefault(){},stopImmediatePropagation(){}});
 assert.strictEqual(run('state.step'),9);
 assert.strictEqual(run('STARTING_FUNDS[11]'),19000);
-run("state.finances={startingLevel:11,levelOneTibars:0,spent:1000}");assert.strictEqual(run('startingFunds()'),19000);assert.strictEqual(run('remainingFunds()'),18000);
+run("state.identity.initialLevel=11;state.finances={startingLevel:11,levelOneTibars:0,spent:1000}");assert.strictEqual(run('startingFunds()'),19000);assert.strictEqual(run('remainingFunds()'),18000);
 run("state.step=9;state.identity.plannedLevel=11;state.identity.editingLevel=1;arsenalShopOpen=false;renderStage()");assert.strictEqual(nodes.get('nextButton').textContent,'Finalizar ficha');
 spellReset('arcanista','qareen');
 run("chooseCharacterSpell(spellPlan().groups.find(group=>group.kind==='class').id,'adaga-mental');chooseCharacterSpell('race:qareen_tatuagem_mistica','adaga-mental')");
