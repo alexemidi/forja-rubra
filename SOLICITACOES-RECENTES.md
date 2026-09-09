@@ -16,6 +16,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Implementado
 
+- [x] Organização da ficha pronta: atributos e vitais na coluna de ataques, perícias completas à direita, equipamento abaixo e progressão por nível ao lado das habilidades e proficiências. Mantidas as cores da Forja.
+
 - [x] Continuar na progressão confirma a seleção antes da validação global; avança ao próximo nível e finaliza quando não restam pendências. Botão reabilitado após a transição.
 - [x] Descrição de poder na progressão mostra nome, texto e escolhas necessárias; etiquetas redundantes removidas.
 
@@ -45,6 +47,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] Testes automatizados do Arsenal, Grimório, progressão, inventário e exportação executados.
 
 ## Conferido visualmente
+
+- [ ] Conferir a nova organização da ficha pronta contra as imagens de referência, em desktop e celular.
 
 - [ ] Desktop 1366×768.
 - [ ] Celular 390×844.

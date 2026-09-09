@@ -1,0 +1,23 @@
+.sheet-preview-middle{grid-template-columns:minmax(0,2.15fr) minmax(330px,1fr);align-items:start}
+.sheet-preview-main{min-width:0}
+.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(8px,2vw,30px);padding:8px}
+.sheet-preview-attributes>div{min-width:0;min-height:66px}
+.sheet-preview-vitals{display:grid;grid-template-columns:repeat(2,minmax(100px,160px));gap:8px;padding:2px 8px 8px}
+.sheet-preview-vitals .vital{display:grid;place-items:center;min-height:64px;border:1px solid #45c58b66;border-radius:8px;background:#45c58b0b}
+.sheet-preview-vitals small{color:var(--dim);font-size:.55rem}
+.sheet-preview-vitals strong{color:#9ee6c1;font-size:1.2rem}
+.sheet-preview-skills{position:static}
+.sheet-preview-skills .sheet-preview-table-wrap{max-height:none;overflow:visible}
+.sheet-preview-skills .sheet-preview-table th,.sheet-preview-skills .sheet-preview-table td{padding:6px}
+.sheet-preview-second-page{display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.8fr);gap:12px;align-items:start}
+.sheet-preview-history ol{list-style:none;margin:0;padding:0}
+.sheet-preview-history li{padding:12px;border-bottom:1px solid var(--border)}
+.sheet-preview-history li:last-child{border-bottom:0}
+.sheet-preview-history strong{color:var(--gold2);font-size:.72rem}
+.sheet-preview-history p,.sheet-preview-feature-list p{margin-top:8px;color:var(--muted);font-size:.7rem;line-height:1.6}
+.sheet-preview-reference{display:grid;gap:12px;min-width:0}
+.sheet-preview-reference-top{display:grid;grid-template-columns:1.5fr 1fr;gap:12px}
+.sheet-preview-feature-list{padding:12px;display:grid;gap:10px}
+.sheet-preview-feature-list summary{cursor:pointer;color:var(--text);font-size:.72rem}
+@media(max-width:1000px){.sheet-preview-middle{grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr)}.sheet-preview-lower{grid-template-columns:1fr}.sheet-preview-attributes{gap:6px;padding:0}}
+@media(max-width:760px){.sheet-preview-middle,.sheet-preview-second-page{grid-template-columns:1fr}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))}.sheet-preview-reference-top{grid-template-columns:1fr}.sheet-preview-attributes strong{font-size:1rem}.sheet-preview-skills .sheet-preview-table{font-size:.65rem}}

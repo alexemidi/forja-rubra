@@ -118,7 +118,7 @@ const pdfExport = fs.readFileSync(path.join(__dirname, 'pdf-export.js'), 'utf8')
 const output = template.replace(marker, () => 'const DATA = ' + JSON.stringify(data).replace(/</g, '\\u003c') + ';')
   .replace('/*__T20_PDF_LIB__*/', () => pdfLib)
   .replace('/*__T20_SPELL_STYLES__*/', () => spellLayout)
-  .replace('/*__T20_SPELL_INTEGRATION__*/', () => spellIntegration)
+  .replace('/*__T20_SPELL_INTEGRATION__*/', () => spellIntegration+'\n{const style=document.createElement("style");style.textContent='+JSON.stringify(fs.readFileSync(path.join(__dirname,'sheet-layout.css'),'utf8'))+';document.head?.appendChild(style);}')
   .replace('/*__T20_PDF_EXPORT__*/', () => pdfExport);
 fs.writeFileSync(outputPath, output, 'utf8');
 console.log(JSON.stringify({ output: outputPath, bytes: Buffer.byteLength(output), counts: {
