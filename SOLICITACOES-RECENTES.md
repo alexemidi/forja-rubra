@@ -22,6 +22,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 
 ## Implementado
 
+- [x] Modelo v1.7 reenviado com tamanho automático de fonte: identificação de segurança atualizada para SHA-256 `e30569b0a3dd0fe29075f78c44ee57ed9bf99f891c7349e3a3c6ba0bfedae26d`. PDF original não editado pelo projeto; manter `/DA` e scripts fornecidos pelo usuário. Verificação visual de recálculo no navegador continua pendente.
+
 - [x] Novo modelo principal em output/Ficha T20 Jogo do Ano - Otimizada v1.7.pdf, download do original vazio e bloqueio dos 43 campos somente leitura. Exportação não regenera aparências nem altera scripts dos campos. A cópia preenchida recebe uma ação separada de abertura para solicitar `this.calculateNow()` ao leitor; confirmação visual pendente.
 - [x] Exportação usa o mesmo gerador de resumos da prévia nas habilidades iniciais e progressão, incluindo atributo escolhido. Marcadores de evolução não são exportados; escolhas permanecem intactas. Catálogo completo de resumos continua pendente.
 - [x] Penalidades normais de armadura e escudo mantidas: livro básico, página impressa 153 (página 159 do PDF), determina aplicação em Acrobacia, Furtividade, Ladinagem e Atletismo para natação. Proficiência não é uma isenção dessas penalidades.
@@ -60,6 +62,8 @@ Este arquivo acompanha o estado dos pedidos mais recentes. Ele deve ser atualiza
 - [x] 11. Permitir descer um nível na progressão, removendo as escolhas e benefícios provenientes do último nível.
 
 ## Testado automaticamente
+
+- [x] Modelo reenviado com fonte automática: `npm run check` passou; HTMLs regenerados deterministicamente; teste de preservação confirmou propriedades, scripts e 43 campos protegidos do novo arquivo.
 
 - [x] Teste de preservação integrado ao `npm run check`: compara propriedades e scripts resolvendo referências indiretas de todos os campos/widgets, aparências, fontes, opções, valores padrão, permissões e ordem de cálculo após serialização. Campos protegidos não recebem valores do exportador.
 - [x] `npm run check` passou com geração determinística dos HTMLs e regressões dos resumos atualizados. A presença da ação de recálculo é verificada estruturalmente, não equivale à execução em leitor real.
