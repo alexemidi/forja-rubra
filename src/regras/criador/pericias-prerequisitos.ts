@@ -195,7 +195,7 @@ function skillRequirementMet(requirement){
   if(token==='oficio')return trained.some(value=>skillBaseId(value)==='oficio');
   if(token.startsWith('oficio:')){
     // @ts-ignore
-    const artRules = typeof RegrasArtesaoCriativo !== 'undefined' ? RegrasArtesaoCriativo : (typeof window !== 'undefined' ? (window as any).RegrasArtesaoCriativo : null);
+    const artRules = typeof RegrasArtesaoCriativo !== 'undefined' ? RegrasArtesaoCriativo : (typeof window !== 'undefined' ? window['RegrasArtesaoCriativo'] : null);
     const temArtesaoCriativo = artRules && typeof artRules.temPoderArtesaoCriativo === 'function'
       ? artRules.temPoderArtesaoCriativo(state)
       : ((Array.isArray(state?.progression) && state.progression.some(p => p?.powerId === 'inventor_artesao_criativo' || p?.powerId === 'artesao_criativo' || /artes[aã]o criativo/i.test(p?.powerName || ''))) ||

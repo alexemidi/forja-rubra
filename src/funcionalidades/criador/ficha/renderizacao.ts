@@ -191,10 +191,10 @@ function renderSheetSkillRows(order){
     const bandClass = order === 'attribute' ? (isBandA ? 'attr-band-a' : 'attr-band-b') : '';
 
     const starIcon = isTrained
-      ? '<span class="skill-star-icon filled" title="Treinada" aria-label="Treinada"><svg viewBox="0 0 24 24" class="skill-star-svg" width="14" height="14" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>'
-      : '<span class="skill-star-icon unfilled" title="Não treinada" aria-label="Não treinada"><svg viewBox="0 0 24 24" class="skill-star-svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>';
+    const numericBonus = typeof skillTotalVal === 'number' ? skillTotalVal : (Number(attrs[effectiveAttr] || 0) + halfLevel + (isTrained ? trainBonus : 0) + totalBonus);
+    const isRestrictedUnmet = !isTrained && restricted.has(rootId);
 
-    return '<tr class="'+(isTrained?'trained ':'')+bandClass+'"><td class="skill-total">'+skillTotalVal+'</td><td class="skill-name">'+esc(name)+'</td><td class="skill-attr">'+attrUpper+'</td><td class="skill-train" style="text-align:center">'+starIcon+'</td><td class="skill-bonus">'+bonusLabel+'</td></tr>';
+    return '<tr class="'+(isTrained?'trained ':'')+bandClass+' skill-interactive-row" data-action="roll-skill" data-skill-id="'+esc(id)+'" data-skill-name="'+esc(name)+'" data-skill-attr="'+attrUpper+'" data-skill-bonus="'+numericBonus+'" data-skill-trained="'+(isTrained?'true':'false')+'" data-skill-restricted="'+(isRestrictedUnmet?'true':'false')+'" title="Clique para rolar '+esc(name)+' (1d20 + '+numericBonus+')" style="cursor:pointer;"><td class="skill-total">'+skillTotalVal+'</td><td class="skill-name">'+esc(name)+'</td><td class="skill-attr">'+attrUpper+'</td><td class="skill-train" style="text-align:center">'+starIcon+'</td><td class="skill-bonus">'+bonusLabel+'</td></tr>';
   }).join('');
 }
 
@@ -2055,6 +2055,10 @@ function renderSheetActionBar(mode = 'full'){
       <div class="sheet-action-bar">
         ${quickNav}
         <div class="sheet-action-bar-right">
+          <button type="button" class="sheet-action-btn sheet-share-btn" data-sheet-action="share-character" title="Compartilhar link desta ficha" style="color:#ef4444;border-color:rgba(239,68,68,0.4);">
+            <svg class="forja-svg sheet-action-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span>Compartilhar</span>
+          </button>
           <button type="button" class="sheet-action-btn" data-sheet-action="export-html-print" title="Imprimir ou salvar esta ficha em PDF">
             ${printIcon}
             <span>Imprimir / Exportar Ficha</span>
@@ -2082,7 +2086,10 @@ function renderSheetActionBar(mode = 'full'){
   return `
     <div class="sheet-action-bar">
       ${quickNav}
-      <div class="sheet-action-bar-right">
+        <button type="button" class="sheet-action-btn sheet-share-btn" data-sheet-action="share-character" title="Compartilhar link desta ficha" style="color:#ef4444;border-color:rgba(239,68,68,0.4);">
+          <svg class="forja-svg sheet-action-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          <span>Compartilhar</span>
+        </button>
         <button type="button" class="sheet-action-btn" data-sheet-action="export-pdf" title="Gerar PDF oficial de Tormenta 20">
           ${pdfIcon}
           <span>Gerar PDF</span>

@@ -232,7 +232,7 @@
     if (window.parent !== window) return;
 
     const path = (window.location.pathname || '').toLowerCase();
-    if (path.endsWith('index.html') || path.endsWith('/') || path.endsWith('personagens.html') || path.includes('mapa')) {
+    if (path.endsWith('index.html') || path.endsWith('/') || path.endsWith('personagens.html') || path.includes('mapa') || path.includes('grimorio') || path.includes('ficha')) {
       const existing = document.querySelector('.sheet-shop-footer, #standaloneWorkshopFooter, .forja-autohide-footer');
       if (existing) existing.remove();
       return;

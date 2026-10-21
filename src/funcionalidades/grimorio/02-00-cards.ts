@@ -401,10 +401,15 @@ document.getElementById('searchInput').addEventListener('input', e => {
 viewTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
     if (tab.dataset.view === 'condicoes') {
-      if (typeof (window as any).ForjaCondicoes?.abrirModal === 'function') {
-        (window as any).ForjaCondicoes.abrirModal();
-        return;
+      const abrir = (window as any).ForjaCondicoes?.abrirModal;
+      if (typeof abrir === 'function') {
+        abrir();
+      } else {
+        setTimeout(() => {
+          (window as any).ForjaCondicoes?.abrirModal?.();
+        }, 150);
       }
+      return;
     }
     setActiveView(tab.dataset.view);
   });

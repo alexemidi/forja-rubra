@@ -1660,7 +1660,7 @@ function calculatedSkillTotal(id){
   const attr=skillEffectiveAttribute(id);
   const isOficio = String(id).startsWith('oficio:') || id === 'oficio';
   // @ts-ignore
-  const artRules = typeof RegrasArtesaoCriativo !== 'undefined' ? RegrasArtesaoCriativo : (typeof window !== 'undefined' ? (window as any).RegrasArtesaoCriativo : null);
+  const artRules = typeof RegrasArtesaoCriativo !== 'undefined' ? RegrasArtesaoCriativo : (typeof window !== 'undefined' ? window['RegrasArtesaoCriativo'] : null);
   const temArtesaoCriativo = isOficio && (artRules && typeof artRules.temPoderArtesaoCriativo === 'function'
     ? artRules.temPoderArtesaoCriativo(state)
     : ((Array.isArray(state?.progression) && state.progression.some(p => p?.powerId === 'inventor_artesao_criativo' || p?.powerId === 'artesao_criativo' || /artes[aã]o criativo/i.test(p?.powerName || ''))) ||

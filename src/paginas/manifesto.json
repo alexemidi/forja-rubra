@@ -46,6 +46,8 @@
         "src/funcionalidades/criador/fases/09-familiares.ts",
         "src/funcionalidades/criador/ficha/habilidades-magias.ts",
         "src/funcionalidades/criador/ficha/modal-condicoes.ts",
+        "src/funcionalidades/criador/ficha/rolagem-dados.ts",
+        "src/funcionalidades/criador/ficha/compartilhar-personagem.ts",
         "src/funcionalidades/criador/ficha/renderizacao.ts",
         "src/compartilhado/criador/navegacao-validacao.ts",
         "src/regras/criador/passivas-proficiencias.ts",
@@ -179,10 +181,12 @@
         "src/funcionalidades/grimorio/01-00-eventos.ts"
       ],
       [
+        "src/funcionalidades/criador/ficha/modal-condicoes.ts"
+      ],
+      [
         "src/funcionalidades/grimorio/02-00-cards.ts"
       ],
       [
-        "src/funcionalidades/criador/ficha/modal-condicoes.ts",
         "src/compartilhado/drawer/drawer-ui.ts",
         "src/compartilhado/topbar-unificada.ts",
         "src/funcionalidades/grimorio/03-00-loader.ts"
@@ -293,6 +297,8 @@
         "src/funcionalidades/criador/fases/09-familiares.ts",
         "src/funcionalidades/criador/ficha/habilidades-magias.ts",
         "src/funcionalidades/criador/ficha/modal-condicoes.ts",
+        "src/funcionalidades/criador/ficha/rolagem-dados.ts",
+        "src/funcionalidades/criador/ficha/compartilhar-personagem.ts",
         "src/funcionalidades/criador/ficha/renderizacao.ts",
         "src/compartilhado/criador/navegacao-validacao.ts",
         "src/regras/criador/passivas-proficiencias.ts",

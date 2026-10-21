@@ -74,7 +74,13 @@ export function obterRegrasCampanha(state: any): CampanhaRegras {
 
   // Garantir que todos os campos existam com seus valores padrão
   const r = state.regrasCampanha;
-  if (!r.idade) r.idade = REGRAS_CAMPANHA_PADRAO.idade;
+  if (!r.idade) {
+    if (state.age && state.age.enabled) {
+      r.idade = state.age.basico ? 'basico' : 'herois_arton';
+    } else {
+      r.idade = REGRAS_CAMPANHA_PADRAO.idade;
+    }
+  }
   if (!r.faixaBasico) r.faixaBasico = REGRAS_CAMPANHA_PADRAO.faixaBasico;
   if (r.racasAbertas === undefined) r.racasAbertas = REGRAS_CAMPANHA_PADRAO.racasAbertas;
   if (r.complicacoes === undefined) r.complicacoes = REGRAS_CAMPANHA_PADRAO.complicacoes;

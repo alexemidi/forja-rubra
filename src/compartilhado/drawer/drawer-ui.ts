@@ -241,8 +241,9 @@
           if (act === 'regras-campanha') {
             e.preventDefault();
             fechar();
-            if (typeof (window as any).abrirModalRegrasCampanha === 'function') {
-              (window as any).abrirModalRegrasCampanha(false);
+            const fnRegras = window['abrirModalRegrasCampanha'];
+            if (typeof fnRegras === 'function') {
+              fnRegras(false);
             } else {
               window.location.href = 'criador.html?regras=true';
             }

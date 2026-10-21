@@ -13,7 +13,9 @@ function ensureGeneralSaleModal(){
 }
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action="sell-general"]');if(!button)return;event.preventDefault();event.stopImmediatePropagation();const row=button.closest('.backpack-compact-entry'),instance=row&&getBackpackInstance(row.dataset.instanceId);if(instance)ensureGeneralSaleModal().openFor(instance)},true);
 
-applyArsenalContext(arsenalInitialState);
+if (typeof applyArsenalContext === 'function') {
+  applyArsenalContext(arsenalInitialState);
+}
 
 document.addEventListener('click',event=>{
   const incBtn=event.target.closest?.('button[data-action="increase"]');

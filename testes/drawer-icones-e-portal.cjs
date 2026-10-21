@@ -40,8 +40,10 @@ console.log('✔ index.html validado com sucesso!\n');
 // -----------------------------------------------------------------------------
 // 2. Validação do Catálogo de Ícones Vetoriais SVG (src/compartilhado/icones.js)
 // -----------------------------------------------------------------------------
-console.log('2. Validando catálogo universal de ícones vetoriais SVG...');
-const iconesCode = fs.readFileSync(path.join(root, 'src/compartilhado/icones.js'), 'utf8');
+const iconesPath = fs.existsSync(path.join(root, 'src/compartilhado/icones.ts'))
+  ? path.join(root, 'src/compartilhado/icones.ts')
+  : path.join(root, 'src/compartilhado/icones.js');
+const iconesCode = fs.readFileSync(iconesPath, 'utf8');
 
 const domIcones = new JSDOM('<!DOCTYPE html><html><body></body></html>', { runScripts: 'dangerously' });
 domIcones.window.eval(iconesCode);
@@ -66,10 +68,10 @@ for (const nome of iconesObrigatorios) {
 console.log('✔ Catálogo de ícones vetoriais (24 ícones SVG) validado com sucesso!\n');
 
 // -----------------------------------------------------------------------------
-// 3. Validação do Menu Lateral Retrátil (Drawer) e Logout com Portinha
-// -----------------------------------------------------------------------------
-console.log('3. Validando Drawer UI e logout com a portinha...');
-const drawerCode = fs.readFileSync(path.join(root, 'src/compartilhado/drawer/drawer-ui.js'), 'utf8');
+const drawerPath = fs.existsSync(path.join(root, 'src/compartilhado/drawer/drawer-ui.ts'))
+  ? path.join(root, 'src/compartilhado/drawer/drawer-ui.ts')
+  : path.join(root, 'src/compartilhado/drawer/drawer-ui.js');
+const drawerCode = fs.readFileSync(drawerPath, 'utf8');
 
 const domDrawer = new JSDOM(`
   <!DOCTYPE html>
@@ -145,7 +147,10 @@ assert.ok(manifesto.criador.scripts[0].some(s => s.includes('src/compartilhado/d
 assert.ok(manifesto.ficha.scripts[0].some(s => s.includes('src/compartilhado/icones')), 'ficha deve carregar icones');
 assert.ok(manifesto.ficha.scripts[0].some(s => s.includes('src/compartilhado/drawer/drawer-ui')), 'ficha deve carregar drawer-ui');
 
-const portalJs = fs.readFileSync(path.join(root, 'src/funcionalidades/index/00-00-portal.js'), 'utf8');
+const portalPath = fs.existsSync(path.join(root, 'src/funcionalidades/index/00-00-portal.ts'))
+  ? path.join(root, 'src/funcionalidades/index/00-00-portal.ts')
+  : path.join(root, 'src/funcionalidades/index/00-00-portal.js');
+const portalJs = fs.readFileSync(portalPath, 'utf8');
 assert.ok(!portalJs.includes("'🔮'"), '00-00-portal.js não deve conter emojis nas classes');
 assert.ok(!portalJs.includes('>🗑️<'), '00-00-portal.js não deve conter emoji de lixeira');
 console.log('✔ Manifesto e scripts do portal validados com sucesso!\n');

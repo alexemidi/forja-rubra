@@ -17,7 +17,7 @@ finalAttrs=function(){
   if(rCamp?.idade === 'basico'){
     const ageBasico = (typeof RegrasCampanha !== 'undefined' ? RegrasCampanha.modificadoresIdade(state) : null) || { for:0,des:0,con:0,int:0,sab:0,car:0 };
     Object.keys(result).forEach(id=>result[id]+=Number(ageBasico[id]||0));
-  } else if(state.age?.enabled && (!rCamp || rCamp.idade === 'herois_arton')){
+  } else if(state.age?.enabled){
     const age=mods();
     Object.keys(result).forEach(id=>result[id]+=Number(age[id]||0));
   }
