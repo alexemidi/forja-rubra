@@ -611,5 +611,24 @@
   background-color: rgba(197, 31, 44, 0.15) !important;
 }
 
+@keyframes choicePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(234, 57, 72, 0.6);
+    border-color: var(--red2, #ea3948);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(234, 57, 72, 0.4);
+    border-color: var(--gold2, #f5c879);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(234, 57, 72, 0);
+  }
+}
+
+.choice-highlight {
+  animation: choicePulse 1.8s ease-out 1 !important;
+  border-color: var(--red2, #ea3948) !important;
+}
+
 
 

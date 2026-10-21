@@ -28,7 +28,8 @@ function showPrerequisiteWarning(kind,items){
 
 document.addEventListener('click',event=>{
   const next=event.target.closest?.('#nextButton');
-  if(!next||![2,4].includes(state.step)||!phaseIsComplete(state.step))return;
+  // @ts-ignore
+  if(!next||(Date.now()-(window._lastStepTransitionTimestamp||0)<400)||![2,4].includes(state.step)||!phaseIsComplete(state.step))return;
   const kind=state.step===2?'attributes':'skills',items=kind==='attributes'?unmetAttributeRequirements():unmetSkillRequirements(),signature=prerequisiteSignature(items);
   if(!items.length||state.prereqConfirm[kind]===signature)return;
   event.stopImmediatePropagation();
@@ -37,7 +38,8 @@ document.addEventListener('click',event=>{
 
 document.addEventListener('click',event=>{
   const next=event.target.closest?.('#nextButton');
-  if(!next||[8,9,10].includes(state.step)||(state.step===6&&typeof pendingGeneralPowerSlot==='function'&&pendingGeneralPowerSlot()!==undefined)||phaseIsComplete(state.step))return;
+  // @ts-ignore
+  if(!next||(Date.now()-(window._lastStepTransitionTimestamp||0)<400)||[8,9,10].includes(state.step)||(state.step===6&&typeof pendingGeneralPowerSlot==='function'&&pendingGeneralPowerSlot()!==undefined)||phaseIsComplete(state.step))return;
   event.preventDefault();
   event.stopImmediatePropagation();
   const items=missingChoices(state.step);
@@ -480,9 +482,9 @@ renderOrigins=function(){
       '</div>';
     }
 
-    regionalPanel=panel('Origem regional','<label class="field"><span>Origem regional</span><select class="select" data-field="regionalOrigin"><option value="">'+esc(regionalPlaceholder)+'</option>'+regionalOriginsList.map(item=>'<option value="'+esc(item.nome)+'" '+(item.nome===state.origin.regional?'selected':'')+'>'+esc(item.nome)+' · '+esc(item.regiao||'Arton')+'</option>').join('')+'</select></label>'+(wynllaRestricted?'<div class="help" style="color:var(--gold2);margin-top:6px">Restrito a nativos de Wynlla pelo poder Presente de Wynlla.</div>':'')+(regional?'<div class="origin-layout" style="margin-top:12px"><div class="info-box blue"><strong>'+esc(regional.nome)+' · '+esc(regional.regiao)+'</strong><br>'+esc(regional.beneficios?.descricao||'')+'</div><div><span class="field-label">Itens regionais</span><div class="origin-items" style="margin-top:7px">'+((regional.itens||[]).length?regional.itens.map(item=>'<div class="origin-item">'+esc(item)+'</div>').join(''):'<div class="empty">Nenhum item regional listado.</div>')+'</div></div></div>'+extraRegionalChoices:''),regionalNote);
+    regionalPanel=panel('Origem regional','<label class="field"><span>Origem regional</span><select class="select" data-field="regionalOrigin"><option value="">'+esc(regionalPlaceholder)+'</option>'+regionalOriginsList.map(item=>'<option value="'+esc(item.nome)+'" '+(item.nome===state.origin.regional?'selected':'')+'>'+esc(item.nome)+' · '+esc(item.regiao||'Arton')+'</option>').join('')+'</select></label>'+(wynllaRestricted?'<div class="help" style="color:var(--gold2);margin-top:6px">Restrito a nativos de Wynlla pelo poder Presente de Wynlla.</div>':'')+(regional?'<div class="origin-layout" style="margin-top:12px"><div class="info-box"><strong>'+esc(regional.nome)+' · '+esc(regional.regiao)+'</strong><br>'+esc(regional.beneficios?.descricao||'')+'</div><div><span class="field-label">Itens regionais</span><div class="origin-items" style="margin-top:7px">'+((regional.itens||[]).length?regional.itens.map(item=>'<div class="origin-item">'+esc(item)+'</div>').join(''):'<div class="empty">Nenhum item regional listado.</div>')+'</div></div></div>'+extraRegionalChoices:''),regionalNote);
   }
-  return mode+standard+regionalPanel;
+  return standard+regionalPanel;
 };
 
 document.addEventListener('click', event => {

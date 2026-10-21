@@ -472,6 +472,10 @@ function rolarParaCalculadoraAtributos(){
     const matrix=document.getElementById('attributeMatrixSection')||document.querySelector('.attribute-matrix');
     if(matrix&&typeof matrix.scrollIntoView==='function'){
       matrix.scrollIntoView({behavior:'smooth',block:'start'});
+      matrix.classList.remove('choice-highlight');
+      // @ts-ignore
+      void matrix.offsetWidth;
+      matrix.classList.add('choice-highlight');
     }
   },90);
 }
@@ -512,14 +516,9 @@ function renderAttributesRace(){
 
   let optionalRulesDisabledNotice='';
   if(!rCamp.racasAbertas&&rCamp.idade==='desativada'){
-    optionalRulesDisabledNotice='<div class="rules-inactive-card" data-tooltip="Regras de Idade e Raças Abertas estão desativadas para esta ficha. Você pode acessar o menu a qualquer momento para habilitar essas variantes nas Regras da Campanha." style="margin-top:10px;padding:9px 12px;border:1px dashed var(--border);border-radius:6px;background:rgba(23,17,20,0.6);cursor:help;">'
-      +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<span style="color:var(--gold);display:inline-flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>'
-      +'<div style="line-height:1.35;">'
-      +'<span style="color:var(--gold2);font-weight:700;font-size:0.74rem;display:block;">Regras de Idade e Raças Abertas Desativadas</span>'
-      +'<small style="color:var(--muted);font-size:0.68rem;">Passe o mouse para ver detalhes ou habilite no menu de Regras da Campanha.</small>'
-      +'</div>'
-      +'</div>'
+    optionalRulesDisabledNotice='<div class="rules-campaign-trigger-box" data-action="abrir-regras-campanha" data-tooltip="Clique para configurar as Regras da Campanha e Variantes (Idade, Raças Abertas, Complicações, etc.)" style="margin-top:10px;padding:6px 12px;border:1px dashed rgba(234,57,72,0.4);border-radius:6px;background:rgba(23,17,20,0.6);cursor:pointer;display:inline-flex;align-items:center;gap:8px;">'
+      +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ea3948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>'
+      +'<strong style="color:var(--gold,#e9ad59);font-family:\'Tormenta\',Cinzel,serif;font-size:0.85rem;font-weight:700;">Regras de Idade e Raças Abertas</strong>'
       +'</div>';
   }
 

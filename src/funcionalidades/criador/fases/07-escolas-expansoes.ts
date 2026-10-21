@@ -280,7 +280,7 @@ const renderChoiceBeforeSuraggel=renderChoice;
 renderChoice=function(def,source='race'){
   if(source!=='race'||def.id!=='suraggel_heranca_substituta')return renderChoiceBeforeSuraggel(def,source);
   const lineageDef=raceById('suraggel')?.habilidades?.selecionadas?.find(choice=>choice.id==='suraggel_linhagem'),lineage=selectedRaceOption(lineageDef||{});
-  if(!lineage)return '<div class="info-box blue">Escolha primeiro entre Aggelus e Sulfure para visualizar sua herança original.</div>';
+  if(!lineage)return '<div class="info-box">Escolha primeiro entre Aggelus e Sulfure para visualizar sua herança original.</div>';
   if(state.identity.suraggelChangingHeritage)return renderChoiceBeforeSuraggel(def,source);
   const heritage=suraggelHeritageOption(),original=suraggelHeritage()==='suraggel_heranca_original',ability=original?lineage.habilidades?.[0]:null;
   return '<div class="choice-section suraggel-heritage-summary"><h4>Herança</h4><div class="ability-list">'+abilityHtml(ability||{nome:choiceName(heritage),descricao:heritage?.descricao||''})+'</div><button class="button" type="button" data-action="change-suraggel-heritage">Mudar herança</button></div>';

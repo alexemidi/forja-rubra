@@ -53,7 +53,7 @@
               <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:8px;margin-bottom:10px;">
                 <label class="check-card ${regras.idade === 'desativada' ? 'selected' : ''}" style="cursor:pointer;padding:8px 10px;">
                   <input type="radio" name="regras_idade" value="desativada" ${regras.idade === 'desativada' ? 'checked' : ''} style="margin-right:6px;">
-                  <span><strong>Idade Narrativa</strong><small style="display:block;">Desativada (Padrão)</small></span>
+                  <span><strong>Sem regras de idade</strong><small style="display:block;">(Padrão)</small></span>
                 </label>
                 <label class="check-card ${regras.idade === 'basico' ? 'selected' : ''}" style="cursor:pointer;padding:8px 10px;">
                   <input type="radio" name="regras_idade" value="basico" ${regras.idade === 'basico' ? 'checked' : ''} style="margin-right:6px;">
@@ -271,6 +271,15 @@
       }
     } catch {}
   }
+
+  // Delegação global para botões ou cards que abrem as regras da campanha
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement)?.closest?.('[data-action="abrir-regras-campanha"]');
+    if (btn) {
+      e.preventDefault();
+      abrirModal(false);
+    }
+  });
 
   // Expor globalmente
   if (typeof window !== 'undefined') {

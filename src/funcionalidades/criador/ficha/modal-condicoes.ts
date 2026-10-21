@@ -143,7 +143,7 @@
 
     const filtered = catalog.filter((cond) => {
       const matchCat = currentCategory === 'todas' || cond.categoria === currentCategory;
-      const matchSearch = !term || cond.nome.toLowerCase().includes(term) || cond.resumo.toLowerCase().includes(term);
+      const matchSearch = !term || cond.nome.toLowerCase().includes(term) || (cond.resumo && cond.resumo.toLowerCase().includes(term)) || cond.descricao.toLowerCase().includes(term);
       return matchCat && matchSearch;
     });
 
@@ -152,36 +152,54 @@
       return;
     }
 
-    const selected = filtered.find((c) => c.id === selectedConditionId) || filtered[0];
-    selectedConditionId = selected?.id || null;
-    const paths = (c) => (typeof tracosCondicao === 'function' ? tracosCondicao(c.id) : (window.tracosCondicao ? window.tracosCondicao(c.id) : ''));
+    listEl.innerHTML = filtered.map((cond) => {
+      const isExpanded = expandedConditions.has(cond.id);
+      const isActive = active.has(cond.nome);
+      const cor = CORES_CATEGORIAS[cond.categoria] || '#e9ad59';
+      const catObj = CATEGORIAS.find(c => c.id === cond.categoria);
+      const catLabel = catObj ? catObj.label : cond.categoria;
 
-    const subEffectsHtml = (selected?.efeitosImediatos && selected.efeitosImediatos.length > 0)
-      ? `<div class="condition-sub-effects">
-           <div class="cond-card-subtitle">Efeitos imediatos</div>
-           ${selected.efeitosImediatos.map((nomeRel) => {
-             const normNome = String(nomeRel).trim().toLowerCase();
-             const relCond = catalog.find((c) => c.nome.toLowerCase() === normNome || c.id.toLowerCase() === normNome.replace(/[\s-]/g, '_'));
-             const descRel = relCond ? relCond.descricao : '';
-             return `<p class="cond-card-ref"><strong>${relCond ? relCond.nome : nomeRel}:</strong> ${descRel}</p>`;
-           }).join('')}
-         </div>`
-      : '';
+      const subEffectsHtml = (cond.efeitosImediatos && cond.efeitosImediatos.length > 0)
+        ? `<div class="condition-sub-effects">
+             <div class="cond-card-subtitle">Efeitos imediatos</div>
+             ${cond.efeitosImediatos.map((nomeRel) => {
+               const normNome = String(nomeRel).trim().toLowerCase();
+               const relCond = catalog.find((c) => c.nome.toLowerCase() === normNome || c.id.toLowerCase() === normNome.replace(/[\s-]/g, '_'));
+               const descRel = relCond ? relCond.descricao : '';
+               return `<p class="cond-card-ref"><strong>${relCond ? relCond.nome : nomeRel}:</strong> ${descRel}</p>`;
+             }).join('')}
+           </div>`
+        : '';
 
-    listEl.innerHTML =
-      '<div class="conditions-name-grid">' +
-      filtered.map(cond =>
-        `<button type="button" class="condition-select ${cond.id === selectedConditionId ? 'selected' : ''} ${active.has(cond.nome) ? 'is-active' : ''}" style="--condition-color:${CORES_CATEGORIAS[cond.categoria] || '#dfb666'}" data-select-condition="${cond.id}" aria-pressed="${cond.id === selectedConditionId}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths(cond)}</svg><span>${cond.nome}</span></button>`
-      ).join('') +
-      '</div>' +
-      (selected
-        ? `<aside class="condition-effect-panel" style="--condition-color:${CORES_CATEGORIAS[selected.categoria] || '#dfb666'}">
-             <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths(selected)}</svg><span>${selected.nome}</span></h4>
-             <p>${selected.descricao}</p>
-             ${subEffectsHtml}
-             <button type="button" class="condition-toggle-btn" data-toggle-condition="${selected.nome}">${active.has(selected.nome) ? 'Remover' : 'Adicionar'}</button>
-           </aside>`
-        : '<p>Nenhuma condição encontrada.</p>');
+      return `
+        <article class="condition-card ${isActive ? 'is-active' : ''}" style="border-left-color: ${cor}">
+          <div class="condition-header-row">
+            <div class="condition-main-info">
+              <div class="condition-text-wrap">
+                <div class="condition-title-line">
+                  <strong class="condition-name">${cond.nome}</strong>
+                  <span class="condition-category-tag" style="border-color:${cor};color:${cor}">${catLabel}</span>
+                  ${isActive ? '<span class="condition-status-pill">Ativa</span>' : ''}
+                </div>
+                <div class="condition-summary">${cond.resumo || cond.descricao}</div>
+              </div>
+            </div>
+            <div class="condition-actions-wrap">
+              <button type="button" class="condition-toggle-btn ${isActive ? 'is-active' : ''}" data-toggle-condition="${cond.nome}">${isActive ? 'Remover' : 'Adicionar'}</button>
+              <button type="button" class="condition-chevron-btn ${isExpanded ? 'open' : ''}" data-expand-condition="${cond.id}" title="${isExpanded ? 'Recolher detalhes' : 'Ver regras completas'}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+            </div>
+          </div>
+          ${isExpanded ? `
+            <div class="condition-details-panel">
+              <p style="margin:0 0 8px 0;line-height:1.5;">${cond.descricao}</p>
+              ${subEffectsHtml}
+            </div>
+          ` : ''}
+        </article>
+      `;
+    }).join('');
   }
 
   function ensureConditionsModal() {

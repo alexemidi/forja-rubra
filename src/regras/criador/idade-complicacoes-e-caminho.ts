@@ -271,7 +271,7 @@ function renderCriacaoDosDeusesBrowser(){
       rdControlHtml +
       '<div style="margin-top:10px;font-size:0.8rem;line-height:1.4;"><strong style="color:var(--gold2)">Aparência física:</strong> ' + esc(previewOpt.aparencia) + '</div>' +
       '<div style="margin-top:10px;font-size:0.8rem;line-height:1.4;"><strong style="color:var(--gold2)">Benefício concedido:</strong> ' + esc(previewOpt.descricao) + '</div>' +
-      '<div class="info-box blue" style="margin-top:12px;font-size:0.75rem;">' +
+      '<div class="info-box" style="margin-top:12px;font-size:0.75rem;">' +
         'Você foi criado por <strong>' + esc(previewOpt.nome) + '</strong>, mas <strong>não é obrigado a ser seu devoto</strong>. Você pode ser devoto de qualquer divindade permitida ou não devoto.' +
       '</div>' +
       '<div class="power-detail-actions" style="margin-top:12px;">' +
