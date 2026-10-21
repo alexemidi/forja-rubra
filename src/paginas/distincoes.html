@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Distinções de Arton · Caminhos de especialização lendários de Tormenta 20.">
+  <title>Distinções de Arton · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/distincoes/distincoes.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/topbar-unificada.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="distincoes"></script>
+</head>
+<body>
+
+  <main class="distinctions-shell">
+    <div id="heroDistinctionBadge" hidden></div>
+
+
+    <!-- Layout Dividido em Colunas: Lista e Detalhes -->
+    <div class="distinctions-layout">
+      <!-- Coluna da Esquerda: Catálogo / Lista -->
+      <aside class="distinctions-sidebar">
+        <div class="search-box">
+          <input type="text" id="distinctionSearch" placeholder="Pesquisar distinção por nome ou poder..." autocomplete="off">
+        </div>
+        <div class="distinctions-count-bar">
+          <span id="distinctionsCountLabel">59 distinções disponíveis</span>
+        </div>
+        <div class="distinctions-list" id="distinctionsList" role="tablist">
+          <!-- Injetado dinamicamente via JS -->
+        </div>
+      </aside>
+
+      <!-- Coluna da Direita: Painel Completo da Distinção Selecionada -->
+      <section class="distinction-details-panel" id="distinctionDetailsPanel">
+        <article class="distinction-content" id="distinctionContent" hidden>
+          <!-- Cabeçalho da Distinção -->
+          <header class="distinction-header">
+            <div class="distinction-title-group">
+              <h2 id="distinctionTitle">Aeronauta Goblin</h2>
+            </div>
+            <div class="distinction-actions-group">
+              <button type="button" id="btnToggleDistinction" class="btn-obtain-distinction">
+                Obter Distinção
+              </button>
+            </div>
+          </header>
+
+          <!-- Bloco: Admissão (com texto retraído e ler mais) -->
+          <section class="distinction-section admission-section">
+            <h3 class="section-title">
+              <svg class="forja-svg icon-sm icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              Processo de Admissão
+            </h3>
+            <div class="admission-text-wrapper" id="admissionTextWrapper">
+              <div class="admission-text" id="admissionText"></div>
+            </div>
+            <button type="button" id="btnExpandAdmission" class="btn-expand-admission">
+              Ler mais ▼
+            </button>
+          </section>
+
+          <!-- Bloco: Marca da Distinção (Poder extra obtido ao adquirir) -->
+          <section class="distinction-section mark-section">
+            <h3 class="section-title">
+              <svg class="forja-svg icon-sm icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+              Marca da Distinção <small>(Concedida automaticamente ao ingressar)</small>
+            </h3>
+            <div class="mark-card" id="markCard">
+              <div class="mark-header">
+                <span class="mark-icon">
+                  <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </span>
+                <strong id="markTitle">Combate Aéreo</strong>
+              </div>
+              <p id="markDesc" class="mark-desc"></p>
+            </div>
+          </section>
+
+          <!-- Bloco: Poderes da Distinção (Disponíveis ao subir de nível) -->
+          <section class="distinction-section powers-section">
+            <div class="powers-section-header">
+              <h3 class="section-title">
+                <svg class="forja-svg icon-sm icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                Poderes da Distinção
+              </h3>
+              <span class="powers-note">Disponíveis ao subir de nível no lugar do poder de classe</span>
+            </div>
+            <div class="powers-list" id="powersList">
+              <!-- Injetado dinamicamente via JS -->
+            </div>
+          </section>
+
+          <!-- Bloco: Regras Extras / Veículos / Implantes (quando aplicável) -->
+          <section class="distinction-section extra-section" id="extraSection" hidden>
+            <h3 class="section-title">
+              <svg class="forja-svg icon-sm icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              Regras e Equipamentos Adicionais
+            </h3>
+            <div class="extra-content" id="extraContent"></div>
+          </section>
+        </article>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

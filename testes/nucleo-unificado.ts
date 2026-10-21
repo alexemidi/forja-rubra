@@ -1,0 +1,107 @@
+import {tracosCondicao} from '../src/ui/icones-condicoes.ts';
+import assert from 'node:assert/strict';
+import {tipoMochila,mochilaIsenta,beneficiosMochilas,bonusPoderesCarga} from '../src/nucleo/mochilas.ts';
+import {podeMontar,validarEquipamentoMontaria,penalidadesMontaria,bonusArmaduraMontaria} from '../src/nucleo/montarias.ts';
+assert.equal(tipoMochila('mochila'),'comum');
+assert.equal(mochilaIsenta('comum',[]),true);
+assert.equal(mochilaIsenta('aventureiro',[]),false);
+assert.equal(mochilaIsenta('aventureiro',['Andarilho Carregado']),true);
+assert.equal(mochilaIsenta('discreta',['Andarilho Carregado']),false);
+assert.equal(beneficiosMochilas(['aventureiro','armacao'],[],{for:1}).bonus,6);
+assert.equal(beneficiosMochilas(['aventureiro'],[],{for:1}).bonus,2);
+assert.equal(beneficiosMochilas(['carga'],[],{for:1}).bonus,10);
+assert.equal(beneficiosMochilas([],['Andarilho Carregado'],{for:1,sab:5}).atributo,'for');
+assert.equal(beneficiosMochilas(['aventureiro'],['Andarilho Carregado'],{for:1,sab:5}).atributo,'sab');
+assert.equal(beneficiosMochilas([],['Organizadinhos'],{for:1,des:4}).valor,4);
+assert.equal(beneficiosMochilas([],['Organizadinhos'],{for:1,des:4}).vestidosExtras,1);
+assert.equal(podeMontar('Médio','Médio','cao_de_caca','iniciante'),false);
+assert.equal(podeMontar('Pequeno','Médio','cao_de_caca','iniciante'),true);
+assert.equal(podeMontar('Médio','Grande','grifo','iniciante'),false);
+assert.equal(podeMontar('Médio','Grande','grifo','veterano'),true);
+assert.ok(validarEquipamentoMontaria(['sela','alforje'],'estribos',false));
+assert.ok(validarEquipamentoMontaria([],'alforje',false));
+assert.ok(validarEquipamentoMontaria([],'armadura_de_montaria_pesada',true));
+assert.equal(validarEquipamentoMontaria(['sela'],'alforje',false),'');
+assert.deepEqual(penalidadesMontaria(false,true),{cavalgar:-5,ataqueDistancia:0,magiaCondicaoRuim:false});
+import {criarCalculoPorOperacao} from '../src/nucleo/calculo-por-operacao.ts';
+{
+  const calculos=criarCalculoPorOperacao();
+  let estado=1,chamadas=0;
+  const obter=()=>calculos.obter('atributo',()=>{chamadas++;return estado;});
+  calculos.executar(()=>{assert.equal(obter(),1);calculos.executar(()=>assert.equal(obter(),1));});
+  assert.equal(chamadas,1);
+  estado=2;
+  assert.equal(calculos.executar(obter),2,'Nova operação lê a alteração');
+  assert.throws(()=>calculos.executar(()=>{obter();throw Error('teste');}));
+  estado=3;
+  assert.equal(obter(),3,'Falha não deixa cache obsoleto');
+}
+import {normalizarVitais,alterarVital,aplicarDescanso} from '../src/nucleo/vitais.ts';
+import {exportarBackup,importarBackup,validarBackup} from '../src/nucleo/backup.ts';
+import ArmazenamentoForja from '../src/compartilhado/armazenamento.ts';
+import {renderCardInventario} from '../src/ui/card-inventario.ts';
+import {JSDOM} from 'jsdom';
+const source=Object.freeze({pv:7,pvMax:10,pm:0,pmMax:5,pvTempMax:0});
+assert.equal(normalizarVitais(source,{pv:15,pm:5}).pv,12);
+assert.equal(normalizarVitais(source,{pv:15,pm:5}).pm,0);
+assert.equal(normalizarVitais({pv:14,pvMax:10,pvTempMax:5},{pv:12,pm:0}).pv,16);
+assert.equal(alterarVital(source,'pv','down',3).pv,4);
+assert.equal(source.pv,7);
+assert.equal(alterarVital(source,'pv','down',100).pm,0);
+assert.equal(alterarVital(source,'pm','down',100).pm,0);
+assert.throws(()=>alterarVital(source,'pv','up',NaN));
+assert.equal(aplicarDescanso(source,{gainPv:3,gainPm:3}).pv,10);
+assert.equal(aplicarDescanso(source,{gainPv:0,gainPm:3}).pv,7);
+const temporary=Object.freeze({...source,pv:15,pvTempMax:5,pvTempMode:true});
+assert.equal(aplicarDescanso(temporary,{gainPv:3,gainPm:3}).pv,10);
+assert.equal(aplicarDescanso(temporary,{gainPv:3,gainPm:3}).pvTempMax,0);
+assert.equal(temporary.pvTempMax,5);
+const data=new Map([['forja-heroi-t20-v1',JSON.stringify({identity:{characterName:'Teste'},campoFuturo:{valor:7}})],['forja-supabase-url','privado']]);
+const storage={get length(){return data.size},key:i=>[...data.keys()][i]??null,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};
+const backup=exportarBackup(storage);
+assert(!('forja-supabase-url' in backup.dados));
+importarBackup(storage,backup);importarBackup(storage,backup);
+assert.equal(JSON.parse(data.get('forja-heroi-t20-v1')).campoFuturo.valor,7);
+assert.throws(()=>validarBackup({formato:'forja-backup',versao:2,dados:{}}));
+let failed=false;const bad={...storage,setItem:(k,v)=>{if(k==='forja-b'&&!failed){failed=true;throw Error('quota')}storage.setItem(k,v)}};
+assert.throws(()=>importarBackup(bad,{...backup,dados:{'forja-a':'a','forja-b':'b'}}),/quota/);
+assert.equal(data.has('forja-a'),false);
+for(const raw of ['{json quebrado','{"vitals":{"pv":7}}']){
+  const damaged=new Map([['forja-heroi-t20-v1',raw]]);
+  const port=ArmazenamentoForja.criar({getItem:key=>damaged.get(key),setItem:(key,value)=>damaged.set(key,value)});
+  assert.throws(()=>port.ler('forja-heroi-t20-v1',()=>({identity:{}})),/backup/);
+  assert.equal(damaged.get('forja-heroi-t20-v1'),raw,'Leitura inválida nunca sobrescreve a ficha');
+}
+const injected='<img src=x onerror=alert(1)>';
+const dom=new JSDOM(renderCardInventario({id:'item" onclick="alert(1)',itemId:'joia',tipo:'geral',titulo:injected,tipoLabel:'Item',categoria:'Joia',livro:'Básico',iconeHtml:'',statsHtml:'',propriedadesHtml:'',corpoHtml:'',melhoriasHtml:'',acoesHtml:''}));
+assert.equal(dom.window.document.querySelector('.item-title').textContent,injected);
+assert.equal(dom.window.document.querySelectorAll('img,[onclick]').length,0,'Nome e identificadores não viram HTML executável');
+dom.window.close();
+console.log('Núcleo unificado: vitais, backup, preservação de dados inválidos e escape de cards aprovados.');
+
+assert.equal(mochilaIsenta('armacao',[]),true);
+assert.equal(bonusPoderesCarga([{id:'guerreiro_soldado_de_infantaria'}]),6);
+assert.equal(bonusPoderesCarga([{id:'bolsoes_insanos',categoria:'tormenta'},{id:'carapaca',categoria:'tormenta'},{id:'carapaca',categoria:'tormenta'}]),3);
+
+assert.equal(bonusArmaduraMontaria(['armadura_de_montaria_leve']),1);
+assert.equal(bonusArmaduraMontaria(['armadura_de_montaria_pesada']),2);
+assert.notEqual(validarEquipamentoMontaria(['armadura_de_montaria_leve'],'armadura_de_montaria_pesada',false),'');
+
+assert.match(tracosCondicao('envenenado'),/fill="currentColor"/);
+assert.notEqual(tracosCondicao('exausto'),tracosCondicao('fatigado'));
+assert.notEqual(tracosCondicao('surdo'),tracosCondicao('cego'));
+assert.equal(tracosCondicao('Em-Chamas'),tracosCondicao('em_chamas'));
+
+const {efeitosMarcas}=await import('../src/nucleo/marcas-distincoes.ts');
+assert.deepEqual(efeitosMarcas(['senador']).skills,{nobreza:2});
+assert.equal(efeitosMarcas(['senador']).attributes.nobreza,'car');
+assert.equal(efeitosMarcas(['amazona'],{heavyArmor:true}).defense,0);
+assert.equal(efeitosMarcas(['amazona'],{heavyArmor:false}).defense,2);
+assert.equal(efeitosMarcas(['cavaleiro_de_khalmyr','cavaleiro_de_khalmyr']).skills.fortitude,2);
+assert.equal(efeitosMarcas(['medico_de_salistick'],{curaAttr:'int'}).skills.cura,2);
+assert.equal(efeitosMarcas(['medico_de_salistick'],{curaAttr:'sab'}).skills.cura,undefined);
+assert.equal(efeitosMarcas(['cavaleiro_feerico'],{powerCounts:{cavaleiro_feerico:2}}).pm,2);
+assert.deepEqual(efeitosMarcas([]).skills,{});
+
+assert.equal(efeitosMarcas(['mutagenista']).skills['oficio:alquimia'],2);
+assert.equal(efeitosMarcas(['drogadora']).attributes['oficio:alquimia'],'sab');

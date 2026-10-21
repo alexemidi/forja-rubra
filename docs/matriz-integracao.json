@@ -1,0 +1,787 @@
+[
+  {
+    "arquivo": "assets/mapas/mapa-de-arton-preview.jpg",
+    "fonte": "assets/mapas/mapa-de-arton-preview.jpg",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "assets/mapas/mapa-de-arton.jpg",
+    "fonte": "assets/mapas/mapa-de-arton.jpg",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "assets/pdf/ficha-padrao.pdf",
+    "fonte": "assets/pdf/ficha-padrao.pdf",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "assets/vendor/pako-LICENSE.txt",
+    "fonte": "assets/vendor/pako-LICENSE.txt",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "assets/vendor/pako.min.js",
+    "fonte": "assets/vendor/pako.min.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "assets/vendor/pdf-lib.min.js",
+    "fonte": "assets/vendor/pdf-lib.min.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "build.json",
+    "fonte": null,
+    "decisao": "Arquivo exclusivo preservado para consulta; não é incorporado automaticamente ao runtime."
+  },
+  {
+    "arquivo": "criador.html",
+    "fonte": "src/paginas/criador.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "dados/added_magic_content.json",
+    "fonte": "dados/added_magic_content.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/condicoes-detalhadas.json",
+    "fonte": "dados/condicoes-detalhadas.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/contraptions-spell-catalog.json",
+    "fonte": "dados/contraptions-spell-catalog.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-authorityEcclesiastical.json",
+    "fonte": "dados/criador-authorityEcclesiastical.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-classes.json",
+    "fonte": "dados/criador-classes.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-classInheritance.json",
+    "fonte": "dados/criador-classInheritance.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-classPowers.json",
+    "fonte": "dados/criador-classPowers.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-conditions.json",
+    "fonte": "dados/criador-conditions.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-deities.json",
+    "fonte": "dados/criador-deities.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-featureSummaries.json",
+    "fonte": "dados/criador-featureSummaries.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-generalPowers.json",
+    "fonte": "dados/criador-generalPowers.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-grimoireHtml.json",
+    "fonte": null,
+    "decisao": "Catálogo auxiliar/gerado preservado; execução usa as projeções canônicas."
+  },
+  {
+    "arquivo": "dados/criador-inventoryLoadData.json",
+    "fonte": null,
+    "decisao": "Catálogo auxiliar/gerado preservado; execução usa as projeções canônicas."
+  },
+  {
+    "arquivo": "dados/criador-origins.json",
+    "fonte": "dados/criador-origins.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-parceiros.json",
+    "fonte": "dados/criador-parceiros.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-pdfItems.json",
+    "fonte": null,
+    "decisao": "Catálogo auxiliar/gerado preservado; execução usa as projeções canônicas."
+  },
+  {
+    "arquivo": "dados/criador-races.json",
+    "fonte": "dados/criador-races.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-regionalOrigins.json",
+    "fonte": "dados/criador-regionalOrigins.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-samuraiKatanaCatalog.json",
+    "fonte": "dados/criador-samuraiKatanaCatalog.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/criador-spells.json",
+    "fonte": "dados/criador-spells.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/enchantment_data.json",
+    "fonte": "dados/enchantment_data.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/idade-complicacoes.json",
+    "fonte": "dados/idade-complicacoes.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/idade-faixas.json",
+    "fonte": "dados/idade-faixas.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/idade-poderes.json",
+    "fonte": "dados/idade-poderes.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/improvement_data.json",
+    "fonte": "dados/improvement_data.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/items.json",
+    "fonte": "dados/items.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/magias-cards.json",
+    "fonte": "dados/magias-cards.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "dados/magias-textos.json",
+    "fonte": null,
+    "decisao": "Catálogo auxiliar/gerado preservado; execução usa as projeções canônicas."
+  },
+  {
+    "arquivo": "dados/tavern_data.json",
+    "fonte": "dados/tavern_data.json",
+    "decisao": "Somente formatação; fonte legível mantida."
+  },
+  {
+    "arquivo": "engenhoca.html",
+    "fonte": "src/paginas/engenhoca.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "ficha.html",
+    "fonte": "src/paginas/ficha.html",
+    "decisao": "Página gerada; controles e cards produzidos pelo build a partir das fontes."
+  },
+  {
+    "arquivo": "GEMINI.md",
+    "fonte": null,
+    "decisao": "Arquivo exclusivo preservado para consulta; não é incorporado automaticamente ao runtime."
+  },
+  {
+    "arquivo": "grimorio.html",
+    "fonte": "src/paginas/grimorio.html",
+    "decisao": "Página gerada; controles e cards produzidos pelo build a partir das fontes."
+  },
+  {
+    "arquivo": "index.html",
+    "fonte": "src/paginas/index.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "js/criador-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/engenhoca-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/ficha-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/grimorio-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/grimorio-1.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/grimorio-2.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/grimorio-3.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/grimorio-4.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/index-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-1.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-2.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-3.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-4.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/loja-5.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/mapa-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/oficina-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/personagens-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/recompensas-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/taverna-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/taverna-1.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/taverna-2.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/taverna-3.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/taverna-4.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "js/termos-0.js",
+    "fonte": null,
+    "decisao": "Bundle preservado; fonte integrada pelo manifesto da raiz, cuja concatenação é idêntica."
+  },
+  {
+    "arquivo": "loja.html",
+    "fonte": "src/paginas/loja.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "mapa.html",
+    "fonte": "src/paginas/mapa.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "oficina.html",
+    "fonte": "src/paginas/oficina.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "paginas.json",
+    "fonte": null,
+    "decisao": "Arquivo exclusivo preservado para consulta; não é incorporado automaticamente ao runtime."
+  },
+  {
+    "arquivo": "personagens.html",
+    "fonte": "src/paginas/personagens.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "recompensas.html",
+    "fonte": "src/paginas/recompensas.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "servidor.cjs",
+    "fonte": null,
+    "decisao": "Arquivo exclusivo preservado para consulta; não é incorporado automaticamente ao runtime."
+  },
+  {
+    "arquivo": "solicitacoes.md",
+    "fonte": null,
+    "decisao": "Arquivo exclusivo preservado para consulta; não é incorporado automaticamente ao runtime."
+  },
+  {
+    "arquivo": "src/compartilhado/armazenamento.js",
+    "fonte": "src/compartilhado/armazenamento.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/auth/servico-autenticacao.js",
+    "fonte": "src/compartilhado/auth/servico-autenticacao.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/auth/sincronizacao-nuvem.js",
+    "fonte": "src/compartilhado/auth/sincronizacao-nuvem.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/auth/supabase-config.js",
+    "fonte": "src/compartilhado/auth/supabase-config.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/criador/estado-e-catalogos.js",
+    "fonte": "src/compartilhado/criador/estado-e-catalogos.js",
+    "decisao": "Revisada: auxiliar remove BOOKS, retorno à ficha ao recarregar e penalidade de equipamento estragado. Mantidas as regras do bundle ativo; inicialização e proteção do armazenamento foram consolidadas na versão unificada."
+  },
+  {
+    "arquivo": "src/compartilhado/criador/modelo-estado.js",
+    "fonte": "src/compartilhado/criador/modelo-estado.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/criador/navegacao-validacao.js",
+    "fonte": "src/compartilhado/criador/navegacao-validacao.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/drawer/drawer-ui.js",
+    "fonte": "src/compartilhado/drawer/drawer-ui.js",
+    "decisao": "Revisada: auxiliar remove Ficha Aleatória e Bancada de Engenhocas, condiciona oficina ao ofício e perde proteção contra menu duplicado. Mantidos atalhos e proteção do runtime ativo; variações de texto e link Continuar Herói preservados para consulta."
+  },
+  {
+    "arquivo": "src/compartilhado/footer/footer-ui.js",
+    "fonte": "src/compartilhado/footer/footer-ui.js",
+    "decisao": "Integração seletiva: classes sem CSS inline no banner e link Tesouros do Mestre incorporados. Mantidos fechamento com Escape, layout atual, páginas suportadas e regras de membros do runtime ativo. Variações de marketing preservadas sem mudar promessas ou limites."
+  },
+  {
+    "arquivo": "src/compartilhado/icones.js",
+    "fonte": "src/compartilhado/icones.js",
+    "decisao": "Ícones exclusivos hammer e share integrados. Desenhos dos nomes já existentes mantidos conforme runtime ativo."
+  },
+  {
+    "arquivo": "src/compartilhado/inicializar.js",
+    "fonte": "src/compartilhado/inicializar.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/compartilhado/limites.js",
+    "fonte": "src/compartilhado/limites.js",
+    "decisao": "Revisada: auxiliar impõe 5 fichas anônimas e edição apenas para apoiadores. Não ativada conforme plano; mantidos limite gratuito de 10 e edição disponível."
+  },
+  {
+    "arquivo": "src/compartilhado/mesa/campanha-mesa.js",
+    "fonte": "src/compartilhado/mesa/campanha-mesa.js",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/dados/added_magic_content.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/condicoes-detalhadas.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/contraptions-spell-catalog.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente: somente duas sugestões de nome de Adaga Mental diferem (Agulha Sináptica e Lâmina Neural). Mantidos nomes ativos Agulha de Indução Neural e Lâmina de Ruído Psiônico; magia, forma e regras são iguais."
+  },
+  {
+    "arquivo": "src/dados/criador-authorityEcclesiastical.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-classes.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-classInheritance.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-classPowers.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-conditions.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-deities.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-featureSummaries.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-generalPowers.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-grimoireHtml.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-inventoryLoadData.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-origins.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-parceiros.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-pdfItems.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-races.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-regionalOrigins.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-samuraiKatanaCatalog.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/criador-spells.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/enchantment_data.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/idade-complicacoes.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/idade-faixas.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/idade-poderes.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/improvement_data.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/items.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/magias-cards.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/magias-textos.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/dados/tavern_data.json",
+    "fonte": null,
+    "decisao": "Comparada semanticamente com dados/ do rebuild ativo: conteúdo idêntico; fonte canônica única mantida."
+  },
+  {
+    "arquivo": "src/estilos/auth/auth.css",
+    "fonte": "src/estilos/auth/auth.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/auth.css",
+    "fonte": null,
+    "decisao": "Comparada: conteúdo idêntico a src/estilos/auth/auth.css; mantida fonte canônica única."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/drawer.css",
+    "fonte": "src/estilos/compartilhado/drawer.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/engenhoca.css",
+    "fonte": "src/estilos/compartilhado/engenhoca.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/footer.css",
+    "fonte": "src/estilos/compartilhado/footer.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/icones.css",
+    "fonte": "src/estilos/compartilhado/icones.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/mapa.css",
+    "fonte": "src/estilos/compartilhado/mapa.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/oficina.css",
+    "fonte": "src/estilos/compartilhado/oficina.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/compartilhado/termos.css",
+    "fonte": "src/estilos/compartilhado/termos.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/0.css",
+    "fonte": "src/estilos/criador/0.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/1.css",
+    "fonte": "src/estilos/criador/1.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/2.css",
+    "fonte": "src/estilos/criador/2.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/3.css",
+    "fonte": "src/estilos/criador/3.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/equipamento.css",
+    "fonte": "src/estilos/criador/equipamento.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/ficha-simplificada.css",
+    "fonte": "src/estilos/criador/ficha-simplificada.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/migration-theme.css",
+    "fonte": "src/estilos/criador/migration-theme.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/criador/modal-condicoes.css",
+    "fonte": "src/estilos/criador/modal-condicoes.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/grimorio/0.css",
+    "fonte": "src/estilos/grimorio/0.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/grimorio/1.css",
+    "fonte": "src/estilos/grimorio/1.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/grimorio/2.css",
+    "fonte": "src/estilos/grimorio/2.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/eye-classic.css",
+    "fonte": "src/estilos/index/eye-classic.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/eye-depth.css",
+    "fonte": "src/estilos/index/eye-depth.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/eye-fix.css",
+    "fonte": "src/estilos/index/eye-fix.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/portal.css",
+    "fonte": "src/estilos/index/portal.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/styles.css",
+    "fonte": "src/estilos/index/styles.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/index/updates.css",
+    "fonte": "src/estilos/index/updates.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/loja/0.css",
+    "fonte": "src/estilos/loja/0.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/loja/1.css",
+    "fonte": "src/estilos/loja/1.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/loja/2.css",
+    "fonte": "src/estilos/loja/2.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/loja/3.css",
+    "fonte": "src/estilos/loja/3.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/personagens/personagens.css",
+    "fonte": "src/estilos/personagens/personagens.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/recompensas/recompensas.css",
+    "fonte": "src/estilos/recompensas/recompensas.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/taverna/0.css",
+    "fonte": "src/estilos/taverna/0.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/taverna/1.css",
+    "fonte": "src/estilos/taverna/1.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/estilos/taverna/2.css",
+    "fonte": "src/estilos/taverna/2.css",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "src/ui/drawer-ui.js",
+    "fonte": null,
+    "decisao": "Revisada: auxiliar remove Ficha Aleatória e Bancada de Engenhocas, condiciona oficina ao ofício e perde proteção contra menu duplicado. Mantidos atalhos e proteção do runtime ativo; variações de texto e link Continuar Herói preservados para consulta."
+  },
+  {
+    "arquivo": "src/ui/footer-ui.js",
+    "fonte": null,
+    "decisao": "Integração seletiva: classes sem CSS inline no banner e link Tesouros do Mestre incorporados. Mantidos fechamento com Escape, layout atual, páginas suportadas e regras de membros do runtime ativo. Variações de marketing preservadas sem mudar promessas ou limites."
+  },
+  {
+    "arquivo": "src/ui/icones.js",
+    "fonte": null,
+    "decisao": "Ícones exclusivos hammer e share integrados. Desenhos dos nomes já existentes mantidos conforme runtime ativo."
+  },
+  {
+    "arquivo": "taverna.html",
+    "fonte": "src/paginas/taverna.html",
+    "decisao": "Idêntico; fonte única mantida."
+  },
+  {
+    "arquivo": "termos.html",
+    "fonte": "src/paginas/termos.html",
+    "decisao": "Idêntico; fonte única mantida."
+  }
+]

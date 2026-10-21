@@ -1,0 +1,1 @@
+const homeLink=document.querySelector(".forja-home");if(homeLink&&window.self!==window.top)homeLink.hidden=true;

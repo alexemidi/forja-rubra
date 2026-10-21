@@ -1,0 +1,50 @@
+{
+  "cities": [
+    {
+      "name": "Shin’Yumeng",
+      "coordinates": [
+        -106.22466261354194,
+        62.72570374894687
+      ],
+      "description": "Mais conhecida como Shinkyo (que significa simplesmente “nova capital”), a Nova Capital Imperial é a maior cidade de Tamu-ra na atualidade e em todos os tempos. Também é a mais diversa, conciliando a arquitetura tradicional tamuraniana com cidadãos estrangeiros, itens e objetos de arte de vários lugares de Arton.",
+      "kingdom": "Tamu-ra"
+    },
+    {
+      "name": "Cauda do Dragão",
+      "coordinates": [
+        -112.22308927001026,
+        68.72437849888942
+      ],
+      "description": "As ilhas ao sul tornaram-se bases de operações clandestinas para piratas, criminosos yakuza e até mesmo ninjas. Ficariam conhecidas como a Cauda do Dragão.",
+      "kingdom": "Tamu-ra"
+    },
+    {
+      "name": "Nishidori",
+      "coordinates": [
+        -72.48351267090763,
+        37.23133606169101
+      ],
+      "description": " Nishidori é uma gigantesca cidadela fortificada, encravada entre as montanhas com o propósito de barrar os kaiju.",
+      "kingdom": "Tamu-ra"
+    },
+    {
+      "name": "Wata’Shimo",
+      "coordinates": [
+        -110.34858093986392,
+        87.97012665495515
+      ],
+      "description": "Wata’Shimo é um reino submerso onde um ano equivale a uma década na superfície.",
+      "kingdom": "Tamu-ra"
+    },
+    {
+      "name": "Kiri’Kizu",
+      "coordinates": [
+        -47.36510104694653,
+        66.09995829578956
+      ],
+      "description": "Onde antes ficavam a capital Yamadori e tantas outras cidades vizinhas, agora reside uma imensurável cratera de matéria vermelha, em ângulos e tamanhos impossíveis, cercada por grandes extensões de terra conspurcada. A Ferida Profunda não é uma área da Tormenta verdadeira, mas uma memória viva de todo o mal que causou.",
+      "kingdom": "Tamu-ra"
+    }
+  ],
+  "kingdoms": []
+}

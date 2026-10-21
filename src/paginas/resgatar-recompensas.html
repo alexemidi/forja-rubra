@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Resgatar Recompensas do Herói · Adicione tibares recebidos, itens grátis do catálogo ou registre itens personalizados em Tormenta 20.">
+  <title>Resgatar Recompensas · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/personagens/personagens.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/topbar-unificada.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="resgatar-recompensas"></script>
+</head>
+<body style="background:#070a0f;color:#e2e8f0;margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;">
+  <div id="forja-loader" class="forja-loader" role="status" aria-live="polite">
+    <div class="forja-loading-eye" aria-hidden="true"></div>
+    <p>Preparando recompensas<small>Abrindo a Forja…</small></p>
+  </div>
+
+  <main class="resgatar-recompensas-shell" style="flex:1;max-width:960px;width:92%;margin:28px auto 80px auto;box-sizing:border-box;">
+    <!-- Banner de Cabeçalho Dark Fantasy -->
+    <section class="recompensas-hero-banner" style="background:linear-gradient(145deg, #101622, #0a0e16);border:1px solid #1e2837;border-radius:12px;padding:24px 28px;margin-bottom:24px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#182232;border:1px solid #28374a;border-radius:8px;color:#d4af37;">
+          <svg class="forja-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </span>
+        <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1.5px;color:#d4af37;font-weight:700;">Recompensas do Aventureiro · Tormenta 20</span>
+      </div>
+      <h1 style="font-family:'Cinzel',serif;font-size:1.6rem;color:#f8fafc;margin:0 0 8px 0;letter-spacing:0.5px;">Resgatar Recompensas & Tesouros</h1>
+      <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;margin:0;max-width:760px;">
+        Adicione tibares conquistados em missões, escolha itens e armas oficiais do catálogo sem débito de moedas ou forje relíquias e itens personalizados concedidos pelo mestre.
+      </p>
+    </section>
+
+    <!-- Navegação por Abas Limpas -->
+    <div class="reward-tabs-bar" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid #1a2433;padding-bottom:12px;">
+      <button class="reward-tab-btn active" type="button" id="tabBtnTibars" data-tab="tibars" style="background:#131c28;border:1px solid #28394e;color:#f1f5f9;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.86rem;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s ease;">
+        <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9h-4a1.5 1.5 0 0 0 0 3h3a1.5 1.5 0 0 1 0 3h-4.5"/><line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/></svg>
+        Tibares (+T$)
+      </button>
+      <button class="reward-tab-btn" type="button" id="tabBtnCatalog" data-tab="catalog" style="background:transparent;border:1px solid transparent;color:#94a3b8;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.86rem;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s ease;">
+        <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Item Grátis do Catálogo
+      </button>
+      <button class="reward-tab-btn" type="button" id="tabBtnCustom" data-tab="custom" style="background:transparent;border:1px solid transparent;color:#94a3b8;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.86rem;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s ease;">
+        <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Item Personalizado
+      </button>
+    </div>
+
+    <!-- Conteúdo da Aba 1: Tibares (+T$) -->
+    <section class="reward-tab-panel" id="panelTibars" style="background:#0c1119;border:1px solid #1a2536;border-radius:10px;padding:26px 30px;box-shadow:0 6px 20px rgba(0,0,0,0.4);">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.2rem;color:#f1f5f9;margin:0 0 8px 0;">Receber Moedas & Tibares</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;line-height:1.5;margin:0 0 20px 0;">
+        Adicione valores recebidos como tesouro de masmorras, espólio de combate, soldos ou pagamento de recompensas. O valor será somado diretamente ao patrimônio disponível do herói.
+      </p>
+
+      <div style="background:#101722;border:1px solid #1e2d40;border-radius:8px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-size:0.82rem;color:#94a3b8;display:block;">Saldo Atual do Herói:</span>
+          <strong id="rewardDisplayCurrentBalance" style="color:#d4af37;font-size:1.35rem;font-family:'Cinzel',serif;">T$ 0</strong>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:0.82rem;color:#94a3b8;display:block;">Novo Saldo Projetado:</span>
+          <strong id="rewardDisplayNewBalance" style="color:#38bdf8;font-size:1.35rem;font-family:'Cinzel',serif;">T$ 0</strong>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <label for="rewardTibarsAmount" style="display:block;font-weight:600;font-size:0.86rem;color:#cbd5e1;margin-bottom:8px;">
+          Quantidade de Tibares a receber (T$):
+        </label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="position:relative;flex:1;">
+            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#d4af37;font-weight:700;font-size:1rem;pointer-events:none;">T$</span>
+            <input type="number" id="rewardTibarsAmount" min="0.01" step="any" placeholder="Ex: 50, 150, 500, 1000..." style="width:100%;box-sizing:border-box;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:12px 14px 12px 46px;border-radius:8px;font-size:1.05rem;font-weight:600;outline:none;" />
+          </div>
+          <button type="button" id="btnConfirmTibarsReward" style="background:#991b1b;border:1px solid #b91c1c;color:#ffffff;font-weight:700;padding:12px 28px;border-radius:8px;cursor:pointer;font-size:0.92rem;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(153,27,27,0.4);transition:all 0.15s ease;">
+            <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            Confirmar Recebimento
+          </button>
+        </div>
+      </div>
+
+      <!-- Atalhos rápidos de moedas -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #16202e;">
+        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">Atalhos rápidos:</span>
+        <button type="button" class="reward-quick-add-btn" data-add="50" style="background:#131c28;border:1px solid #233144;color:#cbd5e1;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">+50 T$</button>
+        <button type="button" class="reward-quick-add-btn" data-add="100" style="background:#131c28;border:1px solid #233144;color:#cbd5e1;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">+100 T$</button>
+        <button type="button" class="reward-quick-add-btn" data-add="250" style="background:#131c28;border:1px solid #233144;color:#cbd5e1;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">+250 T$</button>
+        <button type="button" class="reward-quick-add-btn" data-add="500" style="background:#131c28;border:1px solid #233144;color:#cbd5e1;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">+500 T$</button>
+        <button type="button" class="reward-quick-add-btn" data-add="1000" style="background:#131c28;border:1px solid #233144;color:#cbd5e1;padding:4px 10px;border-radius:4px;font-size:0.75rem;cursor:pointer;">+1.000 T$</button>
+      </div>
+    </section>
+
+    <!-- Conteúdo da Aba 2: Item Grátis do Catálogo -->
+    <section class="reward-tab-panel" id="panelCatalog" hidden style="background:#0c1119;border:1px solid #1a2536;border-radius:10px;padding:32px 30px;box-shadow:0 6px 20px rgba(0,0,0,0.4);text-align:center;">
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:12px;background:#131d2b;border:1px solid #24354c;color:#d4af37;margin-bottom:16px;">
+        <svg class="forja-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </div>
+      <h2 style="font-family:'Cinzel',serif;font-size:1.35rem;color:#f1f5f9;margin:0 0 10px 0;">Resgatar Itens Oficiais a Custo Zero</h2>
+      <p style="color:#94a3b8;font-size:0.9rem;line-height:1.6;margin:0 auto 24px auto;max-width:580px;">
+        Navegue pelo catálogo completo da Loja de Arton no modo de recompensa especial. Todos os botões de compra são substituídos por <strong>[Receber Item]</strong> com custo zero de tibares, inserindo a recompensa imediatamente na sua mochila.
+      </p>
+      <a href="loja.html?modo=recompensa" class="button primary" id="btnGoToRewardShop" style="background:#991b1b;border:1px solid #b91c1c;color:#ffffff;font-weight:700;padding:12px 32px;border-radius:8px;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(153,27,27,0.4);transition:all 0.15s ease;">
+        <svg class="forja-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span>Abrir Loja e Escolher Item Grátis</span>
+      </a>
+    </section>
+
+    <!-- Conteúdo da Aba 3: Item Personalizado -->
+    <section class="reward-tab-panel" id="panelCustom" hidden style="background:#0c1119;border:1px solid #1a2536;border-radius:10px;padding:26px 30px;box-shadow:0 6px 20px rgba(0,0,0,0.4);">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.2rem;color:#f1f5f9;margin:0 0 8px 0;">Criar Relíquia ou Item Inédito</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;line-height:1.5;margin:0 0 20px 0;">
+        Forje um item exclusivo dado como prêmio pelo mestre. Você pode importar características de um item existente como inspiração base e customizar propriedades únicas.
+      </p>
+
+      <!-- Inspiração Opcional -->
+      <div style="background:#101722;border:1px solid #1e2d40;border-radius:8px;padding:14px 18px;margin-bottom:18px;">
+        <label for="customInspirationSelect" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+          Item de Inspiração (Opcional):
+        </label>
+        <select id="customInspirationSelect" style="width:100%;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:8px 12px;border-radius:6px;font-size:0.85rem;outline:none;">
+          <option value="">-- Criar item do zero (sem inspiração) --</option>
+        </select>
+        <div id="customInspirationPreview" style="font-size:0.75rem;color:#d4af37;margin-top:6px;display:none;"></div>
+      </div>
+
+      <!-- Formulário do Novo Item -->
+      <form id="customRewardItemForm" style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;">
+          <div>
+            <label for="customItemName" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+              Nome da Relíquia / Item: *
+            </label>
+            <input type="text" id="customItemName" required placeholder="Ex: Lâmina do Crepúsculo, Anel do Vento..." style="width:100%;box-sizing:border-box;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:10px 12px;border-radius:6px;font-size:0.88rem;outline:none;" />
+          </div>
+          <div>
+            <label for="customItemType" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+              Tipo do Item:
+            </label>
+            <select id="customItemType" style="width:100%;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:10px 12px;border-radius:6px;font-size:0.88rem;outline:none;">
+              <option value="arma">Arma</option>
+              <option value="armadura">Armadura</option>
+              <option value="escudo">Escudo</option>
+              <option value="municao">Munição</option>
+              <option value="item_geral" selected>Item Geral</option>
+              <option value="acessorio">Acessório</option>
+              <option value="esoterico">Esotérico</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div>
+            <label for="customItemPrice" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+              Valor de Mercado Referencial (T$):
+            </label>
+            <input type="number" id="customItemPrice" min="0" step="any" value="0" style="width:100%;box-sizing:border-box;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:10px 12px;border-radius:6px;font-size:0.88rem;outline:none;" />
+          </div>
+          <div>
+            <label for="customItemSlots" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+              Espaços na Mochila (Peso):
+            </label>
+            <input type="number" id="customItemSlots" min="0" step="0.5" value="1" style="width:100%;box-sizing:border-box;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:10px 12px;border-radius:6px;font-size:0.88rem;outline:none;" />
+          </div>
+        </div>
+
+        <div>
+          <label for="customItemDesc" style="display:block;font-size:0.82rem;font-weight:600;color:#cbd5e1;margin-bottom:6px;">
+            Descrição e Efeitos Especiais:
+          </label>
+          <textarea id="customItemDesc" rows="4" placeholder="Descreva os poderes, efeitos mágicos e a história deste item especial..." style="width:100%;box-sizing:border-box;background:#06090e;border:1px solid #28394e;color:#f8fafc;padding:10px 12px;border-radius:6px;font-size:0.88rem;line-height:1.5;outline:none;resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button type="submit" id="btnSaveCustomRewardItem" style="background:#991b1b;border:1px solid #b91c1c;color:#ffffff;font-weight:700;padding:12px 28px;border-radius:8px;cursor:pointer;font-size:0.92rem;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(153,27,27,0.4);transition:all 0.15s ease;">
+            <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Adicionar à Mochila do Herói
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

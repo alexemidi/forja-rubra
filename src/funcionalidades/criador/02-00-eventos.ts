@@ -1,0 +1,1 @@
+if(window.self!==window.top)document.querySelector(".forja-home").hidden=true;

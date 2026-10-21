@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taverna de Arton — Serviços, Estadias e Mercenários</title>
+<link rel="stylesheet" href="src/estilos/taverna/0.css">
+<link rel="stylesheet" href="src/estilos/taverna/1.css"><noscript><link rel="stylesheet" href="src/estilos/taverna/2.css"></noscript><script src="src/compartilhado/inicializar.js" defer="" data-page="taverna"></script></head>
+<body><div id="forja-loader" class="forja-loader" role="status" aria-live="polite"><div class="forja-loading-eye" aria-hidden="true"></div><p>Preparando sua jornada<small>Abrindo a Forja…</small></p></div><a class="forja-home" href="index.html" aria-label="Voltar à página inicial da Forja">← Início · Forja T20</a>
+
+<header class="tavern-header">
+  <div class="header-container">
+    <div class="tavern-brand">
+      <span class="tavern-logo-icon" aria-hidden="true"></span>
+      <div class="tavern-titles">
+        <small>Estalagem &amp; Serviços</small>
+        <h1>Taverna de Arton</h1>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="wallet-badge" id="walletBadge" title="Fundos disponíveis do personagem">
+        <span>Saldo: <strong id="walletDisplay">T$ 100</strong></span>
+      </div>
+      <button class="btn btn-primary" id="contractsBtn" type="button">
+        Contratados <span class="chip-count" id="contractsCount">0</span>
+      </button>
+      <a class="btn" id="guildaNavBtn" href="guilda.html" target="_top">
+        Guilda
+      </a>
+      <a class="btn" id="arsenalLink" href="loja.html" target="_top">
+        Loja
+      </a>
+      <a class="btn" id="grimoireLink" href="grimorio.html" target="_top">
+        Grimório
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Área 1: Taverna Principal (Estadias, Alimentação, Bebidas, Transporte, Curandeiro) -->
+<div id="tavernViewArea">
+  <section class="controls-panel">
+    <div class="controls-container">
+      <div class="search-row">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input class="search-input" id="searchInput" type="search" placeholder="Buscar estadias, refeições, bebidas, curandeiro ou conduções..." autocomplete="off">
+        </div>
+        <select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
+          <option value="name">Nome (A–Z)</option>
+          <option value="price-asc">Menor Preço</option>
+          <option value="price-desc">Maior Preço</option>
+          <option value="category">Por Categoria</option>
+        </select>
+      </div>
+      <div class="category-chips" id="categoryChips">
+        <!-- Generated dynamically by runtime -->
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content">
+    <div class="catalog-heading">
+      <div>
+        <h2 id="categoryTitle">Todos os Serviços</h2>
+        <p id="categoryDescription">Estadias, refeições, cuidados médicos e conduções para sua aventura.</p>
+      </div>
+      <span id="resultsCount" class="results-count-label">opções</span>
+    </div>
+
+    <div class="items-grid" id="itemsGrid">
+      <!-- Generated dynamically by runtime -->
+    </div>
+
+    <div class="empty-state" id="emptyState" hidden="">
+      <div class="empty-icon"></div>
+      <h3>Nenhum serviço encontrado</h3>
+      <p>Tente ajustar os termos de busca ou mudar a categoria selecionada.</p>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Contratação / Compra -->
+<div class="modal-backdrop" id="hireModal" hidden="">
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="hireModalTitle">
+    <header class="modal-header">
+      <h3 id="hireModalTitle">Contratar Serviço</h3>
+      <button class="modal-close" type="button" data-action="close-hire-modal" aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-body">
+      <div id="hireItemSummary"></div>
+
+      <!-- Duração: Por Cena vs Por Aventura Inteira (Mercenários e Capangas) -->
+      <div id="hireDurationModeField" class="hire-mode-container" style="display:none">
+        <label class="hire-mode-label">Duração da Contratação:</label>
+        <div class="hire-mode-pills" id="hireDurationPills">
+          <button type="button" class="hire-mode-btn active" data-duration-mode="cena">
+            <span>Por Cena</span>
+            <small>1x valor base · Atua até o fim da cena</small>
+          </button>
+          <button type="button" class="hire-mode-btn" data-duration-mode="aventura">
+            <span>Por Aventura Inteira</span>
+            <small>3x valor base · Acompanha a aventura toda</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Subcatálogo visual de tipos de parceiro / capangas -->
+      <section id="partnerSubcatalogSection" class="partner-subcatalog-section" style="display:none">
+        <div class="partner-subcatalog-header">
+          <label class="partner-subcatalog-title" id="partnerSubcatalogTitle">Escolha o Tipo de Parceiro:</label>
+          <span class="partner-subcatalog-badge" id="partnerSubcatalogCount">12 opções</span>
+        </div>
+        <!-- Compatibilidade com seletores anteriores -->
+        <select id="partnerTypeSelect" hidden="" aria-hidden="true"></select>
+        <div class="partner-cards-grid" id="partnerCardsGrid">
+          <!-- Cards gerados dinamicamente pelo runtime -->
+        </div>
+      </section>
+      <div class="hire-control-row">
+        <label for="hireQuantityInput" class="hire-control-label" id="hireUnitLabel">Quantidade / Duração:</label>
+        <div class="quantity-control">
+          <button type="button" data-action="hire-qty-dec">-</button>
+          <span id="hireQtyDisplay">1</span>
+          <button type="button" data-action="hire-qty-inc">+</button>
+        </div>
+      </div>
+      <div class="hire-percent-controls hire-control-row">
+        <span class="hire-control-label">Ajuste de Preço:</span>
+        <div class="hire-percent-actions">
+          <button type="button" class="btn btn-sm" data-action="hire-percent-dec">−10%</button>
+          <strong id="hirePercentDisplay" class="hire-percent-value">100%</strong>
+          <button type="button" class="btn btn-sm" data-action="hire-percent-inc">+10%</button>
+          <button type="button" class="btn btn-sm" data-action="hire-percent-reset">Restaurar 100%</button>
+        </div>
+      </div>
+      <div class="hire-total-row">
+        <span class="hire-total-label">Custo Total:</span>
+        <strong id="hireTotalPrice" class="hire-total-price">T$ 0</strong>
+      </div>
+      <div id="hireBalanceNote" class="hire-balance-note"></div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn" type="button" data-action="close-hire-modal">Cancelar</button>
+      <button class="btn btn-primary" id="confirmHireBtn" type="button">Confirmar Contratação</button>
+    </footer>
+  </section>
+</div>
+
+<!-- Modal de Serviços Contratados -->
+<div class="modal-backdrop" id="contractsModal" hidden="">
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="contractsModalTitle">
+    <header class="modal-header">
+      <h3 id="contractsModalTitle">Serviços &amp; Contratos Ativos</h3>
+      <button class="modal-close" type="button" data-action="close-contracts-modal" aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-body">
+      <div class="contract-list" id="contractList">
+        <!-- Generated dynamically -->
+      </div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn btn-danger" id="clearContractsBtn" type="button">Encerrar todos</button>
+      <button class="btn" type="button" data-action="close-contracts-modal">Fechar</button>
+    </footer>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+
+
+
+</body></html>

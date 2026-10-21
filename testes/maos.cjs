@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const context=vm.createContext({});
+vm.runInContext(`let eq={weaponId:'a',offhandId:'none',shieldId:'none',adaptableHandedness:{}},powers=['estilo_de_duas_armas'];
+const inventory=[{uid:'a',itemId:'espada'},{uid:'b',itemId:'adaga'},{uid:'c',itemId:'varinha'},{uid:'d',itemId:'escudo'}];
+const DATA={pdfItems:[{id:'espada',tipo:'arma',arma:{empunhaduraId:'uma_mao',propriedadesIds:['adaptavel']}},{id:'adaga',tipo:'arma',arma:{empunhaduraId:'leve'}},{id:'varinha',tipo:'esoterico'},{id:'escudo',tipo:'escudo'}]};
+function equipmentState(){return eq}function characterInventory(){return inventory.map(e=>({...e}))}function equipEntryId(e){return e.uid}function characterHasFeature(id){return powers.includes(id)}
+`,context);
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/regras/criador/maos.js'),'utf8'),context);
+const run=s=>vm.runInContext(s,context);
+assert.equal(run('singleWeaponStyleActive()'),true);
+assert.equal(run('singleWeaponStyleActive(inventory[1])'),false);
+assert.equal(run("eq.offhandId='b';singleWeaponStyleActive()"),false);
+assert.equal(run('dualWeaponAttackReady()'),true);
+assert.equal(run("eq.offhandId='c';dualWeaponAttackReady()"),false);
+assert.equal(run('singleWeaponStyleActive()'),false);
+assert.equal(run("eq.offhandId='none';eq.adaptableHandedness.a='duas_maos';singleWeaponStyleActive()"),false);
+assert.equal(run("eq.adaptableHandedness.a='uma_mao';eq.shieldId='d';singleWeaponStyleActive()"),false);
+assert.equal(run("eq.shieldId='none';eq.weaponId='c';singleWeaponStyleActive()"),false);
+assert.equal(run("eq.weaponId='none';singleWeaponStyleActive()"),false);
+console.log('Mãos: uma arma, duas armas, esotérico, escudo, mãos vazias e adaptável aprovados.');

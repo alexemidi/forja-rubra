@@ -1,0 +1,98 @@
+{
+  "cities": [
+    {
+      "name": "Doher",
+      "coordinates": [
+        -79.81230047178582,
+        105.35409970221907
+      ],
+      "description": "Doher, chamada pelos anões de “o Berço” e “Pilar do Mundo”, é a capital da confederação, o local onde a raça anã despertou e o exato centro geográfico da primeira camada do subterrâneo. De Doher partem túneis e estradas de ferro para todas as cidades de Doherimm.",
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Thagaramm",
+      "coordinates": [
+        -59.067741618166195,
+        52.9906680308455
+      ],
+      "description": "Thagaramm é um enorme posto comercial construído após a Revolta das Guildas como um ponto de contato entre o sobremundo e o subterrâneo.",
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "A Grande Fenda",
+      "coordinates": [
+        -72.31426715120041,
+        66.48768621821625
+      ],
+      "description": "Anos após a Batalha dos Três Terremotos, exploradores anões encontraram uma fenda com dezenas de quilômetros de comprimento e vários metros de largura, cortando boa parte das cavernas e túneis no oeste da confederação. ",
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Vulcão Trondkhandar",
+      "coordinates": [
+        -63.94146327654671,
+        17.99839865618059
+      ],
+      "description": "Talvez o único vulcão subterrâneo de Arton, o Trondkhandar se ergue numa grande câmara perto da cidade de Zuralhim. Não há registros de erupção, mas ele expelia cinzas com certa frequência.",
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Zuralhim",
+      "coordinates": [
+        -76.93805436556141,
+        15.873868015575937
+      ],
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Ruínas de Kharadantur",
+      "coordinates": [
+        -88.93490767849805,
+        26.994975093532194
+      ],
+      "description": "Próxima a uma floresta de cogumelos, Kharadantur foi palco do primeiro ataque Trollkyrka a Doherimm, em 1203. A investida começou com o envio de hordas de mycotann lobotomizados magicamente, preparando - com um ataque suicida - o terreno para a invasão direta e massiva das tropas finntroll que se seguiu. Essa brusca manobra devastou a cidade e marcou oficialmente o início da permaguerra.",
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Mandhir",
+      "coordinates": [
+        -115.30299152255671,
+        108.97686334274714
+      ],
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Dhukaz",
+      "coordinates": [
+        -82.4366121339907,
+        176.5869266702247
+      ],
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Thanzar",
+      "coordinates": [
+        -46.0711505291515,
+        130.09863304573213
+      ],
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Thoranthur",
+      "coordinates": [
+        -54.81885606983447,
+        105.22912731159526
+      ],
+      "kingdom": "Doherimm"
+    },
+    {
+      "name": "Khalandir",
+      "coordinates": [
+        -48.07062608130761,
+        92.10702629609592
+      ],
+      "kingdom": "Doherimm"
+    }
+  ],
+  "kingdoms": []
+}

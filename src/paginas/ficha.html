@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha do Herói · Forja T20</title>
+<link rel="stylesheet" href="src/estilos/criador/0.css">
+<link rel="stylesheet" href="src/estilos/criador/1.css">
+<link rel="stylesheet" href="src/estilos/criador/2.css">
+<link rel="stylesheet" href="src/estilos/criador/migration-theme.css">
+<link rel="stylesheet" href="src/estilos/auth/auth.css">
+<link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+<link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+<link rel="stylesheet" href="src/estilos/criador/modal-condicoes.css">
+<link rel="stylesheet" href="src/estilos/criador/ficha-simplificada.css">
+<link rel="prefetch" href="loja.html">
+<link rel="prefetch" href="taverna.html">
+<link rel="prefetch" href="oficina.html">
+<link rel="prefetch" href="resgatar-recompensas.html">
+
+<script src="src/compartilhado/inicializar.js" defer="" data-page="ficha"></script>
+</head>
+<body class="character-sheet-ready">
+<div id="forja-loader" class="forja-loader" role="status" aria-live="polite"><div class="forja-loading-eye" aria-hidden="true"></div><p>Preparando sua jornada<small>Abrindo a Ficha do Herói…</small></p></div>
+<header class="app-header">
+  <div style="flex:1;display:flex;align-items:center;"></div>
+  <a class="brand brand-link" href="index.html" title="Voltar ao Menu Principal" style="position:absolute;left:50%;transform:translateX(-50%);text-decoration:none;"><h1>Forja Rubra</h1></a>
+  <span id="heroSheetTitle" style="display:none;" aria-hidden="true"></span>
+  <div class="header-actions" style="margin-left:auto;">
+    <span class="save-status" id="saveStatus" style="display:none !important;" hidden=""></span>
+    <button class="button" id="exportButton" type="button" style="display:none !important;" hidden="">Exportar ficha</button>
+    <button class="button" id="editCharacterButton" type="button" style="display:none !important;" hidden="">Editar ficha</button>
+    <button class="button" id="randomCharacterButton" type="button" style="display:none !important;" hidden="">Ficha Aleatória</button>
+    <button type="button" class="forja-drawer-trigger-btn" id="drawerMenuBtn" title="Abrir Menu Lateral" aria-label="Abrir Menu" style="background:transparent;border:none;color:#dc2626;cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+</header>
+<div class="shell">
+  <main class="workspace">
+    <header class="stage-heading" style="display:none">
+      <div><span class="stage-kicker" id="stageKicker">Herói Forjado</span><h2 id="stageTitle"></h2><p id="stageDescription"></p></div>
+    </header>
+    <div class="stage-root" id="stageRoot"></div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!--FORJA-SHARED-DIALOGS-->
+<template id="forjaCreationControlsTemplate"><!--FORJA-CREATION-NAV--><!--FORJA-CREATION-FOOTER--></template>
+</body></html>

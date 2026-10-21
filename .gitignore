@@ -1,18 +1,11 @@
-Livros/
-Fichas/
-backups/
-tmp/
-output/
 node_modules/
-*.pdf
-*.xls*
-*.doc*
-*.zip
-*.bak
-* - Backup.html
-__pycache__/
-.DS_Store
-Thumbs.db
+dist/
+.build-*/
+.dist-anterior/
+preservacao/
 playwright-report/
 test-results/
-backup-jsons/*.html
+gerador-ficha-tormenta20-main/
+scratch/
+.env
+.env.local

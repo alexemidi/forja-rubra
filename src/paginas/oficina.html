@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Oficinas de Manufatura de Arton · Regras de fabricação, matérias-primas por ⅓ do preço, CDs e receitas oficiais de Tormenta 20.">
+  <title>Oficinas de Fabricação · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/personagens/personagens.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/oficina.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="oficina"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="forja-drawer-trigger-btn" id="drawerMenuBtn" type="button" title="Abrir Menu Lateral" aria-label="Abrir Menu">
+        <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <a class="topbar-brand" href="index.html">
+        <div class="topbar-logo" aria-hidden="true">
+          <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        </div>
+        <div class="topbar-title">
+          <span class="name">Forja Rubra</span>
+        </div>
+      </a>
+    </div>
+    <div class="topbar-actions" id="oficinaTopbarActions">
+      <a class="nav-btn" href="loja.html">Loja</a>
+      <a class="nav-btn" href="grimorio.html">Grimório</a>
+      <a class="nav-btn primary" href="criador.html?novo=true">Criar Ficha</a>
+    </div>
+  </header>
+
+  <main class="oficina-shell">
+    <section class="oficina-banner" id="oficinaBanner">
+      <span class="oficina-eyebrow">
+        <svg class="forja-svg icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path><line x1="3" y1="21" x2="9" y2="15"></line><path d="m15 9 3 3"></path></svg>
+        Manufatura Oficial · Tormenta 20
+      </span>
+      <h1 class="oficina-title" id="oficinaTitle">Oficinas de Fabricação</h1>
+      <p class="oficina-lead" id="oficinaLead">
+        Consulte as regras canônicas de manufatura, cálculo de matérias-primas por ⅓ do preço, CDs de teste de Ofício e produza seus próprios equipamentos.
+      </p>
+    </section>
+
+    <!-- Botão Expansível de Regras de Fabricação -->
+    <div class="rules-toggle-bar">
+      <button type="button" id="btnToggleFabricationRules" class="rules-toggle-btn">Ver Regras de Fabricação</button>
+    </div>
+
+    <!-- Regras Canônicas de Manufatura (Recolhidas por Padrão) -->
+    <div class="rules-grid is-hidden" id="rulesGrid" hidden="">
+      <article class="rule-card">
+        <div class="rule-card-header">
+          <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M14.5 9h-4a1.5 1.5 0 0 0 0 3h3a1.5 1.5 0 0 1 0 3h-4.5"></path><line x1="12" y1="7" x2="12" y2="9"></line><line x1="12" y1="15" x2="12" y2="17"></line></svg>
+          <span>Matéria-Prima: ⅓ do Preço</span>
+        </div>
+        <p>
+          Para fabricar qualquer item, o artesão gasta apenas <strong>um terço (⅓)</strong> do valor de mercado em materiais, matérias-primas e insumos (arredondado para cima).
+        </p>
+      </article>
+
+      <article class="rule-card">
+        <div class="rule-card-header">
+          <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="8.5" r="1.5"></circle><circle cx="15.5" cy="15.5" r="1.5"></circle><circle cx="8.5" cy="15.5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle></svg>
+          <span>Teste de Ofício (Inteligência)</span>
+        </div>
+        <p>
+          Itens simples requerem teste de <strong>CD 15</strong>. Itens complexos (armas marciais, exóticas, alquímicos e armaduras pesadas) requerem <strong>CD 20</strong>.
+        </p>
+      </article>
+
+      <article class="rule-card">
+        <div class="rule-card-header">
+          <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Tempo de Fabricação</span>
+        </div>
+        <p>
+          Consumíveis, pratos e alquímicos levam <strong>1 dia</strong>. Armas e armaduras mundanas levam <strong>1 semana</strong>. Itens superiores ou mágicos levam <strong>1 mês</strong>.
+        </p>
+      </article>
+
+      <article class="rule-card">
+        <div class="rule-card-header">
+          <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"></path></svg>
+          <span>Itens Mágicos &amp; Superiores</span>
+        </div>
+        <p>
+          Exigem poderes como <em>Fabricar Item Superior</em> (Inventor nível 2) e <em>Fabricar Item Mágico</em> (Inventor nível 9). CDs específicas variam de 30 a 50.
+        </p>
+      </article>
+    </div>
+
+    <!-- Navegação das Oficinas (Renderizado dinamicamente em 4 colunas) -->
+    <nav class="divisions-nav" id="divisionsNav" aria-label="Especialidades de Ofício">
+      <!-- Injetado por 00-00-oficina.js: links da enciclopédia ou bancadas do herói -->
+    </nav>
+
+    <!-- Conteúdo da Oficina Ativa / Bancada Interativa -->
+    <section class="division-content-panel" id="divisionContent">
+      <!-- Renderizado via JS -->
+    </section>
+  </main>
+</body>
+</html>

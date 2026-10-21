@@ -1,0 +1,12 @@
+.forja-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#08080c;opacity:1;transition:none;overflow:hidden;color:#f0d79d;font:13px/1.6 system-ui;letter-spacing:.08em;text-align:center}
+.forja-loader[hidden]{display:none!important}.forja-loader.is-finished{opacity:0;pointer-events:none}
+.forja-loader::before,.forja-loader::after{content:"";position:absolute;inset:-35%;pointer-events:none;background:radial-gradient(ellipse at 35% 50%,#9b1f4559,transparent 28%),radial-gradient(ellipse at 65% 52%,#cf25362e,transparent 25%);filter:blur(32px);animation:forjaMist 9s ease-in-out infinite alternate}
+.forja-loader::after{transform:rotate(35deg);animation-delay:-5s;animation-duration:13s;opacity:.6}.forja-loader>*{position:relative;z-index:1}.forja-loader p{margin:0;padding:0 24px}.forja-loader small{display:block;color:#b7a2a0;font-size:11px;letter-spacing:0;margin-top:5px}
+.forja-loading-eye{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 32% 25%,#bda487,#756153 24%,#362a30 57%,#08070b 84%);box-shadow:inset -12px -14px 22px #000c,0 0 65px #b3244240;display:grid;place-items:center;animation:forjaEyeGlow 2.8s ease-in-out infinite}
+.forja-loading-eye::before{content:"";width:64px;height:76px;border-radius:50%;background:repeating-conic-gradient(#d5a253 0deg 6deg,#4b2018 7deg 13deg,#f2ce79 14deg 16deg);box-shadow:inset 0 0 12px 5px #130b0b,0 0 13px #d9a75080}
+.forja-loading-eye::after{content:"";position:absolute;width:9px;height:54px;border-radius:50%;background:#030305;box-shadow:0 0 6px #f4cb78}
+@keyframes forjaMist{from{translate:-4% -2%;scale:1;rotate:-8deg}to{translate:5% 4%;scale:1.18;rotate:12deg}}
+@keyframes forjaEyeGlow{50%{box-shadow:inset -12px -14px 22px #000c,0 0 85px #b3244270}}
+
+html:not([data-forja-ready]) .forja-loader,html[data-forja-loading="true"] .forja-loader{display:flex!important;opacity:1!important;pointer-events:auto!important}
+html:not([data-forja-ready]) body>:not(.forja-loader):not(script):not(style),html[data-forja-loading="true"] body>:not(.forja-loader):not(script):not(style){visibility:hidden!important}

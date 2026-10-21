@@ -1,0 +1,371 @@
+@import url('../compartilhado/tokens.css');
+
+:root {
+  --rec-bg: var(--bg);
+  --rec-surface: var(--surface);
+  --rec-surface-elevated: var(--surface2);
+  --rec-border: var(--border);
+  --rec-border-focus: var(--border2);
+  --rec-text: var(--text);
+  --rec-text-muted: var(--muted);
+  --rec-text-dim: var(--dim);
+  --rec-crimson: var(--forja-red);
+  --rec-crimson-hover: var(--forja-red-hot);
+  --rec-gold: var(--gold);
+  --rec-gold-light: var(--gold2);
+  --rec-green: var(--gold);
+}
+
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 78% 5%, rgba(126, 17, 28, 0.22), transparent 34%),
+                    linear-gradient(135deg, #090708, #120a0d 58%, #070607);
+  color: var(--text);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #0d0d10;
+  border-bottom: 1px solid var(--rec-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.topbar-title .name {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  color: #fafafa;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--rec-border);
+  background: var(--rec-surface);
+  color: var(--rec-text);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.nav-btn:hover {
+  background: var(--rec-surface-elevated);
+  border-color: var(--rec-border-focus);
+}
+
+.nav-btn.primary {
+  background: var(--rec-crimson);
+  border-color: #7f1d1d;
+  color: #ffffff;
+}
+
+.nav-btn.primary:hover {
+  background: var(--rec-crimson-hover);
+}
+
+.recompensas-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.section-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--rec-gold-light);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.page-header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.page-header p {
+  color: var(--rec-text-muted);
+  font-size: 0.92rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Roster de heróis da mesa */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.party-hero-card {
+  background: var(--rec-surface);
+  border: 1px solid var(--rec-border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.party-hero-card.selected {
+  border-color: var(--rec-gold);
+  background: #141311;
+}
+
+.party-hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.party-hero-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.party-hero-class {
+  font-size: 0.78rem;
+  color: var(--rec-text-muted);
+}
+
+.party-hero-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.party-hero-funds {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--rec-gold-light);
+}
+
+.party-hero-backpack {
+  font-size: 0.74rem;
+  color: var(--rec-text-dim);
+}
+
+/* Abas das ferramentas do Mestre */
+.tool-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--rec-border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tool-tab-btn {
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--rec-text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.tool-tab-btn:hover {
+  color: var(--rec-text);
+}
+
+.tool-tab-btn.active {
+  color: #ffffff;
+  border-bottom-color: var(--rec-crimson);
+}
+
+/* Painéis de Conteúdo */
+.tool-panel {
+  background: var(--rec-surface);
+  border: 1px solid var(--rec-border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.panel-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+
+.panel-desc {
+  font-size: 0.85rem;
+  color: var(--rec-text-muted);
+  margin: 0 0 20px 0;
+  line-height: 1.45;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--rec-text-muted);
+}
+
+.form-input, .form-select, .form-textarea {
+  background: #09090b;
+  border: 1px solid var(--rec-border);
+  color: var(--rec-text);
+  padding: 9px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--rec-border-focus);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.btn-action {
+  padding: 10px 20px;
+  background: var(--rec-crimson);
+  border: 1px solid #7f1d1d;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-action:hover {
+  background: var(--rec-crimson-hover);
+}
+
+.btn-secondary {
+  padding: 10px 18px;
+  background: var(--rec-surface-elevated);
+  border: 1px solid var(--rec-border);
+  color: var(--rec-text);
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--rec-border-focus);
+  background: #202026;
+}
+
+/* Card de Resultado do Gerador */
+.treasure-result-box {
+  background: #0a0a0d;
+  border: 1px solid var(--rec-border);
+  border-radius: 6px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.treasure-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.treasure-total-val {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--rec-gold-light);
+}
+
+.treasure-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--rec-surface);
+  border: 1px solid var(--rec-border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #18181b;
+  border: 1px solid var(--rec-border);
+  color: #fafafa;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

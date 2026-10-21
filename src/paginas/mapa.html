@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mapa de Arton em alta resolução para Tormenta 20 · Forja Rubra">
+  <title>Mapa de Arton · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/personagens/personagens.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/mapa.css">
+
+  <script src="assets/vendor/leaflet/leaflet.js"></script>
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="mapa"></script>
+</head>
+<body>
+  <header class="topbar" style="position:relative;z-index:110">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a class="topbar-brand" href="index.html">
+        <div class="topbar-logo" aria-hidden="true">
+          <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        </div>
+        <div class="topbar-title">
+          <span class="name">Forja Rubra</span>
+        </div>
+      </a>
+    </div>
+    <div class="topbar-actions" style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="forja-topbar-back-btn" id="topbarBackBtn" data-header-back="" title="Voltar" aria-label="Voltar" onclick="if(window.history.length > 1) { window.history.back(); } else { window.location.href = 'index.html'; }" style="background:transparent;border:none;color:#dc2626;cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;">
+        <span class="forja-return-arrow" aria-hidden="true"></span>
+      </button>
+      <button class="forja-drawer-trigger-btn" id="drawerMenuBtn" type="button" title="Abrir Menu Lateral" aria-label="Abrir Menu" style="background:transparent;border:none;color:#dc2626;cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;">
+        <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="map-viewport" id="mapViewport">
+    <!-- Barra de Ferramentas Interativa (Estilo Fichas de Nimb) -->
+    <section class="map-toolbar-overlay" id="mapToolbarOverlay" aria-label="Ferramentas do Mapa">
+      <div class="map-search-group">
+        <select id="mapSelector" class="map-select map-switch-select" aria-label="Selecionar Mapa">
+          <option value="arton" selected>Arton</option>
+          <option value="tamura">Tamu-ra</option>
+          <option value="lamnor">Lamnor</option>
+          <option value="doherimm">Doherimm</option>
+          <option value="moreania">Moreania</option>
+        </select>
+        <div class="map-unified-search-pill" id="mapUnifiedSearchPill">
+          <span class="map-search-glass-icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <input type="text" id="mapSearchInput" class="map-unified-search-input" placeholder="Buscar cidade ou localidade" aria-label="Buscar cidade ou localidade" autocomplete="off">
+          <button type="button" id="mapSearchDropdownArrow" class="map-search-dropdown-arrow" title="Listar cidades e reinos" aria-label="Listar cidades e reinos">▾</button>
+          <ul id="mapSearchDropdownList" class="map-unified-suggestions-list" style="display:none;"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Painel de Rotas Flutuante (Estilo Fichas de Nimb / Google Maps) -->
+    <section class="map-route-panel" id="mapRoutePanel" aria-label="Painel de Rotas de Arton" style="display:none;">
+      <div class="map-route-header">
+        <h3 class="map-route-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a3 3 0 0 1 0-6h11"></path><circle cx="18" cy="4" r="3"></circle></svg>
+          Rota
+        </h3>
+        <button type="button" class="map-route-close-btn" id="btnCloseRoutePanel" title="Fechar painel de rotas" aria-label="Fechar painel">×</button>
+      </div>
+
+      <div class="map-route-points-wrap">
+        <div class="map-route-input-row">
+          <span class="route-point-marker origin" title="Ponto de Origem"></span>
+          <div class="route-autocomplete-wrap">
+            <input type="text" id="routeOriginInput" class="route-city-input" placeholder="Escolha a origem..." autocomplete="off">
+            <button type="button" class="route-dropdown-arrow-btn" id="btnDropdownOrigin" title="Listar localidades" aria-label="Listar localidades de origem">▾</button>
+            <ul id="routeOriginList" class="route-suggestions-list" style="display:none;"></ul>
+          </div>
+        </div>
+
+        <div class="map-route-input-row">
+          <span class="route-point-marker dest" title="Ponto de Destino"></span>
+          <div class="route-autocomplete-wrap">
+            <input type="text" id="routeDestInput" class="route-city-input" placeholder="Escolha o destino..." autocomplete="off">
+            <button type="button" class="route-dropdown-arrow-btn" id="btnDropdownDest" title="Listar localidades" aria-label="Listar localidades de destino">▾</button>
+            <ul id="routeDestList" class="route-suggestions-list" style="display:none;"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo Principal da Rota Selecionada -->
+      <div id="routeSummaryBox" class="route-summary-box" style="display:none;">
+        <div class="route-summary-top">
+          <div class="route-km-highlight" id="routeKmHighlight">0 KM</div>
+          <span class="route-type-badge" id="routeTypeBadge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4v6m0 0l3 5m-3-5l-3 4m0 5l3-5m0 0v6"/></svg>
+            <span id="routeTypeBadgeText">Todo por terra</span>
+          </span>
+        </div>
+        <div class="route-breakdown-text" id="routeBreakdownText">0 km por estrada</div>
+
+        <!-- Avisos de Tormenta e Terreno Difícil -->
+        <div class="route-warnings-container" id="routeWarningsContainer"></div>
+
+        <!-- Cards de Alternância de Rotas (Por terra vs Terra + mar) -->
+        <div class="route-options-cards" id="routeOptionsCards"></div>
+        <button type="button" class="route-load-more-btn" id="btnLoadMoreRoutes" style="display:none;">
+          Carregar mais rotas
+        </button>
+
+        <!-- Passos da Rota Expansíveis -->
+        <button type="button" class="route-steps-toggle" id="btnToggleRouteSteps">
+          Passos da rota (<span id="routeStepsCount">0</span>)
+        </button>
+        <div class="route-steps-list" id="routeStepsList" style="display:none;"></div>
+
+        <!-- Configurações de Condução, Ritmo e Deslocamento -->
+        <div class="route-settings-panel">
+          <!-- Modo de Condução Terrestre -->
+          <div class="route-setting-row" id="routeTransportRow">
+            <label for="routeTransportSelect" class="route-setting-label">
+              Condução
+              <span class="info-tip" title="Veículo ou marcha terrestre">ℹ</span>
+            </label>
+            <select id="routeTransportSelect" class="route-setting-select">
+              <option value="pe" selected>A pé (marcha própria) · T$ 0</option>
+              <option value="cavalo">Montaria / Cavalo · 72 km/dia · T$ 0,2/km</option>
+              <option value="carruagem">Carruagem / Diligência · 36 km/dia · T$ 0,5/km</option>
+            </select>
+          </div>
+
+          <!-- Velocidade A Pé (se a pé estiver selecionado) -->
+          <div class="route-setting-row" id="routeSpeedRow">
+            <label for="routeSpeedSelect" class="route-setting-label">
+              Deslocamento
+              <span class="info-tip" title="Velocidade de marcha diária a pé baseada no deslocamento">ℹ</span>
+            </label>
+            <select id="routeSpeedSelect" class="route-setting-select">
+              <option value="4.5">4,5m · 18 km/dia</option>
+              <option value="6">6m · 24 km/dia</option>
+              <option value="7.5">7,5m · 30 km/dia</option>
+              <option value="9" selected>9m · 36 km/dia</option>
+              <option value="12">12m · 48 km/dia</option>
+              <option value="15">15m · 54 km/dia</option>
+              <option value="18">18m · 60 km/dia</option>
+            </select>
+          </div>
+
+          <!-- Embarcação (visível quando houver mar) -->
+          <div class="route-setting-row" id="routeBoatRow" style="display:none;">
+            <label for="routeBoatSelect" class="route-setting-label">
+              Embarcação
+              <span class="info-tip" title="Embarcação e velocidade diária no trecho marítimo/fluvial">ℹ</span>
+            </label>
+            <select id="routeBoatSelect" class="route-setting-select">
+              <option value="veleiro" selected>Veleiro Mercante · 48 km/dia (12m · T$ 0,5/km)</option>
+              <option value="barco">Barco / Canoa · 24 km/dia (6m · T$ 0,2/km)</option>
+              <option value="gale">Galé / Navio de Guerra · 36 km/dia (9m · T$ 1,0/km)</option>
+              <option value="barcaca">Barcaça · 24 km/dia (6m · T$ 0,2/km)</option>
+              <option value="jangada">Jangada · 36 km/dia (9m · T$ 0,2/km)</option>
+            </select>
+          </div>
+
+          <!-- Terreno Difícil / Marcar Trecho -->
+          <div class="route-setting-row route-toggle-row">
+            <div class="route-toggle-info">
+              <span class="route-setting-label">
+                Difícil/hostil
+                <span class="info-tip" title="Ajuste do mestre: terreno difícil ou clima hostil reduz a distância por dia à metade. Ative a chave para a rota inteira, ou use Marcar trecho e clique no início e no fim do pedaço afetado sobre a rota.">ℹ</span>
+              </span>
+              <span class="route-setting-desc" id="routeDifficultDesc">Ative para a rota inteira ou marque um trecho no mapa.</span>
+            </div>
+            <div class="route-difficult-controls">
+              <button type="button" class="route-mark-stretch-btn" id="btnMarkDifficultStretch" title="Marcar ou desmarcar um trecho difícil na rota ativa">
+                Marcar trecho
+              </button>
+              <label class="forja-switch" title="Rota inteira">
+                <input type="checkbox" id="routeDifficultToggle">
+                <span class="forja-switch-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Excluir Terreno Difícil (quando a caminhada for a pé) -->
+          <div class="route-setting-row route-toggle-row" id="routeAvoidDifficultRow">
+            <div class="route-toggle-info">
+              <span class="route-setting-label">
+                Excluir terreno difícil
+                <span class="info-tip" title="Traça a rota a pé desviando de estradas e trilhas com terreno difícil">ℹ</span>
+              </span>
+              <span class="route-setting-desc">Desvia de terrenos difíceis na caminhada a pé.</span>
+            </div>
+            <label class="forja-switch">
+              <input type="checkbox" id="routeAvoidDifficultToggle">
+              <span class="forja-switch-slider"></span>
+            </label>
+          </div>
+
+          <!-- Remover Área Afetada pela Tormenta -->
+          <div class="route-setting-row route-toggle-row" id="routeAvoidTormentaRow">
+            <div class="route-toggle-info">
+              <span class="route-setting-label">
+                Remover área da Tormenta
+                <span class="info-tip" title="Evita passar por estradas e rios tomados por Zonas de Tormenta">ℹ</span>
+              </span>
+              <span class="route-setting-desc">Desvia de áreas afetadas pela Tormenta.</span>
+            </div>
+            <label class="forja-switch">
+              <input type="checkbox" id="routeAvoidTormentaToggle">
+              <span class="forja-switch-slider"></span>
+            </label>
+          </div>
+
+          <!-- Seção de Teste de Queda Goblin (Aéreo: Balão / Dirigível) -->
+          <div class="route-aerial-box" id="routeAerialBox" style="display:none;">
+            <div class="aerial-header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 3.5 3 6.5 5 8.5h4c2-2 5-5 5-8.5a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/><rect x="8.5" y="20" width="7" height="3" rx="1"/></svg>
+              <span>Voo Goblin: Testes de Queda</span>
+            </div>
+            <p class="aerial-info">
+              A cada 100 km de voo, rola-se 1d20. Com resultado 1 no dado, o balão sofre uma queda não fatal! Um teste bem-sucedido de reparos recupera 1d8 PV do balão.
+            </p>
+            <div class="aerial-tests-summary" id="aerialTestsSummary">
+              Distância aérea: 0 km · 0 testes necessários
+            </div>
+            <div class="aerial-actions">
+              <button type="button" class="btn-aerial-roll" id="btnRollBalloonApp">
+                Rolar Testes no App
+              </button>
+              <button type="button" class="btn-aerial-table" id="btnRollBalloonTable">
+                Rolar na Mesa
+              </button>
+            </div>
+            <div class="aerial-dice-results" id="aerialDiceResults" style="display:none;"></div>
+          </div>
+
+          <!-- Tempo de Viagem Total -->
+          <div class="route-travel-time-row">
+            <span class="travel-time-label">Tempo de viagem</span>
+            <div class="travel-time-val" id="routeTravelTimeDisplay">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span id="routeDaysText">0 dias</span>
+            </div>
+          </div>
+
+          <!-- Custo e Contratação de Transporte da Taverna de Arton -->
+          <div class="route-transport-hire-box" id="routeTransportHireBox">
+            <div class="transport-cost-header">
+              <span>Transporte da Taverna</span>
+              <strong id="routeTransportCostVal">T$ 0</strong>
+            </div>
+            <div class="transport-cost-details" id="routeTransportCostDetails">
+              Carroça (T$ 0,5/km) · Barco (T$ 0,1/km) · Aéreo (T$ 10/km)
+            </div>
+            <div class="transport-hire-action">
+              <button type="button" class="btn-hire-transport" id="btnHireTransport">
+                Contratar Condução
+              </button>
+              <span class="transport-hero-wallet" id="routeHeroWallet">Saldo: T$ 0</span>
+            </div>
+            <div class="transport-hire-feedback" id="routeHireFeedback" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal de Contratação de Condução (Estilo Taverna Canônico de Tormenta 20) -->
+    <div class="map-modal-backdrop" id="mapHireTransportModal" style="display:none;">
+      <div class="map-modal-card hire-transport-card">
+        <div class="modal-card-header">
+          <h3 id="hireModalTitle" class="hire-modal-title">CONTRATAR CONDUÇÃO TERRESTRE</h3>
+          <button type="button" class="modal-close-btn" id="btnCloseHireModal" aria-label="Fechar">×</button>
+        </div>
+        <div class="modal-card-body">
+          <p id="hireModalDesc" class="hire-modal-desc">Transporte por terra em carruagem ou diligência comercial entre cidades de Arton.</p>
+          <div class="hire-modal-unit-price">
+            Preço unitário: <strong id="hireModalUnitPrice">T$ 0,5 por km</strong>
+          </div>
+
+          <div class="hire-control-row">
+            <span class="hire-control-label" id="hireUnitLabel">Quilômetro(s):</span>
+            <div class="hire-qty-control">
+              <button type="button" id="btnHireQtyDec" class="qty-btn" aria-label="Diminuir">-</button>
+              <span id="hireQtyDisplay" class="qty-val">1</span>
+              <button type="button" id="btnHireQtyInc" class="qty-btn" aria-label="Aumentar">+</button>
+            </div>
+          </div>
+
+          <div class="hire-control-row hire-percent-row">
+            <span class="hire-control-label">Ajuste de Preço:</span>
+            <div class="hire-bargain-group">
+              <button type="button" class="hire-pill-btn" id="btnBargainDec">-10%</button>
+              <strong id="hirePercentDisplay" class="hire-percent-val">100%</strong>
+              <button type="button" class="hire-pill-btn" id="btnBargainInc">+10%</button>
+              <button type="button" class="hire-pill-btn" id="btnBargainReset">Restaurar 100%</button>
+            </div>
+          </div>
+
+          <div class="hire-total-highlight-row">
+            <span class="hire-total-label">Custo Total:</span>
+            <strong id="hireTotalPrice" class="hire-total-val">T$ 1</strong>
+          </div>
+
+          <div id="hireBalanceNote" class="hire-balance-note">Saldo restante após a contratação: T$ 0</div>
+          <div id="hireModalAlert" class="hire-modal-alert" style="display:none;"></div>
+        </div>
+        <div class="modal-card-footer">
+          <button type="button" class="modal-btn secondary" id="btnCancelHireModal">Cancelar</button>
+          <button type="button" class="modal-btn primary" id="btnConfirmHireModal">Confirmar Contratação</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Controles e Atalhos do Mapa -->
+    <div class="map-modal-backdrop" id="mapControlsModal" style="display:none;">
+      <div class="map-modal-card controls-modal-card">
+        <div class="modal-card-header">
+          <h4>Guia de Controles e Atalhos do Mapa</h4>
+          <button type="button" class="modal-close-btn" id="btnCloseControlsModal">×</button>
+        </div>
+        <div class="modal-card-body controls-modal-body">
+          <div class="control-help-section">
+            <div class="control-help-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="7"></rect><line x1="12" y1="6" x2="12" y2="10"></line></svg>
+              Navegação e Movimentação
+            </div>
+            <ul class="control-help-list">
+              <li><strong>Arrastar com Botão Direito:</strong> Mova o mapa livremente sem risco de clicar em marcadores ou disparar rotas.</li>
+              <li><strong>Arrastar com Botão Esquerdo:</strong> Mova o mapa ou clique em cidades para ver histórias e detalhes canônicos.</li>
+              <li><strong>Roda do Mouse / Barra de Zoom:</strong> Aproxime (até 5x) ou afaste a visualização de Arton.</li>
+            </ul>
+          </div>
+
+          <div class="control-help-section">
+            <div class="control-help-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/></svg>
+              Medidor Magnético de Distância
+            </div>
+            <ul class="control-help-list">
+              <li><strong>Ativação:</strong> Clique no botão da régua ou aperte a tecla <code>M</code> no teclado.</li>
+              <li><strong>Traçado em Tempo Real:</strong> Ao mover o mouse a distância em km e dias de marcha (9m) é calculada na hora.</li>
+              <li><strong>Atração Magnética:</strong> O cursor aproxima magneticamente ao passar perto de cidades e capitais.</li>
+              <li><strong>Cancelar Medição:</strong> Clique com o <strong>Botão Direito</strong> ou pressione <code>Esc</code> para cancelar imediatamente.</li>
+            </ul>
+          </div>
+
+          <div class="control-help-section">
+            <div class="control-help-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a3 3 0 0 1 0-6h11"></path><circle cx="18" cy="4" r="3"></circle></svg>
+              Rotas e Conduções
+            </div>
+            <ul class="control-help-list">
+              <li><strong>Planejador de Rotas:</strong> Clique no botão Rotas na barra lateral ou no botão "Rotas" dentro do popup de qualquer cidade.</li>
+              <li><strong>Modos de Viagem:</strong> Por terra, Terra + mar, ou Balão Goblin em linha reta aérea.</li>
+              <li><strong>Contratação e Barganha:</strong> Contrate carroças, embarcações e voo de balão com aplicação direta de barganha de Diplomacia.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-card-footer">
+          <button type="button" class="modal-btn primary" id="btnOkControlsModal">Entendido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Adicionar Marcador Pessoal -->
+    <div class="map-custom-marker-modal" id="mapCustomMarkerModal" style="display:none;">
+      <div class="custom-marker-modal-card">
+        <div class="modal-card-header">
+          <h4>Adicionar Marcador Pessoal</h4>
+          <button type="button" class="modal-close-btn" id="btnCloseCustomMarkerModal">×</button>
+        </div>
+        <div class="modal-card-body">
+          <label class="modal-field">
+            <span>Nome do Local</span>
+            <input type="text" id="customMarkerNameInput" placeholder="Ex: Acampamento dos Aventureiros" maxlength="60">
+          </label>
+          <label class="modal-field">
+            <span>Categoria / Cor</span>
+            <select id="customMarkerColorSelect">
+              <option value="#2563eb">Azul Aventureiro</option>
+              <option value="#d97706">Dourado / Tesouro</option>
+              <option value="#16a34a">Verde Selvagem</option>
+              <option value="#9333ea">Roxo Arcano</option>
+              <option value="#dc2626">Rubro Perigoso</option>
+            </select>
+          </label>
+          <label class="modal-field">
+            <span>Anotações / Descrição</span>
+            <textarea id="customMarkerDescInput" rows="3" placeholder="Detalhes, perigos, pistas ou segredos deste local..."></textarea>
+          </label>
+        </div>
+        <div class="modal-card-footer">
+          <button type="button" class="modal-btn secondary" id="btnCancelCustomMarker">Cancelar</button>
+          <button type="button" class="modal-btn primary" id="btnSaveCustomMarker">Salvar Marcador</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container nativo do Leaflet com tiles e camadas de Arton -->
+    <div id="artonLeafletMap" class="arton-leaflet-map" style="width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1;"></div>
+
+    <!-- Barra Lateral Direita de Ferramentas e Controles -->
+    <aside class="map-controls-panel" aria-label="Ferramentas e Controles do Mapa de Arton">
+      <button class="map-btn" id="btnToggleRoutes" type="button" title="Rotas (Atalho: R)" aria-label="Rotas">
+        <svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a3 3 0 0 1 0-6h11"></path><circle cx="18" cy="4" r="3"></circle></svg>
+      </button>
+      <button class="map-btn" id="btnToggleMeasure" type="button" title="Medir distância (Atalho: M)" aria-label="Medir distância">
+        <svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>
+      </button>
+      <button class="map-btn" id="btnToggleAddMarker" type="button" title="Adicionar Marcador Pessoal (Atalho: P)" aria-label="Novo Marcador">
+        <svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M20 1v3h3v2h-3v3h-2V6h-3V4h3V1zm-8 12c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m2-9.75V7h3v3h2.92c.05.39.08.79.08 1.2 0 3.32-2.67 7.25-8 11.8-5.33-4.55-8-8.48-8-11.8C4 6.22 7.8 3 12 3c.68 0 1.35.08 2 .25"></path></svg>
+      </button>
+      <button class="map-btn" id="btnToggleLayers" type="button" title="Camadas (Atalho: C)" aria-label="Camadas">
+        <svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="m11.99 18.54-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27z"></path></svg>
+      </button>
+
+      <!-- Menu Popover de Camadas (Estilo Fichas de Nimb) -->
+      <div class="map-layers-popover" id="mapLayersPopover" style="display:none;">
+        <div class="layers-popover-header">Camadas</div>
+        <label class="map-layer-check"><input type="checkbox" id="layerCapitals" checked> <span>Capitais</span></label>
+        <label class="map-layer-check"><input type="checkbox" id="layerCities" checked> <span>Outras localidades</span></label>
+        <label class="map-layer-check"><input type="checkbox" id="layerKingdoms"> <span>Reinos</span></label>
+        <label class="map-layer-check"><input type="checkbox" id="layerCustom" checked> <span>Meus marcadores</span></label>
+      </div>
+
+      <div style="width:70%;height:1px;background:#2d3748;margin:2px 0;"></div>
+
+      <button class="map-btn" id="btnZoomIn" type="button" title="Aproximar (+)" aria-label="Aproximar">+</button>
+      <div class="map-slider-wrap">
+        <input class="map-zoom-slider" id="mapZoomSlider" type="range" min="3" max="5" step="0.1" value="4" title="Controle de zoom" aria-label="Zoom do mapa" />
+      </div>
+      <div class="map-zoom-display" id="mapZoomDisplay">100%</div>
+      <button class="map-btn" id="btnZoomOut" type="button" title="Afastar (−)" aria-label="Afastar">−</button>
+      <button class="map-btn" id="btnFullscreen" type="button" title="Tela Cheia (Atalho: F)" aria-label="Tela cheia"><svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
+    </aside>
+
+    <!-- Banner Tutorial Discreto na Base do Mapa (Some ao clicar) -->
+    <div class="map-tutorial-banner" id="mapTutorialBanner" title="Clique para ocultar esta dica">
+      <div class="tutorial-banner-content">
+        <span class="tutorial-badge">Dica</span>
+        <span class="tutorial-text">Arraste com o botão direito para mover o mapa · Botão direito ou Esc cancela a medição · Tecla M alterna a régua de distância</span>
+      </div>
+      <button type="button" class="tutorial-banner-close" id="btnCloseTutorialBanner" aria-label="Fechar dica">×</button>
+    </div>
+  </main>
+</body>
+</html>

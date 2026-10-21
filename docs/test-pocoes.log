@@ -1,0 +1,45 @@
+
+Running 2 tests using 1 worker
+
+(node:17936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 testes\navegador\pocoes-taverna.spec.cjs:2:1 › taverna: poção encaminha ao Grimório da ficha (23.9s)
+  x  2 testes\navegador\pocoes-taverna.spec.cjs:17:1 › taverna independente: poção abre seleção integrada sem cobrar ao navegar (21.5s)
+
+
+  1) testes\navegador\pocoes-taverna.spec.cjs:17:1 › taverna independente: poção abre seleção integrada sem cobrar ao navegar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#spellGrimoire')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#spellGrimoire') with timeout 5000ms
+      - waiting for locator('#spellGrimoire')
+
+
+      23 |  await page.locator('#btnTavernChoosePotionSpell').click();
+      24 |  await page.waitForURL(/ficha\.html/);await expect(page.locator('html')).toHaveAttribute('data-forja-ready','true');
+    > 25 |  await expect(page.locator('#spellGrimoire')).toBeVisible();
+         |                                               ^
+      26 |  expect(await page.evaluate(()=>state.tavernPotionPurchase)).toEqual({circle:2,price:270});
+      27 |  expect(await page.evaluate(()=>state.finances.spent)).toBe(spent);
+      28 |  await expect(page.frameLocator('#spellGrimoire').locator('html')).toHaveAttribute('data-forja-ready','true');
+        at C:\Users\almei\OneDrive\Documentos\Forja T20\testes\navegador\pocoes-taverna.spec.cjs:25:47
+
+    Error Context: test-results\pocoes-taverna-taverna-ind-6d969-grada-sem-cobrar-ao-navegar\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\pocoes-taverna-taverna-ind-6d969-grada-sem-cobrar-ao-navegar\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\pocoes-taverna-taverna-ind-6d969-grada-sem-cobrar-ao-navegar\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    testes\navegador\pocoes-taverna.spec.cjs:17:1 › taverna independente: poção abre seleção integrada sem cobrar ao navegar 
+  1 passed (51.4s)

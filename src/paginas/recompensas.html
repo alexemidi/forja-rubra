@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Painel de Recompensas do Mestre · Distribuição de tibares, itens e tesouros para a mesa na Forja Rubra.">
+  <title>Recompensas do Mestre · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/recompensas/recompensas.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="recompensas"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="forja-drawer-trigger-btn" id="drawerMenuBtn" type="button" title="Abrir Menu Lateral" aria-label="Abrir Menu">
+        <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <a class="topbar-brand" href="index.html">
+        <div class="topbar-logo" aria-hidden="true">
+          <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        </div>
+        <div class="topbar-title">
+          <span class="name">Forja Rubra</span>
+        </div>
+      </a>
+    </div>
+    <div class="topbar-actions">
+      <a class="nav-btn" href="ficha.html">
+        <span>←</span> Voltar à Ficha
+      </a>
+      <a class="nav-btn" href="loja.html">
+        Loja
+      </a>
+    </div>
+  </header>
+
+  <main class="recompensas-shell">
+    <section class="page-header">
+      <span class="section-eyebrow">Mesa de Jogo · Controle do Mestre</span>
+      <h1>Painel de Recompensas & Tesouros</h1>
+      <p>Gerencie a concessão de tibares, distribuição de itens oficiais e sorteio de tesouros canônicos de Tormenta 20 para os aventureiros da sua campanha.</p>
+    </section>
+
+    <!-- 1. Aventureiros da Mesa -->
+    <section style="margin-bottom: 24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="font-family:'Cinzel',serif;font-size:1.15rem;margin:0;color:#ffffff">Heróis da Mesa</h2>
+        <span id="partyCountBadge" style="font-size:0.75rem;padding:3px 8px;border-radius:4px;background:#18181d;border:1px solid #27272a;color:#a1a1aa">Carregando…</span>
+      </div>
+      <div class="party-grid" id="partyGrid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 2. Abas das Ferramentas -->
+    <nav class="tool-tabs" role="tablist">
+      <button class="tool-tab-btn active" type="button" data-tab="tibares">Distribuir Tibares</button>
+      <button class="tool-tab-btn" type="button" data-tab="arsenal">Conceder da Loja</button>
+      <button class="tool-tab-btn" type="button" data-tab="custom">Item Customizado</button>
+      <button class="tool-tab-btn" type="button" data-tab="gerador">Gerador de Tesouros T20</button>
+      <button class="tool-tab-btn" type="button" data-tab="comunidades">Gerador de Comunidades</button>
+      <button class="tool-tab-btn" type="button" data-tab="regras">Regras da Mesa & Convite</button>
+    </nav>
+
+    <!-- Painel 1: Distribuir Tibares -->
+    <section class="tool-panel" id="panelTibares">
+      <h3 class="panel-title">Distribuição de Moedas & Tesouros em Tibares</h3>
+      <p class="panel-desc">Conceda uma quantia fechada para um único herói (ou para a bolsa do grupo) ou divida automaticamente em partes iguais entre todos os aventureiros da mesa.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <!-- Opção A: Bolsa / Herói Específico -->
+        <div style="background:#0a0a0d;border:1px solid #27272a;border-radius:6px;padding:16px">
+          <strong style="display:block;font-size:0.9rem;color:#ffffff;margin-bottom:12px">A. Bolsa para Herói ou Grupo</strong>
+          <div class="form-field" style="margin-bottom:12px">
+            <label class="form-label" for="tibarsSingleHeroSelect">Destinatário:</label>
+            <select class="form-select" id="tibarsSingleHeroSelect"></select>
+          </div>
+          <div class="form-field" style="margin-bottom:16px">
+            <label class="form-label" for="tibarsSingleAmountInput">Valor a Conceder (T$):</label>
+            <input class="form-input" id="tibarsSingleAmountInput" type="number" min="1" step="any" placeholder="Ex: 500">
+          </div>
+          <button class="btn-action" id="btnConfirmSingleTibars" type="button">Conceder Bolsa de Tibares</button>
+        </div>
+
+        <!-- Opção B: Divisão Igualitária Automática -->
+        <div style="background:#0a0a0d;border:1px solid #27272a;border-radius:6px;padding:16px">
+          <strong style="display:block;font-size:0.9rem;color:#ffffff;margin-bottom:12px">B. Divisão Automática Igualitária</strong>
+          <div class="form-field" style="margin-bottom:12px">
+            <label class="form-label" for="tibarsSplitTotalInput">Valor Total a Dividir (T$):</label>
+            <input class="form-input" id="tibarsSplitTotalInput" type="number" min="1" step="any" placeholder="Ex: 600">
+          </div>
+          <div id="splitPreviewBox" style="background:#141419;border:1px solid #27272a;border-radius:4px;padding:10px;margin-bottom:14px;font-size:0.8rem;color:#a1a1aa">
+            Informe um valor para pré-visualizar a cota por jogador.
+          </div>
+          <button class="btn-action" id="btnConfirmSplitTibars" type="button">Dividir e Creditar para Todos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Painel 2: Conceder da Loja -->
+    <section class="tool-panel" id="panelArsenal" hidden>
+      <h3 class="panel-title">Concessão Direta de Itens da Loja</h3>
+      <p class="panel-desc">Escolha qualquer equipamento ou consumível do catálogo oficial de 750 itens da Forja Rubra para transferir sem custos diretamente para a mochila de um herói da mesa.</p>
+
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-field" style="flex:2">
+          <label class="form-label" for="arsenalSearchInput">Buscar Item no Catálogo:</label>
+          <input class="form-input" id="arsenalSearchInput" type="text" placeholder="Nome do item (ex: Espada Longa, Cota de Malha, Bálsamo...)">
+        </div>
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="arsenalCategoryFilter">Categoria:</label>
+          <select class="form-select" id="arsenalCategoryFilter">
+            <option value="todos">Todas as Categorias</option>
+            <option value="arma">Armas</option>
+            <option value="armadura">Armaduras & Escudos</option>
+            <option value="acessorio">Acessórios</option>
+            <option value="pocao">Poções & Alquimia</option>
+            <option value="item_geral">Itens Gerais</option>
+          </select>
+        </div>
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="arsenalHeroTargetSelect">Herói Destinatário:</label>
+          <select class="form-select" id="arsenalHeroTargetSelect"></select>
+        </div>
+      </div>
+
+      <div id="arsenalResultsGrid" style="max-height:480px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;border:1px solid #27272a;border-radius:6px;padding:10px;background:#09090b">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- Painel 3: Item Customizado -->
+    <section class="tool-panel" id="panelCustom" hidden>
+      <h3 class="panel-title">Criar e Forjar Item Customizado</h3>
+      <p class="panel-desc">Crie um item único com atributos exclusivos, relíquias narrativas de campanha ou armas mágicas autorais e entregue diretamente a um herói.</p>
+
+      <div class="form-row">
+        <div class="form-field" style="flex:1.5">
+          <label class="form-label" for="customName">Nome da Criação: *</label>
+          <input class="form-input" id="customName" type="text" placeholder="Ex: Lâmina do Crepúsculo" required>
+        </div>
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="customType">Tipo de Item:</label>
+          <select class="form-select" id="customType">
+            <option value="arma">Arma</option>
+            <option value="armadura">Armadura</option>
+            <option value="escudo">Escudo</option>
+            <option value="acessorio">Acessório</option>
+            <option value="pocao">Poção / Consumível</option>
+            <option value="item_geral" selected>Item Geral / Relíquia</option>
+          </select>
+        </div>
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="customTargetHero">Herói Destinatário:</label>
+          <select class="form-select" id="customTargetHero"></select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="customPrice">Preço Base de Venda (T$):</label>
+          <input class="form-input" id="customPrice" type="number" min="0" value="100">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="customSpaces">Espaços (Carga):</label>
+          <input class="form-input" id="customSpaces" type="number" min="0" step="0.5" value="1">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="customDamage">Dano / Defesa (Opcional):</label>
+          <input class="form-input" id="customDamage" type="text" placeholder="Ex: 1d8+2 ou Defesa +3">
+        </div>
+      </div>
+
+      <div class="form-field" style="margin-bottom:20px">
+        <label class="form-label" for="customDesc">Descrição, Habilidades & Propriedades Especiais:</label>
+        <textarea class="form-textarea" id="customDesc" placeholder="Descreva os efeitos mágicos, regras narrativas e bônus aplicados por este artefato..."></textarea>
+      </div>
+
+      <button class="btn-action" id="btnCreateCustomItem" type="button">Forjar e Entregar Item ao Herói</button>
+    </section>
+
+    <!-- Painel 4: Gerador de Tesouros T20 -->
+    <section class="tool-panel" id="panelGerador" hidden>
+      <h3 class="panel-title">Gerador Aleatório de Tesouros de Tormenta 20</h3>
+      <p class="panel-desc">Sorteie recompensas oficiais do Livro Básico JDA baseadas no Nível de Desafio (ND) do combate ou desafio superado pela mesa.</p>
+
+      <div class="form-row" style="margin-bottom:16px;max-width:700px">
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="genNdSelect">Nível de Desafio (ND):</label>
+          <select class="form-select" id="genNdSelect"></select>
+        </div>
+        <div class="form-field" style="flex:1">
+          <label class="form-label" for="genMultSelect">Multiplicador:</label>
+          <select class="form-select" id="genMultSelect">
+            <option value="metade">Metade (0.5x)</option>
+            <option value="padrao" selected>Padrão (1.0x)</option>
+            <option value="dobro">Dobro (2.0x)</option>
+          </select>
+        </div>
+        <div class="form-field" style="justify-content:flex-end">
+          <button class="btn-action" id="btnRollTreasure" type="button" style="width:100%">Rolar Tesouro</button>
+        </div>
+      </div>
+
+      <div id="treasureResultBox" class="treasure-result-box" style="display:none">
+        <div class="treasure-result-header">
+          <div>
+            <strong style="color:#ffffff;font-size:1.05rem" id="resNdTitle">Tesouro ND 1</strong>
+            <span style="font-size:0.78rem;color:#a1a1aa;display:block" id="resRollDetails">Rolagens: d100 Dinheiro 65, d100 Item 80</span>
+          </div>
+          <div class="treasure-total-val" id="resTotalVal">Valor Total: T$ 0</div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <strong style="font-size:0.85rem;color:#cbd5e1;display:block;margin-bottom:6px">Dinheiro & Riquezas:</strong>
+          <div id="resMoneyContent" style="font-size:0.9rem;color:#f4f4f5;background:#141419;padding:10px 14px;border-radius:4px;border:1px solid #27272a"></div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <strong style="font-size:0.85rem;color:#cbd5e1;display:block;margin-bottom:6px">Itens Sorteados:</strong>
+          <div id="resItemsContent" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
+          <label class="form-label" for="grantTreasureHeroSelect" style="margin:0;white-space:nowrap">Entregar para:</label>
+          <select class="form-select" id="grantTreasureHeroSelect" style="max-width:240px"></select>
+          <button class="btn-action" id="btnGrantTreasureToHero" type="button">Entregar Recompensa Completa ao Herói</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Painel 5: Gerador de Comunidades -->
+    <section class="tool-panel" id="panelComunidades" hidden>
+      <h3 class="panel-title">Gerador de Comunidades de Arton (T20)</h3>
+      <p class="panel-desc">Gere povoados, vilas e metrópoles completas com quadros modulares, pontos de interesse, defesas, governo e população conforme as regras oficiais de Tormenta 20 / Ameaças de Arton.</p>
+
+      <div style="background:#0a0a0d;border:1px solid #27272a;border-radius:6px;padding:16px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:flex-end">
+          <div class="form-field">
+            <label class="form-label" for="communityTypeSelect">Tipo de Comunidade:</label>
+            <select class="form-select" id="communityTypeSelect">
+              <option value="aldeia">Aldeia (Grid 1x1 · Até 1.000 hab.)</option>
+              <option value="vila">Vila (Grid 2x2 · Até 5.000 hab.)</option>
+              <option value="cidade_media">Cidade Média (Grid 3x3 · Até 25.000 hab.)</option>
+              <option value="cidade_grande">Cidade Grande (Grid 4x4 · Até 50.000 hab.)</option>
+              <option value="metropole">Metrópole (Grid 5x5 · Mais de 50.000 hab.)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="communityNameInput">Nome da Comunidade (Opcional):</label>
+            <input class="form-input" id="communityNameInput" type="text" placeholder="Ex: Aldeia de Pedralva, Forte do Penedo...">
+          </div>
+          <button class="btn-action" id="btnGenerateCommunity" type="button" style="height:38px;padding:0 20px;white-space:nowrap">
+            Gerar Comunidade
+          </button>
+        </div>
+      </div>
+
+      <div id="communityResultBox" style="display:none;background:#0d1117;border:1px solid #27272a;border-radius:8px;padding:20px">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- Painel 6: Regras da Mesa & Link de Convite -->
+    <section class="tool-panel" id="panelRegras" hidden>
+      <h3 class="panel-title">Regras da Mesa & Link/Código de Convite</h3>
+      <p class="panel-desc">Configure as regras opcionais que sua campanha utilizará (Deuses de Arton, Heroísmo, Ameaças, Sistema de Treinamento) e gere um link ou código de convite que pré-configura automaticamente o Criador de Personagens para os seus jogadores.</p>
+
+      <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:20px">
+        <div style="background:#0a0a0d;border:1px solid #27272a;border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px">
+          <div class="form-field">
+            <label class="form-label" for="tableRuleNameInput">Nome da Campanha / Mesa:</label>
+            <input class="form-input" id="tableRuleNameInput" type="text" placeholder="Ex: Crônicas do Reinado" value="Campanha de Arton">
+          </div>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleBroadDevotion" checked style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Devoção Ampla (Deuses de Arton)</strong><br>
+              <small style="color:#a1a1aa">Clérigos e frades do Panteão, druidas de Arton e paladinos do bem não recebem poderes concedidos, mas ganham +2 PM por patamar.</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleFundamentalist" checked style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Devotos Fundamentalistas (Deuses de Arton)</strong><br>
+              <small style="color:#a1a1aa">Clérigos, druidas, frades e paladinos podem adotar o dogma fundamentalista (+1 poder concedido ou 1 poder de combate/destino no Panteão, mas perdem todos os PM ao equipar outra arma).</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleOpenRaces" style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Raças Abertas & Ameaças de Arton</strong><br>
+              <small style="color:#a1a1aa">Libera todas as raças suplementares para escolha no criador.</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleOpenDevotion" style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Devoção Aberta (Sem restrição de Raça/Classe)</strong><br>
+              <small style="color:#a1a1aa">Permite que qualquer combinação de raça e classe seja devota de qualquer divindade do Panteão.</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleAgeRules" checked style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Regras de Idade & Complicações</strong><br>
+              <small style="color:#a1a1aa">Habilita faixas etárias e complicações opcionais na criação do personagem.</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleDualOrigin" checked style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Dupla Origem Regional (Atlas de Arton)</strong><br>
+              <small style="color:#a1a1aa">Permite combinar uma Origem Regional com uma Origem Básica.</small>
+            </span>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:#e4e4e7">
+            <input type="checkbox" id="ruleLevelTraining" checked style="margin-top:3px;accent-color:#d9a84e">
+            <span>
+              <strong>Sistema de Treinamento (Adiantamento de Nível)</strong><br>
+              <small style="color:#a1a1aa">Permite adiantar ganhos do próximo nível (PV, PM, Perícias e Poder de Classe) em 4 etapas na ficha.</small>
+            </span>
+          </label>
+
+          <button class="btn-action" id="btnSaveTableRules" type="button" style="margin-top:6px">Salvar Regras da Mesa e Atualizar Convite</button>
+        </div>
+
+        <div style="background:#0a0a0d;border:1px solid #27272a;border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px">
+          <strong style="font-size:0.95rem;color:#f0d28c;font-family:'Cinzel',serif">Convite para Jogadores</strong>
+          <p style="margin:0;font-size:0.8rem;color:#a1a1aa;line-height:1.45">Envie o link ou o código abaixo para seus jogadores. Ao abrir o link no navegador, o Criador de Personagens aplicará automaticamente todas as regras desta mesa.</p>
+
+          <div class="form-field">
+            <label class="form-label" for="tableInviteCodeOutput">Código Compacto da Mesa:</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="tableInviteCodeOutput" type="text" readonly style="font-family:monospace;color:#f0d28c">
+              <button class="btn-action" id="btnCopyTableCode" type="button" style="white-space:nowrap;padding:0 14px">Copiar Código</button>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="tableInviteUrlOutput">Link Direto para o Criador com Regras da Mesa:</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="tableInviteUrlOutput" type="text" readonly style="font-size:0.78rem;color:#cbd5e1">
+              <button class="btn-action" id="btnCopyTableUrl" type="button" style="white-space:nowrap;padding:0 14px">Copiar Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

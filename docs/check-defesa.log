@@ -1,0 +1,429 @@
+
+> forja-rubra-unificada@1.0.0 check
+> npm run typecheck && npm run build && npm test && npm run test:e2e
+
+
+> forja-rubra-unificada@1.0.0 typecheck
+> tsc --noEmit
+
+
+> forja-rubra-unificada@1.0.0 build
+> node ferramentas/build.cjs
+
+Compilação independente concluída em C:\Users\almei\OneDrive\Documentos\Forja T20\dist\versoes\1791205866406-20492
+Versão unificada publicada em C:\Users\almei\OneDrive\Documentos\Forja T20\dist\versoes\1791205866406-20492 e sincronizada em C:\Users\almei\OneDrive\Documentos\Forja T20\dist
+
+> forja-rubra-unificada@1.0.0 test
+> npm run test:legacy && node testes/nucleo-unificado.mjs
+
+
+> forja-rubra-unificada@1.0.0 test:legacy
+> node testes/regras-puras.cjs && node testes/estado-inventario.cjs && node testes/venda-integrada.cjs && node testes/equipamento-interface.cjs && node testes/maos.cjs && node testes/operacoes-loja.cjs && node testes/itens-origem-e-recompensa.cjs && node testes/manufatura-regras.cjs && node testes/verificar.cjs && node testes/regressoes-criacao.cjs && node testes/cosmopolita-beneficio.cjs && node testes/novas-solicitacoes-fev2026.cjs && node testes/vitals-temp-morte.cjs && node testes/arcanista-pre-requisitos.cjs && node testes/fases-origem-pericias.cjs && node testes/progression-footer-edit.cjs && node testes/origens-regionais-parceiros.cjs && node testes/parceiros-fase-e-vitals.cjs && node testes/origens-regionais-lote2.cjs && node testes/origens-regionais-lote3-e-vitals.cjs && node testes/origens-regionais-lote4.cjs && node testes/origens-regionais-lote5.cjs && node testes/origens-completas-validacao.cjs && node testes/ajustes-cosmopolita-parceiros-minimalismo.cjs && node testes/autenticacao-e-sincronizacao-nuvem.cjs && node testes/drawer-icones-e-portal.cjs && node testes/limite-origem-e-menus.cjs && node testes/parceiros-e-atributos-temporarios.cjs && node testes/regras-puras-nimb.cjs && node testes/recompensas-t20.cjs && node testes/campanha-mesa.cjs && node testes/distincoes-e-divindades.cjs && node testes/engenhocas-oficios-grimorio.cjs && node testes/oficinas-recompensas-padronizacao.cjs && node testes/guilda-e-requisitos-atributos.cjs && node testes/comunidades-e-masmorras.cjs && node testes/poderes-itens-e-pericias.cjs
+
+Regras puras: Defesa, PV/PM, carga e 225 combinações monetárias aprovadas.
+Regras puras de idade: intervalos canônicos, limites e modificadores aprovados.
+Criação: composição de atributos, custos e níveis por classe aprovados.
+Variante Raças Abertas (Heróis de Arton): elegibilidade, modificadores fixos e distribuição aprovados.
+Estado e inventário: restauração legada, idempotência, falhas de armazenamento e consumo sem mutação aprovados.
+Exportação: títulos separados das descrições integrais aprovados.
+Venda compartilhada, multiclasse e descrições canônicas de magias aprovadas.
+Consolidação indexada: concessões, melhorias distintas, idempotência, ausência de mutação e 10 mil entradas aprovados.
+Operação de venda compartilhada: venda parcial/total, limites, arredondamento, dados inválidos e desequipar sem mutação aprovados.
+Equipamento: slots, duas mãos, escudo, limite de vestidos, tatuagens e transições sem mutação aprovados.
+Progressão: limites dos quatro patamares e composição de atributos sem mutação aprovados.
+Pré-requisitos puros: nível, atributos e treino, incluindo limites exatos, aprovados.
+Modal de venda integrada: preço inicial, venda parcial/total, persistência e crédito aprovados.
+Interface de equipamento: empunhar duas mãos, bloquear escudo e guardar com persistência aprovados.
+Mãos: uma arma, duas armas, esotérico, escudo, mãos vazias e adaptável aprovados.
+Transações da loja: compra, fabricação, recompensa, concessões, repetição e rollback de persistência aprovados.
+Itens de origem exclusivos, novas origens, escolhas do Artesão, formatCraftToolName, armas anãs, engenhocas, melhorias progressivas e conclusão de nível 1 aprovados.
+Regras puras de manufatura de ofício, aprimoramento e engenhocas aprovadas.
+Sintaxe, JSON e separação de páginas {"ok":true,"paginas":16}
+Melhorias na Fase 8: bloqueadas em escolhas comuns e habilitadas com orçamento {"ok":true}
+Loja: modal de saldo insuficiente com exibição de déficit e botões Voltar/Recompensa aprovados {"ok":true}
+CSS de equipamento externo carregado uma vez {"ok":true}
+Renderização das dez fases {"ok":true,"snapshots":[{"step":1,"ms":216},{"step":2,"ms":172},{"step":3,"ms":138},{"step":4,"ms":171},{"step":5,"ms":101},{"step":6,"ms":149},{"step":7,"ms":194},{"step":8,"ms":198},{"step":9,"ms":161},{"step":10,"ms":234}]}
+Recarregamento de página (F5): fase e estado preservados {"ok":true,"step":4}
+Expansão de item sem reconstruir a ficha {"ok":true,"renderizacoesCompletas":0}
+Gerador: itens canônicos, armaduras iniciais, poderes válidos e aumentos por patamar {"ok":true}
+Poderes de classe: prévia sem tags e sem alterar seleção {"ok":true}
+Poderes gerais: prévia, confirmação por Próxima e bloqueio de Avançar {"ok":true}
+Fases 6 e 10: navegação de visualização, fonte no subtítulo e aviso com filtros piscantes {"ok":true}
+Equivalência de raças, classes e sete faixas etárias {"ok":true,"cenarios":10}
+Defesa sem metade do nível; DES 1 + armadura 4 + bônus 6 {"ok":true,"total":21,"niveis":[1,4,10,20]}
+Leitura de ficha persistida na chave legada {"ok":true}
+Fase 8: refazer escolhas reinicia fluxo com escolha ativa e sem auto-finalização {"ok":true}
+Fase 8: botão anterior retrocede etapa, desfaz concessão e atualiza escolha ativa {"ok":true}
+Padronização de catálogo: 3 colunas e cards canônicos {"ok":true}
+Edição de ficha: sem botão de pendência na barra inferior {"ok":true}
+Oficina do Engenhoqueiro: card limpo e botão Fabricar engenhoca visível {"ok":true}
+Mochila: botões do topo ocultos quando expandido {"ok":true}
+Troca de personagem: sempre inicia na ficha do personagem {"ok":true}
+Modal de Melhorias: validação de Material Especial piscante, bloqueio por saldo insuficiente e tipografia aprovados {"ok":true}
+Preço de venda de itens específicos e oficinas de criação na engenhoca aprovados {"ok":true}
+PDF sob demanda e formulário {"ok":true,"paginas":2,"campos":307}
+Exportação TXT do caminho {"ok":true}
+criador: cards reais da mochila e dos itens equipados aprovados.
+Poderes repetíveis sem seleção automática e magias por aquisição: arcanista, clerigo, bardo, druida, frade
+Escolhas de magia adicionais: ladino, paladino, caçador e druida aprovadas.
+Progressão → magias → próximo nível → magias → finalizar ficha aprovado.
+Familiar: descrição curta, janela com dez opções e escolha obrigatória aprovada.
+ficha: cards reais da mochila e dos itens equipados aprovados.
+PV atuais, descanso, Loja e Taverna pela ficha aprovados.
+Nomes obrigatórios nos cards reais de sete itens aprovados.
+Todas as regras e exigências de Cosmopolita (etapa separada, visual sombrio/minimalista e botão de editar fácil) foram aprovadas!
+✔ Todas as novas solicitações foram validadas com sucesso!
+✔ Todas as regras de vitais, temporários, sangramento, morte e luto foram aprovadas!
+✔ Modal de descanso com Cancelar, Cortesia e Pagar estadia aprovado!
+✔ Todas as regras de caminhos do Arcanista, pré-requisitos de perícias e níveis foram aprovadas com sucesso!
+Todos os testes de Fases 3 (Origens) e 4 (Perícias), quadro âmbar e fluxo sequencial passaram com sucesso!
+✔ Teste de rodapé da Fase 10 (Finalizar ficha vs Avançar e níveis válidos) aprovado com sucesso!
+Validando Item 1: Dinheiro de origem...
+Validando Item 2: Coleção de Livros nome customizado...
+Validando Item 3: Amazona de Hippion Carisma no PM...
+Validando Item 4: Anão de Armas bônus com armas anãs...
+Validando Item 5: Andarilho Ubaneri (escudo + Alikunhá)...
+Validando Item 6: Sistema de Parceiros (12 tipos e limites)...
+Validando Item 7: Limpeza de perícia livre duplicada...
+Validando Item 8: Reset de itens de origem...
+Validando Item 9: Treckod em dados/items.json...
+Validando Item 10: Aprendiz de Drogadora 1/4 do custo de matéria-prima...
+Todos os 10 itens foram validados com sucesso no criador!
+=== Testes da Barra Escalável de Vitais e Fase 9 (Parceiros) ===
+1. Validando métricas da barra de PV/PM...
+✔ Métricas da barra de vitais aprovadas!
+2. Validando PHASES e Fase 9 (Parceiros)...
+✔ Estrutura de PHASES e saltos de fase aprovada!
+3. Validando elegibilidade para a Fase 9...
+✔ Elegibilidade da Fase 9 aprovada!
+4. Validando Alikunhá e 6 Elementos...
+✔ Alikunhá e 6 Elementos aprovados!
+5. Validando categoria de Parceiros na Guilda/Taverna...
+✔ Parceiros canônicos aprovados com sucesso!
+🎉 Todos os testes de vitais escaláveis, Fase 9 de parceiros e Taverna foram aprovados com sucesso!
+=== Testes Origens Regionais (Lote 2: Itens 0 a 14) ===
+✔ Item 0: calculateVitalBarMetrics e tiers de cores validados!
+✔ Item 3: Armeiro Armado (1/4 do custo em melhorias de armas) validado!
+✔ Itens 4 e 12: finalAttrs (+1 atributo livre e +1 Con) validados!
+✔ Item 8: Tranqueiras resgatadas do mar (2 espaços, T$ 100, venda a 100%) validado!
+✔ Itens 5, 9 e 13: Passivas (Cativo das Fadas, Criado pelas Voracis, Lupa) validadas!
+✔ Item 10: Torcida automática para Competidor do Circuito validada!
+✔ Itens 7 e 12: Descanso da Cria da Favela e reset de bônus manuais validados!
+✔ Item 14: Magia de De Outro Mundo no plano de magias validada!
+🎉 Todos os testes de regras das origens regionais (Lote 2) passaram com sucesso!
+=== Testes Origens Regionais (Lote 3) e Barra de Chefe ===
+✔ Erro 1 & 2: Camadas de chefe e subcamadas cheias validadas com sucesso!
+✔ Erro 2 & 3: CSS de barras proporcionais dinâmicas e cores sólidas sem degradê pálido validado!
+✔ Item 5: Peças sobressalentes cadastrado (0,5 espaço, T$ 100, venda a T$ 50)!
+✔ Item 5: Desconto de T$ 100 e consumo de Peças Sobressalentes na fabricação de engenhocas validado!
+✔ Itens 7 e 8: Passivas de Explorador de Ruínas e Misticismo especial de Estudante da Academia validados!
+✔ Itens 4 e 8: Magias de Estudante da Academia e Duplo Feérico no spellPlan validados!
+✔ Item 4: Navegador completo de Duplo Feérico com filtro, busca e sem seleção inicial validado!
+🎉 Todos os testes de regras e vitais do Lote 3 foram aprovados com 100% de sucesso!
+=== Testes Origens Regionais (Lote 4) ===
+✔ Itens do Lote 4 validados em dados/items.json!
+✔ Descendente Colleniano (+2 Percepção e Visão Mística) validado!
+✔ Desertor da Supremacia (Guerra, Proficiências e +2 Ataque com Espada Bastarda + Escudo Pesado) validado!
+✔ Emissário Ubaneri (Misticismo com Sabedoria e parceiro Alikunhá) validado!
+✔ Escudeiro da Luz (Nobreza, +2 Defesa e +3 PM) validado!
+✔ Estandarte Vivo (+2 Sobrevivência, Fragmento +1 Vontade e Poder de Combate ou Tormenta) validado!
+🎉 Todos os testes de regras das origens regionais (Lote 4) passaram com sucesso!
+=== Testes Origens Regionais (Lote 5) ===
+✔ Item Tatuagem de sua antiga tripulação validado em dados/items.json!
+✔ Estudante do Colégio Real (+2 PV por dado de cura, anulado por devoção) validado!
+✔ Filhote da Revoada (habilidade ativa de rolar dado adicional em Acrobacia/Pilotagem por 1 PM) validado!
+✔ Futura Lenda (Arma com nome pomposo, escolha de poder de classe nível <= 2 e validações) validado!
+✔ Ginete de Tumarkhân (Parceiro Tumarkhân iniciante montaria, +2 Adestramento e Cavalgar) validado!
+✔ Grumete Pirata (Pés de Marinheiro e Tatuagem +1 Intimidação) validado!
+🎉 Todos os testes de regras das origens regionais (Lote 5) passaram com sucesso!
+=== Teste e Validação Consolidada: Origens Padrão (46) e Regionais (66) ===
+
+✔ Contagem conferida: 46 origens padrão e 66 origens regionais.
+
+--- Validando 46 Origens Padrão ---
+✔ Todas as 46 origens padrão possuem estrutura completa (itens, perícias, poderes gerais e poder único).
+✔ Itens canônicos de origens padrão validados no catálogo de itens.
+
+--- Validando 66 Origens Regionais ---
+✔ Todas as 66 origens regionais possuem estrutura de dados completa.
+
+--- Validando regras específicas do Lote 36 a 66 ---
+✔ 36. Guardião Glacial validado (RD frio 5, proficiências e bônus de dano).
+✔ 38. Insurgente Tapistano validado (+1 resistências e PVs escalonados).
+✔ 39. Irmão sem Esporas validado (Montaria Irmão Cavalo, +1 ataque e +1 Reflexos).
+✔ 40. Legionário validado (Guerra, proficiências, +1 margem e +1 Defesa).
+✔ 41. Lenhador de Tollon validado (Ofício artesão, proficiências e item de madeira Tollon).
+✔ 42. Liricista de Lenórienn validado (Atuação +2 e Misticismo com Carisma).
+✔ 44. Nitamuraniano validado (proficiências katana/arco e bônus de dano).
+✔ 45. Nobre Zakharoviano validado (Ofício armeiro, arma superior e +2 PM por patamar).
+✔ 46. Nômade Sar-Allan validado (+2 Fortitude/Sobrevivência, +2 dano e montaria do deserto).
+✔ 47. Pescador Parrudo validado (+2 Atletismo/Fortitude/Sobrevivência e +3 PV).
+✔ 48. Plebeu Arcano validado (+2 PM e reroll contra magia).
+✔ 50. Procurado: Vivo ou Morto validado (proficiência em armas de fogo e balas cruéis).
+✔ 52. Querido Filho validado (RD frio 5, RD trevas 5 e visão no escuro).
+✔ 53. Rebelde Agitador validado (Iniciativa, aliados e parsing de T$ 6d12).
+✔ 56. Recruta da Fênix validado (Cavalgar, Grifo da Fênix, +1 PV/nível e RD fogo 5).
+✔ 57. Sábio Matemático validado (Conhecimento, Concentração de Combate e Orientação).
+✔ 58. Selvagem Sanguinário validado (Sobrevivência, RD 1 e +1 dano sem armadura pesada).
+✔ 59. Sucateiro de Batalhas validado (Guerra, Investigação e parsing de T$ 4d6).
+✔ 62. Tocado pelo Indomável validado (Atletismo e +2 dano desarmado/armas naturais).
+✔ 63. Tradicionalista Svalano validado (+1 Fortitude/Vontade e Conhecimento/Nobreza com Sabedoria).
+✔ 64. Trapaceiro Ahleniense validado (+2 Enganação/Furtividade e Ladinagem com Carisma).
+✔ 65. Turista da Academia validado (resistência a magia +2 e 3 pergaminhos arcanos).
+
+======================================================
+🎉 SUCESSO TOTAL: Todas as 46 origens padrão e 66 origens regionais estão 100% implementadas e validadas!
+======================================================
+
+✔ Validações estáticas de ausência de emojis, cards de parceiros e textos aprovadas!
+✔ Suíte de testes de ajustes concluída com sucesso!
+=== Testes de Autenticação com Google (Supabase) e Sincronização Multi-Tenant ===
+1. Validando migração SQL versionada...
+✔ Migração SQL versionada aprovada com sucesso!
+2. Validando SupabaseConfig...
+✔ SupabaseConfig validado com sucesso!
+3. Validando Serviço de Autenticação (ModuloAuth)...
+✔ Serviço de Autenticação validado com sucesso!
+4. Validando Sincronização em Nuvem...
+✔ Sincronização em Nuvem Multi-Tenant validada com sucesso!
+
+======================================================
+🎉 SUCESSO TOTAL: Autenticação Google e Nuvem Multi-Tenant 100% Aprovadas!
+======================================================
+
+=== Testes do Menu Drawer, Ícones Vetoriais e Portal Forja Rubra ===
+
+1. Validando index.html (título, ausência de Tormenta20/Portal e emojis)...
+✔ index.html validado com sucesso!
+
+2. Validando catálogo universal de ícones vetoriais SVG...
+✔ Catálogo de ícones vetoriais (24 ícones SVG) validado com sucesso!
+
+3. Validando Drawer UI e logout com a portinha...
+✔ Menu Drawer e Logout com a portinha validados com sucesso!
+
+4. Validando manifesto.json e scripts do portal...
+✔ Manifesto e scripts do portal validados com sucesso!
+
+======================================================
+🎉 SUCESSO TOTAL: Drawer, Ícones e Repaginação Aprovados!
+======================================================
+
+=== Testes de Menus Unificados, Rodapé, Limite de 10 Fichas e Origem com Benefícios ===
+
+1. Validando eliminação do menu redundante da direita...
+✔ Menu direito eliminado e Drawer lateral unificado com sucesso!
+2. Validando módulo de Limites de Fichas (10 personagens)...
+✔ Módulo de limite de 10 fichas validado com sucesso!
+3. Validando Rodapé Institucional e Modais (Termos e Apoio)...
+✔ Rodapé completo e modais validados com sucesso!
+4. Validando formatação de Origem(Benefício1/Benefício2)...
+✔ Formatação de Origem(Benefício1/Benefício2) aprovada!
+5. Validando ausência de emojis em páginas e componentes...
+✔ Ausência de emojis validada com sucesso!
+6. Validando Solicitação 61: Purga Radical, Ícones de Escolas e Centralização no Drawer...
+✔ Solicitação 61 (Purga total, ícones vetoriais de escolas, botões estilizados e drawer) 100% aprovada!
+7. Validando Solicitação 62: Botões Clean, Lápis em Vitais, Termos em Nova Aba e Mapa de Arton...
+✔ Solicitação 62 (Botões clean, lápis em vitais, termos em nova aba e mapa de Arton) 100% aprovada!
+
+======================================================
+🎉 SUCESSO TOTAL: Menus, Rodapé, Limite, Origem, Purga e Refinamentos 100% Aprovados!
+======================================================
+Iniciando testes de Parceiros e Modificadores Temporários de Atributos...
+Manifesto verificado: OK
+Cálculo de finalAttrs com e sem temporários: OK
+Regra oficial de PV/PM imune a temporários e Defesa afetada: OK
+Reset de atributos temporários no descanso: OK
+Gestão de parceiros na ficha: OK
+Todos os testes de Parceiros e Modificadores Temporários de Atributos passaram com sucesso!
+Iniciando testes de Regras Puras (Passos de Dano e Golpe Pessoal)...
+1. Validando subida de passos na escala primária...
+✔ Subida de passos na escala primária validada!
+2. Validando redução de passos na escala primária...
+✔ Redução de passos na escala primária validada!
+3. Validando armas compostas / versáteis e danos compostos...
+✔ Armas com múltiplos modos validadas!
+4. Validando ramo alternativo 2dX (TWO_DICE_LADDER)...
+✔ Ramo alternativo 2dX validado!
+5. Validando soma de bônus fixo (addFlatDamageBonus) e médias...
+✔ addFlatDamageBonus e damageAverage validados!
+6. Validando catálogo e chaves legadas de Golpe Pessoal...
+✔ Catalogo e resolucao de chaves validados!
+7. Validando cálculo de custo em PM de Golpe Pessoal...
+✔ Calculo de custos em PM validado com sucesso!
+8. Validando regras de validação de Golpe Pessoal...
+✔ Validacoes e formatacao descritiva aprovadas!
+🎉 Todos os testes de Regras Puras (Passos de Dano e Golpe Pessoal) passaram com 100% de sucesso!
+Iniciando testes de Recompensas de Tormenta 20...
+✔ Divisão de Tibares aprovada!
+✔ Multiplicadores de Tesouro (Padrão, Metade, Dobro) validados!
+✔ Todos os 22 Níveis de Desafio (NDs) suportados e validados!
+🎉 Todos os testes de Recompensas T20 passaram com sucesso!
+Iniciando testes de CampanhaMesa e transferência de recursos...
+✔ Listagem de heróis da mesa validada!
+✔ Crédito individual de Tibares validado!
+✔ Divisão igualitária automática de Tibares entre heróis validada!
+✔ Concessão e gravação de item na mochila de herói da mesa validada!
+🎉 Todos os testes de CampanhaMesa passaram com sucesso!
+Iniciando testes de Distinções e Opções de Devoção...
+✔ Catálogo de 59 Distinções validado com integridade total!
+✔ Fase 4 de Divindades validada (Não devoto, Escolher Divindade, Devoto do Panteão com ícones)!
+✔ Botão de Distinções na ficha validado (apenas para Nível 5+)!
+✔ Progressão de Poderes de Distinção e filtro unificado Todos validados!
+✔ Menu lateral Drawer validado com Distinções de Arton!
+🎉 Todos os testes de Distinções e Divindades passaram com 100% de sucesso!
+=== Teste de Integração: Ofícios de Engenhoca e Grimório Direto ===
+
+Ofícios exibidos para o personagem: [ 'armeiro', 'carpinteiro', 'artesao', 'alfaiate' ]
+✔ Validação 1: Detecção completa dos ofícios treinados do herói ativo aprovada!
+Total de cards compilados no Grimório: 268
+✔ Validação 2: Grimório dedicado para Engenhoca aprovado com sucesso!
+Cards visíveis em grimorio.html standalone: 268
+✔ Validação 3: Grimório standalone funcionando normalmente sem janelinha!
+✔ Validação 4A: Painel de filtros ocultado com sucesso no modo de acoplamento!
+Itens na mochila de acoplamento: [ 'espada_longa' ]
+✔ Validação 4B: Itens não mundanos (com melhorias ou específicos) foram devidamente excluídos da mochila de acoplamento!
+✔ Validação 4C: Catálogo de acoplamento contém apenas itens mundanos convencionais!
+✔ Validação 5: Engenhoca inicializada limpa sem nenhuma magia forçada!
+✔ Validação 6: Oficina do Engenhoqueiro, limite de fabricadas e novo ícone share aprovados!
+
+======================================================
+🎉 SUCESSO TOTAL: Integração de Ofícios e Grimório 100% Aprovada!
+======================================================
+
+=== Iniciando Testes de Oficinas, Recompensas e TopBar Unificada ===
+
+1. Validando ausência estrita de emojis em src...
+✔ Ausência de emojis em 100% dos arquivos de src aprovada!
+
+2. Validando navegação direta nos cards de oficinas...
+✔ Redirecionamento direto nos cards de oficina aprovado!
+
+3. Validando mochila recolhida por padrão em todas as oficinas...
+✔ Mochila recolhida por padrão e persistente aprovada!
+
+4. Validando botão de debug oculto para jogadores...
+✔ Botão de debug protegido e oculto para jogadores aprovado!
+
+5. Validando verbos de produção por ofício...
+✔ Verbos de produção estritamente padronizados por ofício aprovados!
+
+6. Validando padronização visual completa dos cabeçalhos (Print 2)...
+
+7. Validando ausência de agua_benta_2 duplicada em dados/items.json...
+✔ Ausência de agua_benta_2 duplicada confirmada!
+
+8. Validando Cabeçalho Ultra Limpo (centralizado, menu vermelho, sem subir nível)...
+✔ Cabeçalho Ultra Limpo (centralizado, menu com 3 linhas vermelhas, sem subir nível) aprovado!
+
+9. Validando ausência de cards especiais de topo em armeiro, alfaiate, carpinteiro e artesão...
+✔ Regras de cards de topo e limpeza de divisórias aprovadas!
+
+10. Validando card de poções integrado como serviço padrão na Taverna...
+✔ Card de poções integrado na Taverna aprovado!
+
+======================================================
+🎉 SUCESSO TOTAL: Todas as validações passaram com 100% de integridade!
+======================================================
+
+=== Testes da Guilda, Drawer na Direita e Pré-requisitos de Atributos ===
+
+1. Validando abertura do menu gaveta pela direita...
+✔ Drawer abre e fecha pela direita com sucesso!
+
+2. Validando botão de Parceiros na ficha direcionando para Guilda...
+✔ Encaminhamento de Parceiros para guilda.html validado com sucesso!
+
+3. Validando classes e tooltip da matriz de atributos...
+✔ Matriz de atributos: barra vermelha para pendente, amarela para atendido e tooltip suprimido validados com sucesso!
+
+4. Validando ausência de parceiros e mercenários na taverna...
+✔ Taverna limpa e focada exclusivamente em serviços mundanos e estadias!
+
+5. Validando arquivos e declaração da Guilda...
+✔ Página da Guilda, estilos e dados canônicos validados com sucesso!
+
+========================================================================
+🎉 SUCESSO TOTAL: Todos os 4 requisitos foram testados e aprovados!
+========================================================================
+=== Testes Puros de Comunidades (Ameaças de Arton / T20) ===
+✔ Comunidade Aldeia (1x1) validada com 1 quadros!
+✔ Comunidade Vila (2x2) validada com 4 quadros!
+✔ Comunidade Cidade Média (3x3) validada com 9 quadros!
+✔ Comunidade Cidade Grande (4x4) validada com 16 quadros!
+✔ Comunidade Metrópole (5x5) validada com 25 quadros!
+✔ Todos os 40 quadros modulares validados com conexões cardeais e pontos de interesse!
+
+=== Testes Puros de Masmorras Modulares (T20) ===
+✔ Masmorra Cripta Antiga dos Esquecidos (pequena) validada com 5 salas!
+✔ Masmorra Cripta Antiga dos Esquecidos (media) validada com 11 salas!
+✔ Masmorra Cripta Antiga dos Esquecidos (grande) validada com 25 salas!
+✔ Masmorra Cripta Antiga dos Esquecidos (epica) validada com 32 salas!
+✔ Armadilhas canônicas balanceadas por ND validadas!
+
+🎉 Todas as regras de Comunidades e Masmorras foram 100% aprovadas!
+=== Testes de Bônus de Poderes, Perícias, Melhorias e RD ===
+1. Validando Cosmopolita e Perícias de Carisma...
+✔ Cosmopolita em perícias de Carisma aprovado!
+2. Validando substituição de atributo para perícia (Ladinagem com Carisma)...
+✔ Ladinagem com atributo substituído beneficiada por Cosmopolita aprovada!
+3. Validando Percepção Temporal (Sszzaas)...
+✔ Percepção Temporal (Sabedoria em Iniciativa) aprovada!
+4. Validando Poderes Concedidos...
+✔ Poderes concedidos de perícias aprovados!
+5. Validando Melhorias de Armas...
+✔ Melhorias de ataque, dano, margem e crítico aprovadas!
+6. Validando Redução de Dano...
+✔ Redução de Dano e Carapaça validadas!
+
+🎉 Todos os testes de Bônus de Poderes, Perícias, Melhorias e RD foram 100% aprovados!
+Núcleo unificado: vitais, backup, preservação de dados inválidos e escape de cards aprovados.
+
+> forja-rubra-unificada@1.0.0 test:e2e
+> playwright test
+
+
+Running 36 tests using 1 worker
+
+(node:7080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 testes\navegador\fluxos.spec.cjs:2:1 › modo local: inicia sem solicitar o SDK externo da nuvem (2.2s)
+  ok  2 testes\navegador\fluxos.spec.cjs:13:3 › index: inicialização independente (1.1s)
+  ok  3 testes\navegador\fluxos.spec.cjs:13:3 › criador: inicialização independente (1.7s)
+  ok  4 testes\navegador\fluxos.spec.cjs:13:3 › ficha: inicialização independente (2.3s)
+  ok  5 testes\navegador\fluxos.spec.cjs:13:3 › personagens: inicialização independente (499ms)
+  ok  6 testes\navegador\fluxos.spec.cjs:13:3 › loja: inicialização independente (1.5s)
+  ok  7 testes\navegador\fluxos.spec.cjs:13:3 › taverna: inicialização independente (1.4s)
+  ok  8 testes\navegador\fluxos.spec.cjs:13:3 › grimorio: inicialização independente (4.1s)
+  ok  9 testes\navegador\fluxos.spec.cjs:13:3 › oficina: inicialização independente (963ms)
+  ok 10 testes\navegador\fluxos.spec.cjs:13:3 › engenhoca: inicialização independente (496ms)
+  ok 11 testes\navegador\fluxos.spec.cjs:13:3 › recompensas: inicialização independente (520ms)
+  ok 12 testes\navegador\fluxos.spec.cjs:13:3 › mapa: inicialização independente (478ms)
+  ok 13 testes\navegador\fluxos.spec.cjs:13:3 › termos: inicialização independente (521ms)
+  ok 14 testes\navegador\fluxos.spec.cjs:13:3 › distincoes: inicialização independente (442ms)
+  ok 15 testes\navegador\fluxos.spec.cjs:13:3 › backup: inicialização independente (305ms)
+  ok 16 testes\navegador\fluxos.spec.cjs:21:1 › loja: instrumentos usam as melhorias de ferramenta e itens específicos não recebem encantos (1.5s)
+  ok 17 testes\navegador\fluxos.spec.cjs:36:1 › distinções: cabeçalho usa o componente visual padrão uma única vez (513ms)
+  ok 18 testes\navegador\fluxos.spec.cjs:43:1 › ficha: pré-carrega os destinos da mochila sem abrir a outra tela (2.2s)
+  ok 19 testes\navegador\fluxos.spec.cjs:53:1 › ficha: persistência de dano, card e ida e volta da loja (24.9s)
+  ok 20 testes\navegador\fluxos.spec.cjs:81:1 › backup: conferir, importar e preservar campos desconhecidos (466ms)
+  ok 21 testes\navegador\fluxos.spec.cjs:93:1 › ficha: subir de nível abre o editor na progressão (13.9s)
+  ok 22 testes\navegador\fluxos.spec.cjs:120:1 › progressão: aumento de Inteligência encaminha à perícia pendente e retorna (7.6s)
+  ok 23 testes\navegador\fluxos.spec.cjs:149:1 › loja: mochila abre card comum com descrição, estatísticas e expansão (7.3s)
+  ok 24 testes\navegador\fluxos.spec.cjs:172:1 › ficha inválida: interromper inicialização e preservar dados para backup (1.3s)
+  ok 25 testes\navegador\fluxos.spec.cjs:182:1 › portal e backup em tela pequena (1.1s)
+  ok 26 testes\navegador\fluxos.spec.cjs:192:1 › engenhoca: sugestões de nomes por forma, escolha de ofício e modo de acoplamento na loja (2.7s)
+  ok 27 testes\navegador\fluxos.spec.cjs:230:1 › acoplamento: usa mochila e saldo do herói ativo sem apagar itens antigos (12.1s)
+  ok 28 testes\navegador\fluxos.spec.cjs:262:1 › engenhoca: ofícios do personagem ativo sem treinos de outros personagens (1.3s)
+Reabertura Taverna (ms): 32
+  ok 29 testes\navegador\fluxos.spec.cjs:277:1 › taverna integrada: retorno inferior e reabertura preservam a tela (4.0s)
+Clique Taverna síncrono (ms): 135
+  ok 30 testes\navegador\fluxos.spec.cjs:299:1 › navegação não recalcula perícias e alterações continuam atualizando derivados (8.9s)
+  ok 31 testes\navegador\fluxos.spec.cjs:325:1 › navegação: preserva DOM da ficha sem alteração e atualiza após mudança (7.3s)
+  ok 32 testes\navegador\fluxos.spec.cjs:343:1 › ficha: parceiros junto às condições e moedas dentro da mochila (8.4s)
+  ok 33 testes\navegador\fluxos.spec.cjs:360:1 › portal: card recente abre o personagem pelo clique e teclado (7.3s)
+  ok 34 testes\navegador\fluxos.spec.cjs:373:1 › equipamento: empunhar e guardar preservam a ficha e o retorno mantém botões ativos (10.9s)
+  ok 35 testes\navegador\fluxos.spec.cjs:392:1 › loja: rodapé tem apenas finalizar e respeita o carrinho (8.0s)
+  ok 36 testes\navegador\fluxos.spec.cjs:406:1 › defesa: título dentro do quadro e redução discreta antes dos ataques (7.0s)
+
+  36 passed (2.7m)

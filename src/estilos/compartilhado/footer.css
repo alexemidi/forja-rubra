@@ -1,0 +1,365 @@
+/**
+ * FORJA RUBRA: Estilos do Rodapé Institucional e Legal
+ * Layout estruturado em colunas inspirado no padrão Fichas de Nimb.
+ */
+
+.forja-footer {
+  background: #090c12;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 48px 24px 32px;
+  font-family: inherit;
+  margin-top: 60px;
+}
+
+.forja-footer-container {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.forja-footer-top {
+  display: grid;
+  grid-template-columns: 280px repeat(5, minmax(0, 1fr));
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 1024px) {
+  .forja-footer-top {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .forja-footer-brand-col {
+    grid-column: 1 / -1;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .forja-footer-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+}
+
+.forja-footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forja-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #f1f5f9;
+}
+
+.forja-footer-brand-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+}
+
+.forja-footer-tagline {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #64748b;
+  margin: 0;
+}
+
+.forja-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forja-footer-heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffd992;
+  margin: 0 0 4px 0;
+}
+
+.forja-footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forja-footer-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.84rem;
+  transition: color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.forja-footer-link:hover {
+  color: #f8fafc;
+}
+
+.forja-footer-link.highlight {
+  color: #ffd992;
+  font-weight: 600;
+}
+
+.forja-footer-link.highlight:hover {
+  color: #ffffff;
+}
+
+.forja-badge-soon {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #64748b;
+  font-weight: 500;
+}
+
+.forja-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.forja-footer-bottom-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.forja-footer-ogl {
+  font-size: 0.72rem;
+  color: #475569;
+  margin: 0;
+}
+
+/* Modais de Termos e Apoio */
+.forja-modal-content-scroll {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 16px 4px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.forja-modal-content-scroll h4 {
+  color: #ffd992;
+  font-size: 0.95rem;
+  margin: 18px 0 6px 0;
+}
+
+.forja-modal-content-scroll h4:first-child {
+  margin-top: 0;
+}
+
+.forja-modal-content-scroll p {
+  margin: 0 0 10px 0;
+}
+
+.forja-support-tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.forja-tier-card {
+  background: #141a24;
+  border: 1px solid rgba(255, 217, 146, 0.2);
+  border-radius: 10px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.forja-tier-card:hover {
+  transform: translateY(-2px);
+  border-color: #ffd992;
+}
+
+.forja-tier-card.featured {
+  background: linear-gradient(180deg, #1f1b29 0%, #141a24 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.12);
+}
+
+.forja-tier-badge {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: #d97706;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+}
+
+.forja-tier-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffd992;
+  margin: 0 0 4px 0;
+}
+
+.forja-tier-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.forja-tier-price small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.forja-tier-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  flex: 1;
+}
+
+.forja-tier-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.forja-footer-support-banner {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%);
+  border: 1px solid #dc2626;
+  border-radius: 10px;
+  padding: 20px 28px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(185,28,28,0.25);
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.forja-footer-support-title {
+  font-family: 'Cinzel',serif;
+  font-size: 1.25rem;
+  color: #fef08a;
+  margin: 0 0 4px;
+  letter-spacing: 0.5px;
+}
+
+.forja-footer-support-desc { margin: 0; font-size: 0.86rem; color: #fecaca; }
+
+.forja-footer-support-banner > .forja-support-pill-btn {
+  background: #fff;
+  color: #991b1b;
+  font-weight: 700;
+  padding: 8px 22px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+.forja-footer-support-banner > div {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.forja-footer-support-banner > .button {
+  width: auto;
+  max-width: 100%;
+  white-space: normal;
+}
+
+/* Modais Institucionais do Rodapé */
+#forjaSupportModalBackdrop,
+#forjaTermsModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5, 7, 11, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+#forjaSupportModalBackdrop[hidden],
+#forjaTermsModalBackdrop[hidden] {
+  display: none !important;
+}
+
+#supportCloseXBtn,
+#termsCloseXBtn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#supportCloseXBtn:hover,
+#termsCloseXBtn:hover {
+  background: #dc2626;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+#supportModalCloseBtn,
+#termsModalCloseBtn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  padding: 8px 22px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#supportModalCloseBtn:hover,
+#termsModalCloseBtn:hover {
+  background: #334155;
+  color: #ffffff;
+}

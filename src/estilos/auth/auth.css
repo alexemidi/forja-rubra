@@ -1,0 +1,142 @@
+/* ==============================================================================
+   FORJA T20: Estilos de Autenticação e Nuvem (Minimalista e Chanfrado)
+   ============================================================================== */
+
+.auth-header-container {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.auth-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+
+.auth-btn:hover {
+  border-color: var(--gold);
+  color: var(--text);
+  background: #1e2634;
+}
+
+.auth-btn-google {
+  border-color: rgba(217, 168, 78, 0.4);
+  background: rgba(217, 168, 78, 0.08);
+  color: var(--gold2);
+}
+
+.auth-btn-google:hover {
+  border-color: var(--gold);
+  background: rgba(217, 168, 78, 0.18);
+  color: #fff;
+}
+
+.auth-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: #fff;
+  color: #1a1a1a;
+  font-weight: 900;
+  font-size: 0.65rem;
+}
+
+.auth-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: #0d121a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.auth-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--gold);
+}
+
+.auth-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--goldsoft);
+  color: var(--gold2);
+  font-weight: 800;
+  font-size: 0.65rem;
+  border: 1px solid var(--gold);
+}
+
+.auth-user-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gold2);
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.auth-btn-sync {
+  border-color: rgba(69, 197, 139, 0.4);
+  background: rgba(69, 197, 139, 0.08);
+  color: #a6eccb;
+}
+
+.auth-btn-sync:hover {
+  border-color: var(--green);
+  background: rgba(69, 197, 139, 0.18);
+}
+
+.auth-btn-logout {
+  border-color: rgba(223, 107, 107, 0.3);
+  color: #eea0a0;
+  padding: 5px 8px;
+}
+
+.auth-btn-logout:hover {
+  border-color: var(--red);
+  background: rgba(223, 107, 107, 0.15);
+}
+
+@media (max-width: 760px) {
+  .auth-btn-text {
+    display: none;
+  }
+  .auth-user-name {
+    display: none;
+  }
+  .auth-header-container {
+    margin-right: 2px;
+  }
+}

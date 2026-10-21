@@ -1,0 +1,548 @@
+{
+  "criador": {
+    "scripts": [
+      [
+        "src/funcionalidades/criador/01-00-eventos.ts",
+        "src/funcionalidades/criador/02-00-eventos.ts",
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/integracoes/exportacao-personagem.ts",
+        "src/regras/nucleo/inventario.ts",
+        "src/regras/nucleo/operacoes-loja.ts",
+        "src/regras/nucleo/sorteios.ts",
+        "src/regras/nucleo/personagem.ts",
+        "src/regras/nucleo/criacao.ts",
+        "src/regras/nucleo/idade.ts",
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/compartilhado/criador/modelo-estado.ts",
+        "src/compartilhado/criador/estado-e-catalogos.ts",
+        "src/funcionalidades/criador/fases/04-origens-divindades.ts",
+        "src/funcionalidades/criador/fases/01-identidade-escolhas.ts",
+        "src/funcionalidades/criador/fases/02-raca-atributos.ts",
+        "src/regras/criador/pericias-prerequisitos.ts",
+        "src/funcionalidades/criador/fases/03-pericias-oficios.ts",
+        "src/funcionalidades/criador/fases/indicador-poder.ts",
+        "src/funcionalidades/criador/fases/06-poderes.ts",
+        "src/regras/criador/magias.ts",
+        "src/funcionalidades/criador/fases/07-magias.ts",
+        "src/funcionalidades/criador/fases/07-escolas-expansoes.ts",
+        "src/funcionalidades/criador/fases/resumo-grimorio.ts",
+        "src/regras/criador/expansoes-raciais.ts",
+        "src/funcionalidades/criador/inventario/equipamento.ts",
+        "src/regras/nucleo/equipamento.ts",
+        "src/regras/criador/maos.ts",
+        "src/funcionalidades/criador/inventario/acoes-equipamento.ts",
+        "src/funcionalidades/criador/inventario/venda.ts",
+        "src/regras/nucleo/progressao.ts",
+        "src/regras/criador/progressao-poderes.ts",
+        "src/funcionalidades/criador/ficha/extrair-painel.ts",
+        "src/funcionalidades/criador/fases/09-parceiros.ts",
+        "src/funcionalidades/criador/fases/09-progressao.ts",
+        "src/funcionalidades/criador/fases/09-lista-poderes.ts",
+        "src/funcionalidades/criador/fases/09-familiares.ts",
+        "src/funcionalidades/criador/ficha/habilidades-magias.ts",
+        "src/funcionalidades/criador/ficha/modal-condicoes.ts",
+        "src/funcionalidades/criador/ficha/renderizacao.ts",
+        "src/compartilhado/criador/navegacao-validacao.ts",
+        "src/regras/criador/passivas-proficiencias.ts",
+        "src/integracoes/criador/loja-itens-iniciais.ts",
+        "src/funcionalidades/criador/ficha/loja-taverna-recompensas.ts",
+        "src/integracoes/criador/eventos-e-servicos.ts",
+        "src/regras/criador/geracao-aleatoria.ts",
+        "src/funcionalidades/criador/gerador-aleatorio.ts",
+        "src/integracoes/criador/pdf-campos.ts",
+        "src/integracoes/criador/pdf-exportacao.ts",
+        "src/aplicacao/navegacao-legada.ts",
+        "src/regras/criador/estatisticas.ts",
+        "src/funcionalidades/criador/04-00-loader.ts",
+        "src/regras/criador/itens-exclusivos-origem.ts",
+        "src/regras/criador/idade-complicacoes-e-caminho.ts",
+        "src/regras/criador/origem-cosmopolita.ts",
+        "src/regras/criador/nobre-agente-de-elite.ts",
+        "src/funcionalidades/criador/ficha/teste-oficio-modal.ts",
+        "src/funcionalidades/criador/inventario/mochila-heroi-moedas-consumo.ts",
+        "src/funcionalidades/criador/ficha/oficina-oficios.ts",
+        "src/funcionalidades/criador/fases/poderes-sequenciais.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts"
+      ]
+    ],
+    "data": {
+      "DATA.conditions": "dados/criador-conditions.json",
+      "DATA.detailedConditions": "dados/condicoes-detalhadas.json",
+      "DATA.featureSummaries": "dados/criador-featureSummaries.json",
+      "DATA.suppliedFeatureSummaries": "dados/criador-featureSummaries.json",
+      "DATA.deities": "dados/criador-deities.json",
+      "DATA.classPowers": "dados/criador-classPowers.json",
+      "DATA.inventoryLoadData": "dados/criador-inventoryLoadData.json",
+      "DATA.pdfItems": "dados/criador-pdfItems.json",
+      "DATA.authorityEcclesiastical": "dados/criador-authorityEcclesiastical.json",
+      "DATA.spells": "dados/criador-spells.json",
+      "DATA.spellTexts": "dados/magias-textos.json",
+      "DATA.contraptionsCatalog": "dados/contraptions-spell-catalog.json",
+      "DATA.grimoireHtml": "dados/criador-grimoireHtml.json",
+      "DATA.races": "dados/criador-races.json",
+      "DATA.classes": "dados/criador-classes.json",
+      "DATA.origins": "dados/criador-origins.json",
+      "DATA.regionalOrigins": "dados/criador-regionalOrigins.json",
+      "DATA.classInheritance": "dados/criador-classInheritance.json",
+      "DATA.generalPowers": "dados/criador-generalPowers.json",
+      "DATA.samuraiKatanaCatalog": "dados/criador-samuraiKatanaCatalog.json",
+      "DATA.improvementData": "dados/improvement_data.json",
+      "DATA.enchantmentData": "dados/enchantment_data.json",
+      "DATA.partners": "dados/criador-parceiros.json",
+      "DATA.distinctions": "dados/distincoes.json",
+      "BANDS": "dados/idade-faixas.json",
+      "COMPLICATIONS": "dados/idade-complicacoes.json",
+      "AGE_POWERS": "dados/idade-poderes.json"
+    },
+    "origin": "raiz/dist/criador.html"
+  },
+  "index": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/funcionalidades/index/00-00-portal.ts"
+      ]
+    ],
+    "data": {},
+    "origin": "raiz/dist/index.html"
+  },
+  "loja": {
+    "scripts": [
+      [
+        "src/funcionalidades/loja/00-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/loja/01-00-eventos.ts"
+      ],
+      [
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/loja/02-00-arsenalInitialState.ts"
+      ],
+      [
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/regras/criador/itens-exclusivos-origem.ts",
+        "src/funcionalidades/loja/03-00-ITEMS.ts",
+        "src/funcionalidades/loja/03-01-LITURGICAL_CONTENT.ts",
+        "src/funcionalidades/loja/03-02-current.ts",
+        "src/funcionalidades/loja/03-03-prepareCatalogItem.ts",
+        "src/funcionalidades/loja/03-04-syncFilterUI.ts",
+        "src/funcionalidades/loja/03-05-persistCharacterProfiles.ts",
+        "src/funcionalidades/loja/03-06-magicRuleStatsHtml.ts",
+        "src/funcionalidades/loja/03-07-setView.ts",
+        "src/funcionalidades/loja/03-08-registerCustomItem.ts"
+      ],
+      [
+        "src/funcionalidades/loja/04-00-loader.ts"
+      ],
+      [
+        "src/regras/nucleo/inventario.ts",
+        "src/funcionalidades/loja/05-00-initialChoice.ts",
+        "src/funcionalidades/loja/05-01-availableInitialItems.ts",
+        "src/funcionalidades/loja/05-02-applyArsenalContext.ts",
+        "src/funcionalidades/loja/05-03-ensureGeneralSaleModal.ts"
+      ]
+    ],
+    "data": {
+      "ITEMS": "dados/items.json",
+      "IMPROVEMENT_DATA": "dados/improvement_data.json",
+      "ENCHANTMENT_DATA": "dados/enchantment_data.json",
+      "ADDED_MAGIC_CONTENT": "dados/added_magic_content.json",
+      "SPELL_CARDS": "dados/magias-cards.json"
+    },
+    "origin": "loja.html"
+  },
+  "grimorio": {
+    "scripts": [
+      [
+        "src/funcionalidades/grimorio/00-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/grimorio/01-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/grimorio/02-00-cards.ts"
+      ],
+      [
+        "src/funcionalidades/criador/ficha/modal-condicoes.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/grimorio/03-00-loader.ts"
+      ],
+      [
+        "src/funcionalidades/grimorio/04-00-channel.ts"
+      ]
+    ],
+    "data": {},
+    "origin": "grimorio.html"
+  },
+  "taverna": {
+    "scripts": [
+      [
+        "src/funcionalidades/taverna/00-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/taverna/01-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/taverna/02-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/taverna/03-00-TAVERN_DATA.ts",
+        "src/funcionalidades/taverna/03-01-renderMercenariesGrid.ts",
+        "src/funcionalidades/taverna/03-02-chip.ts"
+      ],
+      [
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/taverna/04-00-loader.ts"
+      ]
+    ],
+    "data": {
+      "TAVERN_DATA": "dados/tavern_data.json"
+    },
+    "origin": "taverna.html"
+  },
+  "guilda": {
+    "scripts": [
+      [
+        "src/funcionalidades/guilda/00-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/guilda/01-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/guilda/02-00-eventos.ts"
+      ],
+      [
+        "src/funcionalidades/guilda/03-00-guilda-dados.ts",
+        "src/funcionalidades/guilda/03-01-guilda-ui.ts"
+      ],
+      [
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/guilda/04-00-loader.ts"
+      ]
+    ],
+    "data": {
+      "montarias": "dados/montarias.json"
+    },
+    "origin": "guilda.html"
+  },
+  "ficha": {
+    "scripts": [
+      [
+        "src/funcionalidades/criador/01-00-eventos.ts",
+        "src/funcionalidades/criador/02-00-eventos.ts",
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/integracoes/exportacao-personagem.ts",
+        "src/regras/nucleo/inventario.ts",
+        "src/regras/nucleo/operacoes-loja.ts",
+        "src/regras/nucleo/sorteios.ts",
+        "src/regras/nucleo/personagem.ts",
+        "src/regras/nucleo/criacao.ts",
+        "src/regras/nucleo/idade.ts",
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/compartilhado/criador/modelo-estado.ts",
+        "src/compartilhado/criador/estado-e-catalogos.ts",
+        "src/funcionalidades/criador/fases/04-origens-divindades.ts",
+        "src/funcionalidades/criador/fases/01-identidade-escolhas.ts",
+        "src/funcionalidades/criador/fases/02-raca-atributos.ts",
+        "src/regras/criador/pericias-prerequisitos.ts",
+        "src/funcionalidades/criador/fases/03-pericias-oficios.ts",
+        "src/funcionalidades/criador/fases/indicador-poder.ts",
+        "src/funcionalidades/criador/fases/06-poderes.ts",
+        "src/regras/criador/magias.ts",
+        "src/funcionalidades/criador/fases/07-magias.ts",
+        "src/funcionalidades/criador/fases/07-escolas-expansoes.ts",
+        "src/funcionalidades/criador/fases/resumo-grimorio.ts",
+        "src/regras/criador/expansoes-raciais.ts",
+        "src/funcionalidades/criador/inventario/equipamento.ts",
+        "src/regras/nucleo/equipamento.ts",
+        "src/regras/criador/maos.ts",
+        "src/funcionalidades/criador/inventario/acoes-equipamento.ts",
+        "src/funcionalidades/criador/inventario/venda.ts",
+        "src/regras/nucleo/progressao.ts",
+        "src/regras/criador/progressao-poderes.ts",
+        "src/funcionalidades/criador/ficha/extrair-painel.ts",
+        "src/funcionalidades/criador/fases/09-parceiros.ts",
+        "src/funcionalidades/criador/fases/09-progressao.ts",
+        "src/funcionalidades/criador/fases/09-lista-poderes.ts",
+        "src/funcionalidades/criador/fases/09-familiares.ts",
+        "src/funcionalidades/criador/ficha/habilidades-magias.ts",
+        "src/funcionalidades/criador/ficha/modal-condicoes.ts",
+        "src/funcionalidades/criador/ficha/renderizacao.ts",
+        "src/compartilhado/criador/navegacao-validacao.ts",
+        "src/regras/criador/passivas-proficiencias.ts",
+        "src/integracoes/criador/loja-itens-iniciais.ts",
+        "src/funcionalidades/criador/ficha/loja-taverna-recompensas.ts",
+        "src/integracoes/criador/eventos-e-servicos.ts",
+        "src/regras/criador/geracao-aleatoria.ts",
+        "src/funcionalidades/criador/gerador-aleatorio.ts",
+        "src/integracoes/criador/pdf-campos.ts",
+        "src/integracoes/criador/pdf-exportacao.ts",
+        "src/aplicacao/navegacao-legada.ts",
+        "src/regras/criador/estatisticas.ts",
+        "src/funcionalidades/criador/04-00-loader.ts",
+        "src/regras/criador/itens-exclusivos-origem.ts",
+        "src/regras/criador/idade-complicacoes-e-caminho.ts",
+        "src/regras/criador/origem-cosmopolita.ts",
+        "src/regras/criador/nobre-agente-de-elite.ts",
+        "src/funcionalidades/criador/ficha/teste-oficio-modal.ts",
+        "src/funcionalidades/criador/inventario/mochila-heroi-moedas-consumo.ts",
+        "src/funcionalidades/criador/ficha/oficina-oficios.ts",
+        "src/funcionalidades/criador/fases/poderes-sequenciais.ts",
+        "src/funcionalidades/ficha/00-00-ficha-init.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts"
+      ]
+    ],
+    "data": {
+      "DATA.conditions": "dados/criador-conditions.json",
+      "DATA.detailedConditions": "dados/condicoes-detalhadas.json",
+      "DATA.featureSummaries": "dados/criador-featureSummaries.json",
+      "DATA.suppliedFeatureSummaries": "dados/criador-featureSummaries.json",
+      "DATA.deities": "dados/criador-deities.json",
+      "DATA.classPowers": "dados/criador-classPowers.json",
+      "DATA.inventoryLoadData": "dados/criador-inventoryLoadData.json",
+      "DATA.pdfItems": "dados/criador-pdfItems.json",
+      "DATA.authorityEcclesiastical": "dados/criador-authorityEcclesiastical.json",
+      "DATA.spells": "dados/criador-spells.json",
+      "DATA.spellTexts": "dados/magias-textos.json",
+      "DATA.grimoireHtml": "dados/criador-grimoireHtml.json",
+      "DATA.races": "dados/criador-races.json",
+      "DATA.classes": "dados/criador-classes.json",
+      "DATA.origins": "dados/criador-origins.json",
+      "DATA.regionalOrigins": "dados/criador-regionalOrigins.json",
+      "DATA.classInheritance": "dados/criador-classInheritance.json",
+      "DATA.generalPowers": "dados/criador-generalPowers.json",
+      "DATA.samuraiKatanaCatalog": "dados/criador-samuraiKatanaCatalog.json",
+      "DATA.contraptionsCatalog": "dados/contraptions-spell-catalog.json",
+      "DATA.improvementData": "dados/improvement_data.json",
+      "DATA.enchantmentData": "dados/enchantment_data.json",
+      "DATA.partners": "dados/criador-parceiros.json",
+      "BANDS": "dados/idade-faixas.json",
+      "COMPLICATIONS": "dados/idade-complicacoes.json",
+      "AGE_POWERS": "dados/idade-poderes.json",
+      "DATA.distinctions": "dados/distincoes.json"
+    },
+    "origin": "ficha.html"
+  },
+  "personagens": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/funcionalidades/personagens/00-00-personagens.ts"
+      ]
+    ],
+    "data": {},
+    "origin": "personagens.html"
+  },
+  "termos": {
+    "scripts": [
+      [
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts"
+      ]
+    ],
+    "data": {},
+    "origin": "termos.html"
+  },
+  "mapa": {
+    "scripts": [
+      [
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/mapa/00-00-mapa.ts"
+      ]
+    ],
+    "data": {
+      "DATA.mapLocations": "dados/mapa-arton-locais.json",
+      "DATA.mapRoads": "dados/mapa-arton-estradas.json",
+      "DATA.mapTamura": "dados/mapa-tamura-locais.json",
+      "DATA.mapLamnor": "dados/mapa-lamnor-locais.json",
+      "DATA.mapDoherimm": "dados/mapa-doherimm-locais.json",
+      "DATA.mapMoreania": "dados/mapa-moreania-locais.json"
+    },
+    "origin": "mapa.html"
+  },
+  "recompensas": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/mesa/campanha-mesa.ts",
+        "src/regras/nucleo/recompensas-t20.ts",
+        "src/regras/nucleo/comunidades.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/funcionalidades/recompensas/00-00-recompensas-mestre.ts"
+      ]
+    ],
+    "data": {
+      "DATA.pdfItems": "dados/criador-pdfItems.json"
+    },
+    "origin": "recompensas.html"
+  },
+  "resgatar-recompensas": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/funcionalidades/recompensas/resgatar-recompensas.ts"
+      ]
+    ],
+    "data": {
+      "DATA.pdfItems": "dados/criador-pdfItems.json"
+    },
+    "origin": "resgatar-recompensas.html"
+  },
+  "oficina": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/funcionalidades/oficina/00-00-oficina.ts"
+      ]
+    ],
+    "data": {
+      "ITEMS": "dados/items.json"
+    },
+    "origin": "oficina.html"
+  },
+  "engenhoca": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/regras/nucleo/manufatura.ts",
+        "src/regras/nucleo/codigo-compartilhamento.ts",
+        "src/funcionalidades/criador/ficha/teste-oficio-modal.ts",
+        "src/funcionalidades/engenhoca/00-00-engenhoca.ts"
+      ]
+    ],
+    "data": {
+      "ITEMS": "dados/items.json",
+      "DATA.spells": "dados/criador-spells.json",
+      "DATA.contraptionsCatalog": "dados/contraptions-spell-catalog.json",
+      "DATA.races": "dados/criador-races.json"
+    },
+    "origin": "engenhoca.html"
+  },
+  "distincoes": {
+    "scripts": [
+      [
+        "src/compartilhado/armazenamento.ts",
+        "src/compartilhado/auth/supabase-config.ts",
+        "src/compartilhado/auth/servico-autenticacao.ts",
+        "src/compartilhado/auth/sincronizacao-nuvem.ts",
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/limites.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/footer/footer-ui.ts",
+        "src/funcionalidades/auth/00-00-auth-ui.ts",
+        "src/compartilhado/topbar-unificada.ts",
+        "src/funcionalidades/distincoes/00-00-distincoes.ts"
+      ]
+    ],
+    "data": {
+      "DATA.distinctions": "dados/distincoes.json"
+    },
+    "origin": "distincoes.html"
+  },
+  "backup": {
+    "scripts": [
+      [
+        "src/aplicacao/backup-ui.ts"
+      ]
+    ],
+    "data": {}
+  },
+  "estabulo": {
+    "scripts": [
+      [
+        "src/funcionalidades/guilda/03-00-guilda-dados.ts",
+        "src/funcionalidades/estabulo/estabulo.ts"
+      ],
+      [
+        "src/compartilhado/icones.ts",
+        "src/compartilhado/drawer/drawer-ui.ts",
+        "src/compartilhado/topbar-unificada.ts"
+      ]
+    ],
+    "data": {
+      "montarias": "dados/montarias.json"
+    },
+    "origin": "estabulo.html"
+  }
+}

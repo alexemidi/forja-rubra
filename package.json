@@ -1,20 +1,32 @@
 {
-  "name": "forja-t20",
+  "name": "forja-rubra-unificada",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node tools/build.js",
-    "test": "node tools/item-catalog/test-backpack.js && node tools/character-builder/bridge-test.js && node tools/character-builder/smoke-test.js && node tools/character-builder/inventory-dom-test.js && node tools/character-builder/progression-dom-test.js",
-    "validate:syntax": "node tools/quality/check-syntax.js",
-    "validate:data": "node tools/quality/validate-data.js",
-    "validate:policies": "node tools/quality/check-policies.js",
-    "validate:pdf": "node tools/quality/check-pdf-template.js && node tools/character-builder/pdf-preservation-test.js",
-    "verify": "node tools/verify-build.js && npm test",
-    "check": "npm run validate:syntax && npm run validate:data && npm run validate:policies && npm run validate:pdf && npm run verify",
-    "benchmark": "node tools/item-catalog/benchmark.js && node tools/item-catalog/benchmark-cold.js"
+    "build": "node ferramentas/build.cjs",
+    "start": "node ferramentas/servidor.cjs 4300",
+    "test:ts": "node testes/unit/t20-core.test.ts && node testes/unit/features.test.ts && node testes/unit/criacao-dos-deuses.test.ts && node testes/unit/duplo-feerico-e-scroll.test.ts && node testes/unit/armadura-mecanizada.test.ts && node testes/unit/artesao-criativo.test.ts",
+    "test": "npm run test:ts && npm run test:legacy && node testes/nucleo-unificado.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build && npm test && npm run test:e2e",
+    "test:legacy": "node ferramentas/executar-testes-legados.cjs",
+    "dev": "npm run build && node ferramentas/servidor.cjs 4300",
+    "test:unit": "npm run test:ts && node -r ./ferramentas/ts-node-register.cjs testes/regras-puras.cjs && node -r ./ferramentas/ts-node-register.cjs testes/estado-inventario.cjs && node -r ./ferramentas/ts-node-register.cjs testes/operacoes-loja.cjs && node testes/nucleo-unificado.ts",
+    "test:e2e": "playwright test",
+    "backup:rebuild": "node ferramentas/servidor.cjs 4200",
+    "backup:raiz": "node ferramentas/servidor.cjs 4174"
   },
   "devDependencies": {
-    "acorn": "^8.18.0",
-    "jsdom": "^30.0.1",
-    "pdf-lib": "^1.17.1"
+    "@playwright/test": "^1.63.0",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^22.20.3",
+    "acorn": "8.18.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "30.0.1",
+    "pdf-lib": "1.17.1",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
   }
 }

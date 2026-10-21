@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cavalo",
+    "nome": "Cavalo",
+    "descricao": "A montaria mais comum do Reinado. Iniciante: seu deslocamento muda para 12m e você recebe uma ação de movimento extra por turno (apenas para se deslocar). Veterano: como acima, mas seu deslocamento muda para 15m e você recebe +2 em ataques corpo a corpo. Mestre: como acima, mas você recebe uma segunda ação de movimento extra por turno (novamente, apenas para se deslocar). Estas estatísticas também se aplicam a pôneis (tamanho Médio)."
+  },
+  {
+    "id": "ponei",
+    "nome": "Pônei",
+    "descricao": "A montaria mais comum do Reinado. Iniciante: seu deslocamento muda para 12m e você recebe uma ação de movimento extra por turno (apenas para se deslocar). Veterano: como acima, mas seu deslocamento muda para 15m e você recebe +2 em ataques corpo a corpo. Mestre: como acima, mas você recebe uma segunda ação de movimento extra por turno (novamente, apenas para se deslocar). Estas estatísticas também se aplicam a pôneis (tamanho Médio)."
+  },
+  {
+    "id": "cao_de_caca",
+    "nome": "Cão de caça",
+    "descricao": "Cães de porte adequado são montarias comuns para personagens Pequenos ou Minúsculos. Iniciante: seu deslocamento muda para 9m, você pode usar faro e recebe uma ação de movimento extra por turno (apenas para se deslocar). Veterano: como acima, mas seu deslocamento muda para 12m e você recebe +2 na Defesa. Mestre: como acima; além disso, uma vez por rodada, quando acerta um ataque corpo a corpo, você pode fazer a manobra derrubar como uma ação livre."
+  },
+  {
+    "id": "lobo_das_cavernas",
+    "nome": "Lobo-das-cavernas",
+    "descricao": "Primos primitivos e maiores dos lobos comuns, lobos-das-cavernas são usados como montaria por goblinoides e aventureiros selvagens. Iniciante: seu deslocamento muda para 12m e você recebe uma ação de movimento extra por turno (apenas para se deslocar). Veterano: como acima, mas seu deslocamento muda para 15m e, uma vez por rodada, você recebe +1d8 em uma rolagem de dano corpo a corpo. Mestre: como acima; além disso, uma vez por rodada, quando acerta um ataque corpo a corpo, você pode fazer a manobra derrubar como uma ação livre. Estas estatísticas também se aplicam a lobos comuns (tamanho Médio)."
+  },
+  {
+    "id": "lobo",
+    "nome": "Lobo",
+    "descricao": "Primos primitivos e maiores dos lobos comuns, lobos-das-cavernas são usados como montaria por goblinoides e aventureiros selvagens. Iniciante: seu deslocamento muda para 12m e você recebe uma ação de movimento extra por turno (apenas para se deslocar). Veterano: como acima, mas seu deslocamento muda para 15m e, uma vez por rodada, você recebe +1d8 em uma rolagem de dano corpo a corpo. Mestre: como acima; além disso, uma vez por rodada, quando acerta um ataque corpo a corpo, você pode fazer a manobra derrubar como uma ação livre. Estas estatísticas também se aplicam a lobos comuns (tamanho Médio)."
+  },
+  {
+    "id": "grifo",
+    "nome": "Grifo",
+    "descricao": "Esta fera majestosa é muito cobiçada por heróis. Iniciante: uma vez por rodada, você recebe +1d8 em uma rolagem de dano corpo a corpo (um grifo iniciante é um filhote e não pode ser usado como montaria). Veterano: como acima, mas pode ser usado como montaria, mudando seu deslocamento para voo 18m. Mestre: como acima, mas você recebe uma ação de movimento extra por turno (apenas para se deslocar)."
+  },
+  {
+    "id": "gorlogg",
+    "nome": "Gorlogg",
+    "descricao": "Esta besta primitiva é usada como montaria pelos mais selvagens. Iniciante: seu deslocamento muda para 12m e, uma vez por rodada, você recebe +1d6 em uma rolagem de dano corpo a corpo. Veterano: como acima, mas o bônus em rolagens de dano corpo a corpo muda para +1d10. Mestre: seu deslocamento muda para 15m e o bônus em rolagens de dano corpo a corpo muda para +2d8."
+  },
+  {
+    "id": "trobo",
+    "nome": "Trobo",
+    "descricao": "Usados como animais de carga e tração, trobos também servem como montarias. Iniciante: seu deslocamento muda para 9m e você recebe uma ação de movimento extra por turno (apenas para se deslocar) e +1 em testes de resistência. Veterano: como acima, mas seu deslocamento muda para 12m e o bônus em testes de resistência muda para +2. Mestre: como acima, mas o bônus em testes de resistência muda para +5."
+  }
+]

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bancada de Engenhocas de Arton · Fabricação de invenções, acoplamentos, aparatos e testes de Ofício de Tormenta 20.">
+  <title>Fabricar Engenhoca · Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/personagens/personagens.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/oficina.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/engenhoca.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="engenhoca"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="forja-drawer-trigger-btn" id="drawerMenuBtn" type="button" title="Abrir Menu Lateral" aria-label="Abrir Menu">
+        <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <a class="topbar-brand" href="index.html">
+        <div class="topbar-logo" aria-hidden="true">
+          <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        </div>
+        <div class="topbar-title">
+          <span class="name">Forja Rubra</span>
+        </div>
+      </a>
+    </div>
+    <div class="topbar-actions" id="engenhocaTopbarActions">
+      <a class="nav-btn" href="oficina.html">Oficinas</a>
+      <a class="nav-btn" href="loja.html">Loja</a>
+      <a class="nav-btn" href="grimorio.html">Grimório</a>
+      <a class="nav-btn primary" href="ficha.html">Minha Ficha</a>
+    </div>
+  </header>
+
+  <main class="engenhoca-shell">
+    <div class="engenhoca-craft-card-container">
+      <header class="engenhoca-craft-card-header">
+        <h1 class="engenhoca-craft-main-title">FABRICAR ENGENHOCA</h1>
+        <div class="engenhoca-craft-header-actions">
+          <a href="ficha.html" class="engenhoca-close-screen-btn" title="Fechar e voltar à ficha" aria-label="Fechar">&times;</a>
+        </div>
+      </header>
+
+      <div class="engenhoca-craft-card-body">
+        <div class="engenhoca-craft-columns-grid">
+          <!-- Coluna Esquerda: Forma de Uso + Acoplamento de Item e Métricas/Estatísticas -->
+          <div class="engenhoca-craft-left-col">
+            <!-- Bloco Superior: Forma de Uso & Acoplamento -->
+            <div class="engenhoca-box-panel">
+              <label class="engenhoca-box-label">FORMA DE USO:</label>
+              <div class="engenhoca-radio-group">
+                <label class="engenhoca-radio-label">
+                  <input type="radio" name="formaUsoRadio" id="radioEmpunhada" value="empunhada" checked>
+                  <span>Empunhada (1 mão livre)</span>
+                </label>
+                <label class="engenhoca-radio-label">
+                  <input type="radio" name="formaUsoRadio" id="radioVestida" value="vestida">
+                  <span>Vestida (limite de itens vestidos)</span>
+                </label>
+              </div>
+              <div id="formaUsoRecommendation" class="engenhoca-recommendation-note">
+                Recomendação padrão: <strong id="recFormaUsoText">Vestida</strong>
+              </div>
+
+              </div>
+            </div>
+
+            <!-- Bloco Inferior: Métricas e Estatísticas -->
+            <div class="engenhoca-box-panel engenhoca-metrics-box">
+              <div class="engenhoca-metrics-row">
+                <div class="engenhoca-metric-cell">
+                  <span class="engenhoca-metric-label">Matéria-Prima</span>
+                  <strong class="engenhoca-metric-val" id="specCustoMateria">—</strong>
+                </div>
+                <div class="engenhoca-metric-cell">
+                  <span class="engenhoca-metric-label">Tempo de Fabricação</span>
+                  <strong class="engenhoca-metric-val" id="specTempo">—</strong>
+                </div>
+                <div class="engenhoca-metric-cell">
+                  <span class="engenhoca-metric-label">CD Fabricação</span>
+                  <strong class="engenhoca-metric-val gold" id="specCdFabricacao">—</strong>
+                </div>
+              </div>
+              <div class="engenhoca-stats-subrow">
+                <span class="engenhoca-metric-label">Estatísticas</span>
+                <strong class="engenhoca-stats-line-val" id="specStatsLine">DEF 15 · RD 5 · PV 10 · 1 ESPAÇO</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Magia Simulada + Nome da Invenção + Breve Descrição -->
+          <div class="engenhoca-craft-right-col">
+            <!-- Bloco 1: Banner da Magia Simulada com Trocar Magia -->
+            <div class="engenhoca-spell-bar">
+              <span id="engenhocaSpellBadgeLabel" class="engenhoca-spell-badge-text">Nenhuma magia selecionada · Escolha uma magia para simular</span>
+              <button type="button" id="btnTrocarMagiaSimulada" class="engenhoca-change-spell-action" title="Escolher magia para simular">
+                ESCOLHER MAGIA
+              </button>
+            </div>
+
+            <!-- Bloco 2: Nome da Invenção e Sugestões -->
+            <div class="engenhoca-box-panel">
+              <label for="engenhocaNameInput" class="engenhoca-box-label">NOME DA INVENÇÃO:</label>
+              <input type="text" id="engenhocaNameInput" class="engenhoca-text-input" placeholder="Escolha uma magia para definir a engenhoca...">
+
+              <div class="engenhoca-suggestions-section">
+                <span class="engenhoca-suggestions-title">Sugestões de nomes (clique para escolher):</span>
+                <div id="nameSuggestionsList" class="engenhoca-suggestions-vertical-list">
+                  <!-- Injetado dinamicamente -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloco 3: Breve Descrição do Item -->
+            <div class="engenhoca-box-panel engenhoca-desc-panel">
+              <label for="engenhocaDescInput" class="engenhoca-box-label">BREVE DESCRIÇÃO DO ITEM:</label>
+              <textarea id="engenhocaDescInput" class="engenhoca-desc-textarea" rows="3" placeholder="Descrição dos mecanismos, lentes e ressonadores..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="engenhoca-craft-card-footer">
+        <a href="ficha.html" class="engenhoca-cancel-btn">CANCELAR</a>
+        <button type="button" id="btnForjarEngenhoca" class="engenhoca-proceed-btn">
+          ESCOLHER MAGIA NO GRIMÓRIO &rarr;
+        </button>
+      </footer>
+    </div>
+
+    <!-- Seção Inferior: Portfólio de Engenhocas Forjadas -->
+    <section class="hero-workshops-section" style="margin-top: 40px;">
+      <div class="section-subtitle-bar">
+        <h2 class="hero-workshops-title">
+          <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Portfólio de Engenhocas Forjadas
+        </h2>
+        <span id="portfolioCountBadge" class="hero-funds-badge">0 / 0 engenhocas</span>
+      </div>
+
+      <div id="contraptionsPortfolioGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        <!-- Injetado via JS -->
+      </div>
+    </section>
+  </main>
+</body>
+</html>

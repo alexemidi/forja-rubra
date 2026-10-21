@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guilda de Arton — Parceiros e Mercenários</title>
+<link rel="stylesheet" href="src/estilos/guilda/0.css">
+<link rel="stylesheet" href="src/estilos/guilda/1.css"><script src="src/compartilhado/inicializar.js" defer="" data-page="guilda"></script></head>
+<body><div id="forja-loader" class="forja-loader" role="status" aria-live="polite"><div class="forja-loading-eye" aria-hidden="true"></div><p>Reunindo seus aliados<small>Abrindo a Guilda…</small></p></div>
+
+<div class="guild-status-bar">
+  <div class="guild-status-container">
+    <div class="guild-status-badges">
+      <div class="wallet-badge" id="guildWalletBadge" title="Fundos disponíveis do personagem">
+        <span>Saldo: <strong id="guildWalletDisplay">T$ 100</strong></span>
+      </div>
+      <div class="partner-limit-badge" id="guildLimitBadge" title="Limite de parceiros do personagem">
+        <span>Parceiros: <strong id="guildLimitDisplay">0/1</strong></span>
+      </div>
+      <button class="btn btn-primary" id="guildContractsBtn" type="button" title="Ver aliados ativos, montarias e mercenários contratados">
+        Aliados Ativos <span class="chip-count" id="guildContractsCount">0</span>
+      </button>
+    </div>
+    <div class="guild-quick-links">
+      <a class="btn btn-secondary" id="guildTavernLink" href="taverna.html" target="_top">Taverna</a>
+      <a class="btn btn-secondary" id="guildArsenalLink" href="loja.html" target="_top">Loja</a>
+      <a class="btn btn-secondary" id="guildGrimoireLink" href="grimorio.html" target="_top">Grimório</a>
+    </div>
+  </div>
+</div>
+
+<section class="guild-hero-banner">
+  <div class="guild-hero-container">
+    <div class="guild-tabs" role="tablist">
+      <button class="guild-tab-btn active" type="button" data-guild-tab="parceiros" role="tab" aria-selected="true">
+        <span>Parceiros de Aventura</span>
+        <span class="guild-tab-badge">12 tipos</span>
+      </button>
+      <button class="guild-tab-btn" type="button" data-guild-tab="mercenarios" role="tab" aria-selected="false">
+        <span>Mercenários de Aluguel</span>
+        <span class="guild-tab-badge">16 opções</span>
+      </button>
+      <button class="guild-tab-btn" type="button" data-guild-tab="estabulo" role="tab" aria-selected="false">
+        <span>Estábulo &amp; Montarias</span>
+        <span class="guild-tab-badge">8 montarias</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="controls-panel">
+  <div class="controls-container">
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input class="search-input" id="guildSearchInput" type="search" placeholder="Buscar parceiro, mercenário ou montaria..." autocomplete="off">
+    </div>
+    <div class="filter-chips" id="guildFilterChips">
+      <!-- Chips gerados dinamicamente -->
+    </div>
+  </div>
+</section>
+
+<main class="main-content">
+  <div class="catalog-heading">
+    <div>
+      <h3 id="guildSectionTitle">Parceiros de Aventura de Arton</h3>
+    </div>
+    <span id="guildResultsCount">12 tipos disponíveis</span>
+  </div>
+
+  <div class="guild-cards-grid" id="guildCardsGrid">
+    <!-- Cards gerados dinamicamente pelo runtime -->
+  </div>
+
+  <div class="empty-state" id="guildEmptyState" hidden="">
+    <h3>Nenhum aliado encontrado</h3>
+    <p>Tente ajustar os termos de busca ou mudar a categoria selecionada.</p>
+  </div>
+</main>
+
+<!-- Modal de Aliados Ativos / Contratos -->
+<div class="modal-backdrop" id="guildContractsModal" hidden="">
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="guildContractsModalTitle">
+    <header class="modal-header">
+      <h3 id="guildContractsModalTitle">Aliados &amp; Contratos Ativos</h3>
+      <button class="modal-close" type="button" data-action="close-guild-contracts" aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-body">
+      <div class="contract-list" id="guildContractsList">
+        <!-- Lista dinâmica -->
+      </div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn btn-danger" id="guildClearAllBtn" type="button">Dispensar Todos</button>
+      <button class="btn btn-primary" type="button" data-action="close-guild-contracts">Fechar</button>
+    </footer>
+  </section>
+</div>
+
+<!-- Modal de Configurar Ajudante -->
+<div class="modal-backdrop" id="guildHelperModal" hidden="">
+  <section class="modal-panel modal-panel-sm" role="dialog" aria-modal="true" aria-labelledby="guildHelperModalTitle">
+    <header class="modal-header">
+      <h3 id="guildHelperModalTitle">Configurar Parceiro Ajudante</h3>
+      <button class="modal-close" type="button" data-action="close-guild-helper" aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-body">
+      <p id="guildHelperModalDesc" class="modal-desc">
+        Escolha as perícias que receberão o bônus do parceiro Ajudante (exceto Luta e Pontaria).
+      </p>
+      <input type="hidden" id="guildHelperSelectedTier" value="iniciante">
+      <div id="guildHelperSlots" class="helper-slots-grid">
+        <!-- Seletores de perícias -->
+      </div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn btn-secondary" type="button" data-action="close-guild-helper">Cancelar</button>
+      <button class="btn btn-primary" type="button" id="guildHelperConfirmBtn">Confirmar e Receber</button>
+    </footer>
+  </section>
+</div>
+
+<div class="toast" id="guildToast" role="status" aria-live="polite"></div>
+
+</body></html>

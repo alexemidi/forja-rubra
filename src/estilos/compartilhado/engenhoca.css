@@ -1,0 +1,558 @@
+/* Estilos da Página Dedicada: Fabricar Engenhoca (Design Canônico Forja Rubra) */
+
+.engenhoca-shell {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+/* Container do Cartão Central */
+.engenhoca-craft-card-container {
+  background: linear-gradient(145deg, #180d11 0%, #12090b 100%);
+  border: 1px solid #381216;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(212, 175, 55, 0.1);
+  color: #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.engenhoca-craft-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #381216;
+  background: #180c10;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.engenhoca-craft-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.engenhoca-craft-main-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #d4af37;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+}
+
+.engenhoca-change-spell-btn {
+  background: #241116;
+  border: 1px solid #4a181f;
+  color: #cbd5e1;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.engenhoca-change-spell-btn:hover {
+  background: #36171e;
+  border-color: #d4af37;
+  color: #fef08a;
+}
+
+.engenhoca-change-spell-tag {
+  background: #0f0709;
+  color: #d4af37;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid #5a1f26;
+  text-transform: uppercase;
+}
+
+.engenhoca-close-screen-btn {
+  background: #991b1b;
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 1.35rem;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.engenhoca-close-screen-btn:hover {
+  background: #dc2626;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+/* Corpo */
+.engenhoca-craft-card-body {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Layout em 2 Colunas */
+.engenhoca-craft-columns-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 768px) {
+  .engenhoca-craft-columns-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.engenhoca-craft-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.engenhoca-craft-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+/* Banner de Simulação de Magia */
+.engenhoca-spell-bar {
+  background: #190d12;
+  border: 1px solid #351117;
+  border-radius: 6px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.engenhoca-spell-badge-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.engenhoca-change-spell-action {
+  background: none;
+  border: none;
+  color: #d4af37;
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  padding: 4px 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.engenhoca-change-spell-action:hover {
+  color: #fef08a;
+  text-decoration: underline;
+}
+
+/* Painéis de Caixas */
+.engenhoca-box-panel {
+  background: #190d12;
+  border: 1px solid #351117;
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.engenhoca-box-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Cinzel', serif;
+}
+
+.engenhoca-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.engenhoca-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.engenhoca-radio-label input[type="radio"] {
+  accent-color: #d4af37;
+  width: 16px;
+  height: 16px;
+}
+
+.engenhoca-recommendation-note {
+  font-size: 0.74rem;
+  color: #a89f91;
+  margin-top: 8px;
+}
+
+.engenhoca-divider-dashed {
+  border-top: 1px dashed #4a181f;
+  margin: 16px 0 12px;
+}
+
+.engenhoca-action-attach-btn {
+  background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%);
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.engenhoca-action-attach-btn:hover {
+  background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+.engenhoca-obs-note {
+  font-size: 0.72rem;
+  color: #a89f91;
+  font-style: italic;
+  display: block;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.engenhoca-text-input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.92rem;
+  background: #0f0709;
+  border: 1px solid #4a181f;
+  color: #f8fafc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.engenhoca-text-input:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.engenhoca-suggestions-section {
+  margin-top: 12px;
+}
+
+.engenhoca-suggestions-title {
+  font-size: 0.76rem;
+  color: #a89f91;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.engenhoca-suggestions-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.engenhoca-suggestion-item {
+  align-self: flex-start;
+  border-bottom: 1px dotted #38bdf8;
+  cursor: pointer;
+  color: #7dd3fc;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  padding-bottom: 1px;
+  transition: all 0.15s;
+}
+
+.engenhoca-suggestion-item.is-selected {
+  border-bottom: 2px solid #d4af37;
+  color: #fef08a;
+  font-weight: 700;
+}
+
+.engenhoca-suggestion-item:hover {
+  color: #f8fafc;
+  border-bottom-color: #f8fafc;
+}
+
+/* Painel de Descrição */
+.engenhoca-desc-panel {
+  justify-content: flex-start;
+}
+
+.engenhoca-desc-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  background: #0f0709;
+  border: 1px solid #4a181f;
+  color: #cbd5e1;
+  border-radius: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.engenhoca-desc-textarea:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+/* Painel de Métricas da Coluna Esquerda */
+.engenhoca-metrics-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.engenhoca-metrics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  text-align: center;
+}
+
+.engenhoca-metric-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.engenhoca-metric-label {
+  font-size: 0.74rem;
+  color: #a89f91;
+}
+
+.engenhoca-metric-val {
+  font-size: 1.08rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.engenhoca-metric-val.gold {
+  color: #fef08a;
+}
+
+.engenhoca-stats-subrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  border-top: 1px solid #2d1015;
+  padding-top: 10px;
+}
+
+.engenhoca-stats-line-val {
+  font-size: 0.95rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+/* Rodapé */
+.engenhoca-craft-card-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #381216;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  background: #180c10;
+}
+
+.engenhoca-cancel-btn {
+  background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%);
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  padding: 9px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
+.engenhoca-cancel-btn:hover {
+  background: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.engenhoca-proceed-btn {
+  background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%);
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  padding: 9px 24px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.engenhoca-proceed-btn:hover {
+  background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
+}
+
+/* Modal de Magias */
+.engenhoca-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 6, 8, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.engenhoca-modal-dialog {
+  background: #180d11;
+  border: 1px solid #381216;
+  border-radius: 10px;
+  width: 95vw;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+.engenhoca-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #1f1015;
+  border-bottom: 1px solid #381216;
+}
+
+.engenhoca-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.engenhoca-spell-choice-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #190d12;
+  border: 1px solid #351117;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 6px;
+}
+
+.engenhoca-spell-choice-row:hover {
+  border-color: #d4af37;
+  background: #251218;
+}
+
+.engenhoca-spell-choice-row strong {
+  font-family: 'Cinzel', serif;
+  color: #f1f5f9;
+}
+
+.spell-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: #0f0709;
+  border: 1px solid #4a181f;
+  color: #f8fafc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.spell-search-input:focus {
+  outline: none;
+  border-color: #d4af37;
+}
+
+.spell-circle-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spell-circle-btn {
+  background: #241116;
+  border: 1px solid #4a181f;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.spell-circle-btn.is-active,
+.spell-circle-btn:hover {
+  background: #36171e;
+  border-color: #d4af37;
+  color: #fef08a;
+}

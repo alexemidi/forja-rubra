@@ -1,0 +1,362 @@
+/* ==============================================================================
+   FORJA RUBRA: Estilos do Menu Lateral Gaveta (Drawer)
+   ============================================================================== */
+
+/* Botão Hambúrguer no Cabeçalho */
+.forja-drawer-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--border, #2b3445);
+  border-radius: 6px;
+  color: var(--gold2, #f0d28c);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.forja-drawer-trigger-btn:hover {
+  border-color: var(--gold, #d9a84e);
+  background: rgba(217, 168, 78, 0.08);
+  color: #fff;
+}
+
+/* Backdrop Escuro */
+.forja-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(5, 7, 11, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.forja-drawer-backdrop[hidden] {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Painel da Gaveta Lateral (Abre na Direita) */
+.forja-drawer {
+  width: 290px;
+  max-width: 85vw;
+  height: 100%;
+  background: linear-gradient(180deg, #131722 0%, #0c0f16 100%);
+  border-left: 1px solid rgba(217, 168, 78, 0.3);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.forja-drawer.is-open {
+  transform: translateX(0);
+}
+
+/* Cabeçalho da Gaveta */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--border, #2b3445);
+}
+
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-brand-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  color: #f7e0b5;
+  letter-spacing: 0.5px;
+}
+
+.drawer-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--muted, #a3acbc);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-close-btn:hover {
+  border-color: var(--border, #2b3445);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Seção do Usuário no Topo da Gaveta */
+.drawer-user-section {
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--border, #2b3445);
+}
+
+.drawer-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-user-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.drawer-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--gold, #d9a84e);
+}
+
+.drawer-user-avatar-fallback {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(217, 168, 78, 0.15);
+  border: 1.5px solid var(--gold, #d9a84e);
+  color: var(--gold2, #f0d28c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.drawer-user-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-user-name {
+  font-size: 0.85rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-user-email {
+  font-size: 0.68rem;
+  color: var(--dim, #707c91);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botão com a Portinha de Sair (Logout) */
+.drawer-door-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid rgba(223, 107, 107, 0.25);
+  border-radius: 4px;
+  color: #eca3a3;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.drawer-door-logout:hover {
+  background: rgba(223, 107, 107, 0.15);
+  border-color: #df6b6b;
+  color: #fff;
+  transform: translateX(1px);
+}
+
+.drawer-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.drawer-sync-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 4px;
+  color: #93c5fd;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-sync-btn:hover {
+  background: rgba(96, 165, 250, 0.25);
+  border-color: #60a5fa;
+  color: #fff;
+}
+
+.drawer-sync-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Botão de Login quando Deslogado */
+.drawer-login-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(217, 168, 78, 0.08);
+  border: 1px solid rgba(217, 168, 78, 0.4);
+  border-radius: 4px;
+  color: var(--gold2, #f0d28c);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+
+.drawer-login-btn:hover {
+  background: rgba(217, 168, 78, 0.18);
+  border-color: var(--gold, #d9a84e);
+  color: #fff;
+}
+
+.drawer-login-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: #fff;
+  color: #1a1a1a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.65rem;
+}
+
+/* Links de Navegação da Gaveta */
+.drawer-nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drawer-section-label {
+  padding: 10px 10px 4px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--dim, #707c91);
+}
+
+.drawer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: var(--muted, #a3acbc);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.drawer-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.drawer-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+/* Rodapé da Gaveta */
+.drawer-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border, #2b3445);
+  color: var(--dim, #707c91);
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+/* Seta e Botão de Voltar Padronizado da Forja Rubra */
+[data-header-back],
+.forja-topbar-back-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 7px !important;
+  margin-right: 6px;
+  background: transparent !important;
+  border: 0 !important;
+  color: #dc2626 !important;
+  cursor: pointer;
+  clip-path: none !important;
+  border-radius: 4px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.forja-topbar-back-btn:hover {
+  transform: scale(1.08);
+  color: #ef4444 !important;
+}
+
+.forja-return-arrow {
+  display: block;
+  width: 18px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-bottom: 0;
+  border-radius: 11px 11px 0 0;
+  position: relative;
+}
+
+.forja-return-arrow:before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+

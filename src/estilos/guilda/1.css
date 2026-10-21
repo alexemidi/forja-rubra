@@ -1,0 +1,8 @@
+@import url('../compartilhado/componentes.css');
+
+.forja-atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}

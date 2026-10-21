@@ -1,0 +1,160 @@
+{
+  "data": "2026-10-20T21:03:11.208Z",
+  "results": [
+    {
+      "teste": "Sintaxe, JSON e separação de páginas",
+      "ok": true,
+      "paginas": 17
+    },
+    {
+      "teste": "Melhorias na Fase 8: bloqueadas em escolhas comuns e habilitadas com orçamento",
+      "ok": true
+    },
+    {
+      "teste": "Loja: modal de saldo insuficiente com exibição de déficit e botões Voltar/Recompensa aprovados",
+      "ok": true
+    },
+    {
+      "teste": "CSS de equipamento externo carregado uma vez",
+      "ok": true
+    },
+    {
+      "teste": "Renderização das dez fases",
+      "ok": true,
+      "snapshots": [
+        {
+          "step": 1,
+          "ms": 202
+        },
+        {
+          "step": 2,
+          "ms": 172
+        },
+        {
+          "step": 3,
+          "ms": 145
+        },
+        {
+          "step": 4,
+          "ms": 161
+        },
+        {
+          "step": 5,
+          "ms": 138
+        },
+        {
+          "step": 6,
+          "ms": 171
+        },
+        {
+          "step": 7,
+          "ms": 109
+        },
+        {
+          "step": 8,
+          "ms": 124
+        },
+        {
+          "step": 9,
+          "ms": 106
+        },
+        {
+          "step": 10,
+          "ms": 104
+        }
+      ]
+    },
+    {
+      "teste": "Recarregamento de página (F5): fase e estado preservados",
+      "ok": true,
+      "step": 4
+    },
+    {
+      "teste": "Expansão de item sem reconstruir a ficha",
+      "ok": true,
+      "renderizacoesCompletas": 0
+    },
+    {
+      "teste": "Gerador: itens canônicos, armaduras iniciais, poderes válidos e aumentos por patamar",
+      "ok": true
+    },
+    {
+      "teste": "Poderes de classe: prévia sem tags e sem alterar seleção",
+      "ok": true
+    },
+    {
+      "teste": "Poderes gerais: prévia, confirmação por Próxima e bloqueio de Avançar",
+      "ok": true
+    },
+    {
+      "teste": "Fases 6 e 10: navegação de visualização, fonte no subtítulo e aviso com filtros piscantes",
+      "ok": true
+    },
+    {
+      "teste": "Equivalência de raças, classes e sete faixas etárias",
+      "ok": true,
+      "cenarios": 10
+    },
+    {
+      "teste": "Defesa sem metade do nível; DES 1 + armadura 4 + bônus 6",
+      "ok": true,
+      "total": 21,
+      "niveis": [
+        1,
+        4,
+        10,
+        20
+      ]
+    },
+    {
+      "teste": "Leitura de ficha persistida na chave legada",
+      "ok": true
+    },
+    {
+      "teste": "Fase 8: refazer escolhas reinicia fluxo com escolha ativa e sem auto-finalização",
+      "ok": true
+    },
+    {
+      "teste": "Fase 8: botão anterior retrocede etapa, desfaz concessão e atualiza escolha ativa",
+      "ok": true
+    },
+    {
+      "teste": "Padronização de catálogo: 3 colunas e cards canônicos",
+      "ok": true
+    },
+    {
+      "teste": "Edição de ficha: sem botão de pendência na barra inferior",
+      "ok": true
+    },
+    {
+      "teste": "Oficina do Engenhoqueiro: card limpo e botão Fabricar engenhoca visível",
+      "ok": true
+    },
+    {
+      "teste": "Mochila: botões do topo ocultos quando expandido",
+      "ok": true
+    },
+    {
+      "teste": "Troca de personagem: sempre inicia na ficha do personagem",
+      "ok": true
+    },
+    {
+      "teste": "Modal de Melhorias: validação de Material Especial piscante, bloqueio por saldo insuficiente e tipografia aprovados",
+      "ok": true
+    },
+    {
+      "teste": "Preço de venda de itens específicos e oficinas de criação na engenhoca aprovados",
+      "ok": true
+    },
+    {
+      "teste": "PDF sob demanda e formulário",
+      "ok": true,
+      "paginas": 2,
+      "campos": 307
+    },
+    {
+      "teste": "Exportação TXT do caminho",
+      "ok": true
+    }
+  ]
+}

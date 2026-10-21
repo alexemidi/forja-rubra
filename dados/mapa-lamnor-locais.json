@@ -1,0 +1,50 @@
+{
+  "cities": [
+    {
+      "name": "Urkk’thran",
+      "coordinates": [
+        -55.98049709580525,
+        93.10366757321424
+      ],
+      "description": "A maior cidade construída pelos duyshidakk é um exemplo de tudo que Lamnor tem de melhor, um local onde a visão do Ayrrak parece estar se concretizando.",
+      "kingdom": "Lamnor"
+    },
+    {
+      "name": "Farddenn",
+      "coordinates": [
+        -42.109135452722256,
+        78.48189787022926
+      ],
+      "description": "Farddenn foi a primeira cidade conquistada por Thwor e é considerada até hoje um local sagrado. Seu nome foi mantido para que os duyshidakk nunca esquecessem de sua primeira vitória.",
+      "kingdom": "Lamnor"
+    },
+    {
+      "name": "Rarnaakk",
+      "coordinates": [
+        -43.35880767281982,
+        49.9881928080021
+      ],
+      "description": "Rarnaakk já foi Lenórienn, a capital élfica e maior (ou única, segundo alguns) cidade do reino de mesmo nome. Aqui Thwor realizou dois feitos considerados impossíveis: raptou a Princesa Tanya e venceu o avatar de Glórienn em combate individual.",
+      "kingdom": "Lamnor"
+    },
+    {
+      "name": "Oyteyrehnn",
+      "coordinates": [
+        -47.357758777132034,
+        78.35692547960542
+      ],
+      "description": "Oyteyrehnn é o maior centro de construção e decolagem de ornitópteros do mundo conhecido, a capital dos aeronautas goblins, um verdadeiro porto aéreo. Toda a cidade é uma enorme oficina — pois as centenas de oficinas são remodeladas o tempo todo e os engenhoqueiros goblins circulam entre elas, pegando as peças de que precisam e se metendo nas criações uns dos outros. Outras raças também vivem aqui, mas sempre a serviço dos veículos voadores. ",
+      "kingdom": "Lamnor"
+    },
+    {
+      "name": "Khalifor",
+      "coordinates": [
+        -19.365101046946528,
+        78.10636367106721
+      ],
+      "description": "Khalifor, a cidade-fortaleza. Com suas muralhas gigantescas e suas defesas inexpugnáveis, Khalifor sempre foi um bastião de tudo que é considerado “civilizado”. Contudo, hoje em dia é ela mesma um antro — não só de selvagens e bárbaros, mas também de mortos-vivos, cultistas, assassinos e coisas ainda piores…",
+      "kingdom": "Lamnor"
+    }
+  ],
+  "kingdoms": []
+}

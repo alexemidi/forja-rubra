@@ -1,0 +1,3486 @@
+[
+  {
+    "id": "abencoar-alimentos",
+    "name": "Abençoar Alimentos",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Purificador Osmótico",
+      "Marmita Quântica",
+      "Higienizador Alquímico"
+    ]
+  },
+  {
+    "id": "acalmar-animal",
+    "name": "Acalmar Animal",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Apito da Paz",
+      "Sossega-Leão",
+      "Serenador"
+    ]
+  },
+  {
+    "id": "acoite-flamejante",
+    "name": "Açoite Flamejante",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Chicote Térmico",
+      "Açoite Ígneo",
+      "Fio Incandescente"
+    ]
+  },
+  {
+    "id": "adaga-mental",
+    "name": "Adaga Mental",
+    "circle": 1,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Emissor Psíquico",
+      "Agulha de Indução Neural",
+      "Lâmina de Ruído Psiônico"
+    ]
+  },
+  {
+    "id": "alarme",
+    "name": "Alarme",
+    "circle": 1,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Sino Sentinela",
+      "Sensor Tropeçador",
+      "Giro-Alarme"
+    ]
+  },
+  {
+    "id": "amedrontar",
+    "name": "Amedrontar",
+    "circle": 1,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Infrassom do Pânico",
+      "Gás do Pavor",
+      "Projetor Assombroso"
+    ]
+  },
+  {
+    "id": "area-escorregadia",
+    "name": "Área Escorregadia",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Óleo Superdeslizante",
+      "Piso de Manteiga",
+      "Derrapador"
+    ]
+  },
+  {
+    "id": "arma-de-jade",
+    "name": "Arma de Jade",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Aplicador de Jade Líquido",
+      "Lâmina de Jade",
+      "Sílica Protetora"
+    ]
+  },
+  {
+    "id": "arma-espiritual",
+    "name": "Arma Espiritual",
+    "circle": 1,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lâmina Giroscópica",
+      "Drone Perfurador",
+      "Espada Autônoma"
+    ]
+  },
+  {
+    "id": "arma-magica",
+    "name": "Arma Mágica",
+    "circle": 1,
+    "type": "universal",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Luva do Estrategista",
+      "Polarizador de Gume",
+      "Vibrador Cinético"
+    ]
+  },
+  {
+    "id": "armadura-arcana",
+    "name": "Armadura Arcana",
+    "circle": 1,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Casaco Blindado",
+      "Defletor Peitoral",
+      "Exoesqueleto Leve"
+    ]
+  },
+  {
+    "id": "armadura-elemental",
+    "name": "Armadura Elemental",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Casaco Elemental",
+      "Arnês Térmico",
+      "Defletor de Fogo e Gelo"
+    ]
+  },
+  {
+    "id": "armamento-da-natureza",
+    "name": "Armamento da Natureza",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Enxerto Fito-Mecânico",
+      "Endurecedor de Madeira",
+      "Farpador"
+    ]
+  },
+  {
+    "id": "arsenal-de-allihanna",
+    "name": "Arsenal de Allihanna",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Disparador de Espinhos",
+      "Lança-Sementes",
+      "Besta Botânica"
+    ]
+  },
+  {
+    "id": "assobio-perigoso",
+    "name": "Assobio Perigoso",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Apito Rompedor",
+      "Corneta Estilhaçante",
+      "Sirene Aguda"
+    ]
+  },
+  {
+    "id": "aviso",
+    "name": "Aviso",
+    "circle": 1,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Só Vou Falar Uma Vez",
+      "Radar Tático",
+      "Giroscópio de Alerta"
+    ]
+  },
+  {
+    "id": "bencao",
+    "name": "Bênção",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Bússola Tática",
+      "Estimulador Bio-Galvânico",
+      "Ressonador Harmônico"
+    ]
+  },
+  {
+    "id": "bofetada-de-nimb",
+    "name": "Bofetada de Nimb",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Tapa do Caos",
+      "Mão de Mola Excêntrica",
+      "Bofetador Automático"
+    ]
+  },
+  {
+    "id": "caminhos-da-natureza",
+    "name": "Caminhos da Natureza",
+    "circle": 1,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Bússola Barométrica",
+      "Calculador de Trilhas",
+      "Passo Firme"
+    ]
+  },
+  {
+    "id": "comando",
+    "name": "Comando",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Alterador de Mindset",
+      "Megafone do Chefe",
+      "Comandador Neural"
+    ]
+  },
+  {
+    "id": "compreensao",
+    "name": "Compreensão",
+    "circle": 1,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Trombeta Tradutora",
+      "Decodificador Léxico",
+      "Ouvido Poliglota"
+    ]
+  },
+  {
+    "id": "concentracao-de-combate",
+    "name": "Concentração de Combate",
+    "circle": 1,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Monóculo Analisador",
+      "Visor de Pontaria",
+      "Foco Cirúrgico"
+    ]
+  },
+  {
+    "id": "conjurar-monstro",
+    "name": "Conjurar Monstro",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Guarda-costas Mecânico",
+      "Autômato Dobrável",
+      "Minigolem"
+    ]
+  },
+  {
+    "id": "consagrar",
+    "name": "Consagrar",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Aspersor Sagrado",
+      "Candelabro Solar",
+      "Filtro Atmosférico"
+    ]
+  },
+  {
+    "id": "controlar-plantas",
+    "name": "Controlar Plantas",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Pulverizador Fito-Hormonal",
+      "Estimulador de Raízes",
+      "Cabo Guia-Vegetal"
+    ]
+  },
+  {
+    "id": "criar-elementos",
+    "name": "Criar Elementos",
+    "circle": 1,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sintetizador Elemental",
+      "Condensador Atmosférico",
+      "Mini-Fornalha"
+    ]
+  },
+  {
+    "id": "criar-ilusao",
+    "name": "Criar Ilusão",
+    "circle": 1,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Projetor de Imagens",
+      "Lanterna Holográfica",
+      "Prisma Refrator"
+    ]
+  },
+  {
+    "id": "curar-ferimentos",
+    "name": "Curar Ferimentos",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Emplastro Mecânico",
+      "Injetor Pneumático",
+      "Suturador Rápido"
+    ]
+  },
+  {
+    "id": "dardo-gelido",
+    "name": "Dardo Gélido",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Pistola Criogênica",
+      "Dardo Congelante",
+      "Lança-Gelo"
+    ]
+  },
+  {
+    "id": "descobrir-fraqueza",
+    "name": "Descobrir Fraqueza",
+    "circle": 1,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Monóculo de Falhas",
+      "Scanner de Blindagem",
+      "Calculador de Tensão"
+    ]
+  },
+  {
+    "id": "despedacar",
+    "name": "Despedaçar",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Martelo Ressonador",
+      "Canhão Sônico",
+      "Quebra-Tudo"
+    ]
+  },
+  {
+    "id": "detectar-ameacas",
+    "name": "Detectar Ameaças",
+    "circle": 1,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Sensor de Pólvora",
+      "Pêndulo de Alerta",
+      "Radar Portátil"
+    ]
+  },
+  {
+    "id": "detonacao-congelante",
+    "name": "Detonação Congelante",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Granada de Gelo Seco",
+      "Mina Criogênica",
+      "Bomba Nevada"
+    ]
+  },
+  {
+    "id": "discricao",
+    "name": "Discrição",
+    "circle": 1,
+    "type": "universal",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Abafador de Passos",
+      "Manto Silencioso",
+      "Ocultador"
+    ]
+  },
+  {
+    "id": "disfarce-ilusorio",
+    "name": "Disfarce Ilusório",
+    "circle": 1,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Máscara Camaleônica",
+      "Projetor Facial",
+      "Camuflador"
+    ]
+  },
+  {
+    "id": "disparo-gelido",
+    "name": "Disparo Gélido",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Fuzil de Freon",
+      "Besta Frigorigênica",
+      "Disparador Polar"
+    ]
+  },
+  {
+    "id": "distracao-fugaz",
+    "name": "Distração Fugaz",
+    "circle": 1,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Olha o Passarinho!",
+      "Bombinha Estaladiça",
+      "Projetor Relâmpago"
+    ]
+  },
+  {
+    "id": "enfeiticar",
+    "name": "Enfeitiçar",
+    "circle": 1,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Vaporizador de Feromônios",
+      "Injetor de Dopamina",
+      "Charmeiro"
+    ]
+  },
+  {
+    "id": "escapatoria-de-hyninn",
+    "name": "Escapatória de Hyninn",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Gancho de Fuga Rápida",
+      "Fumaça e Pulo",
+      "Ejetor de Ladrão"
+    ]
+  },
+  {
+    "id": "escudo-da-fe",
+    "name": "Escudo da Fé",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Defletor Cinético",
+      "Broquel Retrátil",
+      "Escudo Hexagonal"
+    ]
+  },
+  {
+    "id": "escuridao",
+    "name": "Escuridão",
+    "circle": 1,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bomba de Fuligem",
+      "Cortina Betuminosa",
+      "Apagão Portátil"
+    ]
+  },
+  {
+    "id": "espirito-balistico",
+    "name": "Espírito Balístico",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Mira Giroscópica",
+      "Calculador de Tiro",
+      "Compensador de Recuo"
+    ]
+  },
+  {
+    "id": "euforia-de-valkaria",
+    "name": "Euforia de Valkaria",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor de Ocitocina",
+      "Estimulador de Conquista",
+      "Bio-Vigor"
+    ]
+  },
+  {
+    "id": "execucao-de-thwor",
+    "name": "Execução de Thwor",
+    "circle": 1,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Guilhotina Retrátil",
+      "Machado Contrapesado",
+      "Triturador"
+    ]
+  },
+  {
+    "id": "explosao-de-chamas",
+    "name": "Explosão de chamas",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lança-Labaredas",
+      "Fole de Fogo",
+      "Pirobomba"
+    ]
+  },
+  {
+    "id": "farejar-fortuna",
+    "name": "Farejar Fortuna",
+    "circle": 1,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Detector de Metais",
+      "Bússola de Ouro",
+      "Pêndulo Imantado"
+    ]
+  },
+  {
+    "id": "flecha-de-luz",
+    "name": "Flecha de Luz",
+    "circle": 1,
+    "type": "universal",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sinalizador Solar",
+      "Dardo Fotônico",
+      "Disparador de Fótons"
+    ]
+  },
+  {
+    "id": "frescor-de-lena",
+    "name": "Frescor de Lena",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Bolsa Térmica Alquímica",
+      "Inalador Suave",
+      "Seiva Calmante"
+    ]
+  },
+  {
+    "id": "furia-dos-antepassados",
+    "name": "Fúria dos Antepassados",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Ressonador de Guerra",
+      "Injetor Adrenérgico",
+      "Tambores Mecânicos"
+    ]
+  },
+  {
+    "id": "futuro-melhor",
+    "name": "Futuro Melhor",
+    "circle": 1,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Calculador de Probabilidades",
+      "Analisador Preditivo",
+      "Giroscópio Otimista"
+    ]
+  },
+  {
+    "id": "geiser-caustico",
+    "name": "Geiser Cáustico",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bomba de Ácido",
+      "Foguete de Vitríolo",
+      "Injetor Cáustico"
+    ]
+  },
+  {
+    "id": "hipnotismo",
+    "name": "Hipnotismo",
+    "circle": 1,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Pêndulo Espelhado",
+      "Lanterna Giratória",
+      "Transe Mecânico"
+    ]
+  },
+  {
+    "id": "imagem-espelhada",
+    "name": "Imagem Espelhada",
+    "circle": 1,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Holograma Triplo",
+      "Espelho Prismático",
+      "Cópias Rápidas"
+    ]
+  },
+  {
+    "id": "infligir-ferimentos",
+    "name": "Infligir Ferimentos",
+    "circle": 1,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Manopla Necrótica",
+      "Injetor de Agulhas",
+      "Garra Elétrica"
+    ]
+  },
+  {
+    "id": "infortunio-de-sszzaas",
+    "name": "Infortúnio de Sszzaas",
+    "circle": 1,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Injetor Traiçoeiro",
+      "Agulha Furtiva",
+      "Veneno Retardado"
+    ]
+  },
+  {
+    "id": "instante-estoico",
+    "name": "Instante Estoico",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Aguenta Firme",
+      "Bloqueador de Dor",
+      "Tala Hidráulica"
+    ]
+  },
+  {
+    "id": "jato-corrosivo",
+    "name": "Jato Corrosivo",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Pistola de Vitríolo",
+      "Borrifador Cáustico",
+      "Corrosor"
+    ]
+  },
+  {
+    "id": "leque-cromatico",
+    "name": "Leque Cromático",
+    "circle": 1,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Clarão Caleidoscópico",
+      "Feixe Prismático",
+      "Cegador"
+    ]
+  },
+  {
+    "id": "luz",
+    "name": "Luz",
+    "circle": 1,
+    "type": "universal",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Farol de Fósforo",
+      "Tocha Alquímica",
+      "Halogênio"
+    ]
+  },
+  {
+    "id": "maaais-klunc",
+    "name": "Maaais Klunc",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Manopla Pistonada",
+      "Aríete de Mola",
+      "Esmagador Klunc"
+    ]
+  },
+  {
+    "id": "magia-dadivosa",
+    "name": "Magia Dadivosa",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Cabo de Éter",
+      "Bateria Compartilhada",
+      "Condutor de Mana"
+    ]
+  },
+  {
+    "id": "nevoa",
+    "name": "Névoa",
+    "circle": 1,
+    "type": "universal",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Caldeira de Vapor",
+      "Nebulizador a Fole",
+      "Gerador de Fumaça"
+    ]
+  },
+  {
+    "id": "nuvem-tempestuosa",
+    "name": "Nuvem Tempestuosa",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Microclima Chuvoso",
+      "Gerador de Cargas",
+      "Vapor Galvânico"
+    ]
+  },
+  {
+    "id": "orbe-do-oceano",
+    "name": "Orbe do Oceano",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Esfera Hidráulica",
+      "Projetor Aquoso",
+      "Canhão d'Água"
+    ]
+  },
+  {
+    "id": "orientacao",
+    "name": "Orientação",
+    "circle": 1,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Bússola Tática",
+      "Calculador de Ângulos",
+      "Ponteiro Auxiliar"
+    ]
+  },
+  {
+    "id": "ossos-de-adamante",
+    "name": "Ossos de Adamante",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Calcificador Rápido",
+      "Exoesqueleto Ósseo",
+      "Tala Reforçada"
+    ]
+  },
+  {
+    "id": "paixao-de-marah",
+    "name": "Paixão de Marah",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Vaporizador de Abraços",
+      "Incensário Calmante",
+      "Gerador de Harmonia"
+    ]
+  },
+  {
+    "id": "percepcao-rubra",
+    "name": "Percepção Rubra",
+    "circle": 1,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Lentes Anti-Tormenta",
+      "Sensor Barométrico Rubro",
+      "Detector de Lefeu"
+    ]
+  },
+  {
+    "id": "perdicao",
+    "name": "Perdição",
+    "circle": 1,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sirene Agourenta",
+      "Emissor Dissonante",
+      "Zica Garantida"
+    ]
+  },
+  {
+    "id": "perturbacao-sombria",
+    "name": "Perturbação Sombria",
+    "circle": 1,
+    "type": "divina",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Ruído Dissonante",
+      "Estroboscópio Caótico",
+      "Gerador de Sombras"
+    ]
+  },
+  {
+    "id": "poder-de-kallyadranoch",
+    "name": "Poder de Kallyadranoch",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor Dracônico",
+      "Manopla Aquecedora",
+      "Escamas de Aço"
+    ]
+  },
+  {
+    "id": "posse-de-arsenal",
+    "name": "Posse de Arsenal",
+    "circle": 1,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Ímã Puxa-Armas",
+      "Garra Coletora",
+      "Recolhedor de Ferro"
+    ]
+  },
+  {
+    "id": "primor-atletico",
+    "name": "Primor Atlético",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor de Adrenalina",
+      "Cinto de Compressão",
+      "Bio-Estimulador"
+    ]
+  },
+  {
+    "id": "profanar",
+    "name": "Profanar",
+    "circle": 1,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Difusor de Miolos Podres",
+      "Aspersor Decompositor",
+      "Injetor Entrópico"
+    ]
+  },
+  {
+    "id": "protecao-de-tauron",
+    "name": "Proteção de Tauron",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Arnês de Bronze",
+      "Cinto Hidráulico",
+      "Placas Sobrepostas"
+    ]
+  },
+  {
+    "id": "protecao-divina",
+    "name": "Proteção Divina",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Arnês Amortecedor",
+      "Pingente Tático",
+      "Gola Blindada"
+    ]
+  },
+  {
+    "id": "punho-de-mitral",
+    "name": "Punho de Mitral",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Manopla de Mitral",
+      "Soco-Inglês Balanceado",
+      "Punho Ultraleve"
+    ]
+  },
+  {
+    "id": "queda-suave",
+    "name": "Queda Suave",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Paraquedas Retrátil",
+      "Retropropulsor de Pouso",
+      "Giroscópio Desacelerador"
+    ]
+  },
+  {
+    "id": "raio-do-enfraquecimento",
+    "name": "Raio do Enfraquecimento",
+    "circle": 1,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Raio Fraqueza",
+      "Pistola Debilitante",
+      "Dardo Hipotônico"
+    ]
+  },
+  {
+    "id": "resistencia-a-energia",
+    "name": "Resistência a Energia",
+    "circle": 1,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Colete Isolante",
+      "Regulador Térmico",
+      "Manto Anti-Chamas"
+    ]
+  },
+  {
+    "id": "santuario",
+    "name": "Santuário",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Não Me Toque",
+      "Campo Anti-Agressão",
+      "Barreira Desorientadora"
+    ]
+  },
+  {
+    "id": "seta-infalivel-de-talude",
+    "name": "Seta Infalível de Talude",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Micro-Balista Teleguiada",
+      "Míssil de Éter",
+      "Dardo Infalível"
+    ]
+  },
+  {
+    "id": "sigilo-de-sszzaas",
+    "name": "Sigilo de Sszzaas",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Cofre Cifrado",
+      "Codificador Mecânico",
+      "Destruidor de Segredos"
+    ]
+  },
+  {
+    "id": "siroco-de-azgher",
+    "name": "Siroco de Azgher",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Turbina de Areia Quente",
+      "Soprador Desértico",
+      "Canhão Térmico"
+    ]
+  },
+  {
+    "id": "sono",
+    "name": "Sono",
+    "circle": 1,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Borrife e Durma",
+      "Dardo Soporífero",
+      "Caixa de Música Sonífera"
+    ]
+  },
+  {
+    "id": "sorriso-da-fortuna",
+    "name": "Sorriso da Fortuna",
+    "circle": 1,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Roleta da Sorte",
+      "Giroscópio Sortudo",
+      "Compensador de Azar"
+    ]
+  },
+  {
+    "id": "suporte-ambiental",
+    "name": "Suporte Ambiental",
+    "circle": 1,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Máscara Hermética",
+      "Purificador de Ar",
+      "Escafandro Compacto"
+    ]
+  },
+  {
+    "id": "teia",
+    "name": "Teia",
+    "circle": 1,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lança-Redes Pneumático",
+      "Grudador em Área",
+      "Cartucho de Polímero"
+    ]
+  },
+  {
+    "id": "toque-chocante",
+    "name": "Toque Chocante",
+    "circle": 1,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Manopla Chocante",
+      "Bracelete Galvânico",
+      "Centelhador"
+    ]
+  },
+  {
+    "id": "toque-de-megalokk",
+    "name": "Toque de Megalokk",
+    "circle": 1,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Garras de Aço Retráteis",
+      "Mandíbula Mecânica",
+      "Espigões Ejetáveis"
+    ]
+  },
+  {
+    "id": "toque-do-horizonte",
+    "name": "Toque do Horizonte",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Visor de Longo Alcance",
+      "Telemetro Prismático",
+      "Colimador Óptico"
+    ]
+  },
+  {
+    "id": "tranca-arcana",
+    "name": "Tranca Arcana",
+    "circle": 1,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Trava Criptográfica",
+      "Ferrolho Eletrificado",
+      "Fechadura Impossível"
+    ]
+  },
+  {
+    "id": "tranquilidade",
+    "name": "Tranquilidade",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Nebulizador Calmante",
+      "Diapasão Zen",
+      "Emissor de Calmaria"
+    ]
+  },
+  {
+    "id": "transmutar-objetos",
+    "name": "Transmutar Objetos",
+    "circle": 1,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Reformador Molecular",
+      "Prensa Alquímica",
+      "Forja Portátil"
+    ]
+  },
+  {
+    "id": "visao-mistica",
+    "name": "Visão Mística",
+    "circle": 1,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Monóculo Analisador de Mana",
+      "Lentes Espectrais",
+      "Visor Etéreo"
+    ]
+  },
+  {
+    "id": "vitalidade-fantasma",
+    "name": "Vitalidade Fantasma",
+    "circle": 1,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor de Vigor Temporário",
+      "Bateria Vital",
+      "Eletro-Tônico"
+    ]
+  },
+  {
+    "id": "voz-da-razao",
+    "name": "Voz da Razão",
+    "circle": 1,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Diapasão da Sensatez",
+      "Regulador de Ondas",
+      "Filtro Anti-Histeria"
+    ]
+  },
+  {
+    "id": "aliado-animal",
+    "name": "Aliado Animal",
+    "circle": 2,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Chamador de Feras",
+      "Apito Selvagem",
+      "Chocalho Biológico"
+    ]
+  },
+  {
+    "id": "alterar-tamanho",
+    "name": "Alterar Tamanho",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Regulador de Escala",
+      "Câmara de Dilatação",
+      "Pílula de Crescimento"
+    ]
+  },
+  {
+    "id": "amarras-etereas",
+    "name": "Amarras Etéreas",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lança-Cabos Magnético",
+      "Trincha de Aço",
+      "Trava-Membros"
+    ]
+  },
+  {
+    "id": "aparencia-perfeita",
+    "name": "Aparência Perfeita",
+    "circle": 2,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Filtro de Beleza Real",
+      "Máscara Simétrica",
+      "Nebulizador Estético"
+    ]
+  },
+  {
+    "id": "augurio",
+    "name": "Augúrio",
+    "circle": 2,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Relógio Analítico",
+      "Calculador de Destino",
+      "Sismógrafo do Futuro"
+    ]
+  },
+  {
+    "id": "aura-de-morte",
+    "name": "Aura de Morte",
+    "circle": 2,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Manto Decompositor",
+      "Dispersor Tóxico",
+      "Aura Cáustica"
+    ]
+  },
+  {
+    "id": "bola-de-fogo",
+    "name": "Bola de Fogo",
+    "circle": 2,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Pirotécnico",
+      "Lança-Chamas Portátil",
+      "Pirocanhão"
+    ]
+  },
+  {
+    "id": "campo-de-forca",
+    "name": "Campo de Força",
+    "circle": 2,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Gerador de Barreira",
+      "Bóia Defletora",
+      "Cúpula Protetora"
+    ]
+  },
+  {
+    "id": "camuflagem-ilusoria",
+    "name": "Camuflagem ilusória",
+    "circle": 2,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Capa Camaleão",
+      "Manto Refratário",
+      "Distorcedor Visual"
+    ]
+  },
+  {
+    "id": "circulo-da-justica",
+    "name": "Círculo da Justiça",
+    "circle": 2,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Estacas Eletrizadas",
+      "Demarcador Perimetral",
+      "Barreira Galvânica"
+    ]
+  },
+  {
+    "id": "condicao",
+    "name": "Condição",
+    "circle": 2,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Monitor Cardíaco Portátil",
+      "Painel de Agulhas Vitais",
+      "Indicador de Saúde"
+    ]
+  },
+  {
+    "id": "conjurar-armadilha",
+    "name": "Conjurar Armadilha",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Disparador de Cepos",
+      "Módulo de Minas Rápidas",
+      "Armadilha de Mola"
+    ]
+  },
+  {
+    "id": "conjurar-mortos-vivos",
+    "name": "Conjurar Mortos-Vivos",
+    "circle": 2,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Reanimador Galvânico",
+      "Eletrodos Cervicais",
+      "Injetor Cadavérico"
+    ]
+  },
+  {
+    "id": "controlar-ar",
+    "name": "Controlar Ar",
+    "circle": 2,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Fole Turbilhonador",
+      "Canhão de Vento",
+      "Ventilador a Vapor"
+    ]
+  },
+  {
+    "id": "controlar-fogo",
+    "name": "Controlar Fogo",
+    "circle": 2,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Válvula de Chamas",
+      "Fole Alimentador",
+      "Direcionador Ígneo"
+    ]
+  },
+  {
+    "id": "controlar-madeira",
+    "name": "Controlar Madeira",
+    "circle": 2,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Prensa Entalhadora",
+      "Injetor Flexibilizador",
+      "Moldador de Troncos"
+    ]
+  },
+  {
+    "id": "couraca-de-allihanna",
+    "name": "Couraça de Allihanna",
+    "circle": 2,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Peitoral Madeira-Ferro",
+      "Placas de Quitina",
+      "Armadura Vegetal"
+    ]
+  },
+  {
+    "id": "cranio-voador-de-vladislav",
+    "name": "Crânio Voador de Vladislav",
+    "circle": 2,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Drone Crânio Explosivo",
+      "Mina Flutuante a Corda",
+      "Crânio de Chamas"
+    ]
+  },
+  {
+    "id": "desafio-corajoso",
+    "name": "Desafio Corajoso",
+    "circle": 2,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Vem Pro Pau!",
+      "Corneta Desafiadora",
+      "Sirene Marcadora"
+    ]
+  },
+  {
+    "id": "desespero-esmagador",
+    "name": "Desespero Esmagador",
+    "circle": 2,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sirene Depressiva",
+      "Emissor Desesperador",
+      "Gás Melancólico"
+    ]
+  },
+  {
+    "id": "desfazer",
+    "name": "Desfazer",
+    "circle": 2,
+    "type": "engenhoca",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Neutralizador Arcano",
+      "Chave Reversora",
+      "Disruptor Mágico"
+    ]
+  },
+  {
+    "id": "dissipar-magia",
+    "name": "Dissipar Magia",
+    "circle": 2,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Pulso Eletromágico (PEM)",
+      "Aparelho Antiestático",
+      "Despolarizador"
+    ]
+  },
+  {
+    "id": "emular-magia",
+    "name": "Emular Magia",
+    "circle": 2,
+    "type": "universal",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Sintetizador Arcano",
+      "Gravador de Feitiços",
+      "Módulo Copiador"
+    ]
+  },
+  {
+    "id": "enxame-de-pestes",
+    "name": "Enxame de Pestes",
+    "circle": 2,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Dispensador de Pulgas Mecânicas",
+      "Caixa de Insetos a Corda",
+      "Aranhas Robóticas"
+    ]
+  },
+  {
+    "id": "esculpir-sons",
+    "name": "Esculpir Sons",
+    "circle": 2,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Modulador de Voz",
+      "Fonógrafo Portátil",
+      "Falsificador de Ecos"
+    ]
+  },
+  {
+    "id": "fisico-divino",
+    "name": "Físico Divino",
+    "circle": 2,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Bomba Anabólica",
+      "Cinto Eletromuscular",
+      "Exoesqueleto Muscular"
+    ]
+  },
+  {
+    "id": "flecha-acida",
+    "name": "Flecha Ácida",
+    "circle": 2,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lançador de Vitríolo",
+      "Besta Corrosiva",
+      "Fuzil de Ácido"
+    ]
+  },
+  {
+    "id": "globo-da-verdade-de-gwen",
+    "name": "Globo da verdade de gwen",
+    "circle": 2,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Detector de Mentiras Óptico",
+      "Lanterna Reveladora",
+      "Campânula da Verdade"
+    ]
+  },
+  {
+    "id": "invisibilidade",
+    "name": "Invisibilidade",
+    "circle": 2,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Capa de Invisibilidade",
+      "Desviador Fotônico",
+      "Gerador Refrator"
+    ]
+  },
+  {
+    "id": "invocar-fagulha-elemental",
+    "name": "Invocar Fagulha Elemental",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Ejetor de Fagulhas",
+      "Bobina de Centelhas",
+      "Fagote Pirofórico"
+    ]
+  },
+  {
+    "id": "ligacao-telepatica",
+    "name": "Ligação Telepática",
+    "circle": 2,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Capacete Intercomunicador",
+      "Rádio Cerebral",
+      "Fones Sincronizados"
+    ]
+  },
+  {
+    "id": "localizacao",
+    "name": "Localização",
+    "circle": 2,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bússola Rastreadora",
+      "Detector Magnético",
+      "Sonda Receptora"
+    ]
+  },
+  {
+    "id": "mapear",
+    "name": "Mapear",
+    "circle": 2,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Cartógrafo Automático",
+      "Odômetro com Pena",
+      "Topógrafo Portátil"
+    ]
+  },
+  {
+    "id": "maquina-de-combate",
+    "name": "Máquina de Combate",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Exoesqueleto de Combate",
+      "Armadura Hidráulica",
+      "Tanque Individual"
+    ]
+  },
+  {
+    "id": "marca-da-obediencia",
+    "name": "Marca da Obediência",
+    "circle": 2,
+    "type": "universal",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Coleira com Choque",
+      "Bracelete Espigado",
+      "Selo de Sujeição"
+    ]
+  },
+  {
+    "id": "mente-divina",
+    "name": "Mente Divina",
+    "circle": 2,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Tiara de Foco Cognitivo",
+      "Estimulador Neural",
+      "Oxigenador Cerebral"
+    ]
+  },
+  {
+    "id": "metamorfose",
+    "name": "Metamorfose",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor Mutagênico",
+      "Câmara Morfológica",
+      "Traje Bio-Adaptativo"
+    ]
+  },
+  {
+    "id": "miasma-mefitico",
+    "name": "Miasma Mefítico",
+    "circle": 2,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Granada de Asfixia",
+      "Nebulizador Sulfuroso",
+      "Bomba Fétida"
+    ]
+  },
+  {
+    "id": "momento-de-tormenta",
+    "name": "Momento de Tormenta",
+    "circle": 2,
+    "type": "universal",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor de Matéria Vermelha",
+      "Disruptor Aberrante",
+      "Bio-Mutante Rubro"
+    ]
+  },
+  {
+    "id": "montaria-arcana",
+    "name": "Montaria Arcana",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Veículo a Vapor",
+      "Corcel Dobrável",
+      "Monociclo Articulado"
+    ]
+  },
+  {
+    "id": "oracao",
+    "name": "Oração",
+    "circle": 2,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Caixa de Música Motivacional",
+      "Diapasão Harmônico",
+      "Sino de Moral"
+    ]
+  },
+  {
+    "id": "piscar",
+    "name": "Piscar",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Deslocador Molecular",
+      "Micro-Saltos Intermitentes",
+      "Giroscópio Pisca-Pisca"
+    ]
+  },
+  {
+    "id": "pocao-explosiva",
+    "name": "Poção Explosiva",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Misturador de Nitroglicerina",
+      "Ampola de Impacto",
+      "Granada Bifásica"
+    ]
+  },
+  {
+    "id": "punicao-do-profano",
+    "name": "Punição do Profano",
+    "circle": 2,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Dardos Prateados",
+      "Raios Fotônicos",
+      "Bobina Sagrada"
+    ]
+  },
+  {
+    "id": "purificacao",
+    "name": "Purificação",
+    "circle": 2,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Filtro de Diálise Portátil",
+      "Neutralizador Químico",
+      "Lavador Sanguíneo"
+    ]
+  },
+  {
+    "id": "raio-solar",
+    "name": "Raio Solar",
+    "circle": 2,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Concentrador Solar",
+      "Projetor Fotônico",
+      "Lanterna Solar"
+    ]
+  },
+  {
+    "id": "refugio",
+    "name": "Refúgio",
+    "circle": 2,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Tenda Desdobrável Blindada",
+      "Cúpula Hermética",
+      "Abrigo Portátil"
+    ]
+  },
+  {
+    "id": "relampago",
+    "name": "Relâmpago",
+    "circle": 2,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Arma de Raios",
+      "Bobina Galvânica",
+      "Fuzil Voltaico"
+    ]
+  },
+  {
+    "id": "rogar-maldicao",
+    "name": "Rogar Maldição",
+    "circle": 2,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Injetor Enfraquecedor",
+      "Emissor Infrassônico",
+      "Disruptor Homeostático"
+    ]
+  },
+  {
+    "id": "runa-de-protecao",
+    "name": "Runa de Proteção",
+    "circle": 2,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Mina de Pressão Alquímica",
+      "Armadilha de Gatilho",
+      "Detonador Perimetral"
+    ]
+  },
+  {
+    "id": "salto-dimensional",
+    "name": "Salto Dimensional",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Salto Quântico a Mola",
+      "Teletransporte a Vapor",
+      "Acelerador de Vetores"
+    ]
+  },
+  {
+    "id": "servos-invisiveis",
+    "name": "Servos Invisíveis",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Drones Camuflados",
+      "Aranhas Mecânicas Furtivas",
+      "Autômatos Ocultos"
+    ]
+  },
+  {
+    "id": "silencio",
+    "name": "Silêncio",
+    "circle": 2,
+    "type": "divina",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Abafador de Ruídos",
+      "Cúpula Fono-Absorvente",
+      "Gerador de Silêncio"
+    ]
+  },
+  {
+    "id": "soco-de-arsenal",
+    "name": "Soco de Arsenal",
+    "circle": 2,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Aríete de Punho",
+      "Manopla Demolidora",
+      "Canhão Cinético"
+    ]
+  },
+  {
+    "id": "sopro-das-uivantes",
+    "name": "Sopro das Uivantes",
+    "circle": 2,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão de Granizo",
+      "Turbina Frigorigênica",
+      "Soprador Polar"
+    ]
+  },
+  {
+    "id": "sussurros-insanos",
+    "name": "Sussurros Insanos",
+    "circle": 2,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Vozes na Cabeça",
+      "Caixa de Ecos Caóticos",
+      "Emissor Frequencial"
+    ]
+  },
+  {
+    "id": "tempestade-divina",
+    "name": "Tempestade Divina",
+    "circle": 2,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Chuva de Centelhas",
+      "Bobina Galvânica Múltipla",
+      "Lançador Elétrico"
+    ]
+  },
+  {
+    "id": "toque-vampirico",
+    "name": "Toque Vampírico",
+    "circle": 2,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Sifão de Sangue",
+      "Manopla Transfusora",
+      "Dreno Vital"
+    ]
+  },
+  {
+    "id": "traicao-da-lamina",
+    "name": "Traição da Lâmina",
+    "circle": 2,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Repulsor Magnético",
+      "Defletor de Gume",
+      "Trava-Lâminas"
+    ]
+  },
+  {
+    "id": "traicao-magica",
+    "name": "Traição Mágica",
+    "circle": 2,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Espelho Refletor de Mana",
+      "Prisma Inversor",
+      "Retorno de Feixe"
+    ]
+  },
+  {
+    "id": "transposicao",
+    "name": "Transposição",
+    "circle": 2,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Troca-Posições Magnético",
+      "Permutador Espacial",
+      "Teletransporte Cruzado"
+    ]
+  },
+  {
+    "id": "velocidade",
+    "name": "Velocidade",
+    "circle": 2,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Turbina Cinética Dorsal",
+      "Exoesqueleto Motorizado",
+      "Acelerador Corporal"
+    ]
+  },
+  {
+    "id": "vestimenta-da-fe",
+    "name": "Vestimenta da Fé",
+    "circle": 2,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Laca Diamantina",
+      "Banho Protetor Eletroquímico",
+      "Placas Articuladas"
+    ]
+  },
+  {
+    "id": "viagem-onirica",
+    "name": "Viagem Onírica",
+    "circle": 2,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Capacete Indutor REM",
+      "Inalador Sonhador",
+      "Caixa de Ondas Alfa"
+    ]
+  },
+  {
+    "id": "voz-divina",
+    "name": "Voz Divina",
+    "circle": 2,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Megafone de Latão",
+      "Trombeta Amplificadora",
+      "Alto-Falante Trovão"
+    ]
+  },
+  {
+    "id": "ancora-dimensional",
+    "name": "Âncora Dimensional",
+    "circle": 3,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Arpão Gravitacional",
+      "Emissor Anti-Teleporte",
+      "Cravo Hiperespacial"
+    ]
+  },
+  {
+    "id": "anular-a-luz",
+    "name": "Anular a Luz",
+    "circle": 3,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Filtro de Fótons",
+      "Canhão de Vácuo Luminoso",
+      "Cúpula de Chumbo"
+    ]
+  },
+  {
+    "id": "banimento",
+    "name": "Banimento",
+    "circle": 3,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Catapulta Dimensional",
+      "Canhão Interplanar",
+      "Disruptor de Vínculo"
+    ]
+  },
+  {
+    "id": "coluna-de-chamas",
+    "name": "Coluna de Chamas",
+    "circle": 3,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Morteiro de Nafta",
+      "Projetor Vulcânico",
+      "Foguete Pirotécnico"
+    ]
+  },
+  {
+    "id": "comunhao-com-a-natureza",
+    "name": "Comunhão com a Natureza",
+    "circle": 3,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sismógrafo de Solo",
+      "Sensor Ecológico",
+      "Agulha Telúrica"
+    ]
+  },
+  {
+    "id": "contato-extraplanar",
+    "name": "Contato Extraplanar",
+    "circle": 3,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Rádio Interplanar",
+      "Telégrafo Astral",
+      "Receptor Cósmico"
+    ]
+  },
+  {
+    "id": "controlar-agua",
+    "name": "Controlar Água",
+    "circle": 3,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bomba Hidráulica a Vapor",
+      "Válvula Fluvial",
+      "Sifão Hidrodinâmico"
+    ]
+  },
+  {
+    "id": "controlar-terra",
+    "name": "Controlar Terra",
+    "circle": 3,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Aríete Sísmico",
+      "Perfuratriz Hidráulica",
+      "Escavadeira a Pistão"
+    ]
+  },
+  {
+    "id": "convocacao-instantanea",
+    "name": "Convocação Instantânea",
+    "circle": 3,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Guincho Hiperdimensional",
+      "Gabinete de Recolhimento",
+      "Baliza Remota"
+    ]
+  },
+  {
+    "id": "coracao-imortal",
+    "name": "Coração Imortal",
+    "circle": 3,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Marcapasso a Mola",
+      "Coração Mecânico",
+      "Desfibrilador Interno"
+    ]
+  },
+  {
+    "id": "despertar-consciencia",
+    "name": "Despertar Consciência",
+    "circle": 3,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Capacete Bioelétrico",
+      "Estimulador Sináptico",
+      "Injetor de Lucidez"
+    ]
+  },
+  {
+    "id": "dificultar-deteccao",
+    "name": "Dificultar Detecção",
+    "circle": 3,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Manto de Chumbo Flexível",
+      "Gerador de Ruído Branco",
+      "Isolador de Éter"
+    ]
+  },
+  {
+    "id": "dispersar-as-trevas",
+    "name": "Dispersar as Trevas",
+    "circle": 3,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Farol Parabólico Solar",
+      "Canhão Fotônico",
+      "Estroboscópio de Magnésio"
+    ]
+  },
+  {
+    "id": "enxame-rubro-de-ichabod",
+    "name": "Enxame Rubro de Ichabod",
+    "circle": 3,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Catapulta de Cardos de Aço",
+      "Ejetor de Lâminas Giratórias",
+      "Lançador Sanguinário"
+    ]
+  },
+  {
+    "id": "erupcao-glacial",
+    "name": "Erupção Glacial",
+    "circle": 3,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Morteiro de Freon",
+      "Bomba Criogênica Subterrânea",
+      "Lança-Gelos"
+    ]
+  },
+  {
+    "id": "ferver-sangue",
+    "name": "Ferver Sangue",
+    "circle": 3,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Emissor Micro-Ondas",
+      "Projetor Térmico Focal",
+      "Indutor Calórico"
+    ]
+  },
+  {
+    "id": "globo-de-invulnerabilidade",
+    "name": "Globo de Invulnerabilidade",
+    "circle": 3,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Cúpula Diamantada",
+      "Escudo Hermético",
+      "Bobina Defletora Total"
+    ]
+  },
+  {
+    "id": "halito-peconhento",
+    "name": "Hálito Peçonhento",
+    "circle": 3,
+    "type": "universal",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Máscara Lança-Toxinas",
+      "Bocal Pressurizado",
+      "Nebulizador de Veneno"
+    ]
+  },
+  {
+    "id": "heroismo",
+    "name": "Heroísmo",
+    "circle": 3,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Injetor de Bravura",
+      "Bio-Coragem",
+      "Arnês Cardíaco Tático"
+    ]
+  },
+  {
+    "id": "ilusao-lacerante",
+    "name": "Ilusão Lacerante",
+    "circle": 3,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Holograma Cortante",
+      "Lâminas de Luz Refratadas",
+      "Projetor Traumático"
+    ]
+  },
+  {
+    "id": "imobilizar",
+    "name": "Imobilizar",
+    "circle": 3,
+    "type": "universal",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lança-Cabos Paralisante",
+      "Algema Automática",
+      "Choque Neuromuscular"
+    ]
+  },
+  {
+    "id": "impacto-fulminante",
+    "name": "Impacto Fulminante",
+    "circle": 3,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Aríete Hipersônico",
+      "Canhão de Ar Comprimido",
+      "Martelete Frontal"
+    ]
+  },
+  {
+    "id": "lanca-ignea-de-aleph",
+    "name": "Lança Ígnea de Aleph",
+    "circle": 3,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão de Lanças Quentes",
+      "Fuzil Incandescente",
+      "Balista Ígnea"
+    ]
+  },
+  {
+    "id": "lendas-e-historias",
+    "name": "Lendas e Histórias",
+    "circle": 3,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Arquivo de Fita Perfurada",
+      "Calculador Lexicográfico",
+      "Enciclopédia de Rolo"
+    ]
+  },
+  {
+    "id": "manto-de-sombras",
+    "name": "Manto de Sombras",
+    "circle": 3,
+    "type": "universal",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Capa de Penumbra",
+      "Manto de Fuligem",
+      "Ocultador Noturno"
+    ]
+  },
+  {
+    "id": "miragem",
+    "name": "Miragem",
+    "circle": 3,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Projetor de Cenário",
+      "Caleidoscópio Geográfico",
+      "Gerador de Miragens"
+    ]
+  },
+  {
+    "id": "missao-divina",
+    "name": "Missão Divina",
+    "circle": 3,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Relógio do Dever",
+      "Bracelete de Compromisso",
+      "Cronômetro Sagrado"
+    ]
+  },
+  {
+    "id": "muralha-elemental",
+    "name": "Muralha Elemental",
+    "circle": 3,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Barreira Térmica Desdobrável",
+      "Muralha a Pistão",
+      "Cortina Ígnea"
+    ]
+  },
+  {
+    "id": "pele-de-pedra",
+    "name": "Pele de Pedra",
+    "circle": 3,
+    "type": "universal",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Petrificador Epidérmico",
+      "Resina Basáltica Flexível",
+      "Exo-Placas de Rocha"
+    ]
+  },
+  {
+    "id": "poeira-da-podridao",
+    "name": "Poeira da Podridão",
+    "circle": 3,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Granada Necrótica",
+      "Atomizador Cáustico",
+      "Pó Decompositor"
+    ]
+  },
+  {
+    "id": "potencia-divina",
+    "name": "Potência Divina",
+    "circle": 3,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Exoesqueleto Titânico",
+      "Injetor Superesteroide",
+      "Pistões Musculares"
+    ]
+  },
+  {
+    "id": "protecao-contra-magia",
+    "name": "Proteção contra Magia",
+    "circle": 3,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Difrator Eletrostático",
+      "Manto Prata e Chumbo",
+      "Bobinas Isolantes de Mana"
+    ]
+  },
+  {
+    "id": "selo-de-mana",
+    "name": "Selo de Mana",
+    "circle": 3,
+    "type": "universal",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Cadeado de Mana",
+      "Bloqueador de Conjurador",
+      "Braçadeira Anti-Feitiço"
+    ]
+  },
+  {
+    "id": "servo-divino",
+    "name": "Servo Divino",
+    "circle": 3,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Autômato com Insígnia",
+      "Droide Assistente",
+      "Mordomo a Vapor"
+    ]
+  },
+  {
+    "id": "servo-morto-vivo",
+    "name": "Servo Morto-Vivo",
+    "circle": 3,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Carcassa a Pistão",
+      "Zumbi Mecanizado",
+      "Esqueleto de Engrenagens"
+    ]
+  },
+  {
+    "id": "sopro-da-salvacao",
+    "name": "Sopro da Salvação",
+    "circle": 3,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Nebulizador de Cura",
+      "Canhão Regenerativo",
+      "Difusor de Bálsamo"
+    ]
+  },
+  {
+    "id": "telecinesia",
+    "name": "Telecinesia",
+    "circle": 3,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Gravitacional",
+      "Manopla Cinética Magnética",
+      "Guincho a Vácuo"
+    ]
+  },
+  {
+    "id": "teletransporte",
+    "name": "Teletransporte",
+    "circle": 3,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Dobra Espacial a Vapor",
+      "Acelerador de Fissão Molecular",
+      "Câmara de Salto"
+    ]
+  },
+  {
+    "id": "tentaculos-de-trevas",
+    "name": "Tentáculos de Trevas",
+    "circle": 3,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Polvo Mecânico",
+      "Garras Hidráulicas Múltiplas",
+      "Chicotes de Aço"
+    ]
+  },
+  {
+    "id": "toque-algido",
+    "name": "Toque Álgido",
+    "circle": 3,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Manopla Sub-Zero",
+      "Garra Frigorigênica",
+      "Toque de Gelo Seco"
+    ]
+  },
+  {
+    "id": "transformacao-de-guerra",
+    "name": "Transformação de Guerra",
+    "circle": 3,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Exoesqueleto Blindado de Batalha",
+      "Soro de Frenesi Bélico",
+      "Blindagem Berserker"
+    ]
+  },
+  {
+    "id": "viagem-arborea",
+    "name": "Viagem Arbórea",
+    "circle": 3,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Arpão de Copa de Árvore",
+      "Translocador Fito-Celular",
+      "Guincho de Dossel"
+    ]
+  },
+  {
+    "id": "videncia",
+    "name": "Vidência",
+    "circle": 3,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Espelho Receptor Remoto",
+      "Periscópio Holográfico",
+      "Bacia de Mercúrio Óptica"
+    ]
+  },
+  {
+    "id": "voo",
+    "name": "Voo",
+    "circle": 3,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Mochila a Jato",
+      "Asas Articuladas",
+      "Girocóptero Dorsal"
+    ]
+  },
+  {
+    "id": "alterar-memoria",
+    "name": "Alterar Memória",
+    "circle": 4,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Aparelho Reprogramador Sináptico",
+      "Capacete de Falsas Memórias",
+      "Disruptor Cognitivo"
+    ]
+  },
+  {
+    "id": "animar-objetos",
+    "name": "Animar Objetos",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Injetores Neuro-Cinéticos",
+      "Engrenagens Parasitas",
+      "Motores de Ação Rápida"
+    ]
+  },
+  {
+    "id": "assassino-fantasmagorico",
+    "name": "Assassino Fantasmagórico",
+    "circle": 4,
+    "type": "arcana",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão de Pesadelos",
+      "Projetor Holofótico de Pânico",
+      "Emissor do Terror"
+    ]
+  },
+  {
+    "id": "bencao-da-dragoa-rainha",
+    "name": "Bênção da Dragoa Rainha",
+    "circle": 4,
+    "type": "universal",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Revestimento Dracônico Quíntuplo",
+      "Arnês das Cinco Matrizes",
+      "Blindagem Elemental"
+    ]
+  },
+  {
+    "id": "campo-antimagia",
+    "name": "Campo Antimagia",
+    "circle": 4,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Vácuo de Mana Portátil",
+      "Cúpula Anti-Éter",
+      "Despolarizador Total"
+    ]
+  },
+  {
+    "id": "circulo-da-restauracao",
+    "name": "Círculo da Restauração",
+    "circle": 4,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Câmara Sanatorial de Vapor",
+      "Chuveiro de Panaceia",
+      "Plataforma Regenerativa"
+    ]
+  },
+  {
+    "id": "colera-de-azgher",
+    "name": "cólera de azgher",
+    "circle": 4,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Solar Purificador",
+      "Projetor Incandescente",
+      "Morteiro de Fósforo"
+    ]
+  },
+  {
+    "id": "conceder-milagre",
+    "name": "Conceder Milagre",
+    "circle": 4,
+    "type": "divina",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canalizador Fenomenológico",
+      "Gerador de Transmutação Total",
+      "Injetor Cósmico"
+    ]
+  },
+  {
+    "id": "conjurar-elemental",
+    "name": "Conjurar Elemental",
+    "circle": 4,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Reator de Ignição Elemental",
+      "Câmara de Convocação Telúrica",
+      "Colosso a Vapor"
+    ]
+  },
+  {
+    "id": "controlar-a-gravidade",
+    "name": "Controlar a Gravidade",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Inversor Gravitacional",
+      "Canhão de Flutuação",
+      "Pêndulo Anti-Gravidade"
+    ]
+  },
+  {
+    "id": "controlar-o-clima",
+    "name": "Controlar o Clima",
+    "circle": 4,
+    "type": "divina",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Caldeira Semeia-Nuvens",
+      "Canhão Atmosférico",
+      "Gerador de Frentes"
+    ]
+  },
+  {
+    "id": "cupula-de-repulsao",
+    "name": "Cúpula de Repulsão",
+    "circle": 4,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Gerador Hemisférico Reativo",
+      "Cúpula Eletrostática",
+      "Cinturão Repulsor"
+    ]
+  },
+  {
+    "id": "desintegrar",
+    "name": "Desintegrar",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Desintegrador",
+      "Raio de Ruptura Molecular",
+      "Desmanchador Atômico"
+    ]
+  },
+  {
+    "id": "duplicata-ilusoria",
+    "name": "Duplicata Ilusória",
+    "circle": 4,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "vestida",
+    "contraptions": [
+      "Holograma Tridimensional Perfeito",
+      "Simulacro Óptico",
+      "Gêmeo Holográfico"
+    ]
+  },
+  {
+    "id": "explosao-caleidoscopica",
+    "name": "Explosão Caleidoscópica",
+    "circle": 4,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Prismático Caótico",
+      "Morteiro Cegante",
+      "Bomba Fotônica"
+    ]
+  },
+  {
+    "id": "forma-eterea",
+    "name": "Forma Etérea",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Deslocador Atômico",
+      "Traje de Intangibilidade",
+      "Arnês Desmaterializador"
+    ]
+  },
+  {
+    "id": "guardiao-divino",
+    "name": "Guardião Divino",
+    "circle": 4,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Colosso Autômato de Bronze",
+      "Sentinela Mecânico Pesado",
+      "Golem Dobrável"
+    ]
+  },
+  {
+    "id": "libertacao",
+    "name": "Libertação",
+    "circle": 4,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Cortador Hidráulico de Amarras",
+      "Chave Mestra Químico-Cinética",
+      "Rompelóculos"
+    ]
+  },
+  {
+    "id": "ligacao-sombria",
+    "name": "Ligação Sombria",
+    "circle": 4,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Transmissor Sináptico de Dor",
+      "Braceletes Conectores Sombrios",
+      "Receptor Cruzado"
+    ]
+  },
+  {
+    "id": "manto-do-cruzado",
+    "name": "Manto do Cruzado",
+    "circle": 4,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Armadura de Aço Sacro",
+      "Exoesqueleto de Blindagem Reativa",
+      "Arnês de Prata"
+    ]
+  },
+  {
+    "id": "mao-poderosa-de-talude",
+    "name": "Mão Poderosa de Talude",
+    "circle": 4,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Manipulador Mecânico Gigante",
+      "Mão Cinética a Jato",
+      "Braço Tele-Guiado"
+    ]
+  },
+  {
+    "id": "marionete",
+    "name": "Marionete",
+    "circle": 4,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Controle Remoto Neuromuscular",
+      "Arnês Condutor de Movimento",
+      "Piloto de Gente"
+    ]
+  },
+  {
+    "id": "muralha-de-ossos",
+    "name": "Muralha de Ossos",
+    "circle": 4,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Barreira Balística Desdobrável",
+      "Paliçada de Chapas e Farpas",
+      "Muralha de Lâminas"
+    ]
+  },
+  {
+    "id": "pantano-vitriolico",
+    "name": "Pântano Vitriólico",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lançador de Lodo Ácido",
+      "Morteiro de Vitríolo",
+      "Asfalto Corrosivo"
+    ]
+  },
+  {
+    "id": "premonicao",
+    "name": "Premonição",
+    "circle": 4,
+    "type": "divina",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Calculador de Ameaças Futuras",
+      "Giroscópio Quântico Analítico",
+      "Visor Preditivo"
+    ]
+  },
+  {
+    "id": "raio-de-plasma",
+    "name": "Raio de Plasma",
+    "circle": 4,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão de Plasma Magnético",
+      "Fuzil de Descarga Iônica",
+      "Feixe Plasmático"
+    ]
+  },
+  {
+    "id": "raio-polar",
+    "name": "Raio Polar",
+    "circle": 4,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Gelificador",
+      "Canhão Sub-Zero",
+      "Feixe Criogênico Absoluto"
+    ]
+  },
+  {
+    "id": "relampago-flamejante-de-reynard",
+    "name": "Relâmpago Flamejante de Reynard",
+    "circle": 4,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Termo-Elétrico",
+      "Lançador Híbrido de Fogo e Choque",
+      "Descarga Dupla"
+    ]
+  },
+  {
+    "id": "sonho",
+    "name": "Sonho",
+    "circle": 4,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Transmissor Telepático Onírico",
+      "Capacete Sonhador",
+      "Caixa de Ressonância REM"
+    ]
+  },
+  {
+    "id": "talho-invisivel-de-edauros",
+    "name": "Talho Invisível de Edauros",
+    "circle": 4,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Fio Monomolecular Retrátil",
+      "Lâmina Giratória a Vácuo",
+      "Cortador Invisível"
+    ]
+  },
+  {
+    "id": "terremoto",
+    "name": "Terremoto",
+    "circle": 4,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Martelo Sísmico Pneumático",
+      "Detonador Tectônico",
+      "Aríete Vibratório de Solo"
+    ]
+  },
+  {
+    "id": "transformacao-em-dragao",
+    "name": "Transformação em Dragão",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Exoesqueleto Dracônico Colossal",
+      "Dragão Mecânico Articulado",
+      "Armadura Mecanizada Alada"
+    ]
+  },
+  {
+    "id": "velocidade-do-relampago",
+    "name": "Velocidade do Relâmpago",
+    "circle": 4,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Turbina de Hiperaceleração Galvânica",
+      "Exoesqueleto Supercondutor",
+      "Reflexo Ultrassônico"
+    ]
+  },
+  {
+    "id": "viagem-planar",
+    "name": "Viagem Planar",
+    "circle": 4,
+    "type": "universal",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Gerador de Fendas Planares",
+      "Cápsula Interplanar a Vapor",
+      "Acelerador Dimensional"
+    ]
+  },
+  {
+    "id": "visao-da-verdade",
+    "name": "Visão da Verdade",
+    "circle": 4,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Óculos de Safira Infalíveis",
+      "Monóculo Anti-Ilusão",
+      "Scanner Espectral Total"
+    ]
+  },
+  {
+    "id": "alterar-destino",
+    "name": "Alterar Destino",
+    "circle": 5,
+    "type": "arcana",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Cronométrico Reversor de Linhas",
+      "Giroscópio Estabilizador de Fatos",
+      "Calculador Quântico Temporal"
+    ]
+  },
+  {
+    "id": "aprisionamento",
+    "name": "Aprisionamento",
+    "circle": 5,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Esfera de Contenção de Titânio",
+      "Cápsula Criogênica de Estase",
+      "Prisão Eletromagnética"
+    ]
+  },
+  {
+    "id": "aura-divina",
+    "name": "Aura Divina",
+    "circle": 5,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Domo de Força Suprema",
+      "Blindagem Eletrostática Tripla",
+      "Manto Resplandecente"
+    ]
+  },
+  {
+    "id": "barragem-elemental-de-vectorius",
+    "name": "Barragem elemental de Vectorius",
+    "circle": 5,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bateria Quádrupla Elemental",
+      "Canhão Rotativo de 4 Elementos",
+      "Barragem Múltipla"
+    ]
+  },
+  {
+    "id": "buraco-negro",
+    "name": "Buraco Negro",
+    "circle": 5,
+    "type": "universal",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Singularidade Gravitacional a Vácuo",
+      "Colapsador de Espaço-Tempo",
+      "Vórtice Atômico"
+    ]
+  },
+  {
+    "id": "chuva-de-meteoros",
+    "name": "Chuva de Meteoros",
+    "circle": 5,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bateria de Foguetes Balísticos",
+      "Morteiro Pesado de Tungstênio",
+      "Bombardeio Cataclísmico"
+    ]
+  },
+  {
+    "id": "controlar-o-tempo",
+    "name": "Controlar o Tempo",
+    "circle": 5,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Parador do Tempo a Vapor",
+      "Ampulheta de Mercúrio com Trava",
+      "Gerador de Estase Crono-Mecânico"
+    ]
+  },
+  {
+    "id": "deflagracao-de-mana",
+    "name": "Deflagração de Mana",
+    "circle": 5,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bomba de Ruptura de Mana",
+      "Reator de Sobrecarga de Éter",
+      "Detonador de Teia Mágica"
+    ]
+  },
+  {
+    "id": "desejo",
+    "name": "Desejo",
+    "circle": 5,
+    "type": "arcana",
+    "school": "transmutacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Eu Quero, Eu Posso",
+      "Realizador Quântico",
+      "Omnipotenciador"
+    ]
+  },
+  {
+    "id": "engenho-de-mana",
+    "name": "Engenho de Mana",
+    "circle": 5,
+    "type": "arcana",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Dínamo Recarregador de Mana",
+      "Turbina de Sucção de Éter",
+      "Bateria Perpétua Concentrada"
+    ]
+  },
+  {
+    "id": "furia-do-panteao",
+    "name": "Fúria do Panteão",
+    "circle": 5,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão Trovão Cósmico",
+      "Bateria de Descarga Celeste",
+      "Cataclisma Sagrado"
+    ]
+  },
+  {
+    "id": "intervencao-divina",
+    "name": "Intervenção Divina",
+    "circle": 5,
+    "type": "divina",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Sinalizador de Socorro Cósmico",
+      "Rádio-Chamador dos Deuses",
+      "Baliza de Resgate Interplanar"
+    ]
+  },
+  {
+    "id": "invulnerabilidade",
+    "name": "Invulnerabilidade",
+    "circle": 5,
+    "type": "universal",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Exoesqueleto Blindado de Adamante",
+      "Campo de Força Defletor Absoluto",
+      "Traje Invulnerável Supremo"
+    ]
+  },
+  {
+    "id": "katana-celestial",
+    "name": "Katana Celestial",
+    "circle": 5,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Lâmina de Plasma Fio de Luz",
+      "Sabre Eletrostático Monomolecular",
+      "Espada de Laser"
+    ]
+  },
+  {
+    "id": "lagrimas-de-wynna",
+    "name": "Lágrimas de Wynna",
+    "circle": 5,
+    "type": "divina",
+    "school": "abjuracao",
+    "forma": "vestida",
+    "contraptions": [
+      "Absorvedor de Feitiços",
+      "Condensador de Gotas de Mana",
+      "Filtro Supremo de Magia"
+    ]
+  },
+  {
+    "id": "legiao",
+    "name": "Legião",
+    "circle": 5,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Controle Central de Redes Neurais",
+      "Transmissor Coletivo a Rádio",
+      "Elmo de Conexão Mental"
+    ]
+  },
+  {
+    "id": "mata-dragao",
+    "name": "Mata-Dragão",
+    "circle": 5,
+    "type": "arcana",
+    "school": "evocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Canhão de Tungstênio Anti-Colossos",
+      "Arpão Perfurador de Blindagens",
+      "Lança-Foguete Adamante"
+    ]
+  },
+  {
+    "id": "palavra-primordial",
+    "name": "Palavra Primordial",
+    "circle": 5,
+    "type": "universal",
+    "school": "encantamento",
+    "forma": "empunhada",
+    "contraptions": [
+      "Corneta de Choque Puro",
+      "Canhão Sônico Absoluto",
+      "Ressonador Trovão"
+    ]
+  },
+  {
+    "id": "possessao",
+    "name": "Possessão",
+    "circle": 5,
+    "type": "arcana",
+    "school": "encantamento",
+    "forma": "vestida",
+    "contraptions": [
+      "Elmo de Pilotagem Neural Remota",
+      "Transmissor de Consciência",
+      "Conector de Alma a Fio"
+    ]
+  },
+  {
+    "id": "projetar-consciencia",
+    "name": "Projetar Consciência",
+    "circle": 5,
+    "type": "universal",
+    "school": "adivinhacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Cápsula de Projeção Astral",
+      "Sonda Ocular Sensorial Remota",
+      "Transmissor Desincorporador"
+    ]
+  },
+  {
+    "id": "reanimacao-impura",
+    "name": "Reanimação Impura",
+    "circle": 5,
+    "type": "divina",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Reanimador Móvel Galvânico em Massa",
+      "Injetor Químico Necromecânico",
+      "Câmara Automatizada de Cadáveres"
+    ]
+  },
+  {
+    "id": "requiem",
+    "name": "Réquiem",
+    "circle": 5,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Órgão Musical Letal a Vapor",
+      "Ressonador Fúnebre Paralisante",
+      "Caixa de Música Mortal"
+    ]
+  },
+  {
+    "id": "roubar-a-alma",
+    "name": "Roubar a Alma",
+    "circle": 5,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "empunhada",
+    "contraptions": [
+      "Cilindro Extrator de Alma a Vácuo",
+      "Ampola de Contenção de Essência",
+      "Sifão Espiritual"
+    ]
+  },
+  {
+    "id": "segunda-chance",
+    "name": "Segunda Chance",
+    "circle": 5,
+    "type": "divina",
+    "school": "evocacao",
+    "forma": "vestida",
+    "contraptions": [
+      "Desfibrilador Reanimador Automático",
+      "Giroscópio Reversor de Trauma",
+      "Módulo de Soro Vital de Choque"
+    ]
+  },
+  {
+    "id": "semiplano",
+    "name": "Semiplano",
+    "circle": 5,
+    "type": "arcana",
+    "school": "convocacao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Bolha Dimensional de Bolso",
+      "Câmara Desdobrável Hiperespacial",
+      "Estação Portátil"
+    ]
+  },
+  {
+    "id": "sombra-assassina",
+    "name": "Sombra Assassina",
+    "circle": 5,
+    "type": "arcana",
+    "school": "ilusao",
+    "forma": "empunhada",
+    "contraptions": [
+      "Autômato de Sombra com Lâminas",
+      "Drone Furtivo de Lona Negra",
+      "Silhueta Teleguiada"
+    ]
+  },
+  {
+    "id": "toque-da-morte",
+    "name": "Toque da Morte",
+    "circle": 5,
+    "type": "universal",
+    "school": "necromancia",
+    "forma": "vestida",
+    "contraptions": [
+      "Manopla Fulminante",
+      "Injetor Letal de Alta Pressão",
+      "Eletrodo Parada Cardíaca"
+    ]
+  }
+]

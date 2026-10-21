@@ -1,0 +1,87 @@
+
+Running 4 tests using 1 worker
+
+(node:13064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 testes\navegador\distincoes-circulos.spec.cjs:2:1 › grimório: cada círculo filtra o catálogo e Todos comporta seu texto (1.2m)
+(node:19684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 testes\navegador\distincoes-circulos.spec.cjs:12:1 › distinção: aquisição reaparece no topo e marca modifica a ficha (25.2s)
+(node:20740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 testes\navegador\pocoes-taverna.spec.cjs:2:1 › taverna: poção encaminha ao Grimório da ficha (19.8s)
+  ok 4 testes\navegador\pocoes-taverna.spec.cjs:17:1 › taverna independente: poção abre seleção integrada sem cobrar ao navegar (30.2s)
+
+
+  1) testes\navegador\distincoes-circulos.spec.cjs:2:1 › grimório: cada círculo filtra o catálogo e Todos comporta seu texto 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.circ-btn[data-circ="2"]')
+        - locator resolved to <button disabled data-circ="2" class="circ-btn" aria-disabled="true">2</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        90 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      3 |  await page.goto('/grimorio.html');await expect(page.locator('html')).toHaveAttribute('data-forja-ready','true');
+      4 |  for(const circle of [2,3,4,5,1]){
+    > 5 |   await page.locator('.circ-btn[data-circ="'+circle+'"]').click();
+        |                                                           ^
+      6 |   const circles=await page.locator('.card:visible').evaluateAll(cards=>[...new Set(cards.map(c=>Number(c.dataset.circulo)))]);
+      7 |   expect(circles).toEqual([circle]);
+      8 |  }
+        at C:\Users\almei\OneDrive\Documentos\Forja T20\testes\navegador\distincoes-circulos.spec.cjs:5:59
+
+    Error Context: test-results\distincoes-circulos-grimór-f9eca--e-Todos-comporta-seu-texto\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\distincoes-circulos-grimór-f9eca--e-Todos-comporta-seu-texto\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\distincoes-circulos-grimór-f9eca--e-Todos-comporta-seu-texto\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) testes\navegador\distincoes-circulos.spec.cjs:12:1 › distinção: aquisição reaparece no topo e marca modifica a ficha 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      19 |  await page.goto('/ficha.html');await expect(page.locator('html')).toHaveAttribute('data-forja-ready','true');
+      20 |  expect(await page.evaluate(()=>calculatedSkillTotal('nobreza'))).toBe(before.base-before.int+before.car+2);
+    > 21 |  expect(await page.evaluate(()=>progressionDistinctionOptions(4).length)).toBeGreaterThan(0);
+         |                                                                           ^
+      22 | });
+      23 |
+        at C:\Users\almei\OneDrive\Documentos\Forja T20\testes\navegador\distincoes-circulos.spec.cjs:21:75
+
+    Error Context: test-results\distincoes-circulos-distin-ee2ee-po-e-marca-modifica-a-ficha\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\distincoes-circulos-distin-ee2ee-po-e-marca-modifica-a-ficha\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\distincoes-circulos-distin-ee2ee-po-e-marca-modifica-a-ficha\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    testes\navegador\distincoes-circulos.spec.cjs:2:1 › grimório: cada círculo filtra o catálogo e Todos comporta seu texto 
+    testes\navegador\distincoes-circulos.spec.cjs:12:1 › distinção: aquisição reaparece no topo e marca modifica a ficha 
+  2 passed (2.8m)

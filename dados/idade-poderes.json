@@ -1,0 +1,47 @@
+[
+  {
+    "id": "idade_protegido_dos_deuses",
+    "nome": "Protegido dos Deuses",
+    "faixa": "crianca",
+    "descricao": "Você recebe +2 na Defesa e +5 em todos os testes de resistência. Isso é uma mistura de sorte sobrenatural com o fato de que inimigos normalmente ignoram crianças, justamente por serem menos perigosas.",
+    "efeitos": [
+      {
+        "tipo": "bonus_defesa",
+        "valor": 2
+      },
+      {
+        "tipo": "bonus_pericia",
+        "pericias": [
+          "fortitude",
+          "reflexos",
+          "vontade"
+        ],
+        "valor": 5
+      }
+    ]
+  },
+  {
+    "id": "idade_impeto_juvenil",
+    "nome": "Ímpeto Juvenil",
+    "faixa": "adolescente",
+    "descricao": "Você recebe +3 pontos de mana. Adolescentes acham que podem fazer qualquer coisa, e essa confiança os torna mais heroicos.",
+    "efeitos": [
+      {
+        "tipo": "bonus_pm",
+        "valor": 3
+      }
+    ]
+  },
+  {
+    "id": "idade_origem_em_construcao",
+    "nome": "Origem em Construção",
+    "faixa": "adolescente",
+    "descricao": "Você recebe apenas um benefício de origem, em vez de dois (se sua origem possuir um único benefício, comece com uma perícia treinada a menos por sua classe).",
+    "efeitos": [
+      {
+        "tipo": "regra_manual",
+        "aplicacao": "manual"
+      }
+    ]
+  }
+]

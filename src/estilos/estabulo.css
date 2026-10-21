@@ -1,0 +1,97 @@
+/* ==========================================================================
+   FORJA RUBRA — ESTÁBULO DE MONTARIAS
+   ========================================================================== */
+
+.stable-main {
+  max-width: 1200px;
+  margin: 80px auto 24px;
+  padding: 0 24px;
+}
+
+.stable-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stable-toolbar input {
+  flex: 1;
+}
+
+.stable-main h2 {
+  font: 700 1.1rem 'Cinzel', serif;
+  color: var(--gold, #e9ad59);
+  margin: 20px 0 12px;
+}
+
+.stable-note {
+  color: var(--muted, #c9b2aa);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.stable-card {
+  background: var(--panel, #110d0f);
+  border: 1px solid var(--line, #4a252a);
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stable-card h3 {
+  margin: 0;
+  color: var(--gold, #e9ad59);
+}
+
+.stable-card p {
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stable-card label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stable-card button {
+  margin-top: auto;
+}
+
+.stable-owned {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line, #4a252a);
+}
+
+.stable-owned button {
+  margin-left: auto;
+}
+
+.stable-main select {
+  background: var(--bg2, #100b0d);
+  color: var(--cream, #f5eee6);
+  border: 1px solid var(--line, #4a252a);
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.stable-main .guild-cards-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 800px) {
+  .stable-main .guild-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .stable-main .guild-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

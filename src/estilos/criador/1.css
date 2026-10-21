@@ -1,0 +1,4 @@
+
+.toast{left:50%;right:auto;top:18%;bottom:auto;max-width:min(430px,calc(100vw - 28px));transform:translate(-50%,-10px);text-align:center}.toast.visible{transform:translate(-50%,0)}
+button.forja-clicked{animation:forjaButtonClick .32s ease-out}@keyframes forjaButtonClick{0%{transform:scale(1)}42%{transform:scale(.94);filter:brightness(1.45);box-shadow:0 0 0 3px #d9a84e40}100%{transform:scale(1)}}
+.forja-choice-input{width:100%;min-height:39px;padding:8px 10px;border:1px solid var(--bright);border-radius:7px;outline:0;background:var(--surface3);color:var(--text)}

@@ -1,0 +1,40 @@
+/* Forja: shared visual tokens. Semantic magic/status colors remain distinct. */
+:root{color-scheme:dark;--bg:#09090d;--surface:#141217;--surface2:#1d1820;--surface3:#261e27;--surface-2:var(--surface2);--surface-3:var(--surface3);--border:#3d3039;--border2:#63434a;--bright:#80565b;--border-bright:var(--bright);--gold:#dfb666;--gold2:#f3d99c;--goldsoft:#dfb66616;--gold-soft:var(--goldsoft);--text:#eee8df;--muted:#c3b9b3;--dim:#a19595;--red:#ec8b94;--forja-ruby:#98293f}
+html{background:#09090d}body{background:radial-gradient(ellipse at 8% 0%,#681a302a,transparent 42%),radial-gradient(ellipse at 95% 80%,#72233416,transparent 40%),#09090d;color:var(--text);accent-color:var(--gold);isolation:isolate}
+::selection{background:#97344f;color:#fff5dc}
+.app-header,body>header:not(.forja-loader){background:linear-gradient(110deg,#181016f5,#0e0d12f5);border-bottom-color:#81503f;box-shadow:0 8px 32px #0004}
+.panel,.phase-panel,.section,.card,.item-card,.spell-card,.summary-card,.power-detail-panel,.sheet-panel,.sheet-section,.character-sheet-toolbar,.phase-nav,.stage-footer,.filters,.toolbar{background-color:var(--surface);border-color:var(--border)}
+.power-row,.deity-power-row,.origin-item,.office-option,.check-card,.choice-card,.filter-chip{background-color:#171319;border-color:var(--border)}
+.choice-card-icon{display:block;margin-bottom:8px;color:#e8cb83;font-size:1.45rem;line-height:1.15}
+body:has(#redoInitialItemsButton:not([hidden])) #redoInitialItemsButton{background:#7f1d1d;border-color:#ef4444;color:#fff}
+.panel h2,.panel h3,.section-title,.card-title,.stage-heading h2{color:var(--gold2)}
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{background-color:#100e14;color:var(--text);border-color:#59424d}
+button,.button{transition:background-color .18s,border-color .18s,box-shadow .18s,filter .18s}
+button:not(:disabled):hover,.button:not(:disabled):hover{border-color:var(--gold);box-shadow:0 0 18px #c5903020}
+button:not(:disabled):active,.button:not(:disabled):active{filter:brightness(1.25)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #f4d99d!important;outline-offset:3px}
+.phase-button.active,.filter-chip.active,.power-row.selected,.choice-card.selected{background:linear-gradient(110deg,#61203265,#bb88421c);border-color:var(--gold);box-shadow:inset 3px 0 var(--gold)}
+.forja-home{display:inline-flex;align-items:center;gap:8px;color:var(--gold2);font:600 12px/1.4 system-ui;text-decoration:none;padding:8px 12px;border:1px solid #674549;border-radius:6px;margin:10px 16px;background:#171016}
+.forja-home:hover{border-color:var(--gold);color:#fff0c7}
+.forja-home[hidden]{display:none!important}
+.forja-atmosphere{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.45}
+.forja-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#08080c;opacity:1;transition:opacity .28s;overflow:hidden;color:#f0d79d;font:13px/1.6 system-ui;letter-spacing:.08em;text-align:center}
+.forja-loader[hidden]{display:none!important}.forja-loader.is-finished{opacity:0;pointer-events:none}
+.forja-loader::before,.forja-loader::after{content:"";position:absolute;inset:-35%;pointer-events:none;background:radial-gradient(ellipse at 35% 50%,#9b1f4559,transparent 28%),radial-gradient(ellipse at 65% 52%,#cf25362e,transparent 25%);filter:blur(32px);animation:forjaMist 9s ease-in-out infinite alternate}
+.forja-loader::after{transform:rotate(35deg);animation-delay:-5s;animation-duration:13s;opacity:.6}.forja-loader>*{position:relative;z-index:1}.forja-loader p{margin:0;padding:0 24px}.forja-loader small{display:block;color:#b7a2a0;font-size:11px;letter-spacing:0;margin-top:5px}
+.forja-loading-eye{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 32% 25%,#bda487,#756153 24%,#362a30 57%,#08070b 84%);box-shadow:inset -12px -14px 22px #000c,0 0 65px #b3244240;display:grid;place-items:center;animation:forjaEyeGlow 2.8s ease-in-out infinite}
+.forja-loading-eye::before{content:"";width:64px;height:76px;border-radius:50%;background:repeating-conic-gradient(#d5a253 0deg 6deg,#4b2018 7deg 13deg,#f2ce79 14deg 16deg);box-shadow:inset 0 0 12px 5px #130b0b,0 0 13px #d9a75080}
+.forja-loading-eye::after{content:"";position:absolute;width:9px;height:54px;border-radius:50%;background:#030305;box-shadow:0 0 6px #f4cb78}
+@keyframes forjaMist{from{translate:-4% -2%;scale:1;rotate:-8deg}to{translate:5% 4%;scale:1.18;rotate:12deg}}
+@keyframes forjaEyeGlow{50%{box-shadow:inset -12px -14px 22px #000c,0 0 85px #b3244270}}
+@media(max-width:600px){.forja-home{margin:8px 12px}.forja-loader::before,.forja-loader::after{filter:blur(18px)}}
+@media(prefers-reduced-motion:reduce){.forja-loader,.forja-loader::before,.forja-loader::after,.forja-loading-eye{animation:none!important;transition:none!important}button,.button{transition:none!important}}
+@media print{.forja-home,.forja-atmosphere,.forja-loader{display:none!important}}
+@keyframes filterPulse{0%,100%{transform:scale(1);box-shadow:none;border-color:var(--border)}50%{transform:scale(1.03);box-shadow:0 0 8px rgba(223,182,102,0.45);border-color:rgba(223,182,102,0.7)}}
+.filter-pulse{animation:filterPulse 0.7s ease-in-out 2}
+.familiar-choice-modal{max-width:760px;max-height:90vh;overflow:auto}
+.familiar-choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:16px}
+.familiar-choice-card{display:grid;gap:5px;text-align:left;padding:12px;border:1px solid #7f1d1d;border-radius:8px;background:#18131b;color:#f8e9e9;cursor:pointer}
+.familiar-choice-card:hover,.familiar-choice-card:focus-visible{border-color:#ef4444;background:#29151d}
+.familiar-choice-card strong{font-family:Cinzel,serif;color:#fca5a5}
+.familiar-choice-card span{font-size:.78rem;line-height:1.4}

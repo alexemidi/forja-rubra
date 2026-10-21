@@ -1,0 +1,2682 @@
+[
+  {
+    "id": "velocidade-do-relampago",
+    "name": "Velocidade do Relâmpago",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "acalmar-animal",
+    "name": "Acalmar Animal",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "adaga-mental",
+    "name": "Adaga Mental",
+    "type": "arcana",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "alarme",
+    "name": "Alarme",
+    "type": "arcana",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "aliado-animal",
+    "name": "Aliado Animal",
+    "type": "divina",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "alterar-destino",
+    "name": "Alterar Destino",
+    "type": "arcana",
+    "circle": 5,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "alterar-memoria",
+    "name": "Alterar Memória",
+    "type": "arcana",
+    "circle": 4,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "alterar-tamanho",
+    "name": "Alterar Tamanho",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "amarras-etereas",
+    "name": "Amarras Etéreas",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "amedrontar",
+    "name": "Amedrontar",
+    "type": "arcana",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "ancora-dimensional",
+    "name": "Âncora Dimensional",
+    "type": "arcana",
+    "circle": 3,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "animar-objetos",
+    "name": "Animar Objetos",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "anular-a-luz",
+    "name": "Anular a Luz",
+    "type": "divina",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "aparencia-perfeita",
+    "name": "Aparência Perfeita",
+    "type": "arcana",
+    "circle": 2,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "aprisionamento",
+    "name": "Aprisionamento",
+    "type": "arcana",
+    "circle": 5,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "area-escorregadia",
+    "name": "Área Escorregadia",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "arma-espiritual",
+    "name": "Arma Espiritual",
+    "type": "divina",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "arma-magica",
+    "name": "Arma Mágica",
+    "type": "universal",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "armadura-arcana",
+    "name": "Armadura Arcana",
+    "type": "arcana",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "armamento-da-natureza",
+    "name": "Armamento da Natureza",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "assassino-fantasmagorico",
+    "name": "Assassino Fantasmagórico",
+    "type": "arcana",
+    "circle": 4,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "augurio",
+    "name": "Augúrio",
+    "type": "divina",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "aura-divina",
+    "name": "Aura Divina",
+    "type": "divina",
+    "circle": 5,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "aviso",
+    "name": "Aviso",
+    "type": "universal",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "banimento",
+    "name": "Banimento",
+    "type": "divina",
+    "circle": 3,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "barragem-elemental-de-vectorius",
+    "name": "Barragem elemental de Vectorius",
+    "type": "arcana",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "bencao",
+    "name": "Bênção",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "bola-de-fogo",
+    "name": "Bola de Fogo",
+    "type": "arcana",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "buraco-negro",
+    "name": "Buraco Negro",
+    "type": "universal",
+    "circle": 5,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "caminhos-da-natureza",
+    "name": "Caminhos da Natureza",
+    "type": "divina",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "campo-antimagia",
+    "name": "Campo Antimagia",
+    "type": "arcana",
+    "circle": 4,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "campo-de-forca",
+    "name": "Campo de Força",
+    "type": "arcana",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "camuflagem-ilusoria",
+    "name": "Camuflagem ilusória",
+    "type": "arcana",
+    "circle": 2,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "chuva-de-meteoros",
+    "name": "Chuva de Meteoros",
+    "type": "arcana",
+    "circle": 5,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "circulo-da-justica",
+    "name": "Círculo da Justiça",
+    "type": "divina",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "circulo-da-restauracao",
+    "name": "Círculo da Restauração",
+    "type": "divina",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "colera-de-azgher",
+    "name": "cólera de azgher",
+    "type": "divina",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "coluna-de-chamas",
+    "name": "Coluna de Chamas",
+    "type": "divina",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "comando",
+    "name": "Comando",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "compreensao",
+    "name": "Compreensão",
+    "type": "universal",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "comunhao-com-a-natureza",
+    "name": "Comunhão com a Natureza",
+    "type": "divina",
+    "circle": 3,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "conceder-milagre",
+    "name": "Conceder Milagre",
+    "type": "divina",
+    "circle": 4,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "concentracao-de-combate",
+    "name": "Concentração de Combate",
+    "type": "arcana",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "condicao",
+    "name": "Condição",
+    "type": "divina",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "conjurar-elemental",
+    "name": "Conjurar Elemental",
+    "type": "arcana",
+    "circle": 4,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "conjurar-monstro",
+    "name": "Conjurar Monstro",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "conjurar-mortos-vivos",
+    "name": "Conjurar Mortos-Vivos",
+    "type": "universal",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "consagrar",
+    "name": "Consagrar",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "contato-extraplanar",
+    "name": "Contato Extraplanar",
+    "type": "arcana",
+    "circle": 3,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-a-gravidade",
+    "name": "Controlar a Gravidade",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-ar",
+    "name": "Controlar Ar",
+    "type": "divina",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "controlar-agua",
+    "name": "Controlar Água",
+    "type": "divina",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-fogo",
+    "name": "Controlar Fogo",
+    "type": "divina",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-madeira",
+    "name": "Controlar Madeira",
+    "type": "divina",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-o-clima",
+    "name": "Controlar o Clima",
+    "type": "divina",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-o-tempo",
+    "name": "Controlar o Tempo",
+    "type": "arcana",
+    "circle": 5,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-plantas",
+    "name": "Controlar Plantas",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "controlar-terra",
+    "name": "Controlar Terra",
+    "type": "divina",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "convocacao-instantanea",
+    "name": "Convocação Instantânea",
+    "type": "arcana",
+    "circle": 3,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "cranio-voador-de-vladislav",
+    "name": "Crânio Voador de Vladislav",
+    "type": "arcana",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "criar-elementos",
+    "name": "Criar Elementos",
+    "type": "divina",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "criar-ilusao",
+    "name": "Criar Ilusão",
+    "type": "arcana",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "cupula-de-repulsao",
+    "name": "Cúpula de Repulsão",
+    "type": "divina",
+    "circle": 4,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "curar-ferimentos",
+    "name": "Curar Ferimentos",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "deflagracao-de-mana",
+    "name": "Deflagração de Mana",
+    "type": "arcana",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "desejo",
+    "name": "Desejo",
+    "type": "arcana",
+    "circle": 5,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "desespero-esmagador",
+    "name": "Desespero Esmagador",
+    "type": "arcana",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "desintegrar",
+    "name": "Desintegrar",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "despedacar",
+    "name": "Despedaçar",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "despertar-consciencia",
+    "name": "Despertar Consciência",
+    "type": "divina",
+    "circle": 3,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "detectar-ameacas",
+    "name": "Detectar Ameaças",
+    "type": "divina",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "dificultar-deteccao",
+    "name": "Dificultar Detecção",
+    "type": "arcana",
+    "circle": 3,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "disfarce-ilusorio",
+    "name": "Disfarce Ilusório",
+    "type": "arcana",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "dispersar-as-trevas",
+    "name": "Dispersar as Trevas",
+    "type": "divina",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "dissipar-magia",
+    "name": "Dissipar Magia",
+    "type": "universal",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "duplicata-ilusoria",
+    "name": "Duplicata Ilusória",
+    "type": "arcana",
+    "circle": 4,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "enfeiticar",
+    "name": "Enfeitiçar",
+    "type": "arcana",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "engenho-de-mana",
+    "name": "Engenho de Mana",
+    "type": "arcana",
+    "circle": 5,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "enxame-de-pestes",
+    "name": "Enxame de Pestes",
+    "type": "divina",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "enxame-rubro-de-ichabod",
+    "name": "Enxame Rubro de Ichabod",
+    "type": "arcana",
+    "circle": 3,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "erupcao-glacial",
+    "name": "Erupção Glacial",
+    "type": "arcana",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "escudo-da-fe",
+    "name": "Escudo da Fé",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "esculpir-sons",
+    "name": "Esculpir Sons",
+    "type": "arcana",
+    "circle": 2,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "escuridao",
+    "name": "Escuridão",
+    "type": "universal",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "explosao-caleidoscopica",
+    "name": "Explosão Caleidoscópica",
+    "type": "arcana",
+    "circle": 4,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "explosao-de-chamas",
+    "name": "Explosão de chamas",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "ferver-sangue",
+    "name": "Ferver Sangue",
+    "type": "arcana",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "fisico-divino",
+    "name": "Físico Divino",
+    "type": "divina",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "flecha-acida",
+    "name": "Flecha Ácida",
+    "type": "arcana",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "forma-eterea",
+    "name": "Forma Etérea",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "furia-do-panteao",
+    "name": "Fúria do Panteão",
+    "type": "divina",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "globo-da-verdade-de-gwen",
+    "name": "Globo da verdade de gwen",
+    "type": "divina",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "globo-de-invulnerabilidade",
+    "name": "Globo de Invulnerabilidade",
+    "type": "arcana",
+    "circle": 3,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "guardiao-divino",
+    "name": "Guardião Divino",
+    "type": "divina",
+    "circle": 4,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "heroismo",
+    "name": "Heroísmo",
+    "type": "divina",
+    "circle": 3,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "hipnotismo",
+    "name": "Hipnotismo",
+    "type": "arcana",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "ilusao-lacerante",
+    "name": "Ilusão Lacerante",
+    "type": "arcana",
+    "circle": 3,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "imagem-espelhada",
+    "name": "Imagem Espelhada",
+    "type": "arcana",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "imobilizar",
+    "name": "Imobilizar",
+    "type": "universal",
+    "circle": 3,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "infligir-ferimentos",
+    "name": "Infligir Ferimentos",
+    "type": "divina",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "intervencao-divina",
+    "name": "Intervenção Divina",
+    "type": "divina",
+    "circle": 5,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "invisibilidade",
+    "name": "Invisibilidade",
+    "type": "arcana",
+    "circle": 2,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "invulnerabilidade",
+    "name": "Invulnerabilidade",
+    "type": "universal",
+    "circle": 5,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "lagrimas-de-wynna",
+    "name": "Lágrimas de Wynna",
+    "type": "divina",
+    "circle": 5,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "lanca-ignea-de-aleph",
+    "name": "Lança Ígnea de Aleph",
+    "type": "arcana",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "legiao",
+    "name": "Legião",
+    "type": "arcana",
+    "circle": 5,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "lendas-e-historias",
+    "name": "Lendas e Histórias",
+    "type": "universal",
+    "circle": 3,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "leque-cromatico",
+    "name": "Leque Cromático",
+    "type": "arcana",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "libertacao",
+    "name": "Libertação",
+    "type": "universal",
+    "circle": 4,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "ligacao-sombria",
+    "name": "Ligação Sombria",
+    "type": "divina",
+    "circle": 4,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "ligacao-telepatica",
+    "name": "Ligação Telepática",
+    "type": "arcana",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "localizacao",
+    "name": "Localização",
+    "type": "arcana",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "luz",
+    "name": "Luz",
+    "type": "universal",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "manto-de-sombras",
+    "name": "Manto de Sombras",
+    "type": "universal",
+    "circle": 3,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "manto-do-cruzado",
+    "name": "Manto do Cruzado",
+    "type": "divina",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "mao-poderosa-de-talude",
+    "name": "Mão Poderosa de Talude",
+    "type": "arcana",
+    "circle": 4,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "mapear",
+    "name": "Mapear",
+    "type": "arcana",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "marca-da-obediencia",
+    "name": "Marca da Obediência",
+    "type": "universal",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "marionete",
+    "name": "Marionete",
+    "type": "arcana",
+    "circle": 4,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "mata-dragao",
+    "name": "Mata-Dragão",
+    "type": "arcana",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "mente-divina",
+    "name": "Mente Divina",
+    "type": "divina",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "metamorfose",
+    "name": "Metamorfose",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "miasma-mefitico",
+    "name": "Miasma Mefítico",
+    "type": "divina",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "miragem",
+    "name": "Miragem",
+    "type": "arcana",
+    "circle": 3,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "missao-divina",
+    "name": "Missão Divina",
+    "type": "divina",
+    "circle": 3,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "montaria-arcana",
+    "name": "Montaria Arcana",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "muralha-de-ossos",
+    "name": "Muralha de Ossos",
+    "type": "universal",
+    "circle": 4,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "muralha-elemental",
+    "name": "Muralha Elemental",
+    "type": "arcana",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "nevoa",
+    "name": "Névoa",
+    "type": "universal",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "oracao",
+    "name": "Oração",
+    "type": "divina",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "orientacao",
+    "name": "Orientação",
+    "type": "divina",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "palavra-primordial",
+    "name": "Palavra Primordial",
+    "type": "universal",
+    "circle": 5,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "pele-de-pedra",
+    "name": "Pele de Pedra",
+    "type": "universal",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "perdicao",
+    "name": "Perdição",
+    "type": "divina",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "poeira-da-podridao",
+    "name": "Poeira da Podridão",
+    "type": "divina",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "possessao",
+    "name": "Possessão",
+    "type": "arcana",
+    "circle": 5,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "potencia-divina",
+    "name": "Potência Divina",
+    "type": "divina",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "premonicao",
+    "name": "Premonição",
+    "type": "divina",
+    "circle": 4,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "primor-atletico",
+    "name": "Primor Atlético",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "profanar",
+    "name": "Profanar",
+    "type": "divina",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "projetar-consciencia",
+    "name": "Projetar Consciência",
+    "type": "universal",
+    "circle": 5,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "protecao-contra-magia",
+    "name": "Proteção contra Magia",
+    "type": "divina",
+    "circle": 3,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "protecao-divina",
+    "name": "Proteção Divina",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "purificacao",
+    "name": "Purificação",
+    "type": "divina",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "queda-suave",
+    "name": "Queda Suave",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "raio-do-enfraquecimento",
+    "name": "Raio do Enfraquecimento",
+    "type": "arcana",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "raio-polar",
+    "name": "Raio Polar",
+    "type": "arcana",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "raio-solar",
+    "name": "Raio Solar",
+    "type": "divina",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "reanimacao-impura",
+    "name": "Reanimação Impura",
+    "type": "divina",
+    "circle": 5,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "refugio",
+    "name": "Refúgio",
+    "type": "arcana",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "relampago",
+    "name": "Relâmpago",
+    "type": "arcana",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "relampago-flamejante-de-reynard",
+    "name": "Relâmpago Flamejante de Reynard",
+    "type": "arcana",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "requiem",
+    "name": "Réquiem",
+    "type": "arcana",
+    "circle": 5,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "resistencia-a-energia",
+    "name": "Resistência a Energia",
+    "type": "universal",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "rogar-maldicao",
+    "name": "Rogar Maldição",
+    "type": "divina",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "roubar-a-alma",
+    "name": "Roubar a Alma",
+    "type": "universal",
+    "circle": 5,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "runa-de-protecao",
+    "name": "Runa de Proteção",
+    "type": "universal",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "salto-dimensional",
+    "name": "Salto Dimensional",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "santuario",
+    "name": "Santuário",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "segunda-chance",
+    "name": "Segunda Chance",
+    "type": "divina",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "selo-de-mana",
+    "name": "Selo de Mana",
+    "type": "universal",
+    "circle": 3,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "semiplano",
+    "name": "Semiplano",
+    "type": "arcana",
+    "circle": 5,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "servo-divino",
+    "name": "Servo Divino",
+    "type": "divina",
+    "circle": 3,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "servo-morto-vivo",
+    "name": "Servo Morto-Vivo",
+    "type": "universal",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "servos-invisiveis",
+    "name": "Servos Invisíveis",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "seta-infalivel-de-talude",
+    "name": "Seta Infalível de Talude",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "silencio",
+    "name": "Silêncio",
+    "type": "divina",
+    "circle": 2,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "soco-de-arsenal",
+    "name": "Soco de Arsenal",
+    "type": "divina",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sombra-assassina",
+    "name": "Sombra Assassina",
+    "type": "arcana",
+    "circle": 5,
+    "school": "ilusao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sonho",
+    "name": "Sonho",
+    "type": "arcana",
+    "circle": 4,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sono",
+    "name": "Sono",
+    "type": "arcana",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sopro-da-salvacao",
+    "name": "Sopro da Salvação",
+    "type": "divina",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sopro-das-uivantes",
+    "name": "Sopro das Uivantes",
+    "type": "arcana",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "suporte-ambiental",
+    "name": "Suporte Ambiental",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "sussurros-insanos",
+    "name": "Sussurros Insanos",
+    "type": "arcana",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "talho-invisivel-de-edauros",
+    "name": "Talho Invisível de Edauros",
+    "type": "arcana",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "teia",
+    "name": "Teia",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "telecinesia",
+    "name": "Telecinesia",
+    "type": "arcana",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "teletransporte",
+    "name": "Teletransporte",
+    "type": "arcana",
+    "circle": 3,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "tempestade-divina",
+    "name": "Tempestade Divina",
+    "type": "divina",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "tentaculos-de-trevas",
+    "name": "Tentáculos de Trevas",
+    "type": "arcana",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "terremoto",
+    "name": "Terremoto",
+    "type": "divina",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "toque-chocante",
+    "name": "Toque Chocante",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "toque-da-morte",
+    "name": "Toque da Morte",
+    "type": "universal",
+    "circle": 5,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "toque-vampirico",
+    "name": "Toque Vampírico",
+    "type": "arcana",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "tranca-arcana",
+    "name": "Tranca Arcana",
+    "type": "arcana",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "tranquilidade",
+    "name": "Tranquilidade",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "transformacao-de-guerra",
+    "name": "Transformação de Guerra",
+    "type": "arcana",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "transmutar-objetos",
+    "name": "Transmutar Objetos",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "velocidade",
+    "name": "Velocidade",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "vestimenta-da-fe",
+    "name": "Vestimenta da Fé",
+    "type": "divina",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "viagem-arborea",
+    "name": "Viagem Arbórea",
+    "type": "divina",
+    "circle": 3,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "viagem-planar",
+    "name": "Viagem Planar",
+    "type": "universal",
+    "circle": 4,
+    "school": "convocacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "videncia",
+    "name": "Vidência",
+    "type": "universal",
+    "circle": 3,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "visao-da-verdade",
+    "name": "Visão da Verdade",
+    "type": "universal",
+    "circle": 4,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "visao-mistica",
+    "name": "Visão Mística",
+    "type": "universal",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "vitalidade-fantasma",
+    "name": "Vitalidade Fantasma",
+    "type": "arcana",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "voo",
+    "name": "Voo",
+    "type": "arcana",
+    "circle": 3,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "voz-divina",
+    "name": "Voz Divina",
+    "type": "divina",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "armadura-elemental",
+    "name": "Armadura Elemental",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "assobio-perigoso",
+    "name": "Assobio Perigoso",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "aura-de-morte",
+    "name": "Aura de Morte",
+    "type": "arcana",
+    "circle": 2,
+    "school": "necromancia",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "conjurar-armadilha",
+    "name": "Conjurar Armadilha",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "coracao-imortal",
+    "name": "Coração Imortal",
+    "type": "universal",
+    "circle": 3,
+    "school": "necromancia",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "desafio-corajoso",
+    "name": "Desafio Corajoso",
+    "type": "arcana",
+    "circle": 2,
+    "school": "encantamento",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "descobrir-fraqueza",
+    "name": "Descobrir Fraqueza",
+    "type": "arcana",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "desfazer",
+    "name": "Desfazer",
+    "type": "engenhoca",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "discricao",
+    "name": "Discrição",
+    "type": "universal",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "distracao-fugaz",
+    "name": "Distração Fugaz",
+    "type": "arcana",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "emular-magia",
+    "name": "Emular Magia",
+    "type": "universal",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "espirito-balistico",
+    "name": "Espírito Balístico",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "farejar-fortuna",
+    "name": "Farejar Fortuna",
+    "type": "arcana",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "maaais-klunc",
+    "name": "Maaais Klunc",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "maquina-de-combate",
+    "name": "Máquina de Combate",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "ossos-de-adamante",
+    "name": "Ossos de Adamante",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "pocao-explosiva",
+    "name": "Poção Explosiva",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "piscar",
+    "name": "Piscar",
+    "type": "arcana",
+    "circle": 2,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "punho-de-mitral",
+    "name": "Punho de Mitral",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "toque-do-horizonte",
+    "name": "Toque do Horizonte",
+    "type": "arcana",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "transposicao",
+    "name": "Transposição",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "viagem-onirica",
+    "name": "Viagem Onírica",
+    "type": "arcana",
+    "circle": 2,
+    "school": "adivinhacao",
+    "books": [
+      "herois-de-arton"
+    ]
+  },
+  {
+    "id": "acoite-flamejante",
+    "name": "Açoite Flamejante",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "dardo-gelido",
+    "name": "Dardo Gélido",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "invocar-fagulha-elemental",
+    "name": "Invocar Fagulha Elemental",
+    "type": "arcana",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "jato-corrosivo",
+    "name": "Jato Corrosivo",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "abencoar-alimentos",
+    "name": "Abençoar Alimentos",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "basico"
+    ]
+  },
+  {
+    "id": "disparo-gelido",
+    "name": "Disparo Gélido",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "halito-peconhento",
+    "name": "Hálito Peçonhento",
+    "type": "universal",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "impacto-fulminante",
+    "name": "Impacto Fulminante",
+    "type": "arcana",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "nuvem-tempestuosa",
+    "name": "Nuvem Tempestuosa",
+    "type": "arcana",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "pantano-vitriolico",
+    "name": "Pântano Vitriólico",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "raio-de-plasma",
+    "name": "Raio de Plasma",
+    "type": "arcana",
+    "circle": 4,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "toque-algido",
+    "name": "Toque Álgido",
+    "type": "arcana",
+    "circle": 3,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "bencao-da-dragoa-rainha",
+    "name": "Bênção da Dragoa Rainha",
+    "type": "universal",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "detonacao-congelante",
+    "name": "Detonação Congelante",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "geiser-caustico",
+    "name": "Geiser Cáustico",
+    "type": "arcana",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "dragao_brasil"
+    ]
+  },
+  {
+    "id": "katana-celestial",
+    "name": "Katana Celestial",
+    "type": "divina",
+    "circle": 5,
+    "school": "evocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "momento-de-tormenta",
+    "name": "Momento de Tormenta",
+    "type": "universal",
+    "circle": 2,
+    "school": "convocacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "transformacao-em-dragao",
+    "name": "Transformação em Dragão",
+    "type": "arcana",
+    "circle": 4,
+    "school": "transmutacao",
+    "books": [
+      "ameacas-de-arton"
+    ]
+  },
+  {
+    "id": "arma-de-jade",
+    "name": "Arma de Jade",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "arsenal-de-allihanna",
+    "name": "Arsenal de Allihanna",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "bofetada-de-nimb",
+    "name": "Bofetada de Nimb",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "couraca-de-allihanna",
+    "name": "Couraça de Allihanna",
+    "type": "divina",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "escapatoria-de-hyninn",
+    "name": "Escapatória de Hyninn",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "euforia-de-valkaria",
+    "name": "Euforia de Valkaria",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "execucao-de-thwor",
+    "name": "Execução de Thwor",
+    "type": "divina",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "flecha-de-luz",
+    "name": "Flecha de Luz",
+    "type": "universal",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "frescor-de-lena",
+    "name": "Frescor de Lena",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "furia-dos-antepassados",
+    "name": "Fúria dos Antepassados",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "futuro-melhor",
+    "name": "Futuro Melhor",
+    "type": "divina",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "infortunio-de-sszzaas",
+    "name": "Infortúnio de Sszzaas",
+    "type": "divina",
+    "circle": 1,
+    "school": "necromancia",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "instante-estoico",
+    "name": "Instante Estoico",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "magia-dadivosa",
+    "name": "Magia Dadivosa",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "orbe-do-oceano",
+    "name": "Orbe do Oceano",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "paixao-de-marah",
+    "name": "Paixão de Marah",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "percepcao-rubra",
+    "name": "Percepção Rubra",
+    "type": "universal",
+    "circle": 1,
+    "school": "adivinhacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "perturbacao-sombria",
+    "name": "Perturbação Sombria",
+    "type": "divina",
+    "circle": 1,
+    "school": "ilusao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "poder-de-kallyadranoch",
+    "name": "Poder de Kallyadranoch",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "posse-de-arsenal",
+    "name": "Posse de Arsenal",
+    "type": "divina",
+    "circle": 1,
+    "school": "convocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "protecao-de-tauron",
+    "name": "Proteção de Tauron",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "punicao-do-profano",
+    "name": "Punição do Profano",
+    "type": "divina",
+    "circle": 2,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "sigilo-de-sszzaas",
+    "name": "Sigilo de Sszzaas",
+    "type": "divina",
+    "circle": 1,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "siroco-de-azgher",
+    "name": "Siroco de Azgher",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "sorriso-da-fortuna",
+    "name": "Sorriso da Fortuna",
+    "type": "divina",
+    "circle": 1,
+    "school": "evocacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "toque-de-megalokk",
+    "name": "Toque de Megalokk",
+    "type": "divina",
+    "circle": 1,
+    "school": "transmutacao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "traicao-da-lamina",
+    "name": "Traição da Lâmina",
+    "type": "divina",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "traicao-magica",
+    "name": "Traição Mágica",
+    "type": "universal",
+    "circle": 2,
+    "school": "abjuracao",
+    "books": [
+      "deuses-de-arton"
+    ]
+  },
+  {
+    "id": "voz-da-razao",
+    "name": "Voz da Razão",
+    "type": "divina",
+    "circle": 1,
+    "school": "encantamento",
+    "books": [
+      "deuses-de-arton"
+    ]
+  }
+]

@@ -1,0 +1,59 @@
+{
+  "cities": [
+    {
+      "name": "Cidade Suspensa de Prendik",
+      "coordinates": [
+        -52.73134932355157,
+        26.36779395281266
+      ],
+      "description": "A Cidade Suspensa é a maior e também mais progressista e diversificada cidade nos Reinos. Descoberta e conquistada pelo lendário Sexteto, é constituída por seis discos gigantescos de rocha e metal, que pairam um acima do outro, em constante e lenta dança giratória.",
+      "kingdom": "Moreania"
+    },
+    {
+      "name": "Wellshan",
+      "coordinates": [
+        -46.98285711110276,
+        64.23442831182504
+      ],
+      "description": "A Cidade Primeva recebeu esta alcunha por ser a mais antiga de Luncaster (portanto, a mais antiga cidade de Moreania). É também a mais populosa, com mais de quatrocentos mil habitantes. Tem esse nome em homenagem ao primeiro arquidruida dos reinos.",
+      "kingdom": "Moreania"
+    },
+    {
+      "name": "Kil’mer",
+      "coordinates": [
+        -65.353038746537,
+        72.23266131174844
+      ],
+      "description": "A capital de Brando é como o restante do país. Fundado pelos vencedores de um antigo torneio, este é um reino de campeões, uma terra de disputas e jogos. Aqui, acredita-se que espada e magia devem andar juntas como um casal. É uma terra de castelos e torres de magos, ordens de cavalaria e escolas de magia, armaduras brilhantes e mantos arcanos. ",
+      "kingdom": "Moreania"
+    },
+    {
+      "name": "Aqvarivm",
+      "coordinates": [
+        -80.22413816569805,
+        72.23266131174844
+      ],
+      "description": "Esta pequena comunidade foi construída sobre os restos de um antigo castelo, pertencente a um rico grupo de heróis, hoje desaparecido. Os atuais moradores ergueram seus casebres no pátio principal, aproveitando a proteção parcial das muralhas em ruínas.",
+      "kingdom": "Moreania"
+    },
+    {
+      "name": "Montanhas de Marfim",
+      "coordinates": [
+        -55.98049709580525,
+        93.10366757321424
+      ],
+      "description": "Esta cordilheira situada no centro da Ilha Nobre é formada por montanhas de branco cegante, que podem ser confundidas com picos nevados — mas na verdade são quentes, vulcânicas. Certos minerais exóticos são responsáveis pela cor branca. Em alguns pontos, as formações de cumes afiados lembram mandíbulas dentadas.",
+      "kingdom": "Moreania"
+    },
+    {
+      "name": "Reino das Torres",
+      "coordinates": [
+        -73.47590817717119,
+        123.22139668626016
+      ],
+      "description": "Cidades destroçadas formam a maior parte do Reino das Torres. Independente de sua função no passado, hoje não passam de masmorras com quilômetros de extensão, abrigando todos os tipos de monstros e tesouros em suas incontáveis câmaras e corredores. Embora a natureza esteja aos poucos retomando seu território, o Reino das Torres é um lugar amaldiçoado.",
+      "kingdom": "Moreania"
+    }
+  ],
+  "kingdoms": []
+}

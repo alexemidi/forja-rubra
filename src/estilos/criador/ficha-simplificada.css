@@ -1,0 +1,602 @@
+/* FORJA RUBRA: Barra de Ações da Ficha e Modo Ficha Simplificada (Stat Block T20) */
+
+.sheet-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.sheet-action-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sheet-action-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #f87171;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.sheet-action-btn:hover {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.sheet-action-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.sheet-action-btn.sheet-edit-layout-btn.is-locked {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+}
+
+.sheet-action-btn.sheet-edit-layout-btn.is-locked:hover {
+  background: rgba(217, 119, 6, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+/* Ficha Simplificada (Bloco de Estatísticas Clássico de Tormenta 20) */
+.simplified-sheet-card {
+  background: #fdfbf7;
+  color: #0f172a;
+  border: 1px solid #e2d9cc;
+  border-radius: 8px;
+  padding: 28px 36px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.simplified-sheet-header {
+  margin-bottom: 8px;
+}
+
+.simplified-sheet-title {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #b91c1c;
+  letter-spacing: 0.5px;
+  line-height: 1.15;
+}
+
+.simplified-sheet-sub {
+  margin: 4px 0 0 0;
+  font-size: 1rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.simplified-divider {
+  border: none;
+  border-bottom: 2px solid #b91c1c;
+  margin: 8px 0;
+}
+
+.simplified-divider-double {
+  border: none;
+  border-bottom: 3px double #b91c1c;
+  margin: 12px 0;
+}
+
+.simplified-line {
+  margin: 3px 0;
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.simplified-label {
+  color: #b91c1c;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.84rem;
+  letter-spacing: 0.3px;
+}
+
+.simplified-feature {
+  margin: 6px 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #1e293b;
+}
+
+.simplified-feature-name {
+  color: #b91c1c;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .simplified-sheet-card {
+    padding: 16px 18px;
+  }
+  .simplified-sheet-title {
+    font-size: 1.6rem;
+  }
+  .sheet-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sheet-action-bar-left, .sheet-action-bar-right {
+    justify-content: flex-start;
+  }
+}
+
+/* ==========================================================================
+   LINHA DE CARGA, MOEDAS E BLOCO DE PARCEIROS
+   ========================================================================== */
+.sheet-money-load-partners-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 10px;
+}
+
+@media (max-width: 980px) {
+  .sheet-money-load-partners-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card de Parceiros na Ficha */
+.sheet-partners-card {
+  background: #111824;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sheet-partners-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sheet-partners-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.sheet-partners-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.sheet-partners-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 7px;
+  font-size: 0.7rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sheet-partner-add-btn {
+  background: rgba(217, 168, 78, 0.1);
+  border: 1px solid rgba(217, 168, 78, 0.3);
+  color: var(--gold2, #f59e0b);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.sheet-partner-add-btn:hover {
+  background: var(--gold2, #f59e0b);
+  color: #111824;
+  border-color: var(--gold2, #f59e0b);
+}
+
+.sheet-partners-card-body {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.sheet-partners-empty {
+  margin: 0;
+  color: var(--dim);
+  font-size: 0.74rem;
+  font-style: italic;
+}
+
+.sheet-partners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sheet-partner-item {
+  background: #0d121a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.sheet-partner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sheet-partner-header strong {
+  color: var(--gold2);
+  font-size: 0.8rem;
+}
+
+.sheet-partner-remove-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.sheet-partner-remove-btn:hover {
+  opacity: 1;
+}
+
+.sheet-partner-benefit {
+  margin: 4px 0 0 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   MODIFICADORES TEMPORÁRIOS DE ATRIBUTOS
+   ========================================================================== */
+.sheet-attr-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.sheet-attr-temp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(185, 28, 28, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.sheet-attr-temp-btn:hover {
+  background: rgba(220, 38, 38, 0.3);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Modal / Drawer Lateral de Modificadores Temporários */
+.sheet-attr-temp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  animation: fadeInModal 0.2s ease;
+}
+
+.sheet-attr-temp-drawer {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.25s ease;
+  overflow-y: auto;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.sheet-attr-temp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sheet-attr-temp-title {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  color: #0f172a;
+}
+
+.sheet-attr-temp-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sheet-attr-temp-close:hover {
+  color: #0f172a;
+}
+
+.sheet-attr-temp-body {
+  padding: 20px 22px;
+  flex: 1;
+}
+
+.sheet-attr-temp-info {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #0369a1;
+  margin-bottom: 20px;
+}
+
+.sheet-attr-temp-info-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #0284c7;
+  margin-top: 1px;
+}
+
+.sheet-attr-temp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sheet-attr-temp-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 50px;
+  align-items: center;
+  gap: 12px;
+}
+
+.sheet-attr-temp-meta strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #1e293b;
+}
+
+.sheet-attr-temp-meta small {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.sheet-attr-temp-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-attr-temp-input {
+  width: 80px;
+  height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.sheet-attr-temp-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.sheet-attr-temp-result {
+  text-align: right;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sheet-attr-temp-footer {
+  padding: 16px 22px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
+}
+
+.sheet-attr-temp-clear-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.sheet-attr-temp-clear-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Detalhes de magias na ficha */
+.sheet-spell-text {
+  padding: 10px 14px;
+  line-height: 1.6;
+  color: var(--muted, #cbd5e1);
+  font-size: 0.72rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  margin-top: 6px;
+}
+.sheet-spell-text .card-props {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 6px 14px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.sheet-spell-text .prop-row {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+}
+.sheet-spell-text .prop-label {
+  color: var(--gold2, #f59e0b);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sheet-spell-text .prop-value {
+  color: #e2e8f0;
+}
+.sheet-spell-text .card-desc {
+  margin: 8px 0;
+  color: #cbd5e1;
+}
+.sheet-spell-text .apr-section {
+  margin-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+}
+.sheet-spell-text .apr-title {
+  color: var(--gold2, #f59e0b);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.sheet-spell-text .apr-list {
+  padding-left: 18px;
+  margin: 4px 0;
+}
+.sheet-spell-text .apr-list li {
+  margin: 4px 0;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .app-header, .site-header, .stage-kicker, .stage-header, .stage-nav, .sheet-action-bar, #phaseNav, .stage-footer, .forja-modal-backdrop, .map-container, .sheet-preview-vitals, .sheet-vitals-actions-row {
+    display: none !important;
+  }
+  .simplified-sheet-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .simplified-sheet-card {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .simplified-sheet-title {
+    color: #991b1b !important;
+  }
+  .simplified-divider {
+    border-bottom: 2px solid #991b1b !important;
+  }
+  .simplified-feature-name {
+    color: #991b1b !important;
+  }
+}
+
+

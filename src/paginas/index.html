@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Uma nova forja de personagens para o seu RPG.">
+  <title>Forja Rubra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%230b0809' d='M4 4h56v56H4z'/%3E%3Cpath fill='%23d52532' d='M32 7 53 22 45 51H19L11 22z'/%3E%3Cpath fill='%23f0ba67' d='m32 15 10 12-10 23-10-23z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/estilos/index/styles.css">
+  <link rel="stylesheet" href="src/estilos/index/updates.css">
+  <link rel="stylesheet" href="src/estilos/index/eye-depth.css">
+  <link rel="stylesheet" href="src/estilos/index/eye-classic.css">
+  <link rel="stylesheet" href="src/estilos/index/eye-fix.css">
+  <link rel="stylesheet" href="src/estilos/index/portal.css">
+  <link rel="stylesheet" href="src/estilos/auth/auth.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/icones.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/drawer.css">
+  <link rel="stylesheet" href="src/estilos/compartilhado/footer.css">
+  
+  <script src="src/compartilhado/inicializar.js" defer="" data-page="index"></script>
+</head>
+<body class="landing-page">
+  <header class="portal-top-bar" id="forjaUnifiedTopbar" style="position:sticky;top:0;left:0;right:0;z-index:9999;display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#0d1117;border-bottom:1px solid #1a2230;box-sizing:border-box;width:100%;box-shadow:0 4px 16px rgba(0,0,0,0.4);">
+    <div style="flex:1;display:flex;align-items:center;">
+      <div id="forjaAuthContainer" style="display:none"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;position:absolute;left:50%;transform:translateX(-50%);">
+      <a href="index.html" class="topbar-unified-brand" title="Voltar ao Menu Principal" style="text-decoration:none;display:inline-flex;align-items:center;">
+        <h1 style="margin:0;color:#dc2626;font-family:'Cinzel',serif;font-size:1.18rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;line-height:1;">Forja Rubra</h1>
+      </a>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;">
+      <button type="button" class="forja-drawer-trigger-btn" id="drawerMenuBtn" title="Abrir Menu Lateral" aria-label="Abrir Menu" style="background:transparent;border:none;color:#dc2626;cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="landing-shell">
+    <section class="landing-copy">
+      <h1 class="landing-main-title">Forja Rubra</h1>
+      <p class="lead">Construa sua ficha fase por fase, consulte regras completas e gerencie seus heróis em Arton.</p>
+
+      <div class="landing-actions-grid">
+        <a class="action-card action-create" href="criador.html?novo=true" id="landingActionNew">
+          <div class="action-icon" aria-hidden="true">
+            <svg class="forja-svg icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" y1="19" x2="19" y2="13"></line><line x1="16" y1="16" x2="20" y2="20"></line><line x1="19" y1="21" x2="21" y2="19"></line></svg>
+          </div>
+          <div class="action-info">
+            <span class="action-title">Criar Ficha</span>
+            <span class="action-desc">Criação inédita do 1º ao 20º nível</span>
+          </div>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="action-card action-my-characters" href="personagens.html" id="landingActionMyCharacters">
+          <div class="action-icon" aria-hidden="true">
+            <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <div class="action-info">
+            <span class="action-title">Meus Personagens</span>
+            <span class="action-desc" id="landingRosterCount">Ver aventureiros salvos</span>
+          </div>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="action-card action-continue" href="criador.html" id="landingActionContinue">
+          <div class="action-icon" aria-hidden="true">
+            <svg class="forja-svg icon-lg icon-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+          </div>
+          <div class="action-info">
+            <span class="action-title">Continuar Herói</span>
+            <span class="action-desc" id="landingHeroSummary">Retomar criação em andamento</span>
+          </div>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <div class="landing-recent-section" id="landingRecentSection">
+        <div class="recent-header">
+          <h2 class="recent-title">
+            <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path></svg>
+            <span>Continue Jogando</span>
+          </h2>
+          <a class="recent-link" href="personagens.html">Ver todos →</a>
+        </div>
+        <div class="recent-cards-row" id="landingRecentRow">
+          <!-- Inserido dinamicamente via JS -->
+        </div>
+      </div>
+
+      <div class="landing-compendiums-section">
+        <div class="compendiums-header">
+          <h2 class="compendiums-section-title">
+            <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            <span>Compêndios e Ferramentas</span>
+          </h2>
+        </div>
+        <nav class="landing-compendiums-grid" aria-label="Ferramentas e Compêndios">
+          <a class="landing-comp-card" href="grimorio.html">
+            <span class="comp-icon" aria-hidden="true">
+              <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </span>
+            <div class="comp-info">
+              <strong>Grimório de Arton</strong>
+              <small>Todas as magias</small>
+            </div>
+          </a>
+          <a class="landing-comp-card" href="loja.html">
+            <span class="comp-icon" aria-hidden="true">
+              <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </span>
+            <div class="comp-info">
+              <strong>Loja</strong>
+              <small>Equipamentos e itens</small>
+            </div>
+          </a>
+          <a class="landing-comp-card" href="taverna.html">
+            <span class="comp-icon" aria-hidden="true">
+              <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"></path><path d="M9 12v6"></path><path d="M13 12v6"></path><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5s1.44-.5 3-.5 2 .5 3 .5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"></path><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"></path></svg>
+            </span>
+            <div class="comp-info">
+              <strong>Taverna de Arton</strong>
+              <small>Aliados e serviços</small>
+            </div>
+          </a>
+        </nav>
+      </div>
+    </section>
+    <div class="forge-mark" id="eyePortal" aria-hidden="true">
+      <div class="ember ember-a"></div><div class="ember ember-b"></div><div class="ember ember-c"></div>
+      <div class="eye-halo"></div>
+      <div class="tormenta-eye-wrap classic-eye"><div class="classic-veins"></div><div class="gaze-iris"><div class="gaze-pupil"></div></div></div>
+    </div>
+  </main>
+  
+  <div class="forge-portal-backdrop" id="forgePortalModal" hidden aria-hidden="true">
+    <div class="portal-dialog" role="dialog" aria-modal="true" aria-labelledby="portalTitle">
+      <header class="portal-header">
+        <div class="portal-title-wrap">
+          <span class="portal-badge">Forja Rubra</span>
+          <h2 id="portalTitle">Salão dos Heróis</h2>
+          <p class="portal-subtitle">Escolha seu destino antes de adentrar a forja</p>
+        </div>
+        <button class="portal-close-btn" id="closePortalBtn" type="button" aria-label="Fechar janela">
+          <svg class="forja-svg icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </header>
+
+      <div class="portal-content">
+        <div class="portal-main-actions">
+          <a class="portal-action-card primary" href="criador.html?novo=true" id="actionNewHero">
+            <div class="card-icon" aria-hidden="true">
+              <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" y1="19" x2="19" y2="13"></line><line x1="16" y1="16" x2="20" y2="20"></line><line x1="19" y1="21" x2="21" y2="19"></line></svg>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Forjar Novo Herói</span>
+              <span class="card-desc">Comece uma criação inédita do 1º ao 20º nível</span>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+
+          <a class="portal-action-card" href="criador.html" id="actionContinueActive">
+            <div class="card-icon" aria-hidden="true">
+              <svg class="forja-svg icon-lg icon-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Continuar Herói Atual</span>
+              <span class="card-desc" id="activeHeroSummary">Retomar a criação em progresso</span>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <section class="portal-section" id="portalRosterSection">
+          <div class="section-head">
+            <h3 class="section-title">
+              <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path></svg>
+              <span>Salão dos Heróis Salvos</span>
+            </h3>
+            <span class="roster-count" id="rosterCountBadge">0 personagens</span>
+          </div>
+          <div class="roster-list" id="portalRosterList"></div>
+        </section>
+
+        <section class="portal-section">
+          <div class="section-head">
+            <h3 class="section-title">
+              <svg class="forja-svg icon-md icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+              <span>Compêndios e Ferramentas</span>
+            </h3>
+          </div>
+          <div class="compendiums-grid">
+            <a class="compendium-card" href="grimorio.html">
+              <span class="comp-icon" aria-hidden="true">
+                <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              </span>
+              <div class="comp-info">
+                <strong>Grimório de Arton</strong>
+                <small>Consulte todas as magias catalogadas</small>
+              </div>
+            </a>
+            <a class="compendium-card" href="loja.html">
+              <span class="comp-icon" aria-hidden="true">
+                <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              </span>
+              <div class="comp-info">
+                <strong>Loja</strong>
+                <small>Equipamentos, armas, armaduras e itens</small>
+              </div>
+            </a>
+            <a class="compendium-card" href="taverna.html">
+              <span class="comp-icon" aria-hidden="true">
+                <svg class="forja-svg icon-lg icon-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"></path><path d="M9 12v6"></path><path d="M13 12v6"></path><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5s1.44-.5 3-.5 2 .5 3 .5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"></path><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"></path></svg>
+              </span>
+              <div class="comp-info">
+                <strong>Taverna de Arton</strong>
+                <small>Mercenários, aliados e contratos</small>
+              </div>
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <footer id="forjaGlobalFooter" class="forja-footer"></footer>
+</body></html>

@@ -1,0 +1,36 @@
+/* Cabeçalho de conteúdo comum às páginas externas da Forja Rubra. */
+.forja-standard-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px;
+  margin: 0 0 24px;
+  background: #0d1117;
+  border: 1px solid #1a2230;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28);
+}
+.forja-standard-page-header .section-eyebrow {
+  display: block;
+  margin: 0 0 5px;
+  color: #dc2626;
+  font: 700 .72rem/1.2 "Cinzel", Georgia, serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.forja-standard-page-header h1 {
+  margin: 0 0 8px;
+  color: #f8fafc;
+  font: 700 clamp(1.55rem,3.2vw,2.25rem)/1.16 "Cinzel", Georgia, serif;
+}
+.forja-standard-page-header p {
+  max-width: 780px;
+  margin: 0;
+  color: #94a3b8;
+  font-size: .94rem;
+  line-height: 1.5;
+}
+@media (max-width:640px) {
+  .forja-standard-page-header { align-items: flex-start; padding: 16px; }
+}

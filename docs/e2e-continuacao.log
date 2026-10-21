@@ -1,0 +1,38 @@
+
+> forja-rubra-unificada@1.0.0 test:e2e
+> playwright test
+
+
+Running 27 tests using 1 worker
+
+(node:2600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 testes\navegador\fluxos.spec.cjs:6:3 › index: inicialização independente (908ms)
+  ok  2 testes\navegador\fluxos.spec.cjs:6:3 › criador: inicialização independente (2.6s)
+  ok  3 testes\navegador\fluxos.spec.cjs:6:3 › ficha: inicialização independente (2.1s)
+  ok  4 testes\navegador\fluxos.spec.cjs:6:3 › personagens: inicialização independente (553ms)
+  ok  5 testes\navegador\fluxos.spec.cjs:6:3 › loja: inicialização independente (1.5s)
+  ok  6 testes\navegador\fluxos.spec.cjs:6:3 › taverna: inicialização independente (1.1s)
+  ok  7 testes\navegador\fluxos.spec.cjs:6:3 › grimorio: inicialização independente (4.3s)
+  ok  8 testes\navegador\fluxos.spec.cjs:6:3 › oficina: inicialização independente (618ms)
+  ok  9 testes\navegador\fluxos.spec.cjs:6:3 › engenhoca: inicialização independente (638ms)
+  ok 10 testes\navegador\fluxos.spec.cjs:6:3 › recompensas: inicialização independente (616ms)
+  ok 11 testes\navegador\fluxos.spec.cjs:6:3 › mapa: inicialização independente (854ms)
+  ok 12 testes\navegador\fluxos.spec.cjs:6:3 › termos: inicialização independente (619ms)
+  ok 13 testes\navegador\fluxos.spec.cjs:6:3 › distincoes: inicialização independente (605ms)
+  ok 14 testes\navegador\fluxos.spec.cjs:6:3 › backup: inicialização independente (439ms)
+  ok 15 testes\navegador\fluxos.spec.cjs:14:1 › loja: instrumentos usam as melhorias de ferramenta e itens específicos não recebem encantos (2.3s)
+  ok 16 testes\navegador\fluxos.spec.cjs:29:1 › distinções: cabeçalho usa o componente visual padrão uma única vez (1.0s)
+  ok 17 testes\navegador\fluxos.spec.cjs:36:1 › ficha: pré-carrega os destinos da mochila sem abrir a outra tela (3.9s)
+  ok 18 testes\navegador\fluxos.spec.cjs:46:1 › ficha: persistência de dano, card e ida e volta da loja (52.5s)
+  ok 19 testes\navegador\fluxos.spec.cjs:74:1 › backup: conferir, importar e preservar campos desconhecidos (635ms)
+  ok 20 testes\navegador\fluxos.spec.cjs:86:1 › ficha: subir de nível abre o editor na progressão (33.4s)
+  ok 21 testes\navegador\fluxos.spec.cjs:113:1 › progressão: aumento de Inteligência encaminha à perícia pendente e retorna (33.9s)
+  ok 22 testes\navegador\fluxos.spec.cjs:142:1 › loja: mochila abre card comum com descrição, estatísticas e expansão (12.6s)
+  ok 23 testes\navegador\fluxos.spec.cjs:165:1 › ficha inválida: interromper inicialização e preservar dados para backup (1.4s)
+  ok 24 testes\navegador\fluxos.spec.cjs:175:1 › portal e backup em tela pequena (1.1s)
+  ok 25 testes\navegador\fluxos.spec.cjs:185:1 › engenhoca: sugestões de nomes por forma, escolha de ofício e modo de acoplamento na loja (3.3s)
+  ok 26 testes\navegador\fluxos.spec.cjs:223:1 › acoplamento: usa mochila e saldo do herói ativo sem apagar itens antigos (11.0s)
+  ok 27 testes\navegador\fluxos.spec.cjs:255:1 › engenhoca: ofícios do personagem ativo sem treinos de outros personagens (1.1s)
+
+  27 passed (3.0m)
