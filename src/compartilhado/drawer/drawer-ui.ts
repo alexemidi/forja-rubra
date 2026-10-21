@@ -137,6 +137,10 @@
             <span class="drawer-item-icon">${icon('sword', 'icon-gold')}</span>
             <span>Criar Nova Ficha</span>
           </a>
+          <a class="drawer-nav-item" href="javascript:void(0)" data-drawer-action="regras-campanha">
+            <span class="drawer-item-icon">${icon('shield', 'icon-gold')}</span>
+            <span>Regras da Campanha</span>
+          </a>
           <a class="drawer-nav-item" href="personagens.html">
             <span class="drawer-item-icon">${icon('users', 'icon-gold')}</span>
             <span>Meus Personagens</span>
@@ -234,6 +238,16 @@
           }
           e.preventDefault();
           fechar();
+          if (act === 'regras-campanha') {
+            e.preventDefault();
+            fechar();
+            if (typeof (window as any).abrirModalRegrasCampanha === 'function') {
+              (window as any).abrirModalRegrasCampanha(false);
+            } else {
+              window.location.href = 'criador.html?regras=true';
+            }
+            return;
+          }
           if (act === 'support') {
             if (window.ForjaModais?.abrirApoio) window.ForjaModais.abrirApoio();
             else alert('Sistema Seja Membro em desenvolvimento!');

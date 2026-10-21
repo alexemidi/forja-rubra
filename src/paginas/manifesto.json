@@ -19,6 +19,7 @@
         "src/regras/nucleo/codigo-compartilhamento.ts",
         "src/compartilhado/criador/modelo-estado.ts",
         "src/compartilhado/criador/estado-e-catalogos.ts",
+        "src/compartilhado/criador/modal-regras-campanha.ts",
         "src/funcionalidades/criador/fases/04-origens-divindades.ts",
         "src/funcionalidades/criador/fases/01-identidade-escolhas.ts",
         "src/funcionalidades/criador/fases/02-raca-atributos.ts",

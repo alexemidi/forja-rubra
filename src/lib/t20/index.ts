@@ -31,3 +31,4 @@ export * from './fundamentalists.ts';
 export * from './elemental-familiar.ts';
 export * from './armadura-mecanizada.ts';
 export * from './artesao-criativo.ts';
+export * from './regras-campanha.ts';

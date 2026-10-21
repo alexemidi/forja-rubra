@@ -51,6 +51,7 @@ import * as RegrasFamiliarElemental from '../lib/t20/elemental-familiar.ts';
 import * as RegrasCriacaoDosDeuses from '../lib/t20/criacao-dos-deuses.ts';
 import * as RegrasArmaduraMecanizada from '../lib/t20/armadura-mecanizada.ts';
 import * as RegrasArtesaoCriativo from '../lib/t20/artesao-criativo.ts';
+import * as RegrasCampanha from '../lib/t20/regras-campanha.ts';
 import * as ForjaFeatures from '../features/index.ts';
 import { ExportacaoPersonagem } from '../integrations/export/character-export.ts';
 import { FORJA_PAGES } from '../pages/registry.ts';
@@ -123,6 +124,7 @@ Object.assign(globalThis, {
   RegrasMasmorrasTs,
   RegrasArmaduraMecanizada,
   RegrasArtesaoCriativo,
+  RegrasCampanha,
   ExportacaoPersonagem,
   ForjaPassosDano: ModuloPassosDano,
   ForjaGolpePessoal: ModuloGolpePessoal,

@@ -10,7 +10,19 @@ function rule(){ensure();const band=BANDS[state.age.band],range=ranges()[state.a
 function overlap(){return false}
 function mods(){return RegrasIdade.modificadores(rule())}
 function clamp(){const result=RegrasIdade.limitar(state.age.years,rule());if(result)Object.assign(state.age,result)}
-const baseFinalAttrs=finalAttrs;finalAttrs=function(){const result=baseFinalAttrs(),age=mods();if(state.age.enabled)Object.keys(result).forEach(id=>result[id]+=Number(age[id]||0));return result};
+const baseFinalAttrs=finalAttrs;
+finalAttrs=function(){
+  const result=baseFinalAttrs();
+  const rCamp = typeof RegrasCampanha !== 'undefined' ? RegrasCampanha.obterRegrasCampanha(state) : state?.regrasCampanha;
+  if(rCamp?.idade === 'basico'){
+    const ageBasico = (typeof RegrasCampanha !== 'undefined' ? RegrasCampanha.modificadoresIdade(state) : null) || { for:0,des:0,con:0,int:0,sab:0,car:0 };
+    Object.keys(result).forEach(id=>result[id]+=Number(ageBasico[id]||0));
+  } else if(state.age?.enabled && (!rCamp || rCamp.idade === 'herois_arton')){
+    const age=mods();
+    Object.keys(result).forEach(id=>result[id]+=Number(age[id]||0));
+  }
+  return result;
+};
 const baseGeneralPowerSlots=generalPowerSlots;generalPowerSlots=function(){const r=rule();return baseGeneralPowerSlots()+Number(state.age.enabled?r?.generalPowers||0:0)};
 
 function panelHtml(){

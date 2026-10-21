@@ -442,19 +442,98 @@ function renderRacePanel(){
   );
 }
 
+function hasPendingRaceChoices(){
+  const race=raceById(state.identity.raceId);
+  if(!race)return false;
+  const sources=raceAllocationSources();
+  for(const source of sources){
+    const amount=allocationValues(source.key).length;
+    const required=Number(source.config?.quantidade||0);
+    if(amount<required)return true;
+  }
+  for(const def of (race?.habilidades?.selecionadas||[])){
+    if(def.tipo==='escolha_multipla'||def.tipo==='atributos_flexiveis')continue;
+    const required=def.obrigatoria||def.id==='humano_versatil'||def.id==='duende_tabu';
+    if(required&&!selectedRaceOption(def))return true;
+  }
+  for(const ability of (race?.habilidades?.fixas||[])){
+    if(ability.escolha?.obrigatoria&&ability.escolha.tipo!=='escolha_multipla'&&!state.identity.raceChoices[ability.id]){
+      return true;
+    }
+  }
+  if(race.id==='golem_desperto'&&state.identity.raceChoices.golem_desperto_fonte==='Elemental'&&!state.identity.raceChoices.golem_fonte_elemento){
+    return true;
+  }
+  return false;
+}
+
+function rolarParaCalculadoraAtributos(){
+  setTimeout(()=>{
+    const matrix=document.getElementById('attributeMatrixSection')||document.querySelector('.attribute-matrix');
+    if(matrix&&typeof matrix.scrollIntoView==='function'){
+      matrix.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },90);
+}
+
 function renderAttributesRace(){
   const race=raceById(state.identity.raceId);
-  const ageHtml=typeof renderAgePanelHtml==='function'?renderAgePanelHtml():(typeof window!=='undefined'&&window.renderAgePanelHtml?window.renderAgePanelHtml():'');
-  const topSection='<div class="phase-2-top-grid">'
+  // @ts-ignore
+  const rCamp=typeof RegrasCampanha!=='undefined'?RegrasCampanha.obterRegrasCampanha(state):(state.regrasCampanha||{idade:'desativada',racasAbertas:false,faixaBasico:'adulto'});
+
+  let openRacesContent='';
+  if(rCamp.racasAbertas){
+    openRacesContent=renderOpenRacesCard(race);
+  }
+
+  let ageContent='';
+  if(rCamp.idade==='herois_arton'){
+    const ageHtml=typeof renderAgePanelHtml==='function'?renderAgePanelHtml():(typeof window!=='undefined'&&window.renderAgePanelHtml?window.renderAgePanelHtml():'');
+    ageContent=ageHtml||'';
+  }else if(rCamp.idade==='basico'){
+    const fb=rCamp.faixaBasico||'adulto';
+    ageContent='<div class="panel age-extension">'
+      +'<div class="panel-header"><div class="panel-title">Idade (Livro Básico)</div><div class="panel-note">Modificadores de Atributo</div></div>'
+      +'<div class="panel-body">'
+      +'<div class="field" style="margin-bottom:8px;">'
+      +'<span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:4px;">Faixa Etária</span>'
+      +'<select class="select" data-action="basico-age-band">'
+      +'<option value="adulto" '+(fb==='adulto'?'selected':'')+'>Adulto (18 a 44 anos) · Sem modificadores</option>'
+      +'<option value="maduro" '+(fb==='maduro'?'selected':'')+'>Maduro (45 a 69 anos) · -1 Fis / +1 Men</option>'
+      +'<option value="velho" '+(fb==='velho'?'selected':'')+'>Velho (70+ anos) · -3 Fis / +2 Men (cumulativo)</option>'
+      +'</select>'
+      +'</div>'
+      +'<p class="help" style="font-size:0.72rem;line-height:1.45;color:var(--text-muted);">'
+      +(fb==='velho'?'Modificadores cumulativos de Maduro e Velho: <strong>For –3, Des –3, Con –3, Int +2, Sab +2, Car +2</strong>. Longevidade máxima: 70 + 2d20 anos.':(fb==='maduro'?'Modificadores de Maduro: <strong>For –1, Des –1, Con –1, Int +1, Sab +1, Car +1</strong>.':'Adulto: No auge da capacidade física e mental, sem alterações de atributos.'))
+      +'</p>'
+      +'</div>'
+      +'</div>';
+  }
+
+  let optionalRulesDisabledNotice='';
+  if(!rCamp.racasAbertas&&rCamp.idade==='desativada'){
+    optionalRulesDisabledNotice='<div class="rules-inactive-card" data-tooltip="Regras de Idade e Raças Abertas estão desativadas para esta ficha. Você pode acessar o menu a qualquer momento para habilitar essas variantes nas Regras da Campanha." style="margin-top:10px;padding:9px 12px;border:1px dashed var(--border);border-radius:6px;background:rgba(23,17,20,0.6);cursor:help;">'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<span style="color:var(--gold);display:inline-flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>'
+      +'<div style="line-height:1.35;">'
+      +'<span style="color:var(--gold2);font-weight:700;font-size:0.74rem;display:block;">Regras de Idade e Raças Abertas Desativadas</span>'
+      +'<small style="color:var(--muted);font-size:0.68rem;">Passe o mouse para ver detalhes ou habilite no menu de Regras da Campanha.</small>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }
+
+  const leftPanelContent=renderAttributeVitals()+openRacesContent+optionalRulesDisabledNotice;
+  const topSection='<div class="phase-2-top-grid '+(ageContent?'':'single-column')+'">'
     +'<div class="phase-2-top-left">'
-    +panel('Atributos · Base + Racial = Total',renderAttributeVitals()+renderOpenRacesCard(race))
+    +panel('Atributos · Base + Racial = Total',leftPanelContent)
     +'</div>'
-    +'<div class="phase-2-top-right">'
-    +(ageHtml||'<div class="panel age-placeholder" style="visibility:hidden"></div>')
-    +'</div>'
+    +(ageContent?'<div class="phase-2-top-right">'+ageContent+'</div>':'')
     +'</div>';
-  return '<div class="phase-content-grid"><div class="phase-column">'+renderRacePanel()+'</div><div class="phase-column">'+topSection+renderAttributeMatrix()+'</div></div>';
+
+  return '<div class="phase-content-grid"><div class="phase-column" id="raceColumnSection">'+renderRacePanel()+'</div><div class="phase-column" id="attributeColumnSection">'+topSection+'<div id="attributeMatrixSection">'+renderAttributeMatrix()+'</div></div></div>';
 }
+
 
 renderSkillChoices=function(group,available,needed,title,notes=''){
   const chosen=state.skills[group]||[],requirements=classFutureRequirements().skills,limitReached=chosen.length>=needed;

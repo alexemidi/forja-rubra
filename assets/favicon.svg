@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4a151b" />
+      <stop offset="100%" stop-color="#090708" />
+    </radialGradient>
+    <linearGradient id="rubroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea3948" />
+      <stop offset="50%" stop-color="#c51f2c" />
+      <stop offset="100%" stop-color="#700d17" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5c879" />
+      <stop offset="100%" stop-color="#e9ad59" />
+    </linearGradient>
+  </defs>
+  <!-- Fundo Circular Escuro com borda Rubra -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGlow)" stroke="#4a252a" stroke-width="2" />
+  <circle cx="32" cy="32" r="28" fill="none" stroke="url(#goldGrad)" stroke-width="0.75" stroke-opacity="0.4" />
+  
+  <!-- Bigorna Rubra da Forja -->
+  <path d="M16 26 L48 26 L46 32 L38 34 L38 42 L42 46 L22 46 L26 42 L26 34 L18 32 Z" fill="url(#rubroGrad)" stroke="#4a252a" stroke-width="1" />
+  
+  <!-- Lâmina / Fagulhas de Aço em Dourado -->
+  <path d="M30 14 L34 14 L33 24 L31 24 Z" fill="url(#goldGrad)" />
+  <polygon points="32,10 34,14 30,14" fill="#fff" />
+  
+  <!-- Chamas / Brasas no topo da Bigorna -->
+  <circle cx="26" cy="23" r="1.5" fill="#f5c879" />
+  <circle cx="38" cy="23" r="1.5" fill="#f5c879" />
+  <circle cx="32" cy="20" r="1.8" fill="#ea3948" />
+</svg>
