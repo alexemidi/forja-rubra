@@ -103,8 +103,22 @@ function renderSheetStage(navigationOnly=false){
     document.body?.classList.toggle('spell-stage',state.sheetView==='grimoire');
     document.body?.classList.toggle('arsenal-stage',state.sheetView==='shop'||state.sheetView==='workshop');
     document.body?.classList.toggle('tavern-stage',state.sheetView==='tavern');
-    const pNav=document.getElementById('phaseNav');if(pNav)pNav.hidden=true;
-    const footer=document.querySelector('.stage-footer');if(footer)footer.hidden=true;
+    const pNav=document.getElementById('phaseNav');
+    if(pNav){
+      pNav.hidden=true;
+      pNav.style.display='none';
+    }
+    const footer=document.querySelector('.stage-footer') as HTMLElement;
+    if(footer){
+      footer.hidden=true;
+      footer.style.display='none';
+    }
+    const stageHeading=document.querySelector('.stage-heading') as HTMLElement;
+    const isSheetMain = state.sheetView==='sheet' || !state.sheetView;
+    if(stageHeading){
+      stageHeading.style.display = isSheetMain ? 'none' : '';
+      stageHeading.hidden = isSheetMain;
+    }
     let kickerText = 'Herói Forjado';
     let titleText = state.identity.characterName||'Personagem';
     if(state.sheetView==='grimoire'){
@@ -121,9 +135,12 @@ function renderSheetStage(navigationOnly=false){
       kickerText = state.workshopReadOnly ? 'Consulta Geral de Ofício' : 'Manufatura de Ofício (T20)';
       titleText = `${sec.title}`;
     }
-    document.getElementById('stageKicker').textContent=kickerText;
-    document.getElementById('stageTitle').textContent=titleText;
-    document.getElementById('stageDescription').textContent='';
+    const skEl = document.getElementById('stageKicker');
+    if(skEl) skEl.textContent=kickerText;
+    const stEl = document.getElementById('stageTitle');
+    if(stEl) stEl.textContent=titleText;
+    const sdEl = document.getElementById('stageDescription');
+    if(sdEl) sdEl.textContent='';
     const rBtnFinal=document.getElementById('resetButton');if(rBtnFinal)rBtnFinal.hidden=true;
     const expBtn=document.getElementById('exportButton');
     if(expBtn)expBtn.hidden=!(state.finished||state.step===9);

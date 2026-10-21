@@ -1,1 +1,40 @@
 @import url('../compartilhado/componentes.css');
+
+/* Botão flutuante para voltar ao topo no Grimório */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--panel, #110d0f);
+  border: 1px solid var(--line, #4a252a);
+  border-radius: 6px;
+  color: var(--gold2, #f5c879);
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 10px rgba(233, 173, 89, 0.2);
+  transition: all 0.2s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.back-to-top-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.back-to-top-btn:hover {
+  background: var(--panel2, #181114);
+  border-color: var(--gold, #e9ad59);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 14px rgba(233, 173, 89, 0.35);
+}

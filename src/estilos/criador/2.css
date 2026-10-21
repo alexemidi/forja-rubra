@@ -65,3 +65,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .familiar-choice-card:hover,.familiar-choice-card:focus-visible{border-color:#ef4444;background:#29151d}
 .familiar-choice-card strong{font-family:Cinzel,serif;color:#fca5a5}
 .familiar-choice-card span{font-size:.78rem;line-height:1.4}
+
+/* Quando a ficha do herói está pronta ou finalizada, ocultar navegação de etapas e o heading redundante */
+.character-sheet-ready .phase-nav,
+.character-sheet-ready #phaseNav,
+.character-sheet-ready:not(.spell-stage):not(.tavern-stage):not(.arsenal-stage) .stage-heading,
+.phase-nav[hidden],
+#phaseNav[hidden] {
+  display: none !important;
+}

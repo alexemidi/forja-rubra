@@ -133,6 +133,38 @@
     }
   }
 
+  function iconeCondicao(id) {
+    const g = typeof window !== 'undefined' ? window : globalThis;
+    const fn = typeof g.tracosCondicao === 'function' ? g.tracosCondicao : null;
+    return fn ? fn(id) : '';
+  }
+
+  function encontrarCondicao(catalog, nome) {
+    const norm = String(nome).trim().toLowerCase();
+    return catalog.find((c) => c.nome.toLowerCase() === norm || c.id.toLowerCase() === norm.replace(/[\s-]/g, '_'));
+  }
+
+  function renderDetalheCondicao(cond, catalog, active) {
+    if (!cond) {
+      return '<p class="condition-detail-empty">Selecione uma condição para ver suas regras.</p>';
+    }
+    const cor = CORES_CATEGORIAS[cond.categoria] || '#e9ad59';
+    const isActive = active.has(cond.nome);
+    const efeitos = (cond.efeitosImediatos || []).map((nomeRel) => {
+      const rel = encontrarCondicao(catalog, nomeRel);
+      return `<p class="cond-card-ref"><strong>${rel ? rel.nome : nomeRel}:</strong> ${rel ? rel.descricao : ''}</p>`;
+    }).join('');
+    return `
+      <div class="condition-detail-head" style="--condition-color:${cor}">
+        <svg class="condition-detail-icon" viewBox="0 0 24 24" aria-hidden="true">${iconeCondicao(cond.id)}</svg>
+        <strong class="condition-detail-name">${cond.nome}</strong>
+      </div>
+      <p class="condition-detail-text">${cond.descricao}</p>
+      ${efeitos ? `<div class="condition-sub-effects"><div class="cond-card-subtitle">Efeitos imediatos</div>${efeitos}</div>` : ''}
+      <button type="button" class="condition-toggle-btn ${isActive ? 'is-active' : ''}" data-toggle-condition="${cond.nome}">${isActive ? 'Remover' : 'Adicionar'}</button>
+    `;
+  }
+
   function renderListaCondicoesModal() {
     const listEl = document.getElementById('forjaConditionsList');
     if (!listEl) return;
@@ -147,59 +179,23 @@
       return matchCat && matchSearch;
     });
 
-    if (filtered.length === 0) {
-      listEl.innerHTML = '<p style="text-align:center;color:var(--muted);padding:24px 0;">Nenhuma condição encontrada para o filtro.</p>';
-      return;
+    if (!filtered.some((c) => c.id === selectedConditionId)) {
+      selectedConditionId = filtered[0]?.id || null;
     }
+    const selected = catalog.find((c) => c.id === selectedConditionId) || null;
 
-    listEl.innerHTML = filtered.map((cond) => {
-      const isExpanded = expandedConditions.has(cond.id);
-      const isActive = active.has(cond.nome);
-      const cor = CORES_CATEGORIAS[cond.categoria] || '#e9ad59';
-      const catObj = CATEGORIAS.find(c => c.id === cond.categoria);
-      const catLabel = catObj ? catObj.label : cond.categoria;
+    const grid = filtered.length
+      ? filtered.map((cond) => {
+          const cor = CORES_CATEGORIAS[cond.categoria] || '#dfb666';
+          const isSel = cond.id === selectedConditionId;
+          return `<button type="button" class="condition-select ${isSel ? 'selected' : ''} ${active.has(cond.nome) ? 'is-active' : ''}" style="--condition-color:${cor}" data-select-condition="${cond.id}" aria-pressed="${isSel}"><svg viewBox="0 0 24 24" aria-hidden="true">${iconeCondicao(cond.id)}</svg><span>${cond.nome}</span></button>`;
+        }).join('')
+      : '<p class="condition-detail-empty">Nenhuma condição encontrada para o filtro.</p>';
 
-      const subEffectsHtml = (cond.efeitosImediatos && cond.efeitosImediatos.length > 0)
-        ? `<div class="condition-sub-effects">
-             <div class="cond-card-subtitle">Efeitos imediatos</div>
-             ${cond.efeitosImediatos.map((nomeRel) => {
-               const normNome = String(nomeRel).trim().toLowerCase();
-               const relCond = catalog.find((c) => c.nome.toLowerCase() === normNome || c.id.toLowerCase() === normNome.replace(/[\s-]/g, '_'));
-               const descRel = relCond ? relCond.descricao : '';
-               return `<p class="cond-card-ref"><strong>${relCond ? relCond.nome : nomeRel}:</strong> ${descRel}</p>`;
-             }).join('')}
-           </div>`
-        : '';
-
-      return `
-        <article class="condition-card ${isActive ? 'is-active' : ''}" style="border-left-color: ${cor}">
-          <div class="condition-header-row">
-            <div class="condition-main-info">
-              <div class="condition-text-wrap">
-                <div class="condition-title-line">
-                  <strong class="condition-name">${cond.nome}</strong>
-                  <span class="condition-category-tag" style="border-color:${cor};color:${cor}">${catLabel}</span>
-                  ${isActive ? '<span class="condition-status-pill">Ativa</span>' : ''}
-                </div>
-                <div class="condition-summary">${cond.resumo || cond.descricao}</div>
-              </div>
-            </div>
-            <div class="condition-actions-wrap">
-              <button type="button" class="condition-toggle-btn ${isActive ? 'is-active' : ''}" data-toggle-condition="${cond.nome}">${isActive ? 'Remover' : 'Adicionar'}</button>
-              <button type="button" class="condition-chevron-btn ${isExpanded ? 'open' : ''}" data-expand-condition="${cond.id}" title="${isExpanded ? 'Recolher detalhes' : 'Ver regras completas'}">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </button>
-            </div>
-          </div>
-          ${isExpanded ? `
-            <div class="condition-details-panel">
-              <p style="margin:0 0 8px 0;line-height:1.5;">${cond.descricao}</p>
-              ${subEffectsHtml}
-            </div>
-          ` : ''}
-        </article>
-      `;
-    }).join('');
+    listEl.innerHTML = `
+      <div class="conditions-grid">${grid}</div>
+      <aside class="condition-detail-panel">${renderDetalheCondicao(selected, catalog, active)}</aside>
+    `;
   }
 
   function ensureConditionsModal() {
@@ -236,6 +232,10 @@
         <div class="conditions-list-wrap" id="forjaConditionsList">
           <!-- Inserido dinamicamente -->
         </div>
+
+        <footer class="conditions-modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:10px 20px;border-top:1px solid #3b181f;background:#170d10;">
+          <button type="button" class="button" data-condition-close style="min-width:88px;padding:6px 16px;">Fechar</button>
+        </footer>
       </section>
     `;
 

@@ -565,4 +565,19 @@ if (window.self === window.top) {
   apply();
   const loader = document.getElementById('forja-loader');
   if (loader) loader.hidden = true;
+
+  const backToTopBtn = document.getElementById('grimorioBackToTopBtn');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 280) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 }
