@@ -582,29 +582,92 @@ function executeChooseCandidate(item, improvements = []){
   if(catalogDraft){
     options={...options,...catalogDraft};
   }
+  let lastPromptedItemChoiceId: string | null = (window as any).__lastPromptedItemChoiceId || null;
   const nameRequired=item.id!=='colecao_de_livros'&&Boolean(ITEM_CHOICE_DEFINITIONS[item.id]?.fields.some(field=>field.id==='customName'));
   if(nameRequired&&!String(options.customName||'').trim()){
-    selectedCandidate=null;
-    restoreCandidate();postArsenal('candidate',{itemId:null});
     const card=[...itemsGrid.querySelectorAll('[data-item-id]')].find(card=>card.dataset.itemId===item.id);
-    card?.classList.add('expanded');
-    card?.querySelector('[data-item-option="customName"]')?.setAttribute('required','');
-    return;
+    const input=card?.querySelector('[data-item-option="customName"]') as HTMLInputElement;
+    if(lastPromptedItemChoiceId === item.id){
+      let suggestion = '';
+      const placeholder = input?.getAttribute('placeholder') || '';
+      if(placeholder){
+        const cleanPh = placeholder.replace(/^Ex:\s*/i, '').replace(/…|\.\.\./g, '');
+        const parts = cleanPh.split(/,\s*|\sou\s*/i).map(s => s.trim()).filter(Boolean);
+        if(parts.length > 0){
+          suggestion = parts[Math.floor(Math.random() * parts.length)];
+        }
+      }
+      if(!suggestion){
+        const defs: Record<string, string[]> = {
+          futura_lenda_arma: ['O Destruidor de Mundos', 'A Lâmina da Alvorada', 'Devoradora de Glória'],
+          joia_de_familia: ['Colar de Esmeralda Antigo', 'Anel com Brasão Familiar', 'Broche de Safira'],
+          item_artistico: ['Tapeçaria dos Heróis de Khalmyr', 'Escultura de Mármore Élfica', 'Vaso Cerâmico de Lenórienn'],
+          joia_falsificada: ['Anel de Latão Brilhante', 'Tiara de Vidro Lapidado', 'Amuleto Dourado Falso'],
+          pequeno_animal_de_estimacao: ['Esquilo Valente', 'Gato Fiel', 'Corvo Curioso'],
+          tatuagem_ou_outro_adereco_de_sua_gangue: ['Tatuagem da Serpente', 'Bracelete de Couro', 'Marca da Caveira'],
+          lembranca_de_um_admirador: ['Fita de Seda Perfumada', 'Carta em Pergaminho', 'Lenço Bordado'],
+          tranqueiras_resgatadas_do_mar: ['Garrafa com Mapa Antigo', 'Conchas Raras Polidas', 'Madeira de Naufrágio']
+        };
+        const pool = defs[item.id] || ['Relíquia Notável', 'Item Memorável', 'Artefato Curioso'];
+        suggestion = pool[Math.floor(Math.random() * pool.length)];
+      }
+      options.customName = suggestion;
+      if(input) input.value = suggestion;
+      catalogOptionDrafts.set(item.id, options);
+      (window as any).__lastPromptedItemChoiceId = null;
+      if(typeof showToast === 'function') showToast('Indicação sugerida aceita: ' + suggestion);
+    } else {
+      (window as any).__lastPromptedItemChoiceId = item.id;
+      selectedCandidate=null;
+      restoreCandidate();postArsenal('candidate',{itemId:null});
+      card?.classList.add('expanded');
+      input?.setAttribute('required','');
+      input?.focus();
+      if(typeof showToast === 'function') showToast('Nomeie o item ou aceite uma indicação aleatória');
+      return;
+    }
   }
   if(item.id==='colecao_de_livros'&&!String(options.knowledge||'').trim()){
-    selectedCandidate=null;
-    restoreCandidate();postArsenal('candidate',{itemId:null});
     const card=[...itemsGrid.querySelectorAll('[data-item-id]')].find(card=>card.dataset.itemId===item.id);
-    card?.classList.add('expanded');
-    card?.querySelector('[data-item-option="knowledge"]')?.focus();
-    return;
+    const sel=card?.querySelector('[data-item-option="knowledge"]') as HTMLSelectElement;
+    if(lastPromptedItemChoiceId === item.id){
+      const opts = sel ? Array.from(sel.options).map(o => o.value).filter(Boolean) : [];
+      const suggestion = opts.length > 0 ? opts[Math.floor(Math.random() * opts.length)] : 'historia';
+      options.knowledge = suggestion;
+      if(sel) sel.value = suggestion;
+      catalogOptionDrafts.set(item.id, options);
+      (window as any).__lastPromptedItemChoiceId = null;
+      if(typeof showToast === 'function') showToast('Tema de livros selecionado: ' + suggestion);
+    } else {
+      (window as any).__lastPromptedItemChoiceId = item.id;
+      selectedCandidate=null;
+      restoreCandidate();postArsenal('candidate',{itemId:null});
+      card?.classList.add('expanded');
+      sel?.focus();
+      if(typeof showToast === 'function') showToast('Nomeie o item ou aceite uma indicação aleatória');
+      return;
+    }
   }
   if(item.id==='instrumentos_de_oficio'&&!String(options.oficio||'').trim()){
-    selectedCandidate=null;
-    restoreCandidate();postArsenal('candidate',{itemId:null});
     const card=[...itemsGrid.querySelectorAll('[data-item-id]')].find(card=>card.dataset.itemId===item.id);
-    card?.classList.add('expanded');
-    card?.querySelector('[data-item-option="oficio"]')?.focus();
+    const sel=card?.querySelector('[data-item-option="oficio"]') as HTMLSelectElement;
+    if(lastPromptedItemChoiceId === item.id){
+      const opts = sel ? Array.from(sel.options).map(o => o.value).filter(Boolean) : [];
+      const suggestion = opts.length > 0 ? opts[0] : 'armeiro';
+      options.oficio = suggestion;
+      if(sel) sel.value = suggestion;
+      catalogOptionDrafts.set(item.id, options);
+      (window as any).__lastPromptedItemChoiceId = null;
+      if(typeof showToast === 'function') showToast('Ofício selecionado: ' + suggestion);
+    } else {
+      (window as any).__lastPromptedItemChoiceId = item.id;
+      selectedCandidate=null;
+      restoreCandidate();postArsenal('candidate',{itemId:null});
+      card?.classList.add('expanded');
+      sel?.focus();
+      if(typeof showToast === 'function') showToast('Nomeie o item ou aceite uma indicação aleatória');
+      return;
+    }
   }
   const configured={options,improvements,enchantments:[]};
   const value=entryValueInfo(configured,effectiveItemForOptions(item,configured));

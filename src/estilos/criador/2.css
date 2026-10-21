@@ -5,8 +5,35 @@ html{background:#09090d}body{background:radial-gradient(ellipse at 8% 0%,#681a30
 .app-header,body>header:not(.forja-loader){background:linear-gradient(110deg,#181016f5,#0e0d12f5);border-bottom-color:#81503f;box-shadow:0 8px 32px #0004}
 .panel,.phase-panel,.section,.card,.item-card,.spell-card,.summary-card,.power-detail-panel,.sheet-panel,.sheet-section,.character-sheet-toolbar,.phase-nav,.stage-footer,.filters,.toolbar{background-color:var(--surface);border-color:var(--border)}
 .power-row,.deity-power-row,.origin-item,.office-option,.check-card,.choice-card,.filter-chip{background-color:#171319;border-color:var(--border)}
-.choice-card-icon{display:block;margin-bottom:8px;color:#e8cb83;font-size:1.45rem;line-height:1.15}
-body:has(#redoInitialItemsButton:not([hidden])) #redoInitialItemsButton{background:#7f1d1d;border-color:#ef4444;color:#fff}
+#redoInitialItemsButton,
+#redoSpellChoicesButton,
+[data-action="spell-redo"],
+.btn-redo-choices,
+body:has(#redoInitialItemsButton:not([hidden])) #redoInitialItemsButton {
+  background: rgba(233, 173, 89, 0.14) !important;
+  border: 1px solid var(--gold, #dfb666) !important;
+  color: var(--gold2, #f3d99c) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+#redoInitialItemsButton:hover,
+#redoSpellChoicesButton:hover,
+[data-action="spell-redo"]:hover,
+.btn-redo-choices:hover {
+  background: var(--gold, #dfb666) !important;
+  color: #110d0f !important;
+  border-color: var(--gold2, #f3d99c) !important;
+  box-shadow: 0 0 12px rgba(223, 182, 102, 0.45) !important;
+}
+.brand h1,
+#stageTitle,
+.stage-heading h2,
+.stage-kicker,
+.panel-title,
+.section-title {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', Georgia, serif) !important;
+  letter-spacing: 0.5px;
+}
 .panel h2,.panel h3,.section-title,.card-title,.stage-heading h2{color:var(--gold2)}
 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{background-color:#100e14;color:var(--text);border-color:#59424d}
 button,.button{transition:background-color .18s,border-color .18s,box-shadow .18s,filter .18s}

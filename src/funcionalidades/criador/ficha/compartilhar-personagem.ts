@@ -119,7 +119,7 @@
         try {
           input.select();
           await navigator.clipboard.writeText(url);
-          copyBtn.textContent = 'Copiado! ✓';
+          copyBtn.textContent = 'Copiado!';
           copyBtn.classList.add('success');
           if (typeof (window as any).toast === 'function') {
             (window as any).toast('Link de compartilhamento copiado para a área de transferência!');
@@ -171,6 +171,18 @@
 
     const base = window.location.origin + window.location.pathname;
     const shareUrl = `${base}?compartilhar=${code}`;
+
+    // Copiar diretamente e notificar de imediato
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(shareUrl).catch(() => {});
+      }
+    } catch {}
+
+    if (typeof (window as any).toast === 'function') {
+      (window as any).toast('Link de compartilhamento copiado com sucesso! Pronto para enviar.');
+    }
+
     abrirModalCompartilhamento(shareUrl, s.identity?.characterName || 'Personagem');
   }
 

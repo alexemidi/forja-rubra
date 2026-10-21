@@ -213,8 +213,27 @@ function syncInitialItemFooter(){
     if(stepNext)stepNext.hidden=true;
     const skipSimpleBtn = document.getElementById('skipSimpleChoiceBtn');
     if(skipSimpleBtn) skipSimpleBtn.hidden = true;
+    let buyMoreBtn = document.getElementById('buyMoreItemsBtn');
+    if(!buyMoreBtn && nextBtn?.parentNode){
+      buyMoreBtn = document.createElement('button');
+      buyMoreBtn.id = 'buyMoreItemsBtn';
+      buyMoreBtn.type = 'button';
+      buyMoreBtn.className = 'button';
+      buyMoreBtn.textContent = 'Comprar itens';
+      buyMoreBtn.style.marginRight = '8px';
+      buyMoreBtn.addEventListener('click', () => {
+        arsenalShopOpen = true;
+        renderStage();
+      });
+      nextBtn.parentNode.insertBefore(buyMoreBtn, nextBtn);
+    }
+    if(buyMoreBtn){
+      buyMoreBtn.hidden = arsenalShopOpen;
+    }
     if(nextBtn)nextBtn.hidden=false;
   }else{
+    const buyMoreBtn = document.getElementById('buyMoreItemsBtn');
+    if(buyMoreBtn) buyMoreBtn.hidden = true;
     const candidateValid=Boolean(saved.pending&&!(saved.pending.itemId==='instrumentos_de_oficio'&&!String(saved.pending.options?.oficio||'').trim()));
     const hasCandidate=candidateValid;
     if(nextBtn){
@@ -346,7 +365,7 @@ async function commitOrAdvanceCurrentChoice(skipChoice = false){
     setTimeout(()=>{
       const btnN=document.getElementById('nextButton');if(btnN&&state.step===8)btnN.disabled=false;
       const btnS=document.getElementById('stepNextButton');if(btnS&&state.step===8)btnS.disabled=false;
-    },2500);
+    },40);
 
     delete saved.operations[grantId];
     sendArsenal('close-modal',{});

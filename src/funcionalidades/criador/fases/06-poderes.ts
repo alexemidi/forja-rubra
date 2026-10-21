@@ -115,7 +115,6 @@ renderDeity=function(){
   const pairs=grantedPowerPairs(filterDeityObj);
   let preview=pairs.find(pair=>slug(pair.powerName)===slug(state.deity.previewPower)&&pair.deity.nome===state.deity.previewDeity);
   if(!preview&&deity&&values.find(Boolean))preview=pairs.find(pair=>slug(pair.powerName)===slug(values.find(Boolean)));
-  if(!preview&&filterDeityObj&&pairs.length)preview=pairs[0];
   state.deity.previewPower=preview?.powerName||'';state.deity.previewDeity=preview?.deity.nome||(filterDeityObj?.nome||'');
   const slotbar='<div class="deity-slotbar">'+Array.from({length:count},(_,index)=>'<button type="button" class="filter-chip '+(state.deity.activePowerIndex===index?'active':'')+'" data-action="deity-power-slot" data-index="'+index+'">'+(values[index]?esc((index+1)+' · '+values[index]):esc((index+1)+' · Escolher poder'))+'</button>').join('')+'</div>';
   const availableGods = (state.deity?.strictAcceptedOnly ? DATA.deities.filter(deityAccepts) : DATA.deities).slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
@@ -124,14 +123,13 @@ renderDeity=function(){
     '<button type="button" class="filter-chip '+(!activeFilterName?'active':'')+'" data-action="deity-filter-god" data-deity="">Todos os deuses</button>' +
     availableGods.map(g=>'<button type="button" class="filter-chip '+(activeFilterName===g.nome?'active':'')+'" data-action="deity-filter-god" data-deity="'+esc(g.nome)+'">'+esc(g.nome)+'</button>').join('') +
   '</div>';
-  const current=deity?'<div class="info-box" style="margin-bottom:10px"><strong>Divindade atual: '+esc(deity.nome)+'</strong><div class="inline-actions" style="margin-top:8px"><button type="button" class="button danger" data-action="deity-reset">Trocar divindade</button>'+(values[state.deity.activePowerIndex]?'<button type="button" class="button" data-action="deity-power-remove" data-index="'+state.deity.activePowerIndex+'">Remover poder deste espaço</button>':'')+'</div></div>':'';
   const cards=pairs.map(pair=>{
     const active=Boolean(state.deity.previewPower)&&slug(pair.powerName)===slug(state.deity.previewPower)&&pair.deity.nome===state.deity.previewDeity;
     const chosen=pair.deity.nome===state.deity.name&&values.some(name=>slug(name)===slug(pair.powerName));
     return '<button type="button" class="deity-power-row '+(active?'selected ':'')+(chosen?'chosen':'')+'" aria-pressed="'+active+'" aria-controls="deityDetail" data-action="deity-power-preview" data-power="'+esc(pair.powerName)+'" data-deity="'+esc(pair.deity.nome)+'" data-search="'+esc(slug(pair.powerName+' '+pair.deity.nome))+'"><span class="deity-power-heading"><strong>'+esc(pair.powerName)+'</strong><em>'+esc(pair.deity.nome)+'</em></span><small>'+esc(pair.data?.descricao||'Descrição ainda não localizada no catálogo de poderes concedidos.')+'</small></button>';
   }).join('');
   const list='<div><input class="input search" id="deityPowerSearch" aria-label="Pesquisar poder ou divindade" placeholder="Pesquisar poder ou divindade…" value="'+esc(deitySearchQuery)+'"><div class="deity-power-list">'+cards+'</div><p id="deitySearchEmpty" class="empty" hidden>Nenhum poder corresponde à pesquisa.</p></div>';
-  return mode+renderFundamentalistTogglePanel()+panel('Escolha pelo poder concedido',current+slotbar+godFilterBar+'<div class="deity-choice-layout">'+list+renderDeityPowerDetail(state.deity.previewPower,state.deity.previewDeity)+'</div>','Selecionados: '+values.filter(Boolean).length+'/'+count);
+  return mode+renderFundamentalistTogglePanel()+panel('Escolha pelo poder concedido',slotbar+godFilterBar+'<div class="deity-choice-layout">'+list+renderDeityPowerDetail(state.deity.previewPower,state.deity.previewDeity)+'</div>','Selecionados: '+values.filter(Boolean).length+'/'+count);
 };
 
 function bindPowerSearch(){const input=document.getElementById('generalPowerSearch');if(input)input.addEventListener('input',()=>{const query=slug(input.value);document.querySelectorAll('.power-row').forEach(row=>row.classList.toggle('hidden',query&&!row.dataset.search.includes(query)))})}
@@ -146,18 +144,47 @@ function renderDeitySelection({showDetails=false,resetSearch=false}={}){
   renderStage();const updatedList=document.querySelector('.deity-power-list');if(updatedList)updatedList.scrollTop=resetSearch?0:scrollTop;
   if(showDetails&&window.matchMedia?.('(max-width: 860px)').matches){const detail=document.getElementById('deityDetail');detail?.scrollIntoView({behavior:'smooth',block:'start'});detail?.focus({preventScroll:true})}
 }
-function commitDeityPower(deityName,powerName){
-  const selection=deitySelectionStatus(deityName,powerName);
-  if(!selection.valid){toast(selection.message);return false}
-  if(selection.selected)return true;
+function commitDeityPower(deityName,powerName,allowToggle=false){
+  const deity=DATA.deities.find(item=>item.nome===deityName);
+  if(deity && typeof deityAccepts==='function' && !deityAccepts(deity)){
+    if(typeof (window as any).abrirModalRegrasCampanha==='function'){
+      (window as any).abrirModalRegrasCampanha(false);
+    }
+    toast('Ative Devoções Abertas');
+    return false;
+  }
+  const values=deityPowerValues();
+  const selectedIdx=values.findIndex(p=>p&&slug(p)===slug(powerName));
+  if(allowToggle && selectedIdx>=0){
+    setDeityPower(selectedIdx,'');
+    const updatedValues=deityPowerValues();
+    if(state.deity.name===deityName && updatedValues.filter(Boolean).length===0){
+      state.deity.name='';
+    }
+    const next=updatedValues.findIndex(v=>!v);
+    if(next>=0) state.deity.activePowerIndex=next;
+    state.deity.previewPower='';
+    state.deity.previewDeity=state.deity.name||'';
+    renderDeitySelection();
+    return true;
+  }
   if(state.deity.name&&state.deity.name!==deityName){
     state.deity.power='';
     state.deity.masterPermission=false;
+    state.deity.activePowerIndex=0;
   }
   state.deity.name=deityName;
   state.deity.filterDeity=deityName;
-  setDeityPower(Number(state.deity.activePowerIndex||0),powerName);
-  const values=deityPowerValues(),next=values.findIndex(value=>!value);if(next>=0)state.deity.activePowerIndex=next;
+  const currentSlot=Number(state.deity.activePowerIndex||0);
+  const curVals=deityPowerValues();
+  let targetIndex=currentSlot;
+  if(curVals[currentSlot]&&curVals[currentSlot]!==powerName){
+    const firstEmpty=curVals.findIndex(v=>!v);
+    if(firstEmpty>=0) targetIndex=firstEmpty;
+  }
+  setDeityPower(targetIndex,powerName);
+  const valuesAfter=deityPowerValues(),next=valuesAfter.findIndex(value=>!value);
+  if(next>=0)state.deity.activePowerIndex=next;
   state.deity.previewPower=powerName;state.deity.previewDeity=deityName;renderDeitySelection();return true;
 }
 
@@ -371,7 +398,7 @@ document.addEventListener('click',event=>{
     }
     return;
   }
-  if(action==='deity-power-preview'){state.deity.previewPower=button.dataset.power;state.deity.previewDeity=button.dataset.deity;commitDeityPower(button.dataset.deity,button.dataset.power);if(typeof syncNextButtonState==='function')syncNextButtonState();return}
+  if(action==='deity-power-preview'){state.deity.previewPower=button.dataset.power;state.deity.previewDeity=button.dataset.deity;commitDeityPower(button.dataset.deity,button.dataset.power,true);if(typeof syncNextButtonState==='function')syncNextButtonState();return}
   if(action==='deity-power-slot'){state.deity.activePowerIndex=Number(button.dataset.index);const value=deityPowerValues()[state.deity.activePowerIndex];if(value){state.deity.previewPower=value;state.deity.previewDeity=state.deity.name}else{state.deity.previewPower='';state.deity.previewDeity=''}renderDeitySelection();return}
   if(action==='deity-power-remove'){setDeityPower(Number(button.dataset.index),'');renderDeitySelection();if(typeof syncNextButtonState==='function')syncNextButtonState();return}
   if(action==='deity-reset'){state.deity.name='';state.deity.filterDeity='';state.deity.power='';state.deity.previewPower='';state.deity.previewDeity='';state.deity.activePowerIndex=0;state.deity.masterPermission=false;state.powers.general=[];renderDeitySelection({resetSearch:true});if(typeof syncNextButtonState==='function')syncNextButtonState();return}
