@@ -37,16 +37,9 @@ function previewProgressionPower(index, powerId, options = {}) {
       browserContainer.insertAdjacentHTML('beforeend', newDetailHtml);
     }
 
-    // 3. Rolar apenas a lista interna caso o item esteja fora da visualização da lista
-    if (targetButton && listContainer) {
-      targetButton.focus?.({ preventScroll: true });
-      const top = targetButton.offsetTop;
-      const bottom = top + targetButton.offsetHeight;
-      if (top < listContainer.scrollTop) {
-        listContainer.scrollTop = top;
-      } else if (bottom > listContainer.scrollTop + listContainer.clientHeight) {
-        listContainer.scrollTop = bottom - listContainer.clientHeight;
-      }
+    // 3. Manter a lista e a página perfeitamente estáticas (sem rolagem automática)
+    if (options?.fromKeyboard && targetButton) {
+      targetButton.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
     }
 
     syncProgressionFooter();
@@ -61,9 +54,9 @@ function previewProgressionPower(index, powerId, options = {}) {
     const restore = () => {
       const updatedList = document.querySelector('[data-progression-power-list="' + index + '"]');
       if (updatedList) updatedList.scrollTop = listScroll;
-      const selected = [...document.querySelectorAll('[data-action="class-power-preview"][data-index="' + index + '"]')].find(b => (b as HTMLElement).dataset.powerId === powerId);
-      (selected as HTMLElement)?.focus?.({ preventScroll: true });
-      window.scrollTo?.({ top: pageScroll, behavior: 'auto' });
+      if (typeof window !== 'undefined' && window.scrollTo) {
+        window.scrollTo({ top: pageScroll, behavior: 'auto' });
+      }
     };
     restore();
     (window.requestAnimationFrame || ((cb) => setTimeout(cb, 0)))(restore);
