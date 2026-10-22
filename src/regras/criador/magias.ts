@@ -163,6 +163,26 @@ function spellPlan(){
       const allowed=DATA.spells.filter(spell=>/\bdano\b/i.test(DATA.spellTexts?.[spell.id]||'')).map(spell=>spell.id);
       for(let n=1;n<=circle;n++)add(id+':'+n,power.nome+' · '+n+'º círculo',power.descricao,{classId:row.classId,count:1,maxCircle:n,exactCircle:n,type:'any',allowed,kind:'grant'});
     }
+    if(power.id==='inventor_alquimista_iniciado'||slug(power.nome)==='alquimista_iniciado'){
+      const invLvl = levels.filter(entry=>entry.classId==='inventor').length || planned;
+      const hasMestre = levels.some(r=>r.powerId==='inventor_mestre_alquimista'||slug(r.powerId||'')==='mestre_alquimista');
+      let maxCircle = 1;
+      if(hasMestre){
+        if(invLvl>=18) maxCircle=5;
+        else if(invLvl>=14) maxCircle=4;
+        else if(invLvl>=10) maxCircle=3;
+        else if(invLvl>=6) maxCircle=2;
+        else maxCircle=1;
+      } else {
+        if(invLvl>=6) maxCircle=2;
+        else maxCircle=1;
+      }
+      add(id+':iniciais','Alquimista Iniciado · 3 fórmulas iniciais',power.descricao,{classId:row.classId,count:3,maxCircle:1,type:'any',kind:'grant'});
+      const advanceCount = Math.max(0, invLvl - 1);
+      if(advanceCount > 0){
+        add(id+':avanco','Alquimista Iniciado · Níveis 2 a '+invLvl+' (+1 fórmula por nível)',power.descricao,{classId:row.classId,count:advanceCount,maxCircle,type:'any',kind:'grant'});
+      }
+    }
   });
   const regOriginName = typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin()?.nome : (state.origin?.regional || '');
   const isDeOutroMundo = slug(regOriginName || '') === 'de_outro_mundo' || regOriginName === 'De Outro Mundo';

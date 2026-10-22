@@ -312,8 +312,8 @@ function isSpellGrantingFeature(feature){
   const k = slug(feature.id || leaf);
   const nameK = slug(leaf);
   if(k.startsWith('ditame_') || k.startsWith('mistico_ditame_') || nameK.startsWith('ditame_')) return true;
-  if(['teurgista_mistico', 'aumentar_repertorio', 'bardo_aumentar_repertorio', 'conhecimento_magico', 'arcanista_conhecimento_magico', 'ditame_absoluto'].includes(k) ||
-     ['teurgista_mistico', 'aumentar_repertorio', 'bardo_aumentar_repertorio', 'conhecimento_magico', 'arcanista_conhecimento_magico', 'ditame_absoluto'].includes(nameK)) return true;
+  if(['teurgista_mistico', 'aumentar_repertorio', 'bardo_aumentar_repertorio', 'conhecimento_magico', 'arcanista_conhecimento_magico', 'ditame_absoluto', 'alquimista_iniciado', 'inventor_alquimista_iniciado'].includes(k) ||
+     ['teurgista_mistico', 'aumentar_repertorio', 'bardo_aumentar_repertorio', 'conhecimento_magico', 'arcanista_conhecimento_magico', 'ditame_absoluto', 'alquimista_iniciado', 'inventor_alquimista_iniciado'].includes(nameK)) return true;
   return false;
 }
 function isSpellFieldFeature(feature){

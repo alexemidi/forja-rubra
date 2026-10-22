@@ -197,6 +197,77 @@
     else document.body.prepend(banner);
   }
 
+  const isPotionModo = urlModo === 'pocao' || urlModo === 'potion' || urlModo === 'potion-craft';
+  const isScrollModo = urlModo === 'pergaminho' || urlModo === 'scroll' || urlModo === 'scroll-craft';
+
+  if (isPotionModo) {
+    learnedSpells = typeof loadLearnedSpells === 'function' ? loadLearnedSpells() : new Set();
+    const learnedArr = Array.from(learnedSpells);
+    context = {
+      channel,
+      session: Date.now(),
+      mode: 'potion-craft',
+      source: 'potion',
+      label: 'Laboratório do Alquimista · Escolha de Magia Conhecida',
+      learned: learnedArr,
+      visible: learnedArr,
+      selectable: learnedArr
+    };
+    schoolFilterMode = 'learned';
+    filterLearned = true;
+
+    const banner = document.createElement('div');
+    banner.className = 'potion-grimoire-banner';
+    banner.style.cssText = 'background:linear-gradient(135deg,#130c1c,#221133);border:1px solid #7e22ce;border-radius:8px;padding:12px 18px;margin:12px auto;max-width:1400px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap:12px;color:#f8fafc;box-shadow:0 8px 24px rgba(0,0,0,0.6);';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="display:inline-flex;align-items:center;color:#a855f7;"><svg class="forja-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M8.5 4h7"/><path d="M14 10.5V4h-4v6.5L4 20v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1l-6-9.5z"/></svg></span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:1.02rem;font-weight:700;color:#c084fc;">Laboratório do Alquimista · Preparar Poção</div>
+          <div style="font-size:0.8rem;color:#cbd5e1;margin-top:2px;">Você só pode preparar poções com magias que conhece. Escolha uma de suas magias aprendidas.</div>
+        </div>
+      </div>
+      <a href="loja.html?oficina=alquimista" style="background:#1e293b;border:1px solid #475569;color:#f8fafc;text-decoration:none;padding:6px 14px;border-radius:6px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;">← Voltar à Oficina</a>
+    `;
+    const mainEl = document.querySelector('.main') || document.querySelector('.filters-bar') || document.body;
+    if (mainEl.parentNode) mainEl.parentNode.insertBefore(banner, mainEl);
+    else document.body.prepend(banner);
+  }
+
+  if (isScrollModo) {
+    learnedSpells = typeof loadLearnedSpells === 'function' ? loadLearnedSpells() : new Set();
+    const learnedArr = Array.from(learnedSpells);
+    context = {
+      channel,
+      session: Date.now(),
+      mode: 'scroll-craft',
+      source: 'scroll',
+      label: 'Escritório do Escriba · Escolha de Magia Conhecida',
+      learned: learnedArr,
+      visible: learnedArr,
+      selectable: learnedArr
+    };
+    schoolFilterMode = 'learned';
+    filterLearned = true;
+
+    const banner = document.createElement('div');
+    banner.className = 'scroll-grimoire-banner';
+    banner.style.cssText = 'background:linear-gradient(135deg,#1c1808,#2e250c);border:1px solid #ca8a04;border-radius:8px;padding:12px 18px;margin:12px auto;max-width:1400px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap:12px;color:#f8fafc;box-shadow:0 8px 24px rgba(0,0,0,0.6);';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="display:inline-flex;align-items:center;color:#eab308;"><svg class="forja-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg></span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:1.02rem;font-weight:700;color:#fde047;">Escritório do Escriba · Escrever Pergaminho</div>
+          <div style="font-size:0.8rem;color:#cbd5e1;margin-top:2px;">Você só pode escrever pergaminhos com magias que conhece. Escolha uma de suas magias aprendidas.</div>
+        </div>
+      </div>
+      <a href="loja.html?oficina=escriba" style="background:#1e293b;border:1px solid #475569;color:#f8fafc;text-decoration:none;padding:6px 14px;border-radius:6px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;">← Voltar à Oficina</a>
+    `;
+    const mainEl = document.querySelector('.main') || document.querySelector('.filters-bar') || document.body;
+    if (mainEl.parentNode) mainEl.parentNode.insertBefore(banner, mainEl);
+    else document.body.prepend(banner);
+  }
+
   const baseApply = apply;
   function syncRestrictions() {
     const isConsult = !context || schoolFilterMode === 'consult' || context?.mode === 'consult' || context?.group === 'general-consultation';
@@ -709,6 +780,20 @@
         }
         const forma = context?.forma || urlForma || 'empunhada';
         window.location.href = `engenhoca.html?magia=${encodeURIComponent(id)}&forma=${encodeURIComponent(forma)}`;
+      }
+      return;
+    }
+    const isPotionCraft = context?.mode === 'potion-craft' || context?.source === 'potion';
+    const isScrollCraft = context?.mode === 'scroll-craft' || context?.source === 'scroll';
+    if (isPotionCraft || isScrollCraft) {
+      if (id) {
+        if (window.self !== window.top && window.parent) {
+          window.parent.postMessage({ channel, type: 'choose', session: context?.session, group: context?.group, id }, '*');
+        } else {
+          const sec = isPotionCraft ? 'alquimista' : 'escriba';
+          const param = isPotionCraft ? 'craftPocao' : 'craftScroll';
+          window.location.href = `loja.html?oficina=${sec}&${param}=${encodeURIComponent(id)}`;
+        }
       }
       return;
     }

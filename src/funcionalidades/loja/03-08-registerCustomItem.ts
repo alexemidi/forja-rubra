@@ -314,9 +314,25 @@ document.addEventListener('click',async function(event){
     if(button.dataset.disabledBudget==='true')return;
     const matId=button.dataset.materialId;
     if(draft&&matId){
-      const choice=draft.improvements.find(entry=>entry.id==='material_especial');
-      if(choice)choice.materialId=matId;
-      refreshPurchaseUpgrade();
+      const maxAllowed=typeof getMaxAllowedImprovements === 'function' ? getMaxAllowedImprovements() : Number(modal?.dataset?.maxImprovements || 4);
+      let choice=draft.improvements.find(entry=>entry.id==='material_especial');
+      if(!choice){
+        if(draft.improvements.length < maxAllowed){
+          draft.improvements.push({id:'material_especial',materialId:matId});
+          sanitizeInstanceImprovements(draft,item);
+          refreshPurchaseUpgrade();
+        } else {
+          showToast('Limite de melhorias atingido.');
+        }
+      } else {
+        if(choice.materialId === matId){
+          draft.improvements = draft.improvements.filter(entry=>entry.id!=='material_especial');
+        } else {
+          choice.materialId=matId;
+        }
+        sanitizeInstanceImprovements(draft,item);
+        refreshPurchaseUpgrade();
+      }
     }
     return;
   }

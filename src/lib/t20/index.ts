@@ -32,3 +32,4 @@ export * from './elemental-familiar.ts';
 export * from './armadura-mecanizada.ts';
 export * from './artesao-criativo.ts';
 export * from './regras-campanha.ts';
+export * from './alquimista-iniciado.ts';

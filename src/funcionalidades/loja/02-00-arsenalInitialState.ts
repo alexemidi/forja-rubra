@@ -310,21 +310,7 @@ function renderStandaloneWorkshopChrome() {
     }
   }
 
-  // Barra inferior com único botão [Voltar] para oficinas e catálogos em tela cheia
-  let footer = document.getElementById('standaloneWorkshopFooter');
-  if (!footer && isWorkshopEarly) {
-    footer = document.createElement('div');
-    footer.id = 'standaloneWorkshopFooter';
-    footer.className = 'forja-autohide-footer';
-    footer.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9998;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:10px 24px;background:#0d1117;border-top:1px solid #1a2230;box-sizing:border-box;width:100%;box-shadow:0 -4px 16px rgba(0,0,0,0.6);';
-    footer.innerHTML = `
-      <a href="ficha.html" class="button" style="background:#991b1b;border:1px solid #b91c1c;color:#ffffff;font-weight:700;padding:8px 24px;border-radius:6px;cursor:pointer;font-size:0.88rem;box-shadow:0 2px 6px rgba(0,0,0,0.3);height:38px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
-        Voltar
-      </a>
-    `;
-    document.body.appendChild(footer);
-    document.body.style.paddingBottom = '60px';
-  }
+
 
   if (window.ForjaTopBar && typeof window.ForjaTopBar.aplicarAutohideScroll === 'function') {
     window.ForjaTopBar.aplicarAutohideScroll();

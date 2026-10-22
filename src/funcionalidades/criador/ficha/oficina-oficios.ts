@@ -437,6 +437,15 @@
       return;
     }
 
+    // @ts-ignore
+    const knownSpells = typeof allLearnedSpellIds === 'function' ? allLearnedSpellIds() : [];
+    const isKnown = knownSpells.includes(spell.id) || (typeof knowsCharacterSpell === 'function' && knowsCharacterSpell(spell.id));
+    if (!isKnown) {
+      // @ts-ignore
+      if (typeof toast === 'function') toast('Você só pode preparar poções de magias que você conhece.');
+      return;
+    }
+
     const circulo = Number(spell.circulo || spell.circle || 1);
     const pm = circulo === 1 ? 1 : (circulo === 2 ? 3 : (circulo === 3 ? 6 : (circulo === 4 ? 10 : 15)));
     const precoMercado = 30 * pm * pm;
@@ -562,6 +571,15 @@
     if (!spell) {
       // @ts-ignore
       if (typeof toast === 'function') toast('Magia selecionada não encontrada.');
+      return;
+    }
+
+    // @ts-ignore
+    const knownSpells = typeof allLearnedSpellIds === 'function' ? allLearnedSpellIds() : [];
+    const isKnown = knownSpells.includes(spell.id) || (typeof knowsCharacterSpell === 'function' && knowsCharacterSpell(spell.id));
+    if (!isKnown) {
+      // @ts-ignore
+      if (typeof toast === 'function') toast('Você só pode escrever pergaminhos de magias que você conhece.');
       return;
     }
 

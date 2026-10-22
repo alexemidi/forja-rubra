@@ -532,11 +532,15 @@ grimoireContext=function(){
       visibleSpells = catalogSpells;
       selectableSpells = catalogSpells;
     } else if (gSource === 'potion') {
-      label = 'Poções do Alquimista (1º ao 5º Círculo)';
-      selectableSpells = catalogSpells;
+      const known = typeof allLearnedSpellIds === 'function' ? allLearnedSpellIds() : [];
+      label = known.length ? 'Poções do Alquimista (Magias Conhecidas)' : 'Poções do Alquimista (Nenhuma magia conhecida)';
+      visibleSpells = known;
+      selectableSpells = known;
     } else if (gSource === 'scroll') {
-      label = 'Pergaminhos do Escriba (1º ao 5º Círculo)';
-      selectableSpells = catalogSpells;
+      const known = typeof allLearnedSpellIds === 'function' ? allLearnedSpellIds() : [];
+      label = known.length ? 'Pergaminhos do Escriba (Magias Conhecidas)' : 'Pergaminhos do Escriba (Nenhuma magia conhecida)';
+      visibleSpells = known;
+      selectableSpells = known;
     } else if (gSource === 'tattoo') {
       label = 'Tatuagem Mística (1º Círculo Arcana)';
       circles = [1];

@@ -344,10 +344,11 @@ function purchaseUpgradeEditor(itemId,kind){
   }).join('');
 
   let materialSectionHtml = '';
-  if (hasMaterial) {
+  const itemMaterials = materialOptionsForItem(item);
+  if (itemMaterials.length > 0) {
     const currentChoice = draft.improvements.find(e => e.id === 'material_especial');
     const selectedMatId = currentChoice?.materialId || '';
-    const materials = materialOptionsForItem(item);
+    const materials = itemMaterials;
     const materialCards = materials.map(mat => {
       const info = getMaterialCostInfo(mat, item);
       const isSelected = mat.id === selectedMatId;
