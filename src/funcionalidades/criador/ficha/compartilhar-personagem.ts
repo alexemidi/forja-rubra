@@ -47,6 +47,31 @@
     }
   }
 
+  async function copiarParaAreaDeTransferencia(texto: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(texto);
+        return true;
+      }
+    } catch {}
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = texto;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const sucesso = document.execCommand('copy');
+      textarea.remove();
+      return Boolean(sucesso);
+    } catch {
+      return false;
+    }
+  }
+
   function abrirModalCompartilhamento(url: string, nomeHeroi: string) {
     let modal = document.getElementById('forjaShareModal');
     if (!modal) {
@@ -98,15 +123,14 @@
           </small>
         </div>
 
-        <footer style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--border,#4a252a);background:#110d0f;">
-          ${canNativeShare ? `
+        ${canNativeShare ? `
+          <footer style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--border,#4a252a);background:#110d0f;">
             <button type="button" class="button" id="forjaNativeShareBtn" style="display:inline-flex;align-items:center;gap:6px;">
               <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
               <span>Enviar via App</span>
             </button>
-          ` : ''}
-          <button type="button" class="button" data-action="close-share-modal">Fechar</button>
-        </footer>
+          </footer>
+        ` : ''}
       </div>
     `;
 
@@ -116,9 +140,9 @@
     const input = modal.querySelector('#forjaShareUrlInput') as HTMLInputElement;
     if (copyBtn && input) {
       copyBtn.addEventListener('click', async () => {
-        try {
-          input.select();
-          await navigator.clipboard.writeText(url);
+        input.select();
+        const ok = await copiarParaAreaDeTransferencia(url);
+        if (ok) {
           copyBtn.textContent = 'Copiado!';
           copyBtn.classList.add('success');
           if (typeof (window as any).toast === 'function') {
@@ -128,11 +152,9 @@
             copyBtn.textContent = 'Copiar Link';
             copyBtn.classList.remove('success');
           }, 2500);
-        } catch {
-          input.select();
-          document.execCommand('copy');
+        } else {
           if (typeof (window as any).toast === 'function') {
-            (window as any).toast('Link copiado!');
+            (window as any).toast('Link selecionado. Pressione Ctrl+C para copiar.');
           }
         }
       });
@@ -153,8 +175,24 @@
   }
 
   function compartilharPersonagemAtual() {
-    const s = typeof window !== 'undefined' ? (window as any).state : null;
-    if (!s) return;
+    let s = typeof window !== 'undefined' ? (window as any).state : null;
+    if (!s && typeof (window as any).characterStorage !== 'undefined') {
+      try {
+        s = (window as any).characterStorage.ler('forja-heroi-t20-v1', null);
+      } catch {}
+    }
+    if (!s) {
+      try {
+        const raw = localStorage.getItem('forja-heroi-t20-v1');
+        if (raw) s = JSON.parse(raw);
+      } catch {}
+    }
+    if (!s) {
+      if (typeof (window as any).toast === 'function') {
+        (window as any).toast('Nenhuma ficha ativa encontrada para compartilhar.', 'warning');
+      }
+      return;
+    }
 
     // Snapshot limpo e compatível
     const snapshot = (typeof (window as any).ModeloEstado?.migratePersistedState === 'function')
@@ -173,15 +211,11 @@
     const shareUrl = `${base}?compartilhar=${code}`;
 
     // Copiar diretamente e notificar de imediato
-    try {
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        navigator.clipboard.writeText(shareUrl).catch(() => {});
+    copiarParaAreaDeTransferencia(shareUrl).then((ok) => {
+      if (ok && typeof (window as any).toast === 'function') {
+        (window as any).toast('Link de compartilhamento copiado com sucesso! Pronto para enviar.');
       }
-    } catch {}
-
-    if (typeof (window as any).toast === 'function') {
-      (window as any).toast('Link de compartilhamento copiado com sucesso! Pronto para enviar.');
-    }
+    });
 
     abrirModalCompartilhamento(shareUrl, s.identity?.characterName || 'Personagem');
   }
@@ -320,9 +354,10 @@
     const target = e.target as HTMLElement;
     if (target.closest('[data-sheet-action="share-character"], [data-action="share-character"], .sheet-share-btn')) {
       e.preventDefault();
+      e.stopPropagation();
       compartilharPersonagemAtual();
     }
-  });
+  }, true);
 
   // Expor e auto-executar na inicialização
   if (typeof window !== 'undefined') {

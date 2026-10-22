@@ -1,5 +1,4 @@
-/* Ordem explícita: criação → inventário → ficha → apresentação de poderes.
- * Adaptadores mantêm os contratos das telas durante a migração. */
+let lastCreationRenderedStep = -1;
 function renderCreationStage(){
   const controls=document.getElementById('forjaCreationControlsTemplate');
   if(controls&&!document.getElementById('phaseNav')){
@@ -11,6 +10,8 @@ function renderCreationStage(){
   while(shouldSkipPhase(state.step)){if(state.step!==10&&!state.completed.includes(state.step))state.completed.push(state.step);state.step+=creationNavigationDirection;if(state.step>10||state.step<1)break;}
   const safeStep=Math.min(10,Math.max(1,Number(state.step)||1));
   state.step=safeStep;
+  const isSamePhase = lastCreationRenderedStep === safeStep;
+  const scrollBefore = (typeof window !== 'undefined' && isSamePhase) ? window.scrollY : 0;
   const [title,description]=PHASES[safeStep-1]||['Etapa',''];
   const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)));
   const currentVisualIndex=visibleSteps.indexOf(safeStep);
@@ -19,6 +20,15 @@ function renderCreationStage(){
   const isLastVisible=safeStep===visibleSteps[visibleSteps.length-1];
   const renders=[renderIdentityClass,renderAttributesRace,renderOrigins,renderSkillsSplit,renderDeity,renderPowers,renderSpells,()=>renderDeferred('items'),typeof renderPartnerStage==='function'?renderPartnerStage:()=>'<div class="panel">Parceiros</div>',typeof renderProgressionPhase==='function'?renderProgressionPhase:renderSummary];
   document.getElementById('stageKicker').textContent='Fase '+currentVisualNumber+' de '+totalVisiblePhases;document.getElementById('stageTitle').textContent=title;document.getElementById('stageDescription').textContent=description;document.getElementById('stageRoot').innerHTML=renders[safeStep-1]();document.getElementById('previousButton').disabled=safeStep===1;document.getElementById('nextButton').textContent=isLastVisible?'Finalizar ficha':'Avançar →';document.getElementById('footerMessage').textContent=validationMessage(safeStep,true);document.getElementById('footerMessage').hidden=true;const expBtn=document.getElementById('exportButton');if(expBtn)expBtn.hidden=true;document.getElementById('redoInitialItemsButton').hidden=true;const redoSpell=document.getElementById('redoSpellChoicesButton');if(redoSpell)redoSpell.hidden=safeStep!==7 || Boolean(state.isLevelingUp);document.getElementById('reviewProgressionButton').hidden=true;document.body?.classList.toggle('spell-stage',safeStep===7);document.body?.classList.remove('character-sheet-ready');document.body?.classList.toggle('is-editing-mode', Boolean(state.isEditingFinishedSheet));const pNavEl=document.getElementById('phaseNav');if(pNavEl){pNavEl.hidden=false;pNavEl.style.removeProperty('display');pNavEl.style.display='';}const footerEl=document.querySelector('.stage-footer') as HTMLElement;if(footerEl){footerEl.hidden=false;footerEl.style.removeProperty('display');footerEl.style.display='';}renderNav();applyCompletedChoiceAppearance();if(safeStep===5)bindDeityPowerSearch();if(safeStep===6)bindPowerSearch();if(safeStep===7){mountGrimoire();updateSpellOptionsToggle()}if(typeof syncTeurgistFooterButton==='function')syncTeurgistFooterButton();if(safeStep===10){syncSamuraiKatanaToBackpack();syncProgressionFooter()}if(typeof syncNextButtonState==='function')syncNextButtonState();persistNow();
+  lastCreationRenderedStep = safeStep;
+  if(isSamePhase && scrollBefore > 0 && typeof window !== 'undefined'){
+    window.scrollTo({ top: scrollBefore, behavior: 'instant' as any });
+    requestAnimationFrame(()=>{
+      if(window.scrollY !== scrollBefore){
+        window.scrollTo({ top: scrollBefore, behavior: 'instant' as any });
+      }
+    });
+  }
 }
 
 function renderInventoryStage(){

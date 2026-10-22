@@ -3,6 +3,12 @@ document.addEventListener('click',async event=>{
   if(!action && event.target.closest?.('#editCharacterButton')) action='edit';
   if(!action && event.target.closest?.('#levelUpButton')) action='level-up';
   if(action){event.preventDefault();event.stopImmediatePropagation();event.target.closest?.('details')?.removeAttribute('open');
+    if(action==='share-character'){
+      if(typeof (window as any).ForjaCompartilhamento?.compartilhar === 'function'){
+        (window as any).ForjaCompartilhamento.compartilhar();
+      }
+      return;
+    }
     if(action==='level-up'){
       if(Number(state.identity?.plannedLevel||1) >= 20){
         toast('Seu herói já atingiu o nível máximo (20).', 'info');

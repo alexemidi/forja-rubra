@@ -137,7 +137,8 @@ function loadState(){
 }
 let state=loadState(),saveTimer;
 let characterDataRevision=0;
-function normalizeState(){state=ModeloEstado.normalizeState(state)}normalizeState();
+function normalizeState(){state=ModeloEstado.normalizeState(state);if(typeof window!=='undefined'){(window as any).state=state;}}normalizeState();
+if(typeof window!=='undefined'){(window as any).state=state;}
 function persistNow(){
   characterDataRevision++;
   return typeof ForjaCalculo!=='undefined'?ForjaCalculo.executar(()=>persistCharacterNow(true)):persistCharacterNow(true);
@@ -200,7 +201,31 @@ function persistCharacterNow(recalculate){
 function persist(){clearTimeout(saveTimer);const el=document.getElementById('saveStatus');if(el)el.textContent='Salvando…';saveTimer=setTimeout(persistNow,180)}
 window.addEventListener('pagehide',persistNow);
 window.addEventListener('beforeunload',persistNow);
-function toast(text){const el=document.getElementById('toast');el.textContent=text;el.classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('visible'),2800)}
+function toast(text: string, type?: string){
+  const el=document.getElementById('toast');
+  if(el){
+    el.textContent=text;
+    el.classList.add('visible');
+    clearTimeout((toast as any).timer);
+    (toast as any).timer=setTimeout(()=>el.classList.remove('visible'),2800);
+  } else if (typeof document !== 'undefined') {
+    let dyn = document.getElementById('forjaDynamicToast');
+    if(!dyn){
+      dyn = document.createElement('div');
+      dyn.id = 'forjaDynamicToast';
+      dyn.className = 'toast visible';
+      dyn.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#181114;border:1px solid #c51f2c;color:#f5eee6;padding:10px 18px;border-radius:8px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.8);font-size:0.88rem;pointer-events:none;';
+      document.body.appendChild(dyn);
+    }
+    dyn.textContent = text;
+    dyn.style.display = 'block';
+    clearTimeout((toast as any).dynamicTimer);
+    (toast as any).dynamicTimer = setTimeout(()=>{ if(dyn) dyn.style.display = 'none'; }, 2800);
+  }
+}
+if(typeof window !== 'undefined'){
+  (window as any).toast = toast;
+}
 function forjaDecision(message,actions,title='Confirmação',input){
   return new Promise(resolve=>{let modal=document.getElementById('forjaDecisionModal');if(!modal){modal=document.createElement('div');modal.id='forjaDecisionModal';modal.className='modal-backdrop';modal.hidden=true;document.body.appendChild(modal)}
     modal.innerHTML='<section class="confirm-modal" role="dialog" aria-modal="true"><header><h3>'+esc(title)+'</h3></header><div class="confirm-modal-body"><p>'+esc(message)+'</p>'+(input!==undefined?'<input class="forja-choice-input" maxlength="80" value="'+esc(input)+'">':'')+'</div><footer>'+actions.map(action=>'<button class="button '+(action.primary?'primary ':'')+(action.danger?'danger ':'')+'" type="button" data-forja-decision="'+esc(action.value)+'">'+esc(action.label)+'</button>').join('')+'</footer></section>';
