@@ -3200,12 +3200,6 @@ progressionMissingChoices=function(){
         missing.push({title:'Encanto da Katana (Nv. '+(index+1)+')',message:'Escolha o encanto da Katana Ancestral Espiritual no nível '+(index+1)+' (Samurai '+level+').',selector:'[data-action="samurai-katana-enchantment"][data-level="'+level+'"]'});
       }
     }
-    if(row.classId==='inventor'&&level===2){
-      const granted=Boolean(arsenalState().grants?.['class-choice:class-inventor-fabricar-item-superior']);
-      if(!granted){
-        missing.push({title:'Fabricar Item Superior (Inventor Nv. 2)',message:'Escolha seu item superior de até T$ 2.000 concedido por Fabricar Item Superior.',selector:'[data-action="go-to-inventor-grant"]'});
-      }
-    }
   });
   return missing;
 };

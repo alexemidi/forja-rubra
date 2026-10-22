@@ -804,15 +804,29 @@ validationMessage=function(step,short=false){
 renderNav=function(){
   const nav=document.getElementById('phaseNav');
   if(!nav)return;
-  const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)));
-  nav.innerHTML='<div class="phase-nav-title">Etapas</div>'+PHASES.map((phase,index)=>{
+  const isLevelUp = Boolean(state.isLevelingUp);
+  const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>{
+    if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)) return false;
+    if(isLevelUp){
+      if(s === 10) return true;
+      if(s === 4 && (state.returnToProgressionAfterSkill || (typeof skillMissingChoices === 'function' && skillMissingChoices().length > 0))) return true;
+      if(s === 5 && (typeof deityMissingChoices === 'function' && deityMissingChoices().length > 0)) return true;
+      if(s === 6 && (typeof powerMissingChoices === 'function' && powerMissingChoices().length > 0)) return true;
+      if(s === 7 && (typeof characterHasSpellChoices === 'function' && characterHasSpellChoices())) return true;
+      if(s === 8 && (typeof initialItemPlan === 'function' && initialItemPlan().some(c => c.source === 'class'))) return true;
+      if(s === 9 && (typeof partnerMissingChoices === 'function' && partnerMissingChoices().length > 0)) return true;
+      return false;
+    }
+    return true;
+  });
+  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+PHASES.map((phase,index)=>{
     const number=index+1;
-    if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(number))return '';
+    if(!visibleSteps.includes(number)) return '';
     const visualIdx=visibleSteps.indexOf(number);
     const visualNum=visualIdx>=0?visualIdx+1:number;
-    const isLocked=typeof isPhaseLockedInLevelUp==='function'?isPhaseLockedInLevelUp(number):Boolean(state.isLevelingUp&&number<=6);
+    const isLocked=false;
     const done=number===7?phaseIsComplete(7)&&(state.completed.includes(number)||number===state.step):state.completed.includes(number)||(number===state.step&&phaseIsComplete(number));
-    return '<button class="phase-button '+(number===state.step?'active ':'')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span><span class="phase-label">'+esc(phase[0])+'</span><span class="phase-state">'+(isLocked?'':done?'':'')+'</span></button>';
+    return '<button class="phase-button '+(number===state.step?'active ':'')+(done?'done ':'')+'" data-step="'+number+'"><span class="phase-number">'+visualNum+'</span><span class="phase-label">'+esc(phase[0])+'</span><span class="phase-state"></span></button>';
   }).join('');
   const activeBtn=nav.querySelector('.phase-button.active');
   if(activeBtn&&typeof activeBtn.scrollIntoView==='function'){

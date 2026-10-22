@@ -18,6 +18,39 @@ function invalidateDependentProgressionPowers(fromIndex){
   }
   return invalidated;
 }
+function getNextLevelUpPendingPhase(){
+  const missingSkills = typeof skillMissingChoices === 'function' ? skillMissingChoices() : [];
+  if (state.returnToProgressionAfterSkill || missingSkills.length > 0) return 4;
+
+  const missingDeity = typeof deityMissingChoices === 'function' ? deityMissingChoices() : [];
+  if (missingDeity.length > 0) return 5;
+
+  const missingPowers = typeof powerMissingChoices === 'function' ? powerMissingChoices() : [];
+  if (missingPowers.length > 0) return 6;
+
+  const hasSpells = typeof characterHasSpellChoices === 'function' ? characterHasSpellChoices() : false;
+  const missingSpells = typeof spellMissingChoices === 'function' ? spellMissingChoices() : [];
+  if (hasSpells && missingSpells.length > 0) return 7;
+
+  const plan = typeof initialItemPlan === 'function' ? initialItemPlan() : [];
+  const savedArsenal = typeof arsenalState === 'function' ? arsenalState() : null;
+  if (savedArsenal) {
+    const hasUnfinishedItemGrant = plan.some(choice => {
+      const grantId = typeof itemChoiceGrantId === 'function' ? itemChoiceGrantId(choice) : choice.id;
+      return choice.source === 'class' && !savedArsenal.grants?.[grantId];
+    });
+    if (hasUnfinishedItemGrant) return 8;
+  }
+
+  const missingPartners = typeof partnerMissingChoices === 'function' ? partnerMissingChoices() : [];
+  if (missingPartners.length > 0) return 9;
+
+  return null;
+}
+if(typeof window !== 'undefined'){
+  window['getNextLevelUpPendingPhase'] = getNextLevelUpPendingPhase;
+}
+
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action]');if(!button)return;const index=Number(button.dataset.index),row=state.progression[index];if(!row)return;if(button.dataset.action==='progression-open-level'){const closing=progressionActivePowerIndex()===index&&Number(state.progressionCollapsedIndex)!==index;setProgressionEditingIndex(index);state.progressionCollapsedIndex=closing?index:-1;renderStage();setTimeout(()=>document.querySelectorAll('.progression-level-row')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),30)}else if(button.dataset.action==='progression-source'){row.powerSourceFilter=button.dataset.value;row.previewPowerId='';row.previewPowerChoice='';renderStage()}else if(button.dataset.action==='progression-category'){row.powerCategoryFilter=button.dataset.value;row.previewPowerId='';renderStage()}else if(button.dataset.action==='progression-status'){row.powerStatusFilter=button.dataset.value;row.previewPowerId='';renderStage()}else if(button.dataset.action==='class-power-preview'){previewProgressionPower(index,button.dataset.powerId,{pageScroll:window.scrollY,listScroll:button.closest?.('.power-list')?.scrollTop})}else if(button.dataset.action==='class-power-attribute'){row.previewPowerChoice=Number(button.dataset.dir)<0?'':button.dataset.attr;renderStage();syncProgressionFooter()}else if(button.dataset.action==='class-power-remove'){if(state.isLevelingUp&&index<state.progression.length-1){toast('Durante a subida de nível, apenas as escolhas do novo nível podem ser alteradas.','warning');return;}row.powerId='';row.powerChoice='';row.previewPowerChoice='';invalidateDependentProgressionPowers(index);setProgressionEditingIndex(index);state.progressionCollapsedIndex=-1;renderStage();syncProgressionFooter()}},true);
 document.addEventListener('keydown',event=>{
   if(!['ArrowDown','ArrowUp'].includes(event.key))return;
@@ -129,6 +162,74 @@ document.addEventListener('click',event=>{
             }
             if(typeof renderStage === 'function') renderStage();
             if(typeof toast === 'function') toast('Treino de Poder concluído! O poder foi adiantado na ficha.');
+            return;
+          }
+          if(state.isLevelingUp){
+            nextBtn.disabled=false;
+            const nextPending = getNextLevelUpPendingPhase();
+            if(nextPending === 4){
+              state.returnToProgressionAfterSkill = true;
+              state.step = 4;
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              document.getElementById('skill-int')?.scrollIntoView?.({behavior:'smooth',block:'center'});
+              toast('Poder confirmado! Escolha a nova perícia recebida pelo aumento de Inteligência.');
+              return;
+            }
+            if(nextPending === 5){
+              state.step = 5;
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              toast('Poder confirmado! Escolha o poder concedido da divindade.');
+              return;
+            }
+            if(nextPending === 6){
+              state.step = 6;
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              toast('Poder confirmado! Conclua a escolha de poderes.');
+              return;
+            }
+            if(nextPending === 7){
+              state.step = 7;
+              const savedSpells=typeof spellState==='function'?spellState():null;
+              if(savedSpells){
+                savedSpells.returnToProgression=true;
+                savedSpells.progression=true;
+                const plan=typeof spellPlan==='function'?spellPlan():null;
+                if(plan?.groups?.length){
+                  const inc=plan.groups.find(g=>g.count&&groupSpellIds(g).length<g.count);
+                  if(inc){savedSpells.activeGroup=inc.id;savedSpells.view='available'}
+                }
+              }
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              document.getElementById('spellGrimoire')?.scrollIntoView?.({behavior:'smooth',block:'start'});
+              toast('Poder confirmado! Escolha a nova magia recebida no Grimório.');
+              return;
+            }
+            if(nextPending === 8){
+              state.step = 8;
+              const plan = typeof initialItemPlan === 'function' ? initialItemPlan() : [];
+              const targetIdx = plan.findIndex(c => c.source === 'class' && !arsenalState().grants?.[itemChoiceGrantId(c)]);
+              if(targetIdx >= 0){
+                arsenalState().choiceIndex = targetIdx;
+              }
+              arsenalState().complete = false;
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              toast('Poder confirmado! Escolha o item concedido pelo novo nível.');
+              return;
+            }
+            if(nextPending === 9){
+              state.step = 9;
+              renderStage();window.scrollTo?.({top:0,behavior:'smooth'});
+              toast('Poder confirmado! Configure seu novo parceiro.');
+              return;
+            }
+            if(typeof finishCharacterCreation==='function') finishCharacterCreation();
+            else {
+              state.isLevelingUp = false;
+              state.finished = true;
+              state.sheetView = 'sheet';
+              persistNow();
+              renderStage();
+            }
             return;
           }
           const next=nextUnresolvedProgressionIndex(active);

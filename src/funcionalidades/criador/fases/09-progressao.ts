@@ -114,12 +114,14 @@ function syncProgressionFooter(){
   const isDistinction = candidate && (candidate.distinctionPower || String(candidate.id || '').startsWith('distincao:'));
   const distIconMini = isDistinction ? '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>' : '';
 
+  const previous=document.getElementById('previousButton');
+  const buyMore=document.getElementById('buyMoreItemsBtn');
+  if(buyMore) buyMore.hidden = true;
+
   if(state.isLevelingUp){
     if(next) next.hidden = true;
-    if(stepPrev){
-      stepPrev.hidden = powerLevelIndices.length <= 1;
-      stepPrev.disabled = curPos <= 0;
-    }
+    if(previous) previous.hidden = true;
+    if(stepPrev) stepPrev.hidden = true;
     if(stepNext){
       stepNext.hidden = false;
       const canStep = readyToConfirm || hasConfirmedPower;
@@ -261,18 +263,6 @@ function renderProgressionSpecialGrants(row,index,level){
       const options=['<option value="">Selecione o encanto mágico...</option>',...available.map(item=>'<option value="'+esc(item.id)+'" '+(current===item.id?'selected':'')+'>'+esc(item.nome)+'</option>')].join('');
       return '<div class="progression-special-grant-box '+(current?'is-complete':'is-pending')+'"><label class="field" style="margin:0"><span style="font-weight:700;color:var(--gold2,#f5d78e)">Katana Ancestral Espiritual · Encanto Mágico do Nível '+level+' de Samurai</span><select class="select" data-action="samurai-katana-enchantment" data-level="'+level+'" data-index="'+index+'">'+options+'</select></label></div>';
     }
-  }
-  if(row.classId==='inventor'&&[2,5,8,11].includes(level)){
-    const granted=Boolean(arsenalState().grants?.['class-choice:class-inventor-fabricar-item-superior']);
-    const invItem=characterInventory().find(entry=>entry.acquisition?.grantId==='class-choice:class-inventor-fabricar-item-superior');
-    const maxImp = level >= 11 ? 4 : (level >= 8 ? 3 : (level >= 5 ? 2 : 1));
-    const titleText = level === 2
-      ? 'Você tem direito a um item superior com 1 melhoria (até T$ 2.000).'
-      : 'Você pode substituir seu item superior anterior por um novo com até ' + maxImp + ' melhorias (sem limite de custo).';
-    if(granted&&invItem){
-      return '<div class="progression-special-grant-box is-complete"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><strong>Fabricar Item Superior (Nv. ' + level + '):</strong> ' + esc(invItem.displayName||invItem.itemName||'Item Superior') + ' (até ' + maxImp + ' melhoria' + (maxImp > 1 ? 's' : '') + ')</span><button type="button" class="button small" data-action="go-to-inventor-grant">' + (level > 2 ? 'Substituir / Alterar item' : 'Alterar escolha') + '</button></div></div>';
-    }
-    return '<div class="progression-special-grant-box is-pending"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><strong>Fabricar Item Superior (Nv. ' + level + '):</strong> ' + titleText + '</span><button type="button" class="button small primary" data-action="go-to-inventor-grant">' + (level > 2 ? 'Substituir por Novo Item' : 'Escolher Item') + '</button></div></div>';
   }
   return '';
 }

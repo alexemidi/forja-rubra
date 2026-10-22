@@ -3,7 +3,35 @@ document.addEventListener('change',event=>{const field=event.target.dataset.fiel
 document.addEventListener('click',event=>{const button=event.target.closest('[data-action]');if(!button)return;const action=button.dataset.action;if(action==='attr'){event.preventDefault();const scrollPos=typeof window!=='undefined'?window.scrollY:0;const id=button.dataset.attr,dir=Number(button.dataset.dir),old=state.identity.baseAttrs[id],next=Math.max(-1,Math.min(4,old+dir));if(pointSpent()-ATTR_COST[old]+ATTR_COST[next]>10){toast('Você não possui pontos suficientes para esse aumento.');return}state.identity.baseAttrs[id]=next;renderStage();if(scrollPos>0&&typeof window!=='undefined'){window.scrollTo({top:scrollPos,behavior:'instant' as any});requestAnimationFrame(()=>window.scrollTo({top:scrollPos,behavior:'instant' as any}));}}else if(action==='allocation'){event.preventDefault();const scrollPos=typeof window!=='undefined'?window.scrollY:0;const list=allocationBucket(button.dataset.key),id=button.dataset.attr,dir=Number(button.dataset.dir);if(dir<0){const index=list.lastIndexOf(id);if(index>=0)list.splice(index,1)}else {const source=raceAllocationSources().find(s=>s.key===button.dataset.key);const qty=Number(source?.config?.quantidade||99);const maxAttr=Number(source?.config?.maxPorAtributo||(source?.config?.permitirRepetir?qty:1));const currentCount=list.filter(x=>x===id).length;if(list.length<qty&&currentCount<maxAttr){list.push(id);}}renderStage();if(scrollPos>0&&typeof window!=='undefined'){window.scrollTo({top:scrollPos,behavior:'instant' as any});requestAnimationFrame(()=>window.scrollTo({top:scrollPos,behavior:'instant' as any}));}}else if(action==='deity'){state.deity.name=button.dataset.name;state.deity.power='';renderStage()}else if(action==='add-level'){state.identity.plannedLevel=Math.min(20,state.identity.plannedLevel+1);state.progression.push({classId:state.progression.at(-1)?.classId||state.identity.classId,powerId:''});renderStage()}});
 
 document.addEventListener('click',event=>{if(!event.target.closest?.('#phaseNav'))return;const b=event.target.closest('[data-step]');if(!b)return;const targetStep=Number(b.dataset.step);if(state.isLevelingUp&&(typeof isPhaseLockedInLevelUp==='function'?isPhaseLockedInLevelUp(targetStep):targetStep<=6)){toast('Esta etapa está bloqueada durante o avanço de nível.','warning');return;}if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(targetStep))return;state.step=targetStep;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'})});
-document.addEventListener('click',event=>{if(!event.target.closest?.('#previousButton'))return;if(state.step>1){state.step--;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'})}});
+document.addEventListener('click',event=>{
+  if(!event.target.closest?.('#previousButton'))return;
+  if(state.isLevelingUp){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(state.step === 8){
+      const hasSpells = typeof characterHasSpellChoices === 'function' && characterHasSpellChoices();
+      state.step = hasSpells ? 7 : 10;
+      persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+    if(state.step === 7){
+      state.step = 10;
+      persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+    if(state.step === 9){
+      const plan = typeof initialItemPlan === 'function' ? initialItemPlan() : [];
+      const hasItemGrant = plan.some(c => c.source === 'class');
+      state.step = hasItemGrant ? 8 : (typeof characterHasSpellChoices === 'function' && characterHasSpellChoices() ? 7 : 10);
+      persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+    if(state.step === 10){
+      return;
+    }
+  }
+  if(state.step>1){state.step--;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'})}
+});
 document.addEventListener('input',event=>{if(event.target.dataset?.action==='race-subchoice-custom'){state.identity.raceChoices=state.identity.raceChoices||{};state.identity.raceChoices[event.target.dataset.choiceId]=event.target.value;persistNow();}});
 function nextIncompletePhase(fromStep){
   for(let s=fromStep+1;s<=8;s++){
@@ -258,8 +286,25 @@ document.addEventListener('click',event=>{if(!event.target.closest?.('#nextButto
     persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});
     return;
   }
-  if(state.step===7&&spellState().returnToProgression){
+  if(state.step===7&&(spellState().returnToProgression || state.isLevelingUp)){
     if(!phaseIsComplete(7))return;
+    if(state.isLevelingUp){
+      delete spellState().returnToProgression;
+      const nextPending = typeof getNextLevelUpPendingPhase === 'function' ? getNextLevelUpPendingPhase() : null;
+      if(nextPending && nextPending > 7){
+        state.step = nextPending;
+        if(nextPending === 8){
+          const plan = typeof initialItemPlan === 'function' ? initialItemPlan() : [];
+          const targetIdx = plan.findIndex(c => c.source === 'class' && !arsenalState().grants?.[itemChoiceGrantId(c)]);
+          if(targetIdx >= 0) arsenalState().choiceIndex = targetIdx;
+          arsenalState().complete = false;
+        }
+        persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
+      if(typeof finishCharacterCreation==='function') finishCharacterCreation();
+      return;
+    }
     if(resumeProgressionAfterSpells())return;
     const pending=characterPendingChoices();
     if(!pending.length){delete spellState().returnToProgression;finishCharacterCreation();return;}
@@ -496,15 +541,29 @@ phaseIsComplete=function(step){
 renderNav=function(){
   const nav=document.getElementById('phaseNav');
   if(!nav)return;
-  const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)));
-  nav.innerHTML='<div class="phase-nav-title">Etapas</div>'+PHASES.map((phase,index)=>{
+  const isLevelUp = Boolean(state.isLevelingUp);
+  const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>{
+    if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)) return false;
+    if(isLevelUp){
+      if(s === 10) return true;
+      if(s === 4 && (state.returnToProgressionAfterSkill || (typeof skillMissingChoices === 'function' && skillMissingChoices().length > 0))) return true;
+      if(s === 5 && (typeof deityMissingChoices === 'function' && deityMissingChoices().length > 0)) return true;
+      if(s === 6 && (typeof powerMissingChoices === 'function' && powerMissingChoices().length > 0)) return true;
+      if(s === 7 && (typeof characterHasSpellChoices === 'function' && characterHasSpellChoices())) return true;
+      if(s === 8 && (typeof initialItemPlan === 'function' && initialItemPlan().some(c => c.source === 'class'))) return true;
+      if(s === 9 && (typeof partnerMissingChoices === 'function' && partnerMissingChoices().length > 0)) return true;
+      return false;
+    }
+    return true;
+  });
+  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+PHASES.map((phase,index)=>{
     const number=index+1;
-    if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(number))return '';
+    if(!visibleSteps.includes(number)) return '';
     const visualIdx=visibleSteps.indexOf(number);
     const visualNum=visualIdx>=0?visualIdx+1:number;
-    const isLocked=typeof isPhaseLockedInLevelUp==='function'?isPhaseLockedInLevelUp(number):Boolean(state.isLevelingUp&&number<=6);
+    const isLocked=false;
     const done=state.completed.includes(number)||(number===state.step&&phaseIsComplete(number));
-    return '<button class="phase-button '+(number===state.step?'active ':'')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span><span class="phase-label">'+esc(phase[0])+'</span><span class="phase-state">'+(isLocked?'':done?'':'')+'</span></button>';
+    return '<button class="phase-button '+(number===state.step?'active ':'')+(done?'done ':'')+'" data-step="'+number+'"><span class="phase-number">'+visualNum+'</span><span class="phase-label">'+esc(phase[0])+'</span><span class="phase-state"></span></button>';
   }).join('');
   const activeBtn=nav.querySelector('.phase-button.active');
   if(activeBtn&&typeof activeBtn.scrollIntoView==='function'){

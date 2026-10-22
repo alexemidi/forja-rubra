@@ -198,14 +198,25 @@ function syncInitialItemFooter(){
   const stepNext=document.getElementById('stepNextButton');
   const previous=document.getElementById('previousButton');
   const plan=typeof initialItemPlan==='function'?initialItemPlan():[];
-  if(previous){const previousStep=[7,6,5,4,3,2,1].find(step=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(step)));previous.textContent='← Voltar para '+(PHASES[previousStep-1]?.[0]||'etapa anterior');}
+  if(previous){
+    if(state.isLevelingUp){
+      const hasSpells = typeof characterHasSpellChoices === 'function' && characterHasSpellChoices();
+      previous.textContent = hasSpells ? '← Voltar para Magias' : '← Voltar para Poderes de Classe';
+      previous.hidden = false;
+      previous.disabled = false;
+    } else {
+      const previousStep=[7,6,5,4,3,2,1].find(step=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(step)));
+      previous.textContent='← Voltar para '+(PHASES[previousStep-1]?.[0]||'etapa anterior');
+    }
+  }
   if(stepPrev)stepPrev.textContent='← Escolha anterior';
   if(redoBtn)redoBtn.classList.add('danger');
 
+  const canShowBuyMore = !state.isLevelingUp && !state.editingCharacter && !state.isEditingFinishedSheet;
   if(saved.complete){
     const skipRemaining = typeof shouldSkipPhase === 'function' && shouldSkipPhase(9) && shouldSkipPhase(10);
     if(nextBtn){
-      nextBtn.textContent=arsenalShopOpen?'Confirmar compra':(skipRemaining ? 'Finalizar ficha' : 'Avançar →');
+      nextBtn.textContent=arsenalShopOpen?'Confirmar compra':(state.isLevelingUp ? 'Avançar →' : (skipRemaining ? 'Finalizar ficha' : 'Avançar →'));
       nextBtn.classList.remove('is-incomplete');
       nextBtn.disabled=false;
     }
@@ -214,7 +225,7 @@ function syncInitialItemFooter(){
     const skipSimpleBtn = document.getElementById('skipSimpleChoiceBtn');
     if(skipSimpleBtn) skipSimpleBtn.hidden = true;
     let buyMoreBtn = document.getElementById('buyMoreItemsBtn');
-    if(!buyMoreBtn && nextBtn?.parentNode){
+    if(!buyMoreBtn && nextBtn?.parentNode && canShowBuyMore){
       buyMoreBtn = document.createElement('button');
       buyMoreBtn.id = 'buyMoreItemsBtn';
       buyMoreBtn.type = 'button';
@@ -228,7 +239,7 @@ function syncInitialItemFooter(){
       nextBtn.parentNode.insertBefore(buyMoreBtn, nextBtn);
     }
     if(buyMoreBtn){
-      buyMoreBtn.hidden = arsenalShopOpen;
+      buyMoreBtn.hidden = arsenalShopOpen || !canShowBuyMore;
     }
     if(nextBtn)nextBtn.hidden=false;
   }else{
@@ -533,6 +544,16 @@ function removeGrantFromBackpack(grantId){
     if(saved.complete){
       if(arsenalShopOpen){sendArsenal('confirm-cart');return}
       if(!state.completed.includes(8))state.completed.push(8);
+      if(state.isLevelingUp){
+        const nextPending = typeof getNextLevelUpPendingPhase === 'function' ? getNextLevelUpPendingPhase() : null;
+        if(nextPending && nextPending > 8){
+          state.step = nextPending;
+          renderStage();window.scrollTo({top:0,behavior:'smooth'});
+          return;
+        }
+        if(typeof finishCharacterCreation === 'function') finishCharacterCreation();
+        return;
+      }
       const skipRemaining = typeof shouldSkipPhase === 'function' && shouldSkipPhase(9) && shouldSkipPhase(10);
       if(skipRemaining){
         if(!state.completed.includes(9)) state.completed.push(9);
