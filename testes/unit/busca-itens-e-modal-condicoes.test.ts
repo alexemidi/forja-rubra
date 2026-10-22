@@ -49,3 +49,16 @@ test('Validação do script modal-condicoes.ts (selected e paths definidos corre
   assert.ok(modalCode.includes('subEffectsHtml'), 'subEffectsHtml deve estar presente para condições relacionadas');
   assert.ok(!modalCode.includes('conditionsCloseBottomBtn'), 'Botão duplicado de fechar do rodapé deve ser removido');
 });
+
+test('Validação de Busca Relacionada no Grimório (02-00-cards.ts e grimorio.html)', () => {
+  const grimorioHtmlPath = path.resolve('src/paginas/grimorio.html');
+  const grimorioHtml = fs.readFileSync(grimorioHtmlPath, 'utf8');
+  assert.ok(grimorioHtml.includes('id="nameOnlySearchButton"'), 'grimorio.html deve conter o botão de busca relacionada');
+  assert.ok(grimorioHtml.includes('Busca relacionada'), 'Botão deve ter o rótulo "Busca relacionada"');
+
+  const cardsPath = path.resolve('src/funcionalidades/grimorio/02-00-cards.ts');
+  const cardsCode = fs.readFileSync(cardsPath, 'utf8');
+  assert.ok(cardsCode.includes('searchRelated'), '02-00-cards.ts deve conter o estado searchRelated');
+  assert.ok(cardsCode.includes('fullTextClean'), '02-00-cards.ts deve calcular o texto completo do card para busca relacionada');
+  assert.ok(cardsCode.includes('nameOnlySearchButton'), '02-00-cards.ts deve tratar o evento de alternância do botão');
+});

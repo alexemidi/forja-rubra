@@ -4,6 +4,7 @@ let filterTipo   = 'todos';
 let filterCirc   = 0;
 let filterEscola = 'todas';
 let filterSearch = '';
+let searchRelated = false;
 let filterSelectedSchools = false;
 let filterLearned = false;
 let definingSchools = false;
@@ -118,8 +119,10 @@ function setActiveView(view) {
   });
   const searchInput = document.getElementById('searchInput');
   const countLabel = document.getElementById('countLabel');
+  const nameOnlyBtn = document.getElementById('nameOnlySearchButton');
   if (searchInput) searchInput.style.display = showCondicoes ? 'none' : '';
   if (countLabel) countLabel.style.display = showCondicoes ? 'none' : '';
+  if (nameOnlyBtn) nameOnlyBtn.style.display = showCondicoes ? 'none' : '';
   document.querySelectorAll('.filter-row').forEach(row => {
     row.style.display = showCondicoes ? 'none' : '';
   });
@@ -224,7 +227,8 @@ function apply() {
     const okEscola = escMatch(escola, filterEscola);
     const okSelectedSchools = !filterSelectedSchools || selectedSchools.has(escola);
     const okLearned = !filterLearned || Boolean(key && learnedSpells.has(key));
-    const okSearch = !filterSearch || normName.includes(filterSearch);
+    const fullText = c.dataset.fullTextClean || (c.dataset.fullTextClean = (c.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+    const okSearch = !filterSearch || (searchRelated ? fullText.includes(filterSearch) : normName.includes(filterSearch));
 
     const show = okTipo && okLivro && okCirc && okEscola && okSelectedSchools && okLearned && okSearch;
     c.style.display = show ? '' : 'none';
@@ -392,11 +396,28 @@ document.addEventListener('click', e => {
 });
 
 // Ajustar busca para considerar acentos
-document.getElementById('searchInput').addEventListener('input', e => {
+document.getElementById('searchInput')?.addEventListener('input', (e: any) => {
   filterSearch = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   apply();
   checkOverflow();
 });
+
+const nameOnlySearchButton = document.getElementById('nameOnlySearchButton');
+if (nameOnlySearchButton) {
+  nameOnlySearchButton.addEventListener('click', () => {
+    searchRelated = !searchRelated;
+    nameOnlySearchButton.classList.toggle('active', searchRelated);
+    nameOnlySearchButton.setAttribute('aria-pressed', String(searchRelated));
+    const sInput = document.getElementById('searchInput') as HTMLInputElement | null;
+    if (sInput) {
+      sInput.placeholder = searchRelated
+        ? 'Buscar por nome, texto, efeito ou aprimoramento...'
+        : 'Buscar magia por nome...';
+    }
+    apply();
+    checkOverflow();
+  });
+}
 
 viewTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
