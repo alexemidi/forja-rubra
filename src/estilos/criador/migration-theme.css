@@ -797,13 +797,16 @@ button[data-item-spend] {
 .sheet-defense-heading h3{margin:0;color:var(--gold2);font:700 .72rem Cinzel,serif;text-transform:uppercase}
 .sheet-defense-rd{margin:0!important;padding:10px 11px!important;color:var(--text);font:600 .72rem Inter,Arial,sans-serif;background:transparent;border:0;display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:6px!important;line-height:1!important}
 .sheet-rd-label{display:inline-flex!important;align-items:center!important;gap:6px!important;font:700 .72rem Cinzel,serif!important;color:var(--gold2)!important;line-height:1!important;vertical-align:middle!important}
-.sheet-preview .sheet-partners-title,.sheet-preview .sheet-partners-icon{font:700 .72rem Cinzel,serif!important;color:var(--gold2)!important}
+.sheet-partners-title,.sheet-preview .sheet-partners-title,.sheet-partners-icon,.sheet-preview .sheet-partners-icon{font:700 .72rem Cinzel,serif!important;color:var(--gold2)!important}
+.sheet-partners-icon svg,.sheet-preview .sheet-partners-icon svg{color:var(--gold2)!important;fill:currentColor!important}
 .sheet-rd-value{display:inline-flex!important;align-items:center!important;font:700 .72rem Inter,Arial,sans-serif!important;color:#fff!important;line-height:1!important;vertical-align:middle!important}
 .sheet-preview .sheet-partners-card{background:transparent!important;border:0!important;border-radius:0;margin:0!important;padding:0!important;width:100%;box-shadow:none!important}
 .sheet-preview .sheet-partners-card-header{justify-content:flex-start;gap:10px;padding:0 11px;border:0!important;background:transparent}
 .sheet-add-condition-btn,
-.sheet-preview .sheet-partner-add-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:22px!important;height:22px!important;min-height:22px!important;background:rgba(217, 168, 78, 0.15)!important;border:1px solid rgba(217, 168, 78, 0.5)!important;border-radius:4px!important;color:var(--gold2, #f59e0b)!important;font-family:inherit!important;font-size:1.1rem!important;font-weight:700!important;line-height:1!important;padding:0!important;cursor:pointer!important;text-decoration:none!important}
+.sheet-partner-add-btn,
+.sheet-preview .sheet-partner-add-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:22px!important;height:22px!important;min-height:22px!important;background:rgba(217, 168, 78, 0.15)!important;border:1px solid rgba(217, 168, 78, 0.5)!important;border-radius:4px!important;color:var(--gold2, #f59e0b)!important;font-family:inherit!important;font-size:1.1rem!important;font-weight:700!important;line-height:1!important;padding:0!important;cursor:pointer!important;text-decoration:none!important;box-sizing:border-box!important}
 .sheet-add-condition-btn:hover,
+.sheet-partner-add-btn:hover,
 .sheet-preview .sheet-partner-add-btn:hover{background:var(--gold2, #f59e0b)!important;color:#111824!important;border-color:var(--gold2, #f59e0b)!important}
 .sheet-conditions-heading{display:flex;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .sheet-conditions-heading h3{margin:0;font:700 .72rem Cinzel,serif;color:var(--gold2);text-transform:uppercase}

@@ -527,7 +527,7 @@ document.addEventListener('click',async event=>{
     if (window.parent && window.parent !== window) {
       postArsenal('choose-engenhoca-spell', { section: 'engenhoqueiro' });
     } else {
-      window.location.href = 'engenhoca.html';
+      window.location.href = 'grimorio.html?modo=engenhoca';
     }
     return;
   }

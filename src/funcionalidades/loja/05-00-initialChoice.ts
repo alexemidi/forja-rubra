@@ -787,7 +787,7 @@ function potionWorkshopCardHtml() {
     ? 'Matéria-prima = ¼ do Preço'
     : 'Matéria-prima = ⅓ do Preço';
 
-  return '<article class="item-card potion-special-card" style="border: 1px solid #7e22ce; background: #0c1118; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: auto; max-height: none; box-sizing: border-box; overflow: visible;">' +
+  return '<article class="item-card potion-special-card" style="border: 1px solid #7e22ce; background: #0c1118; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; height: auto; min-height: auto; max-height: none; box-sizing: border-box; overflow: hidden;">' +
     '<div class="card-header" style="padding: 12px 16px; border-bottom: 1px solid #1a2332; background: #12101c; display: flex; justify-content: space-between; align-items: center;">' +
       '<div class="title-row" style="display: flex; align-items: center; gap: 10px;">' +
         '<span class="item-icon" aria-hidden="true" style="font-size: 1.25rem;"></span>' +
@@ -816,7 +816,7 @@ function potionWorkshopCardHtml() {
         '5º Círc: T$ 6.750 (MP ' + mp5 + ') · CD 35' +
       '</div>' +
     '</div>' +
-    '<div class="card-actions" style="padding: 12px 16px; background: #0a0e16; border-top: 1px solid #1a2332; display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-shrink: 0; margin-top: auto;">' +
+    '<div class="card-actions" style="padding: 12px 16px; background: #0a0e16; border-top: 1px solid #1a2332; display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-shrink: 0; margin-top: auto; box-sizing: border-box; width: 100%;">' +
       '<button class="acquire-button potion-magic-select-btn" type="button" data-action="choose-potion-spell" style="background: linear-gradient(135deg, #7e22ce, #9333ea); border: 1px solid #a855f7; color: #ffffff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">' +
         ' Preparar Poção' +
       '</button>' +

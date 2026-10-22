@@ -230,28 +230,8 @@
 
   function renderBottombarIfNeeded() {
     if (typeof document === 'undefined') return;
-    if (window.parent !== window) return;
-
-    const path = (window.location.pathname || '').toLowerCase();
-    if (path.endsWith('index.html') || path.endsWith('/') || path.endsWith('personagens.html') || path.includes('mapa') || path.includes('grimorio') || path.includes('ficha')) {
-      const existing = document.querySelector('.sheet-shop-footer, #standaloneWorkshopFooter, .forja-autohide-footer');
-      if (existing) existing.remove();
-      return;
-    }
-
-    let existingFooter = document.querySelector('.sheet-shop-footer, #standaloneWorkshopFooter, .forja-autohide-footer');
-    if (!existingFooter) {
-      existingFooter = document.createElement('footer');
-      existingFooter.className = 'sheet-shop-footer forja-autohide-footer';
-      existingFooter.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9990;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:10px 24px;background:#0d1117;border-top:1px solid #1a2230;box-sizing:border-box;width:100%;box-shadow:0 -4px 16px rgba(0,0,0,0.5);';
-      existingFooter.innerHTML = `
-        <button type="button" class="button" onclick="if(window.history.length > 1) { window.history.back(); } else { window.location.href = 'ficha.html'; }" style="background:#991b1b;border:1px solid #b91c1c;color:#ffffff;font-weight:700;padding:8px 24px;border-radius:6px;cursor:pointer;font-size:0.88rem;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,0.3);line-height:1;height:38px;">
-          <svg class="forja-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          <span>Voltar</span>
-        </button>
-      `;
-      document.body.appendChild(existingFooter);
-    }
+    const existing = document.querySelectorAll('#standaloneWorkshopFooter, .forja-autohide-footer');
+    existing.forEach(el => el.remove());
   }
 
   function aplicarAutohideScroll() {

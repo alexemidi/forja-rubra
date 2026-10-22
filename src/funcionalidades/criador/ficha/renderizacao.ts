@@ -2864,6 +2864,7 @@ document.addEventListener('click', event => {
     if(Array.isArray(state.progression) && state.progression.length > 1){
       state.progression.pop();
     }
+    state.levelTraining = { pv: false, pm: false, skills: false, power: false, nextClassId: '', selectedPowerId: '', selectedPowerChoice: '' };
     const currentSamuraiLevel = (state.progression || []).filter(row => row.classId === 'samurai').length;
     [4, 6, 8, 10, 12, 14].forEach(lvl => {
       if(lvl > currentSamuraiLevel && state.samuraiKatana?.[lvl]) delete state.samuraiKatana[lvl];

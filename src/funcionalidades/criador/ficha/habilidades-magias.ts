@@ -556,11 +556,11 @@ function renderSheetPartnersBlock(){
   return '<div class="sheet-partners-card">' +
     '<div class="sheet-partners-card-header">' +
       '<div class="sheet-partners-title">' +
-        '<span class="sheet-partners-icon">' + usersIcon + '</span>' +
+        '<span class="sheet-heading-icon sheet-partners-icon" aria-hidden="true">' + usersIcon + '</span>' +
         '<strong>PARCEIROS</strong>' +
         countBadge +
       '</div>' +
-      '<a href="guilda.html" class="sheet-partner-add-btn" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center" aria-label="Adicionar parceiro" title="Adicionar parceiro">+</a>' +
+      '<a href="guilda.html" class="sheet-partner-add-btn" aria-label="Adicionar parceiro" title="Adicionar parceiro">+</a>' +
     '</div>' +
     '<div class="sheet-partners-card-body">' + content + '</div>' +
   '</div>';

@@ -478,13 +478,7 @@
     const spellNome = spell.nome || spell.name;
     const alvo = (spell.alvo || spell.target || '').toLowerCase();
     const area = (spell.area || '').toLowerCase();
-    let prefixo = 'Poção de';
-    if (alvo.includes('objeto') || /arma|armadura|escudo/i.test(alvo)) {
-      prefixo = 'Óleo de';
-    } else if (area || /explos|esfera|cone|linha/i.test(area)) {
-      prefixo = 'Granada de';
-    }
-    const finalName = `${prefixo} ${spellNome}`;
+    const finalName = `Poção de ${spellNome}`;
 
     if (typeof window.abrirModalTesteOficio === 'function') {
       window.abrirModalTesteOficio({

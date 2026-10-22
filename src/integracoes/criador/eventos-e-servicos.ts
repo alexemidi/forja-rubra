@@ -389,6 +389,7 @@ window.addEventListener('message',event=>{
     if(gSource==='engenhoca'){
       if(typeof window.openEngenhocaCraftModal==='function') window.openEngenhocaCraftModal(message.id);
       else if(typeof openEngenhocaCraftModal==='function') openEngenhocaCraftModal(message.id);
+      else window.location.href = `engenhoca.html?magia=${encodeURIComponent(message.id)}`;
       return;
     }
     if(gSource==='potion'){
@@ -408,13 +409,7 @@ window.addEventListener('message',event=>{
       const spellNome = spell?.nome || spell?.name || message.id;
       const alvo = (spell?.alvo || spell?.target || '').toLowerCase();
       const area = (spell?.area || '').toLowerCase();
-      let prefixo = 'Poção de';
-      if (alvo.includes('objeto') || /arma|armadura|escudo/i.test(alvo)) {
-        prefixo = 'Óleo de';
-      } else if (area || /explos|esfera|cone|linha/i.test(area)) {
-        prefixo = 'Granada de';
-      }
-      const finalName = `${prefixo} ${spellNome}`;
+      const finalName = `Poção de ${spellNome}`;
       const circulo = Number(spell?.circulo || spell?.circle || state.tavernPotionPurchase?.circle || 1);
       const potionPrices = { 1: 30, 2: 270, 3: 1080, 4: 3000, 5: 6750 };
       const basePrice = potionPrices[circulo] || Number(state.tavernPotionPurchase?.price) || 30;

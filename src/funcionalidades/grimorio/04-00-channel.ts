@@ -465,8 +465,11 @@
             button.style.borderColor = '#ef4444';
             button.style.color = '#ffffff';
           } else if (context.mode === 'potion-craft' || context.source === 'potion') {
-            craftLabel = 'Fabricar Poção';
-            craftTitle = 'Fabricar poção mágica a partir desta magia';
+            craftLabel = 'Preparar';
+            craftTitle = 'Preparar poção mágica a partir desta magia';
+            button.style.background = '#7e22ce';
+            button.style.borderColor = '#a855f7';
+            button.style.color = '#ffffff';
           } else if (context.mode === 'scroll-craft' || context.source === 'scroll') {
             craftLabel = 'Fabricar Pergaminho';
             craftTitle = 'Escrever pergaminho a partir desta magia';
