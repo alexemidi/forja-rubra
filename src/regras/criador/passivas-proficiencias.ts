@@ -607,7 +607,7 @@ function originItemChoice(name,kind,origin,index){
   if(/item artistico/.test(text))return{...base,names:['Item Artístico']};
   if(/cao de caca.*cavalo.*ponei.*trobo/.test(text))return{...base,names:['Cão de Caça','Cavalo','Pônei','Trobo'],branches:[{id:'cao',label:'Cão de Caça',names:['Cão de Caça']},{id:'cavalo',label:'Cavalo',names:['Cavalo']},{id:'ponei',label:'Pônei',names:['Pônei']},{id:'trobo',label:'Trobo',names:['Trobo']}]};
   if(/somando ate.*500|pista misteriosa do seu passado/i.test(text))return{...base,title:'Amnésico · Pista do Passado (até T$ 500)',isBudgetGrant:true,maxBudget:500};
-  if(/item que voce possa fabricar.*(?:t|t\$)?\s*50/i.test(text))return{...base,title:'Artesão · Item Fabricável (até T$ 50)',isBudgetGrant:true,maxBudget:50};
+  if(/item que voce possa fabricar.*(?:t|t\$)?\s*50/i.test(text))return{...base,title:'Artesão · Item Fabricável (até T$ 50)',isBudgetGrant:true,maxBudget:50,isCraftableChoice:true};
   if(/tatuagem ou outro adereco de sua gangue/.test(text))return{...base,names:['Tatuagem ou Adereço de Gangue'],defaultOptions:{customName:'Tatuagem da Gangue'}};
   if(/tres bolas coloridas para malabarismo/.test(text))return{...base,names:['Três Bolas Coloridas']};
   if(/item sem valor recebido de um admirador/.test(text))return{...base,names:['Lembrança de um Admirador'],defaultOptions:{customName:'Fita de Seda'}};

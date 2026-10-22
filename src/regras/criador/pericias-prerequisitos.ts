@@ -482,7 +482,28 @@ renderOrigins=function(){
       '</div>';
     }
 
-    regionalPanel=panel('Origem regional','<label class="field"><span>Origem regional</span><select class="select" data-field="regionalOrigin"><option value="">'+esc(regionalPlaceholder)+'</option>'+regionalOriginsList.map(item=>'<option value="'+esc(item.nome)+'" '+(item.nome===state.origin.regional?'selected':'')+'>'+esc(item.nome)+' · '+esc(item.regiao||'Arton')+'</option>').join('')+'</select></label>'+(wynllaRestricted?'<div class="help" style="color:var(--gold2);margin-top:6px">Restrito a nativos de Wynlla pelo poder Presente de Wynlla.</div>':'')+(regional?'<div class="origin-layout" style="margin-top:12px"><div class="info-box"><strong>'+esc(regional.nome)+' · '+esc(regional.regiao)+'</strong><br>'+esc(regional.beneficios?.descricao||'')+'</div><div><span class="field-label">Itens regionais</span><div class="origin-items" style="margin-top:7px">'+((regional.itens||[]).length?regional.itens.map(item=>'<div class="origin-item">'+esc(item)+'</div>').join(''):'<div class="empty">Nenhum item regional listado.</div>')+'</div></div></div>'+extraRegionalChoices:''),regionalNote);
+    const regItems = regional?.itens || [];
+    const regionalLeft = '<div>' +
+      '<label class="field"><span>Origem regional</span><select class="select" data-field="regionalOrigin"><option value="">' + esc(regionalPlaceholder) + '</option>' +
+      regionalOriginsList.map(item => '<option value="' + esc(item.nome) + '" ' + (item.nome === state.origin.regional ? 'selected' : '') + '>' + esc(item.nome) + ' · ' + esc(item.regiao || 'Arton') + '</option>').join('') +
+      '</select></label>' +
+      (wynllaRestricted ? '<div class="help" style="color:var(--gold2);margin-top:6px">Restrito a nativos de Wynlla pelo poder Presente de Wynlla.</div>' : '') +
+      (regional ? '<div style="margin-top:18px"><span class="field-label">Itens regionais</span><div class="origin-items" style="margin-top:7px">' +
+        (regItems.length ? regItems.map(item => '<div class="origin-item">' + esc(item) + '</div>').join('') : '<div class="empty">Nenhum item regional listado.</div>') +
+      '</div></div>' : '') +
+    '</div>';
+
+    const regionalRight = regional ? '<div>' +
+      '<span class="field-label">Benefício da origem regional</span>' +
+      '<div class="origin-benefit-grid" style="margin-top:7px;grid-template-columns:1fr;">' +
+        '<div class="check-card origin-benefit-button selected" style="cursor:default;width:100%;min-height:auto;padding:12px 14px;">' +
+          '<strong>' + esc(regional.nome) + ' · ' + esc(regional.regiao) + '</strong>' +
+          '<small style="margin-top:6px;display:block;line-height:1.45;">' + esc(regional.beneficios?.descricao || '') + '</small>' +
+        '</div>' +
+      '</div>' +
+    '</div>' : '<div><div class="empty">Escolha uma origem regional para conferir seus benefícios.</div></div>';
+
+    regionalPanel = panel('Origem regional', '<div class="origin-standard-layout">' + regionalLeft + regionalRight + '</div>' + (regional ? extraRegionalChoices : ''), regionalNote);
   }
   return standard+regionalPanel;
 };

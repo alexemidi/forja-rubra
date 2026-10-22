@@ -893,3 +893,50 @@ button[data-item-spend] {
 @keyframes duendeAttributeGlow{0%,100%{box-shadow:0 0 0 0 rgba(233,173,89,0)}50%{box-shadow:0 0 0 5px rgba(233,173,89,.48);border-radius:9px}}
 @media(max-width:620px){.duende-taboo-custom-row{grid-template-columns:1fr}}
 
+/* ==========================================================================
+   PADRONIZAÇÃO DE TÍTULOS DE CAMPOS DA FICHA DIGITAL E CARDS DAS LOJAS
+   ========================================================================== */
+
+.sheet-preview-box > h3,
+.sheet-preview-box > div > h3,
+.sheet-preview-history > h3,
+.sheet-preview-history-heading h3,
+.sheet-skills-heading h3,
+.sheet-defense-heading h3,
+.sheet-conditions-heading h3,
+.sheet-preview .sheet-partners-title,
+.sheet-preview .sheet-partners-card-header h3,
+.sheet-attacks-heading,
+.sheet-preview-box > .sheet-attacks-heading,
+.sheet-preview .panel-header .panel-title,
+.sheet-preview .panel-title,
+.sheet-preview-alignment-age span,
+.sheet-equipment-block h4,
+.sheet-equipment-sections h4,
+.sheet-preview-extras h4,
+.sheet-equipment-worn .sheet-worn-header h4,
+.sheet-equipment-equipped h4,
+.sheet-preview-box .sheet-notes-heading,
+.sheet-notes-box h3 {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  color: var(--gold2, #e9ad59) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.3 !important;
+}
+
+/* Títulos dos Cards nas Lojas (Loja, Taverna, Guilda, Itens Iniciais) */
+.item-title,
+.card-title,
+.equip-card-title,
+.backpack-item-title h3,
+.item-card .item-title,
+.item-card .item-name strong,
+.tavern-card .card-title,
+.guild-card .card-title,
+.item-row strong {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+}
+

@@ -207,8 +207,23 @@
       return;
     }
 
-    const base = window.location.origin + window.location.pathname;
-    const shareUrl = `${base}?compartilhar=${code}`;
+    let shareUrl = '';
+    if (typeof window !== 'undefined' && window.location) {
+      if (window.location.protocol === 'file:') {
+        const hrefWithoutQuery = window.location.href.split('?')[0].split('#')[0];
+        const fichaHref = hrefWithoutQuery.replace(/\/[^/]*$/, '/ficha.html');
+        shareUrl = `${fichaHref}?compartilhar=${code}`;
+      } else {
+        const origin = window.location.origin;
+        let pathname = window.location.pathname;
+        if (pathname.endsWith('/')) {
+          pathname = pathname + 'ficha.html';
+        } else {
+          pathname = pathname.replace(/\/[^/]*$/, '/ficha.html');
+        }
+        shareUrl = `${origin}${pathname}?compartilhar=${code}`;
+      }
+    }
 
     // Copiar diretamente e notificar de imediato
     copiarParaAreaDeTransferencia(shareUrl).then((ok) => {
@@ -225,25 +240,26 @@
     try {
       const url = new URL(window.location.href);
       const codigo = url.searchParams.get('compartilhar') || url.searchParams.get('importar');
-      if (!codigo) return;
+      const activeState = (window as any).state;
+      const isShared = Boolean(codigo || activeState?.isViewingSharedCharacter);
+      if (!isShared) return;
 
-      const snapshot = decodificarFicha(codigo);
+      let snapshot = activeState?.sharedSnapshot;
+      if (!snapshot && codigo) {
+        snapshot = decodificarFicha(codigo);
+      }
+      if (!snapshot) snapshot = activeState;
       if (!snapshot) return;
 
-      // Carregar snapshot no estado da sessão
-      if (typeof (window as any).ModeloEstado?.normalizeState === 'function') {
-        (window as any).state = (window as any).ModeloEstado.normalizeState(snapshot);
-      } else {
-        (window as any).state = snapshot;
+      if (activeState) {
+        activeState.isViewingSharedCharacter = true;
+        activeState.sharedSnapshot = snapshot;
       }
-
-      (window as any).state.isViewingSharedCharacter = true;
-      (window as any).state.sharedSnapshot = snapshot;
 
       // Injetar faixa de notificação com botão "Salvar nos Meus Personagens"
       setTimeout(() => {
         renderizarBarraFichaCompartilhada(snapshot);
-      }, 250);
+      }, 150);
     } catch (e) {
       console.error('Falha ao processar link compartilhado:', e);
     }
@@ -325,6 +341,14 @@
       roster.push(novoHeroi);
       localStorage.setItem('forja-heroi-t20-personagens-v1', JSON.stringify(roster));
       localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(novoSnapshot));
+      if (typeof (window as any).characterStorage?.salvar === 'function') {
+        (window as any).characterStorage.salvar('forja-heroi-t20-v1', novoSnapshot);
+      }
+      if ((window as any).state) {
+        delete (window as any).state.isViewingSharedCharacter;
+        delete (window as any).state.sharedSnapshot;
+        Object.assign((window as any).state, novoSnapshot);
+      }
 
       // Limpar parâmetro da URL
       if (window.history?.replaceState) {

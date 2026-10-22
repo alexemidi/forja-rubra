@@ -73,6 +73,20 @@ function loadState(){
           ForjaUnificada.saveActiveTableRules(urlTableRules);
         }
       }
+      const shareCode = params.get('compartilhar') || params.get('importar');
+      if(shareCode){
+        const decoded = typeof ModeloEstado?.decodificarFicha === 'function' ? ModeloEstado.decodificarFicha(shareCode) : null;
+        if(decoded){
+          const loaded = applyTableRulesToState(migratePersistedState(decoded), urlTableRules);
+          loaded.finished = true;
+          loaded.sheetView = 'sheet';
+          loaded.step = 10;
+          loaded.isViewingSharedCharacter = true;
+          loaded.sharedSnapshot = JSON.parse(JSON.stringify(loaded));
+          characterStorage.salvar(STORAGE_KEY, loaded);
+          return loaded;
+        }
+      }
       if(params.get('novo')==='true'){
         if(window.history?.replaceState){
           const cleanUrl=window.location.pathname+(window.location.hash||'');

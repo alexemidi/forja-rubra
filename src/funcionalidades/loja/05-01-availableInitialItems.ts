@@ -11,10 +11,24 @@ function availableInitialItems(){
     const hasUnlimitedBudget = Boolean(effectiveChoice.unlimitedBudget || effectiveChoice.maxBudget === Infinity);
     const maxBudget=hasUnlimitedBudget ? Infinity : Number(effectiveChoice.maxBudget||1000);
     const allowedTypes=effectiveChoice.types?new Set(effectiveChoice.types):null;
-    const exclusiveIds = typeof ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
+    const isCraftChoice = Boolean(effectiveChoice.isCraftableChoice || (maxBudget === 50 && /fabricar/i.test(effectiveChoice.title || '')));
+    const rawOffices = (typeof (window as any).allTrainedOffices === 'function' ? (window as any).allTrainedOffices() : null) || (typeof (window as any).arsenalInitialState !== 'undefined' ? (window as any).arsenalInitialState?.trainedOffices : null) || [];
+    const trainedOffices = rawOffices.length > 0 ? rawOffices : ['artesao'];
+    const exclusiveIds = typeof (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
     results=preparedItems.filter(item=>{
       if(item.categoriaId==='servico')return false;
       if(item.origemExclusiva||exclusiveIds.has(item.id))return false;
+
+      // 1. Limite estrito de preço até maxBudget (ex: até T$ 50)
+      const price = Number(item.preco?.valor ?? item.price ?? 0);
+      if(!hasUnlimitedBudget && Number.isFinite(maxBudget) && price > maxBudget) return false;
+
+      // 2. Se for escolha de item fabricável, apenas os itens que ele pode fabricar com seus ofícios
+      if(isCraftChoice){
+        if(isSpecificMagicItem(item) || isLiturgicalItem(item) || isNamedFixedMagicItem(item)) return false;
+        if(typeof (window as any).isItemCraftableByOffices === 'function' && !(window as any).isItemCraftableByOffices(item, trainedOffices)) return false;
+      }
+
       if(allowedTypes&&!allowedTypes.has(item.tipo))return false;
       const specificOk = state.specific === 'todos' ||
         (state.specific === 'especifico' && isSpecificMagicItem(item)) ||
@@ -39,6 +53,19 @@ function availableInitialItems(){
         if(state.searchNameOnly)return nameMatch;
         const searchMatch=starterKey(item._search||item.descricao||'').includes(term);
         return nameMatch||searchMatch;
+      });
+    }
+
+    // Ordenação: sempre A-Z se for escolha de fabricação
+    if(isCraftChoice){
+      results.sort((a,b)=>a.nome.localeCompare(b.nome, 'pt-BR'));
+    } else {
+      results.sort(function(a, b) {
+        if (state.sort === 'price-asc') return Number(a.preco?.valor || 0) - Number(b.preco?.valor || 0) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (state.sort === 'price-desc') return Number(b.preco?.valor || 0) - Number(a.preco?.valor || 0) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (state.sort === 'space-asc') return Number(a.espacos || 0) - Number(b.espacos || 0) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (state.sort === 'type') return (TYPE_META[a.tipo] && TYPE_META[a.tipo].label || a.tipo).localeCompare(TYPE_META[b.tipo] && TYPE_META[b.tipo].label || b.tipo, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR');
+        return a.nome.localeCompare(b.nome, 'pt-BR');
       });
     }
     return results;
@@ -485,6 +512,8 @@ applyFilters=function(loadMore){
       state.category='todos';
       state.specific='convencional';
     }
+    if (typeof renderTypeFilters === 'function') renderTypeFilters();
+    if (typeof renderSpecificFilters === 'function') renderSpecificFilters();
     syncFilterUI();
     syncInitialFilterSummary();
     const results=availableInitialItems();

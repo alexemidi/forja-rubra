@@ -552,6 +552,82 @@ function createCharacter(name) {
   }
 }
 
+function isItemCraftableByOffices(item: any, offices: string[]): boolean {
+  if (!item || !offices || !offices.length) return false;
+  const itemType = String(item.tipo || '').toLowerCase();
+  const itemCat = String(item.categoriaId || '').toLowerCase();
+  const itemDesc = `${itemType} ${itemCat} ${item.nome || ''} ${(item.textos?.descricao || item.descricao || '')}`.toLowerCase();
+
+  for (const rawOffice of offices) {
+    const of = typeof slug === 'function' ? slug(rawOffice) : String(rawOffice).toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (of === 'armeiro') {
+      if (itemType === 'arma' || itemType === 'armadura' || itemType === 'escudo' || itemType === 'municao') return true;
+    } else if (of === 'alfaiate' || of === 'tecelao') {
+      if (itemCat === 'vestuario' || /vestu|traje|manto|capa/i.test(itemDesc)) return true;
+    } else if (of === 'alquimista') {
+      if (itemType === 'alquimico' || itemCat.startsWith('alquimico_')) return true;
+    } else if (of === 'artesao') {
+      if (itemType === 'item_geral' && ['equipamento_aventura', 'instrumento', 'ferramenta', 'esoterico', 'itens_gerais'].includes(itemCat)) return true;
+    } else if (of === 'cozinheiro' || of === 'culinaria') {
+      if (itemCat === 'alimentacao' || itemCat === 'bebida' || /comida|refeic|prato|racao|alimento|bebida/i.test(itemDesc)) return true;
+    } else if (of === 'carpinteiro') {
+      if ((itemType === 'arma' && /arco|besta|bordao|cajado|flecha|virote/i.test(item.nome || '')) || (itemType === 'escudo' && /leve/i.test(itemCat))) return true;
+    } else if (of === 'joalheiro' || of === 'ourives') {
+      if (itemType === 'acessorio' || /anel|amuleto|colar|brinco|joia|gema/i.test(itemDesc)) return true;
+    } else if (of === 'escriba') {
+      if (itemCat === 'documento' || /pergaminho|livro|mapa|tinta/i.test(itemDesc)) return true;
+    } else if (of === 'engenhoqueiro') {
+      if (item.isEngenhoca || /engenhoca|aparato/i.test(itemDesc)) return true;
+    } else if (of === 'pedreiro') {
+      if (/pedra|marreta|picareta|argamassa|tijolo/i.test(itemDesc)) return true;
+    } else if (of === 'pescador') {
+      if (/pesca|rede|anzol|vara/i.test(itemDesc)) return true;
+    } else if (of === 'minerador') {
+      if (/picareta|pa |miner|pedra|ferro|carvao/i.test(itemDesc)) return true;
+    } else if (of === 'tatuador') {
+      if (/tatuagem|pigmento/i.test(itemDesc)) return true;
+    }
+  }
+  return false;
+}
+if (typeof window !== 'undefined') {
+  (window as any).isItemCraftableByOffices = isItemCraftableByOffices;
+}
+
+function getEligibleCatalogItems(): any[] {
+  const effChoice = typeof (window as any).effectiveInitialChoice === 'function' ? (window as any).effectiveInitialChoice() : null;
+  const exclusiveIds = typeof (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
+
+  if (effChoice && effChoice.isBudgetGrant) {
+    const hasUnlimitedBudget = Boolean(effChoice.unlimitedBudget || effChoice.maxBudget === Infinity);
+    const maxBudget = hasUnlimitedBudget ? Infinity : Number(effChoice.maxBudget || 1000);
+    const allowedTypes = effChoice.types ? new Set(effChoice.types) : null;
+    const isCraftChoice = Boolean(effChoice.isCraftableChoice || (maxBudget === 50 && /fabricar/i.test(effChoice.title || '')));
+    const rawOffices = (typeof (window as any).allTrainedOffices === 'function' ? (window as any).allTrainedOffices() : null) || (typeof (window as any).arsenalInitialState !== 'undefined' ? (window as any).arsenalInitialState?.trainedOffices : null) || [];
+    const trainedOffices = rawOffices.length > 0 ? rawOffices : ['artesao'];
+
+    return preparedItems.filter(function(item: any) {
+      if (item.categoriaId === 'servico') return false;
+      if (item.origemExclusiva || exclusiveIds.has(item.id)) return false;
+      const price = Number(item.preco?.valor ?? item.price ?? 0);
+      if (!hasUnlimitedBudget && Number.isFinite(maxBudget) && price > maxBudget) return false;
+      if (allowedTypes && !allowedTypes.has(item.tipo)) return false;
+      if (isCraftChoice) {
+        if (isSpecificMagicItem(item) || isLiturgicalItem(item) || isNamedFixedMagicItem(item)) return false;
+        if (!isItemCraftableByOffices(item, trainedOffices)) return false;
+      }
+      return true;
+    });
+  }
+
+  return preparedItems.filter(function(item: any) {
+    return item.categoriaId !== 'servico';
+  });
+}
+if (typeof window !== 'undefined') {
+  (window as any).getEligibleCatalogItems = getEligibleCatalogItems;
+}
+
 function renderTypeFilters() {
   const isAlquimista = typeof state !== 'undefined' && state.oficinaFilter === 'alquimista';
   if (isAlquimista) {
@@ -571,17 +647,27 @@ function renderTypeFilters() {
   const order = isArmeiro
     ? ['arma', 'armadura', 'escudo']
     : ['todos', 'arma', 'municao', 'armadura', 'escudo', 'acessorio', 'item_geral'];
-  const totalCount = preparedItems.filter(function(item) {
-    if (item.categoriaId === 'servico') return false;
+
+  const baseItems = getEligibleCatalogItems();
+  const totalCount = baseItems.filter(function(item) {
     const specificOk = typeof state === 'undefined' || !state.specific || state.specific === 'todos' ||
       (state.specific === 'especifico' && isSpecificMagicItem(item)) ||
       (state.specific === 'liturgico' && isLiturgicalItem(item)) ||
       (state.specific === 'convencional' && !isNamedFixedMagicItem(item));
     return specificOk;
   }).length;
+
   typeFilters.innerHTML = '<span class="filter-label">Tipo</span>' + order.map(function(type) {
-    const count = type === 'todos' ? totalCount : countType(type);
-    return '<button class="chip type-chip" type="button" data-value="' + type + '">' +
+    const count = type === 'todos' ? totalCount : baseItems.filter(function(i){
+      if (i.tipo !== type) return false;
+      const specificOk = typeof state === 'undefined' || !state.specific || state.specific === 'todos' ||
+        (state.specific === 'especifico' && isSpecificMagicItem(i)) ||
+        (state.specific === 'liturgico' && isLiturgicalItem(i)) ||
+        (state.specific === 'convencional' && !isNamedFixedMagicItem(i));
+      return specificOk;
+    }).length;
+    const isDisabled = count === 0 && type !== 'todos';
+    return '<button class="chip type-chip' + (state.type === type ? ' active' : '') + '" type="button" data-value="' + type + '"' + (isDisabled ? ' disabled style="opacity:0.35;cursor:not-allowed;"' : '') + '>' +
       '<span aria-hidden="true">' + TYPE_META[type].icon + '</span>' + TYPE_META[type].label +
       '<span class="chip-count">' + count + '</span></button>';
   }).join('');
@@ -602,15 +688,19 @@ function renderSpecificFilters() {
     const row = specificFilters.closest('.filter-row-control');
     if (row) row.style.display = '';
   }
-  const nonServiceItems = preparedItems.filter(function(item) { return item.categoriaId !== 'servico'; });
+  const baseItems = getEligibleCatalogItems();
+  const typeFiltered = baseItems.filter(function(item) {
+    return typeof state === 'undefined' || !state.type || state.type === 'todos' || item.tipo === state.type;
+  });
   const options = [
-    { id: 'todos', label: 'Todos', count: nonServiceItems.length },
-    { id: 'convencional', label: 'Convencionais', count: nonServiceItems.filter(function(item) { return !isNamedFixedMagicItem(item); }).length },
-    { id: 'especifico', label: 'Específicos', count: nonServiceItems.filter(isSpecificMagicItem).length },
-    { id: 'liturgico', label: 'Litúrgicos', count: nonServiceItems.filter(isLiturgicalItem).length }
+    { id: 'todos', label: 'Todos', count: typeFiltered.length },
+    { id: 'convencional', label: 'Convencionais', count: typeFiltered.filter(function(item) { return !isNamedFixedMagicItem(item) && !isSpecificMagicItem(item) && !isLiturgicalItem(item); }).length },
+    { id: 'especifico', label: 'Específicos', count: typeFiltered.filter(isSpecificMagicItem).length },
+    { id: 'liturgico', label: 'Litúrgicos', count: typeFiltered.filter(isLiturgicalItem).length }
   ];
   specificFilters.innerHTML = '<span class="filter-label">Natureza</span>' + options.map(function(option) {
-    return '<button class="chip specific-chip" type="button" data-value="' + option.id + '">' + option.label +
+    const isDisabled = option.count === 0 && option.id !== 'todos';
+    return '<button class="chip specific-chip' + (state.specific === option.id ? ' active' : '') + '" type="button" data-value="' + option.id + '"' + (isDisabled ? ' disabled style="opacity:0.35;cursor:not-allowed;"' : '') + '>' + option.label +
       '<span class="chip-count">' + option.count + '</span></button>';
   }).join('');
 }

@@ -369,3 +369,17 @@ summary:focus-visible {
     display: none !important;
   }
 }
+
+/* Títulos dos Cards nas Lojas (Loja, Taverna, Guilda, Criador) */
+.item-title,
+.card-title,
+.equip-card-title,
+.backpack-item-title h3,
+.item-card .item-title,
+.item-card .item-name strong,
+.tavern-card .card-title,
+.guild-card .card-title,
+.item-row strong {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+}
+

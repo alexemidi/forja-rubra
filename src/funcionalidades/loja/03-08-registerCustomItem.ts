@@ -686,7 +686,7 @@ document.addEventListener('keydown', function(event) {
 
 typeFilters.addEventListener('click', function(event) {
   const button = event.target.closest('.type-chip');
-  if (!button) return;
+  if (!button || button.disabled) return;
   state.type = button.dataset.value;
   state.category = 'todos';
   state.combat = 'todos';
@@ -697,7 +697,7 @@ typeFilters.addEventListener('click', function(event) {
 
 specificFilters.addEventListener('click', function(event) {
   const button = event.target.closest('.specific-chip');
-  if (!button) return;
+  if (!button || button.disabled) return;
   state.specific = button.dataset.value;
   state.magicTier = 'todos';
   const availableCats = state.type === 'todos' ? [] : categoryValuesForType(state.type);

@@ -10,9 +10,14 @@ window.prepararFicha=function(){
       state = ModeloEstado.migratePersistedState(found.snapshot);
       normalizeState();
     }
-  } else if(!state.identity?.characterName&&!state.identity?.raceId&&!state.identity?.classId&&!state.progression?.length){
-    const roster=characterRoster();
-    if(roster[0]?.snapshot){state=ModeloEstado.migratePersistedState(roster[0].snapshot);normalizeState()}
+  } else if(!params.get('compartilhar') && !params.get('importar') && !state?.isViewingSharedCharacter){
+    if(!state.identity?.characterName && (!state.progression || state.progression.length <= 1)){
+      const roster = typeof characterRoster === 'function' ? characterRoster() : [];
+      if(roster[0]?.snapshot){
+        state = ModeloEstado.migratePersistedState(roster[0].snapshot);
+        normalizeState();
+      }
+    }
   }
   try {
     const rawActive = localStorage.getItem('forja-heroi-t20-v1');
