@@ -18,7 +18,7 @@ function renderCreationStage(){
   const totalVisiblePhases=visibleSteps.length;
   const isLastVisible=safeStep===visibleSteps[visibleSteps.length-1];
   const renders=[renderIdentityClass,renderAttributesRace,renderOrigins,renderSkillsSplit,renderDeity,renderPowers,renderSpells,()=>renderDeferred('items'),typeof renderPartnerStage==='function'?renderPartnerStage:()=>'<div class="panel">Parceiros</div>',typeof renderProgressionPhase==='function'?renderProgressionPhase:renderSummary];
-  document.getElementById('stageKicker').textContent='Fase '+currentVisualNumber+' de '+totalVisiblePhases;document.getElementById('stageTitle').textContent=title;document.getElementById('stageDescription').textContent=description;document.getElementById('stageRoot').innerHTML=renders[safeStep-1]();document.getElementById('previousButton').disabled=safeStep===1;document.getElementById('nextButton').textContent=isLastVisible?'Finalizar ficha':'Avançar →';document.getElementById('footerMessage').textContent=validationMessage(safeStep,true);document.getElementById('footerMessage').hidden=true;const expBtn=document.getElementById('exportButton');if(expBtn)expBtn.hidden=true;document.getElementById('redoInitialItemsButton').hidden=true;const redoSpell=document.getElementById('redoSpellChoicesButton');if(redoSpell)redoSpell.hidden=safeStep!==7 || Boolean(state.isLevelingUp);document.getElementById('reviewProgressionButton').hidden=true;document.body?.classList.toggle('spell-stage',safeStep===7);document.getElementById('phaseNav').hidden=false;const footer=document.querySelector('.stage-footer');if(footer)footer.hidden=false;renderNav();applyCompletedChoiceAppearance();if(safeStep===5)bindDeityPowerSearch();if(safeStep===6)bindPowerSearch();if(safeStep===7){mountGrimoire();updateSpellOptionsToggle()}if(typeof syncTeurgistFooterButton==='function')syncTeurgistFooterButton();if(safeStep===10){syncSamuraiKatanaToBackpack();syncProgressionFooter()}if(typeof syncNextButtonState==='function')syncNextButtonState();persistNow();
+  document.getElementById('stageKicker').textContent='Fase '+currentVisualNumber+' de '+totalVisiblePhases;document.getElementById('stageTitle').textContent=title;document.getElementById('stageDescription').textContent=description;document.getElementById('stageRoot').innerHTML=renders[safeStep-1]();document.getElementById('previousButton').disabled=safeStep===1;document.getElementById('nextButton').textContent=isLastVisible?'Finalizar ficha':'Avançar →';document.getElementById('footerMessage').textContent=validationMessage(safeStep,true);document.getElementById('footerMessage').hidden=true;const expBtn=document.getElementById('exportButton');if(expBtn)expBtn.hidden=true;document.getElementById('redoInitialItemsButton').hidden=true;const redoSpell=document.getElementById('redoSpellChoicesButton');if(redoSpell)redoSpell.hidden=safeStep!==7 || Boolean(state.isLevelingUp);document.getElementById('reviewProgressionButton').hidden=true;document.body?.classList.toggle('spell-stage',safeStep===7);document.body?.classList.remove('character-sheet-ready');document.body?.classList.toggle('is-editing-mode', Boolean(state.isEditingFinishedSheet));const pNavEl=document.getElementById('phaseNav');if(pNavEl){pNavEl.hidden=false;pNavEl.style.removeProperty('display');pNavEl.style.display='';}const footerEl=document.querySelector('.stage-footer') as HTMLElement;if(footerEl){footerEl.hidden=false;footerEl.style.removeProperty('display');footerEl.style.display='';}renderNav();applyCompletedChoiceAppearance();if(safeStep===5)bindDeityPowerSearch();if(safeStep===6)bindPowerSearch();if(safeStep===7){mountGrimoire();updateSpellOptionsToggle()}if(typeof syncTeurgistFooterButton==='function')syncTeurgistFooterButton();if(safeStep===10){syncSamuraiKatanaToBackpack();syncProgressionFooter()}if(typeof syncNextButtonState==='function')syncNextButtonState();persistNow();
 }
 
 function renderInventoryStage(){
@@ -47,19 +47,19 @@ function renderInventoryStage(){
 
 function renderSheetStage(navigationOnly=false){
   try{
-    if(!state.editingCharacter && !state.isLevelingUp && (state.finished||(Array.isArray(state.completed)&&state.completed.includes(10)))){
+    if(!state.editingCharacter && !state.isLevelingUp && !state.isEditingFinishedSheet && (state.finished||(Array.isArray(state.completed)&&state.completed.includes(10)))){
       state.finished=true;
       state.step=10;
       state.sheetView=state.sheetView||'sheet';
     }
-    if(!state.finished){
+    if(!state.finished || state.isEditingFinishedSheet){
       if(state.sheetView==='grimoire'||state.sheetView==='shop'||state.sheetView==='tavern'||state.sheetView==='workshop'){
         document.body?.classList.remove('character-sheet-ready');
         document.body?.classList.toggle('spell-stage',state.sheetView==='grimoire');
         document.body?.classList.toggle('arsenal-stage',state.sheetView==='shop'||state.sheetView==='workshop');
         document.body?.classList.toggle('tavern-stage',state.sheetView==='tavern');
-        const pNav=document.getElementById('phaseNav');if(pNav)pNav.hidden=true;
-        const footer=document.querySelector('.stage-footer');if(footer)footer.hidden=true;
+        const pNav=document.getElementById('phaseNav');if(pNav){pNav.hidden=true;pNav.style.display='none';}
+        const footer=document.querySelector('.stage-footer') as HTMLElement;if(footer){footer.hidden=true;footer.style.display='none';}
         let kickerText = 'Consulta Geral';
         let titleText = 'Loja';
         if(state.sheetView==='grimoire'){
@@ -92,8 +92,19 @@ function renderSheetStage(navigationOnly=false){
         return;
       }
       document.body?.classList.remove('character-sheet-ready');
-      const pNav=document.getElementById('phaseNav');if(pNav)pNav.hidden=false;
-      const footer=document.querySelector('.stage-footer');if(footer)footer.hidden=false;
+      document.body?.classList.toggle('is-editing-mode', Boolean(state.isEditingFinishedSheet));
+      const pNav=document.getElementById('phaseNav');
+      if(pNav){
+        pNav.hidden=false;
+        pNav.style.removeProperty('display');
+        pNav.style.display='';
+      }
+      const footer=document.querySelector('.stage-footer') as HTMLElement;
+      if(footer){
+        footer.hidden=false;
+        footer.style.removeProperty('display');
+        footer.style.display='';
+      }
       const resetBtn=document.getElementById('resetButton');
       if(resetBtn){
         const isBlank = state.step === 1 && !state.isEditingFinishedSheet && (!state.identity?.characterName || !state.identity.characterName.trim()) && (!state.completed || state.completed.length === 0);
@@ -106,6 +117,7 @@ function renderSheetStage(navigationOnly=false){
     state.step=10;
     state.sheetView=state.sheetView||'sheet';
     document.body?.classList.add('character-sheet-ready');
+    document.body?.classList.remove('is-editing-mode');
     document.body?.classList.toggle('spell-stage',state.sheetView==='grimoire');
     document.body?.classList.toggle('arsenal-stage',state.sheetView==='shop'||state.sheetView==='workshop');
     document.body?.classList.toggle('tavern-stage',state.sheetView==='tavern');

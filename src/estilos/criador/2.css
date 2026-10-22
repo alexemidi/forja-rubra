@@ -67,9 +67,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .familiar-choice-card span{font-size:.78rem;line-height:1.4}
 
 /* Quando a ficha do herói está pronta ou finalizada, ocultar navegação de etapas e o heading redundante */
-.character-sheet-ready .phase-nav,
-.character-sheet-ready #phaseNav,
-.character-sheet-ready .stage-heading,
+body.character-sheet-ready:not(.is-editing-mode) .phase-nav,
+body.character-sheet-ready:not(.is-editing-mode) #phaseNav,
+body.character-sheet-ready:not(.is-editing-mode) .stage-heading,
 .spell-stage .stage-heading,
 body.spell-stage .stage-heading,
 .phase-nav[hidden],

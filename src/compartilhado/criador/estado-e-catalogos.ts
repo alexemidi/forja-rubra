@@ -82,6 +82,23 @@ function loadState(){
         characterStorage.salvar(STORAGE_KEY,fresh);
         return fresh;
       }
+      if(params.get('editar')==='true'){
+        if(window.history?.replaceState){
+          const cleanUrl=window.location.pathname+(window.location.hash||'');
+          window.history.replaceState(null,'',cleanUrl);
+        }
+        const loaded=migratePersistedState(characterStorage.ler(STORAGE_KEY,defaultState));
+        if(urlTableRules){
+          applyTableRulesToState(loaded, urlTableRules);
+        }
+        loaded.isEditingFinishedSheet=true;
+        loaded.finished=false;
+        loaded.step=1;
+        loaded.sheetView='';
+        loaded.completed=(loaded.completed||[]).filter(s=>s<9);
+        characterStorage.salvar(STORAGE_KEY,loaded);
+        return loaded;
+      }
       const charId=params.get('id');
       if(charId){
         if(window.history?.replaceState){
@@ -102,7 +119,12 @@ function loadState(){
       applyTableRulesToState(loaded, urlTableRules);
       characterStorage.salvar(STORAGE_KEY, loaded);
     }
-    if (loaded && loaded.finished) {
+    if (loaded && loaded.isEditingFinishedSheet) {
+      loaded.finished = false;
+      loaded.sheetView = '';
+      if (!loaded.step || loaded.step > 9) loaded.step = 1;
+      loaded.completed = (loaded.completed || []).filter(s => s < 9);
+    } else if (loaded && loaded.finished) {
       const urlHasView = typeof window !== 'undefined' && window.location?.search && new URLSearchParams(window.location.search).has('view');
       if (!urlHasView) {
         loaded.sheetView = 'sheet';

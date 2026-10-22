@@ -557,9 +557,9 @@ function chooseCandidate(item){
     restoreCandidate();
     return;
   }
-  executeChooseCandidate(item, improvements);
+  executeChooseCandidate(item, improvements, true);
 }
-function executeChooseCandidate(item, improvements = []){
+function executeChooseCandidate(item, improvements = [], isExplicitClick = false){
   let options=resolveDefaultItemOptions(item.id,catalogOptionsForItem(item));
   if(item.id==='katana'&&effectiveInitialChoice()?.isSamuraiKatana){
     options={...options,customName:'Katana Ancestral'};
@@ -585,6 +585,11 @@ function executeChooseCandidate(item, improvements = []){
   let lastPromptedItemChoiceId: string | null = (window as any).__lastPromptedItemChoiceId || null;
   const nameRequired=item.id!=='colecao_de_livros'&&Boolean(ITEM_CHOICE_DEFINITIONS[item.id]?.fields.some(field=>field.id==='customName'));
   if(nameRequired&&!String(options.customName||'').trim()){
+    if(!isExplicitClick){
+      selectedCandidate=null;
+      restoreCandidate();postArsenal('candidate',{itemId:null});
+      return;
+    }
     const card=[...itemsGrid.querySelectorAll('[data-item-id]')].find(card=>card.dataset.itemId===item.id);
     const input=card?.querySelector('[data-item-option="customName"]') as HTMLInputElement;
     if(lastPromptedItemChoiceId === item.id){
@@ -628,6 +633,11 @@ function executeChooseCandidate(item, improvements = []){
     }
   }
   if(item.id==='colecao_de_livros'&&!String(options.knowledge||'').trim()){
+    if(!isExplicitClick){
+      selectedCandidate=null;
+      restoreCandidate();postArsenal('candidate',{itemId:null});
+      return;
+    }
     const card=[...itemsGrid.querySelectorAll('[data-item-id]')].find(card=>card.dataset.itemId===item.id);
     const sel=card?.querySelector('[data-item-option="knowledge"]') as HTMLSelectElement;
     if(lastPromptedItemChoiceId === item.id){

@@ -209,11 +209,38 @@ document.addEventListener('click',async event=>{
       }
     }
     else if(action==='edit'){
+      saveFinishedCharacter();
+      state.editingCharacter={originalId:characterIdentifier(),originalName:state.identity?.characterName||'Personagem'};
+      state.isEditingFinishedSheet=true;
+      state.finished=false;
+      state.completed=(state.completed||[]).filter(s=>s<9);
+      state.step=1;
+      state.sheetView='';
+      state.progressionActiveIndex=-1;
+      if(state.identity) state.identity.editingLevel=1;
+      persistNow();
       if(typeof window!=='undefined'&&window.location?.pathname&&window.location.pathname.endsWith('ficha.html')){
-        window.location.href='criador.html';
+        window.location.href='criador.html?editar=true';
         return;
       }
-      saveFinishedCharacter();state.editingCharacter={originalId:characterIdentifier(),originalName:state.identity.characterName||'Personagem'};state.isEditingFinishedSheet=true;state.finished=false;state.completed=(state.completed||[]).filter(s=>s<9);state.step=1;state.sheetView='';state.progressionActiveIndex=-1;state.identity.editingLevel=1;const resetBtn=document.getElementById('resetButton');if(resetBtn)resetBtn.hidden=false;persistNow();renderStage();window.scrollTo({top:0,behavior:'smooth'});toast('Modo de edição ativo. Navegue pelas fases e finalize novamente para salvar as alterações.')
+      document.body?.classList.remove('character-sheet-ready');
+      document.body?.classList.add('is-editing-mode');
+      const pNav = document.getElementById('phaseNav');
+      if (pNav) {
+        pNav.hidden = false;
+        pNav.style.removeProperty('display');
+        pNav.style.display = '';
+      }
+      const footer = document.querySelector('.stage-footer') as HTMLElement;
+      if (footer) {
+        footer.hidden = false;
+        footer.style.removeProperty('display');
+        footer.style.display = '';
+      }
+      const resetBtn=document.getElementById('resetButton');if(resetBtn)resetBtn.hidden=false;
+      renderStage();
+      window.scrollTo({top:0,behavior:'smooth'});
+      toast('Modo de edição ativo. Navegue pelas fases e finalize novamente para salvar as alterações.');
     }
     else if(action==='new'){
       if(typeof window!=='undefined'&&window.location?.pathname&&window.location.pathname.endsWith('ficha.html')){
