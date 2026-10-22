@@ -401,6 +401,18 @@ document.getElementById('searchInput').addEventListener('input', e => {
 viewTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
     if (tab.dataset.view === 'condicoes') {
+      if (window.parent && window.parent !== window) {
+        try {
+          if (typeof (window.parent as any).ForjaCondicoes?.abrirModal === 'function') {
+            (window.parent as any).ForjaCondicoes.abrirModal();
+            return;
+          }
+        } catch (_) {}
+        try {
+          window.parent.postMessage({ channel: 'forja-t20-grimoire-v1', type: 'open-conditions' }, '*');
+          return;
+        } catch (_) {}
+      }
       const abrir = (window as any).ForjaCondicoes?.abrirModal;
       if (typeof abrir === 'function') {
         abrir();

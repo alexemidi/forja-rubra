@@ -277,8 +277,9 @@ function renderStandaloneWorkshopChrome() {
       topbar.innerHTML = `
         <div style="flex:1;display:flex;align-items:center;"></div>
         <div style="display:flex;align-items:center;justify-content:center;position:absolute;left:50%;transform:translateX(-50%);">
-          <a href="index.html" class="topbar-unified-brand" title="Voltar ao Menu Principal" style="text-decoration:none;display:inline-flex;align-items:center;">
-            <h1 style="margin:0;color:#d4af37;font-family:'Cinzel',serif;font-size:1.18rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;line-height:1;">Forja Rubra</h1>
+          <a href="index.html" class="topbar-unified-brand" title="Voltar ao Menu Principal" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+            <img src="assets/favicon.svg" alt="" width="28" height="28" style="vertical-align:middle;flex-shrink:0;">
+            <h1 style="margin:0;color:#d4af37;font-family:'Tormenta','Cinzel',serif;font-size:1.15rem;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;line-height:1;">Forja Rubra</h1>
           </a>
         </div>
         <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;">

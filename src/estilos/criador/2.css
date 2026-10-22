@@ -69,7 +69,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* Quando a ficha do herói está pronta ou finalizada, ocultar navegação de etapas e o heading redundante */
 .character-sheet-ready .phase-nav,
 .character-sheet-ready #phaseNav,
-.character-sheet-ready:not(.spell-stage):not(.tavern-stage):not(.arsenal-stage) .stage-heading,
+.character-sheet-ready .stage-heading,
+.spell-stage .stage-heading,
+body.spell-stage .stage-heading,
 .phase-nav[hidden],
 #phaseNav[hidden] {
   display: none !important;

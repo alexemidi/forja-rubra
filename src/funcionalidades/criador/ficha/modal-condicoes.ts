@@ -154,13 +154,15 @@
       const rel = encontrarCondicao(catalog, nomeRel);
       return `<p class="cond-card-ref"><strong>${rel ? rel.nome : nomeRel}:</strong> ${rel ? rel.descricao : ''}</p>`;
     }).join('');
+    const paths = (c) => iconeCondicao(c.id || c);
+    const subEffectsHtml = efeitos ? `<div class="condition-sub-effects"><div class="cond-card-subtitle">Efeitos imediatos</div>${efeitos}</div>` : '';
     return `
       <div class="condition-detail-head" style="--condition-color:${cor}">
-        <svg class="condition-detail-icon" viewBox="0 0 24 24" aria-hidden="true">${iconeCondicao(cond.id)}</svg>
+        <svg class="condition-detail-icon" viewBox="0 0 24 24" aria-hidden="true">${paths(cond)}</svg>
         <strong class="condition-detail-name">${cond.nome}</strong>
       </div>
       <p class="condition-detail-text">${cond.descricao}</p>
-      ${efeitos ? `<div class="condition-sub-effects"><div class="cond-card-subtitle">Efeitos imediatos</div>${efeitos}</div>` : ''}
+      ${subEffectsHtml}
       <button type="button" class="condition-toggle-btn ${isActive ? 'is-active' : ''}" data-toggle-condition="${cond.nome}">${isActive ? 'Remover' : 'Adicionar'}</button>
     `;
   }
@@ -182,7 +184,7 @@
     if (!filtered.some((c) => c.id === selectedConditionId)) {
       selectedConditionId = filtered[0]?.id || null;
     }
-    const selected = catalog.find((c) => c.id === selectedConditionId) || null;
+    const selected = filtered.find((c) => c.id === selectedConditionId) || catalog.find((c) => c.id === selectedConditionId) || null;
 
     const grid = filtered.length
       ? filtered.map((cond) => {
@@ -214,7 +216,7 @@
           <div style="display:flex;align-items:center;gap:8px;">
             <h3 class="conditions-modal-title" id="conditionsModalTitle">Condições & Efeitos de Combate</h3>
           </div>
-          <button class="button" id="conditionsCloseXBtn" type="button" data-condition-close style="padding:4px 10px;font-size:1.1rem;line-height:1;min-height:28px;height:28px;width:auto;" title="Fechar">×</button>
+          <button class="conditions-modal-close" id="conditionsCloseXBtn" type="button" data-condition-close title="Fechar">✕</button>
         </header>
 
         <div class="conditions-search-bar">
@@ -232,10 +234,6 @@
         <div class="conditions-list-wrap" id="forjaConditionsList">
           <!-- Inserido dinamicamente -->
         </div>
-
-        <footer class="conditions-modal-footer" style="display:flex;justify-content:flex-end;gap:10px;padding:10px 20px;border-top:1px solid #3b181f;background:#170d10;">
-          <button type="button" class="button" data-condition-close style="min-width:88px;padding:6px 16px;">Fechar</button>
-        </footer>
       </section>
     `;
 
@@ -298,9 +296,22 @@
   }
 
   function abrirModalCondicoes() {
+    if (window.parent && window.parent !== window) {
+      try {
+        if (typeof (window.parent as any).ForjaCondicoes?.abrirModal === 'function') {
+          (window.parent as any).ForjaCondicoes.abrirModal();
+          return;
+        }
+      } catch (_) {}
+      try {
+        window.parent.postMessage({ channel: 'forja-t20-grimoire-v1', type: 'open-conditions' }, '*');
+        return;
+      } catch (_) {}
+    }
+
     const backdrop = ensureConditionsModal();
     currentSearch = '';
-    const searchInput = backdrop.querySelector('#conditionsSearchInput');
+    const searchInput = backdrop.querySelector('#conditionsSearchInput') as HTMLInputElement | null;
     if (searchInput) searchInput.value = '';
     renderListaCondicoesModal();
     backdrop.hidden = false;

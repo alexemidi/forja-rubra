@@ -76,6 +76,12 @@ function renderSheetStage(navigationOnly=false){
           kickerText = state.workshopReadOnly ? 'Consulta Geral de Ofício' : 'Manufatura de Ofício (T20)';
           titleText = `${sec.title}`;
         }
+        const stageHeading = document.querySelector('.stage-heading') as HTMLElement;
+        if(stageHeading){
+          const hideHeading = state.sheetView === 'grimoire';
+          stageHeading.style.display = hideHeading ? 'none' : '';
+          stageHeading.hidden = hideHeading;
+        }
         document.getElementById('stageKicker').textContent=kickerText;
         document.getElementById('stageTitle').textContent=titleText;
         document.getElementById('stageDescription').textContent='';
@@ -115,9 +121,10 @@ function renderSheetStage(navigationOnly=false){
     }
     const stageHeading=document.querySelector('.stage-heading') as HTMLElement;
     const isSheetMain = state.sheetView==='sheet' || !state.sheetView;
+    const hideHeading = isSheetMain || state.sheetView==='grimoire';
     if(stageHeading){
-      stageHeading.style.display = isSheetMain ? 'none' : '';
-      stageHeading.hidden = isSheetMain;
+      stageHeading.style.display = hideHeading ? 'none' : '';
+      stageHeading.hidden = hideHeading;
     }
     let kickerText = 'Herói Forjado';
     let titleText = state.identity.characterName||'Personagem';

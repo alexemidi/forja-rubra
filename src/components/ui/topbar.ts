@@ -8,10 +8,29 @@ export function sincronizarCabecalho(
 ): void {
   const header = document.querySelector('.app-header,#forjaUnifiedTopbar');
   const menu = header?.querySelector('#drawerMenuBtn');
+  const brand = header?.querySelector('.brand,.topbar-unified-brand');
   const label = header?.querySelector('.brand h1,.topbar-unified-brand h1');
   if (!header || !menu || !label) return;
 
   label.textContent = titulo;
+
+  // Garante a logo à esquerda do título na topbar
+  if (brand) {
+    if (!brand.querySelector('img')) {
+      const img = document.createElement('img');
+      img.src = 'assets/favicon.svg';
+      img.alt = '';
+      img.width = 28;
+      img.height = 28;
+      img.style.cssText = 'width:28px;height:28px;vertical-align:middle;flex-shrink:0;';
+      brand.prepend(img);
+    }
+    (brand as HTMLElement).style.display = 'inline-flex';
+    (brand as HTMLElement).style.flexDirection = 'row';
+    (brand as HTMLElement).style.alignItems = 'center';
+    (brand as HTMLElement).style.gap = '10px';
+  }
+  (label as HTMLElement).style.fontFamily = "'Tormenta', 'Cinzel', Georgia, serif";
 
   // Garante que não haja duplicatas
   const allBackButtons = Array.from(header.querySelectorAll<HTMLButtonElement>('[data-header-back], .forja-topbar-back-btn, #topbarBackBtn'));

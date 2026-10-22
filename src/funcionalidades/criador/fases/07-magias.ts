@@ -199,6 +199,10 @@ function toggleSpellBook(id){if(!SPELL_BOOK_IDS.includes(id))return false;if(spe
 window.addEventListener('message',async event=>{
   const frame=document.getElementById('spellGrimoire'),message=event.data;
   if((state.step!==7&&state.sheetView!=='grimoire')||!frame?.contentWindow||event.source!==frame.contentWindow||message?.channel!=='forja-t20-grimoire-v1')return;
+  if(message.type==='open-conditions'){
+    (window as any).ForjaCondicoes?.abrirModal?.();
+    return;
+  }
   if(message.type==='section'){
     spellCatalogUI.section=message.section;
     document.getElementById('spellCatalogTitle').textContent=spellCatalogTitle();
@@ -331,7 +335,15 @@ document.addEventListener('click',async event=>{
   }
   if(action==='spell-view'){endSchoolReview();saved.view=button.dataset.view;spellCatalogUI.section='magias';refreshSpellStage()}
   if(action==='spell-book'&&toggleSpellBook(button.dataset.book)){syncSpellControls();syncGrimoire()}
-  if(action==='spell-section'&&['magias','condicoes'].includes(button.dataset.section)){spellCatalogUI.section=button.dataset.section;syncSpellControls();syncGrimoire()}
+  if(action==='spell-section'&&['magias','condicoes'].includes(button.dataset.section)){
+    if(button.dataset.section==='condicoes'){
+      (window as any).ForjaCondicoes?.abrirModal?.();
+      return;
+    }
+    spellCatalogUI.section=button.dataset.section;
+    syncSpellControls();
+    syncGrimoire();
+  }
   if(action==='spell-remove'&&chooseCharacterSpell(button.dataset.group,button.dataset.spell))refreshSpellStage();
   if(action==='spell-school'){
     if(chooseSpellSchool(button.dataset.classId,button.dataset.school))refreshSpellStage();
