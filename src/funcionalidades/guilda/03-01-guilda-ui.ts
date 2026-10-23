@@ -197,7 +197,10 @@ function renderGuildContent() {
 
       const isVeterano = m.tier === 'veterano';
       const isAdventure = st.durationMode === 'aventura';
-      const unitPrice = isAdventure ? (isVeterano ? 450 : 90) : (isVeterano ? 150 : 30);
+      let unitPrice = isAdventure ? (isVeterano ? 450 : 90) : (isVeterano ? 150 : 30);
+      if (guildState.hasComerciante) {
+        unitPrice = Math.max(0, Math.ceil(unitPrice * 0.9));
+      }
       const canAfford = guildState.funds >= unitPrice;
       const reqWarFailed = Boolean(m.requiresWar && !hasWar);
 
@@ -300,7 +303,8 @@ function renderGuildContent() {
         (p.type === m.id || p.tipo === m.id || p.name === m.nome)
       );
 
-      const canAfford = guildState.funds >= m.preco;
+      const mountPrice = guildState.hasComerciante ? Math.max(0, Math.ceil(m.preco * 0.9)) : m.preco;
+      const canAfford = guildState.funds >= mountPrice;
       const canSelectVet = lvl >= 5;
       const canSelectMestre = lvl >= 17;
       const limitReached = counts.normalCount >= counts.limit.maxPartners;
@@ -320,11 +324,11 @@ function renderGuildContent() {
       } else if (selectedTier !== 'iniciante') {
         buyBtn = `<button class="btn btn-secondary" type="button" disabled title="Pelas regras de Tormenta 20, não é possível comprar montarias acima do nível iniciante. Níveis superiores são obtidos por treino de parceiro ou habilidades de classe.">Apenas Iniciante à Venda</button>`;
       } else if (!canAfford) {
-        buyBtn = `<button class="btn btn-primary" type="button" disabled title="Saldo insuficiente (T$ ${guildState.funds} de T$ ${m.preco})">Comprar (${formatGuildPrice(m.preco)})</button>`;
+        buyBtn = `<button class="btn btn-primary" type="button" disabled title="Saldo insuficiente (T$ ${guildState.funds} de T$ ${mountPrice})">Comprar (${formatGuildPrice(mountPrice)})</button>`;
       } else if (limitReached) {
         buyBtn = `<button class="btn btn-primary" type="button" disabled title="Limite de parceiros atingido">Limite Atingido</button>`;
       } else {
-        buyBtn = `<button class="btn btn-primary" type="button" data-action="buy-mount" data-mount-id="${m.id}" title="Comprar montaria iniciante por ${formatGuildPrice(m.preco)}">Comprar (${formatGuildPrice(m.preco)})</button>`;
+        buyBtn = `<button class="btn btn-primary" type="button" data-action="buy-mount" data-mount-id="${m.id}" title="Comprar montaria iniciante por ${formatGuildPrice(mountPrice)}">Comprar (${formatGuildPrice(mountPrice)})</button>`;
       }
 
       return `
@@ -333,7 +337,7 @@ function renderGuildContent() {
             <div class="card-header-line">
               <span class="card-badge badge-${selectedTier}">${selectedTier} · ${selectedSize}</span>
               <div class="card-price-tag">
-                <span class="card-price-value">${selectedTier === 'iniciante' ? formatGuildPrice(m.preco) : '—'}</span>
+                <span class="card-price-value">${selectedTier === 'iniciante' ? formatGuildPrice(mountPrice) : '—'}</span>
                 <span class="card-price-period">${selectedTier === 'iniciante' ? 'ou grátis em campanha' : 'apenas campanha / treino'}</span>
               </div>
             </div>
@@ -417,8 +421,9 @@ function handleBuyMount(mountId) {
     return;
   }
 
-  if (guildState.funds < m.preco) {
-    showGuildToast(`Saldo insuficiente! Custo T$ ${m.preco}, seu saldo: T$ ${guildState.funds}.`);
+  const mountPrice = guildState.hasComerciante ? Math.max(0, Math.ceil(m.preco * 0.9)) : m.preco;
+  if (guildState.funds < mountPrice) {
+    showGuildToast(`Saldo insuficiente! Custo T$ ${mountPrice}, seu saldo: T$ ${guildState.funds}.`);
     return;
   }
 
@@ -429,7 +434,7 @@ function handleBuyMount(mountId) {
   }
   const selectedSize = st.size || (m.tamanhos && m.tamanhos[0]) || 'Grande';
 
-  guildState.funds -= m.preco;
+  guildState.funds -= mountPrice;
 
   const mountEntry = {
     name: m.nome,
@@ -587,7 +592,10 @@ function handleHireMercenary(mercId) {
   const st = guildState.mercenaryChoices[m.id] || { durationMode: 'cena', choice: null };
   const isVeterano = m.tier === 'veterano';
   const isAdventure = st.durationMode === 'aventura';
-  const unitPrice = isAdventure ? (isVeterano ? 450 : 90) : (isVeterano ? 150 : 30);
+  let unitPrice = isAdventure ? (isVeterano ? 450 : 90) : (isVeterano ? 150 : 30);
+  if (guildState.hasComerciante) {
+    unitPrice = Math.max(0, Math.ceil(unitPrice * 0.9));
+  }
 
   if (guildState.funds < unitPrice) {
     showGuildToast(`Saldo insuficiente! Custo T$ ${unitPrice}, seu saldo: T$ ${guildState.funds}.`);

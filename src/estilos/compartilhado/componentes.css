@@ -364,3 +364,354 @@ summary:focus-visible {
   font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
 }
 
+/* ==========================================================================
+   Painel Unificado de Melhorias e Encantos (Loja, Oficina e Mochila)
+   ========================================================================== */
+.modal-panel.purchase-upgrade-panel,
+.purchase-upgrade-panel {
+  width: min(1480px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  height: min(940px, calc(100vh - 20px), calc(100dvh - 20px)) !important;
+  min-height: min(720px, calc(100vh - 20px)) !important;
+  max-height: calc(100vh - 16px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--panel, #110d0f) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95) !important;
+  box-sizing: border-box !important;
+  margin: auto 0 !important;
+  color: var(--cream, #f5eee6) !important;
+}
+
+.purchase-upgrade-panel .modal-header {
+  flex: 0 0 auto !important;
+  padding: 12px 20px !important;
+  border-bottom: 1px solid var(--line, #4a252a) !important;
+  background: var(--panel2, #181114) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.purchase-upgrade-panel .modal-header h2 {
+  margin: 0 !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--gold2, #f5c879) !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+.purchase-upgrade-panel .modal-close {
+  background: rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  color: var(--muted, #c9b2aa) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 1.15rem !important;
+  line-height: 1 !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+}
+
+.purchase-upgrade-panel .modal-close:hover {
+  border-color: var(--gold, #e9ad59) !important;
+  color: var(--gold2, #f5c879) !important;
+  background: rgba(233, 173, 89, 0.15) !important;
+}
+
+.purchase-upgrade-panel .modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  padding: 14px 18px !important;
+  box-sizing: border-box !important;
+}
+
+.purchase-upgrade-panel .modal-actions {
+  flex: 0 0 auto !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid var(--line, #4a252a) !important;
+  background: var(--panel, #110d0f) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 12px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+.purchase-improvements-layout {
+  display: flex !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.improvements-config-main {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow-y: auto !important;
+  max-height: 100% !important;
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.improvements-sidebar {
+  width: 440px !important;
+  flex: 0 0 440px !important;
+  max-width: 46% !important;
+  background: var(--bg2, #100b0d) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.improvements-sidebar .sidebar-header {
+  flex: 0 0 auto !important;
+  margin-bottom: 8px !important;
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.improvements-sidebar .sidebar-header h3 {
+  margin: 0 !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.88rem !important;
+  color: var(--gold2, #f5c879) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.improvements-sidebar .sidebar-search-input {
+  width: 100% !important;
+  min-height: 36px !important;
+  padding: 6px 12px !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  background: var(--panel2, #181114) !important;
+  color: var(--cream, #f5eee6) !important;
+  font-size: 0.80rem !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.improvements-sidebar .sidebar-search-input:focus {
+  border-color: var(--gold, #e9ad59) !important;
+}
+
+.improvements-sidebar .sidebar-list {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding-right: 6px !important;
+  box-sizing: border-box !important;
+}
+
+.upgrade-slot-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  background: var(--panel2, #181114) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.upgrade-slot-card.filled {
+  border-color: var(--gold, #e9ad59) !important;
+  background: rgba(233, 173, 89, 0.08) !important;
+}
+
+.upgrade-slot-card .slot-badge {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: var(--gold2, #f5c879) !important;
+  min-width: 80px !important;
+}
+
+.upgrade-slot-card .slot-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.upgrade-slot-card .slot-info strong {
+  font-size: 0.86rem !important;
+  color: var(--cream, #f5eee6) !important;
+}
+
+.upgrade-slot-card .slot-info small {
+  color: var(--muted, #c9b2aa) !important;
+  font-size: 0.72rem !important;
+  line-height: 1.3 !important;
+}
+
+.upgrade-slot-card .slot-remove-btn {
+  background: rgba(197, 31, 44, 0.15) !important;
+  border: 1px solid rgba(197, 31, 44, 0.45) !important;
+  color: #f87171 !important;
+  border-radius: 4px !important;
+  padding: 3px 9px !important;
+  cursor: pointer !important;
+  font-size: 0.78rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.upgrade-slot-card .slot-remove-btn:hover {
+  background: var(--red, #c51f2c) !important;
+  color: #ffffff !important;
+}
+
+.material-choice-card {
+  padding: 12px 14px !important;
+  background: var(--panel, #110d0f) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.material-choice-card:hover {
+  border-color: var(--gold, #e9ad59) !important;
+  background: var(--panel2, #181114) !important;
+}
+
+.material-choice-card.selected {
+  border-color: var(--gold2, #f5c879) !important;
+  background: rgba(233, 173, 89, 0.12) !important;
+  box-shadow: 0 0 0 1px var(--gold, #e9ad59) !important;
+}
+
+.sidebar-improvement-item {
+  padding: 10px 14px !important;
+  background: var(--panel2, #181114) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.sidebar-improvement-item.is-active {
+  border-color: var(--gold, #e9ad59) !important;
+  background: rgba(233, 173, 89, 0.08) !important;
+}
+
+.sidebar-improvement-item.is-blocked {
+  opacity: 0.55 !important;
+  background: var(--bg, #090708) !important;
+}
+
+.sidebar-improvement-item .tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  background: var(--panel, #110d0f) !important;
+  color: var(--gold2, #f5c879) !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-improvement-item .tag.red {
+  border-color: rgba(197, 31, 44, 0.5) !important;
+  color: #fca5a5 !important;
+}
+
+.sidebar-improvement-item .button.small.primary {
+  border: 1px solid var(--gold, #e9ad59) !important;
+  border-radius: 5px !important;
+  background: rgba(233, 173, 89, 0.12) !important;
+  color: var(--gold2, #f5c879) !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  padding: 3px 10px !important;
+  font-size: 0.74rem !important;
+}
+
+.sidebar-improvement-item .button.small.primary:hover:not(:disabled) {
+  background: var(--gold, #e9ad59) !important;
+  color: #110d0f !important;
+}
+
+.sidebar-improvement-item .button.small.danger {
+  border: 1px solid rgba(197, 31, 44, 0.6) !important;
+  border-radius: 5px !important;
+  background: rgba(197, 31, 44, 0.16) !important;
+  color: #fca5a5 !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  padding: 3px 10px !important;
+  font-size: 0.74rem !important;
+}
+
+.purchase-upgrade-panel .secondary-button {
+  background: transparent !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  color: var(--muted, #c9b2aa) !important;
+  padding: 8px 18px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.purchase-upgrade-panel .secondary-button:hover {
+  border-color: var(--gold, #e9ad59) !important;
+  color: var(--cream, #f5eee6) !important;
+  background: rgba(233, 173, 89, 0.08) !important;
+}
+
+.purchase-upgrade-panel .primary-button {
+  background: linear-gradient(135deg, var(--red, #c51f2c), #991b1b) !important;
+  border: 1px solid var(--gold, #e9ad59) !important;
+  border-radius: 6px !important;
+  color: var(--gold2, #f5c879) !important;
+  padding: 8px 20px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.purchase-upgrade-panel .primary-button:hover:not(:disabled) {
+  box-shadow: 0 0 12px rgba(233, 173, 89, 0.35) !important;
+}
+
+.purchase-upgrade-panel .primary-button:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(1) !important;
+}
+
+

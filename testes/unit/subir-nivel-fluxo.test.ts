@@ -18,9 +18,8 @@ test('Subir de nível - Validação dos fluxos, ocultação de comprar itens e r
   // 2. Banner de Fabricar Item Superior do Inventor foi removido da tela de progressão
   assert.ok(!progCode.includes('go-to-inventor-grant'), 'Banner antigo de Fabricar Item Superior com botão go-to-inventor-grant não deve ser renderizado na tela de progressão');
 
-  // 3. buyMoreBtn aparece exclusivamente na criação do personagem
-  assert.ok(lojaCode.includes('const canShowBuyMore = !state.isLevelingUp && !state.editingCharacter && !state.isEditingFinishedSheet;'), 'Comprar itens deve ser restrito exclusivamente à criação inicial de personagem');
-  assert.ok(lojaCode.includes('buyMoreBtn.hidden = arsenalShopOpen || !canShowBuyMore;'), 'buyMoreBtn deve ficar oculto em subida de nível ou edição');
+  // 3. buyMoreBtn removido da criação de personagem conforme solicitação do usuário
+  assert.ok(!lojaCode.includes("buyMoreBtn.textContent = 'Comprar itens'"), 'Botão Comprar itens não deve existir na criação de personagem');
 
   // 4. getNextLevelUpPendingPhase implementada e respeitando a ordem canônica
   assert.ok(navValCode.includes('function getNextLevelUpPendingPhase()'), 'getNextLevelUpPendingPhase deve existir');

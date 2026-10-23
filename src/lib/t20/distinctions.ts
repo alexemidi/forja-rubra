@@ -53,6 +53,7 @@ export function efeitosMarcas(
     guardiao_da_realidade: { fortitude: 5, reflexos: 5, vontade: 5 },
     forjador_liturgico: { 'oficio:armeiro': 2 },
     chapeu_preto: { intimidacao: 2, adestramento: -2, atuacao: -2, diplomacia: -2 },
+    menestrel_maldito: { atuacao: 1 },
   };
 
   for (const [id, values] of Object.entries(bonuses)) {

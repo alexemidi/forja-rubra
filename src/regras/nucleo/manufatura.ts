@@ -146,10 +146,69 @@ const RegrasManufatura = (() => {
       title: 'Oficina do Artesão',
       oficioNome: 'Ofício (Artesão)',
       icon: 'tools',
-      description: 'Equipamentos gerais de aventura, ferramentas, instrumentos, esotéricos e itens utilitários.',
-      corresponde: (item) => {
-        const cat = String(item.tipo || item.categoriaId || '').toLowerCase();
-        return cat.includes('aventura') || cat.includes('ferramenta') || cat.includes('instrumento') || cat.includes('esoterico') || cat.includes('esotérico') || cat.includes('geral');
+      description: 'Equipamentos gerais de aventura, ferramentas, instrumentos, esotéricos e itens utilitários mundanos.',
+      corresponde: (item, hero) => {
+        // Se possui Artesão Criativo, a oficina do artesão tem acesso pleno a todos os itens de manufatura:
+        if (hero) {
+          try {
+            const list = Array.isArray(hero.powers) ? hero.powers : (Array.isArray(hero.progression) ? hero.progression : []);
+            const hasCreative = list.some((p: any) => {
+              const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+              const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+              return id.includes('artesao_criativo') || nome.includes('artesão criativo') || nome.includes('artesao criativo');
+            });
+            if (hasCreative) return true;
+          } catch {}
+        }
+        if (typeof globalThis !== 'undefined') {
+          try {
+            // @ts-ignore
+            const gHero = (globalThis as any).state || (globalThis as any).__FORJA_HERO__;
+            if (gHero) {
+              const list = Array.isArray(gHero.powers) ? gHero.powers : (Array.isArray(gHero.progression) ? gHero.progression : []);
+              const hasCreative = list.some((p: any) => {
+                const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+                const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+                return id.includes('artesao_criativo') || nome.includes('artesão criativo') || nome.includes('artesao criativo');
+              });
+              if (hasCreative) return true;
+            }
+          } catch {}
+        }
+
+        const tipo = String(item.tipo || '').toLowerCase();
+        const cat = String(item.categoriaId || '').toLowerCase();
+        const nome = String(item.nome || item.name || '').toLowerCase();
+
+        // 1. Exclusões estritas de outros ofícios especializados canônicos:
+        // Aparatos (Engenhoqueiro)
+        if (cat === 'aparato' || cat === 'aparatos' || tipo === 'engenhoca' || item.isEngenhoca || cat.includes('aparato')) return false;
+        // Alquímicos e Venenos (Alquimista)
+        if (tipo === 'alquimico' || cat.startsWith('alquimico') || cat.includes('alquim') || cat.includes('venen')) return false;
+        // Vestuário e Roupas (Alfaiate)
+        if (cat === 'vestuario' || cat === 'vestuário' || cat.includes('vestuario') || cat.includes('vestuário') || nome.includes('traje') || nome.includes('manto') || nome.includes('capa com dragonas') || nome.includes('máscara')) return false;
+        // Alimentação e Bebidas (Cozinheiro)
+        if (cat === 'alimentacao' || cat === 'alimentação' || cat.includes('aliment') || cat.includes('comida') || cat.includes('bebida') || nome.includes('ração') || nome.includes('refeição')) return false;
+        // Armas, Armaduras e Escudos (Armeiro / Carpinteiro)
+        if (tipo === 'arma' || tipo === 'armadura' || tipo === 'escudo' || cat.includes('arma') || cat.includes('armadura') || cat.includes('escudo')) return false;
+        // Pergaminhos e Livros (Escriba)
+        if (cat.includes('pergaminho') || cat.includes('escrita') || nome.includes('pergaminho')) return false;
+        // Joias e Adornos Preciosos (Joalheiro / Ourives)
+        if (cat === 'joia' || cat === 'precioso' || (cat.includes('joia') && !cat.includes('ferramenta'))) return false;
+
+        // 2. Itens pertinentes ao Ofício de Artesão:
+        return cat.includes('aventura') ||
+               cat.includes('ferramenta') ||
+               cat.includes('instrumento') ||
+               cat.includes('esoterico') ||
+               cat.includes('esotérico') ||
+               cat.includes('utilitario') ||
+               cat.includes('utilitário') ||
+               cat === 'item_geral' ||
+               cat === 'geral' ||
+               cat === 'outro' ||
+               tipo === 'item_geral' ||
+               tipo === 'geral';
       }
     },
     carpinteiro: {

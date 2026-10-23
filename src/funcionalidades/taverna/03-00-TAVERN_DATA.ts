@@ -66,7 +66,8 @@ let tavernState = {
   selectedPartnerId: null,
   customChoiceVal: null,
   trainedSkills: [],
-  mercenaryChoices: {}
+  mercenaryChoices: {},
+  tattoosCount: 0
 };
 
 const CANONICAL_PARTNER_ITEMS = [];
@@ -86,8 +87,23 @@ const CANONICAL_POTION_SERVICE = {
   isPotionService: true
 };
 
+const CANONICAL_TATTOO_SERVICE = {
+  id: 'servico_tatuagem_mistica',
+  nome: 'Tatuagem Mística',
+  tavernCategory: 'cuidados',
+  unitPeriod: 'tatuagem',
+  unitLabel: 'Tatuagem',
+  preco: { valor: 1000 },
+  textos: {
+    descricao: 'Aplicação de arte corporal arcana na pele por mestres tatuadores locais. Cada tatuagem mística concede uma magia de 1º círculo à sua escolha. Tatuagens contam como item vestido, ocupando 0 espaços e com preço 0 no inventário.',
+    habilidade: 'Custo progressivo em tibares: 1ª tatuagem T$ 1.000 · 2ª T$ 2.000 · 3ª T$ 3.000 e assim por diante. Ocupa 1 espaço de item vestido, peso e preço zero na mochila.'
+  },
+  isTattooService: true
+};
+
 const tavernItems = [
   CANONICAL_POTION_SERVICE,
+  CANONICAL_TATTOO_SERVICE,
   ...(typeof TAVERN_DATA !== 'undefined' ? TAVERN_DATA : []).map(item => ({
     ...item,
     tavernCategory: assignTavernCategory(item),
@@ -102,6 +118,7 @@ function loadStorage() {
     if (init.funds !== undefined) tavernState.funds = Number(init.funds) || 0;
     if (init.characterName !== undefined) tavernState.characterName = init.characterName;
     if (init.level !== undefined) tavernState.level = Number(init.level) || 1;
+    if (init.tattoosCount !== undefined) tavernState.tattoosCount = Number(init.tattoosCount) || 0;
     if (Array.isArray(init.contracts)) tavernState.contracts = init.contracts;
     return;
   }
@@ -237,6 +254,34 @@ function renderCards() {
       '</article>';
     }
 
+    if (item.isTattooService) {
+      const count = Number(tavernState.tattoosCount || 0);
+      const tattooPrice = (count + 1) * 1000;
+      const priceFormatted = formatPrice(tattooPrice);
+      const tattooOrd = count > 0 ? (count + 1) + 'ª tatuagem' : '1ª tatuagem';
+      const headerLineHtml = '<div class="card-header-line">' +
+        '<span class="card-category-badge">' + cat.icon + ' ' + cat.label + '</span>' +
+        '<div class="card-price-tag">' +
+          '<span class="card-price-value">' + priceFormatted + '</span>' +
+          '<span class="card-price-period">' + tattooOrd + '</span>' +
+        '</div>' +
+      '</div>';
+
+      return '<article class="tavern-card" data-item-id="' + item.id + '">' +
+        '<div class="card-top">' +
+          headerLineHtml +
+          '<h3 class="card-title">' + escapeHtml(item.nome) + '</h3>' +
+        '</div>' +
+        '<div class="card-body-scroll">' +
+          (descText ? '<p>' + escapeHtml(descText) + '</p>' : '') +
+          (benefit ? '<div class="card-benefit-box"><strong>Regra / Custo:</strong> ' + escapeHtml(benefit) + '</div>' : '') +
+        '</div>' +
+        '<div class="card-actions">' +
+          '<button class="btn btn-primary btn-block" type="button" id="btnTavernChooseTattooSpell" data-price="' + tattooPrice + '">Escolher Magia de 1º Círculo</button>' +
+        '</div>' +
+      '</article>';
+    }
+
     const priceFormatted = formatPrice(item.preco?.valor || 0);
     const periodLabel = item.unitPeriod;
     const actionBtn = '<button class="btn btn-primary" type="button" data-action="open-hire" data-item-id="' + item.id + '">' +
@@ -286,6 +331,34 @@ function hasWarTraining() {
     const norm = String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return norm === 'guerra' || norm.includes('guerra');
   });
+}
+
+function heroiTemPoderComerciante() {
+  try {
+    const rawHero = typeof localStorage !== 'undefined' ? localStorage.getItem('forja-heroi-t20-v1') : null;
+    let hero = rawHero ? JSON.parse(rawHero) : null;
+    if (!hero && typeof localStorage !== 'undefined') {
+      try {
+        const rawProfiles = localStorage.getItem('arsenal-arton-character-profiles-v1');
+        if (rawProfiles) {
+          const parsed = JSON.parse(rawProfiles);
+          hero = parsed.profiles?.find((p: any) => p.id === 'ficha-ativa') || parsed.profiles?.find((p: any) => p.id === parsed.activeId) || parsed.profiles?.[0];
+        }
+      } catch {}
+    }
+    const list = [
+      ...(Array.isArray(hero?.powers) ? hero.powers : []),
+      ...(Array.isArray(hero?.progression) ? hero.progression : []),
+      ...(Array.isArray(hero?.classPowers) ? hero.classPowers : [])
+    ];
+    return list.some((p: any) => {
+      const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+      const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+      return id.includes('comerciante') || nome.includes('comerciante');
+    });
+  } catch {
+    return false;
+  }
 }
 
 function switchView(view) {

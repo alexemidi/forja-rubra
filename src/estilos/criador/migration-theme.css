@@ -109,17 +109,147 @@ button[data-item-spend] {
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
-  background: #111620 !important;
-  border: 1px solid #2b384e !important;
+  background: var(--panel, #110d0f) !important;
+  border: 1px solid var(--line, #4a252a) !important;
   border-radius: 8px !important;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95) !important;
   box-sizing: border-box !important;
+  color: var(--cream, #f5eee6) !important;
 }
 
 #sheetInventorChoiceModal .purchase-upgrade-panel {
   width: min(580px, calc(100vw - 24px)) !important;
   height: auto !important;
   max-height: calc(100vh - 32px) !important;
+}
+
+.upgrade-slot-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--panel2, #181114);
+  border: 1px solid var(--line, #4a252a);
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.upgrade-slot-card.filled {
+  border-color: var(--gold, #e9ad59);
+  background: rgba(233, 173, 89, 0.08);
+}
+.upgrade-slot-card .slot-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold2, #f5c879);
+  min-width: 80px;
+}
+.upgrade-slot-card .slot-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.upgrade-slot-card .slot-info strong {
+  font-size: 0.86rem;
+  color: var(--cream, #f5eee6);
+}
+.upgrade-slot-card .slot-info small {
+  color: var(--muted, #c9b2aa);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+.upgrade-slot-card .slot-remove-btn {
+  background: rgba(197, 31, 44, 0.15);
+  border: 1px solid rgba(197, 31, 44, 0.45);
+  color: #f87171;
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.15s;
+}
+.upgrade-slot-card .slot-remove-btn:hover {
+  background: var(--red, #c51f2c);
+  color: #fff;
+}
+
+.material-choice-card {
+  padding: 12px 14px;
+  background: var(--panel, #110d0f);
+  border: 1px solid var(--line, #4a252a);
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.material-choice-card:hover {
+  border-color: var(--gold, #e9ad59);
+  background: var(--panel2, #181114);
+}
+.material-choice-card.selected {
+  border-color: var(--gold2, #f5c879);
+  background: rgba(233, 173, 89, 0.12);
+  box-shadow: 0 0 0 1px var(--gold, #e9ad59);
+}
+
+.sidebar-improvement-item {
+  padding: 10px 14px;
+  background: var(--panel2, #181114);
+  border: 1px solid var(--line, #4a252a);
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.sidebar-improvement-item.is-active {
+  border-color: var(--gold, #e9ad59);
+  background: rgba(233, 173, 89, 0.08);
+}
+.sidebar-improvement-item.is-blocked {
+  opacity: 0.55;
+  background: var(--bg, #090708);
+}
+.sidebar-improvement-item .tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--line, #4a252a);
+  background: var(--panel, #110d0f);
+  color: var(--gold2, #f5c879);
+  font-weight: 600;
+}
+.sidebar-improvement-item .tag.red {
+  border-color: rgba(197, 31, 44, 0.5);
+  color: #fca5a5;
+}
+.sidebar-improvement-item .button.small.primary {
+  border: 1px solid var(--gold, #e9ad59);
+  border-radius: 5px;
+  background: rgba(233, 173, 89, 0.12);
+  color: var(--gold2, #f5c879);
+  font-weight: 700;
+  cursor: pointer;
+}
+.sidebar-improvement-item .button.small.primary:hover:not(:disabled) {
+  background: var(--gold, #e9ad59);
+  color: #110d0f;
+}
+.sidebar-improvement-item .button.small.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--line, #4a252a);
+  color: var(--muted, #c9b2aa);
+  background: transparent;
+}
+.sidebar-improvement-item .button.small.danger {
+  border: 1px solid rgba(197, 31, 44, 0.6);
+  border-radius: 5px;
+  background: rgba(197, 31, 44, 0.16);
+  color: #fca5a5;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sidebar-improvement-item .button.small.danger:hover {
+  background: var(--red, #c51f2c);
+  color: #fff;
 }
 
 @keyframes materialPulse {
@@ -794,10 +924,10 @@ button[data-item-spend] {
 
 #arsenalViewContainer .sheet-shop-footer[hidden]{display:none!important}
 .sheet-defense-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-bottom:1px solid var(--border)}
-.sheet-defense-heading h3{margin:0;color:var(--gold2);font:700 .72rem Cinzel,serif;text-transform:uppercase}
+.sheet-defense-heading h3{margin:0;color:var(--gold2);font-family:var(--font-display,'Tormenta','Cinzel',serif)!important;font-size:0.80rem!important;font-weight:700!important;text-transform:uppercase}
 .sheet-defense-rd{margin:0!important;padding:10px 11px!important;color:var(--text);font:600 .72rem Inter,Arial,sans-serif;background:transparent;border:0;display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:6px!important;line-height:1!important}
-.sheet-rd-label{display:inline-flex!important;align-items:center!important;gap:6px!important;font:700 .72rem Cinzel,serif!important;color:var(--gold2)!important;line-height:1!important;vertical-align:middle!important}
-.sheet-partners-title,.sheet-preview .sheet-partners-title,.sheet-partners-icon,.sheet-preview .sheet-partners-icon{font:700 .72rem Cinzel,serif!important;color:var(--gold2)!important}
+.sheet-rd-label{display:inline-flex!important;align-items:center!important;gap:6px!important;font-family:var(--font-display,'Tormenta','Cinzel',serif)!important;font-size:0.80rem!important;font-weight:700!important;color:var(--gold2)!important;line-height:1!important;vertical-align:middle!important}
+.sheet-partners-title,.sheet-preview .sheet-partners-title,.sheet-partners-title strong,.sheet-preview .sheet-partners-title strong,.sheet-partners-icon,.sheet-preview .sheet-partners-icon{font-family:var(--font-display,'Tormenta','Cinzel',serif)!important;font-size:0.80rem!important;font-weight:700!important;color:var(--gold2)!important}
 .sheet-partners-icon svg,.sheet-preview .sheet-partners-icon svg{color:var(--gold2)!important;fill:currentColor!important}
 .sheet-rd-value{display:inline-flex!important;align-items:center!important;font:700 .72rem Inter,Arial,sans-serif!important;color:#fff!important;line-height:1!important;vertical-align:middle!important}
 .sheet-preview .sheet-partners-card{background:transparent!important;border:0!important;border-radius:0;margin:0!important;padding:0!important;width:100%;box-shadow:none!important}
@@ -809,7 +939,7 @@ button[data-item-spend] {
 .sheet-partner-add-btn:hover,
 .sheet-preview .sheet-partner-add-btn:hover{background:var(--gold2, #f59e0b)!important;color:#111824!important;border-color:var(--gold2, #f59e0b)!important}
 .sheet-conditions-heading{display:flex;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.sheet-conditions-heading h3{margin:0;font:700 .72rem Cinzel,serif;color:var(--gold2);text-transform:uppercase}
+.sheet-conditions-heading h3{margin:0;font-family:var(--font-display,'Tormenta','Cinzel',serif)!important;font-size:0.80rem!important;font-weight:700!important;color:var(--gold2);text-transform:uppercase}
 .sheet-conditions-heading .sheet-conditions-line{margin:0;padding:0;border:0;background:transparent}
 .sheet-preview-main .sheet-attributes-block{margin-top:0;margin-bottom:0}
 .sheet-preview-main .sheet-attr-top-bar{margin-top:0}
@@ -907,26 +1037,34 @@ button[data-item-spend] {
 .sheet-skills-heading h3,
 .sheet-defense-heading h3,
 .sheet-conditions-heading h3,
+.sheet-partners-title,
+.sheet-partners-title strong,
+.sheet-partners-card-header strong,
 .sheet-preview .sheet-partners-title,
+.sheet-preview .sheet-partners-title strong,
 .sheet-preview .sheet-partners-card-header h3,
 .sheet-attacks-heading,
 .sheet-preview-box > .sheet-attacks-heading,
 .sheet-preview .panel-header .panel-title,
 .sheet-preview .panel-title,
 .sheet-preview-alignment-age span,
+.sheet-preview-alignment-age label,
+.sheet-preview-alignment-age .sheet-field-label,
 .sheet-equipment-block h4,
 .sheet-equipment-sections h4,
 .sheet-preview-extras h4,
 .sheet-equipment-worn .sheet-worn-header h4,
 .sheet-equipment-equipped h4,
+.equip-card-title,
+.equip-backpack-card .equip-card-title,
 .sheet-preview-box .sheet-notes-heading,
 .sheet-notes-box h3 {
   font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
   color: var(--gold2, #e9ad59) !important;
-  font-size: 0.72rem !important;
+  font-size: 0.80rem !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.6px !important;
   line-height: 1.3 !important;
 }
 

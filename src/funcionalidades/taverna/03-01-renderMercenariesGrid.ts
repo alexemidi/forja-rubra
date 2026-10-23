@@ -259,7 +259,7 @@ function openHireModal(itemId) {
   if (!item) return;
   tavernState.activeItem = item;
   tavernState.hireQty = 1;
-  tavernState.hirePercent = 100;
+  tavernState.hirePercent = heroiTemPoderComerciante() ? 90 : 100;
   tavernState.durationMode = 'cena';
 
   const modal = document.getElementById('hireModal');
@@ -339,11 +339,27 @@ function updateHireCalculation() {
   const basePrice = Number(item.preco?.valor) || 0;
   const unitPrice = basePrice * multiplier;
   const baseTotal = qty * unitPrice;
-  const percent = Number(tavernState.hirePercent ?? 100);
+  const percent = Number(tavernState.hirePercent ?? (heroiTemPoderComerciante() ? 90 : 100));
   const total = Math.max(0, Math.ceil(baseTotal * (percent / 100)));
 
   const percentEl = document.getElementById('hirePercentDisplay');
   if (percentEl) percentEl.textContent = percent + '%';
+
+  const incBtn = document.querySelector('[data-action="hire-percent-inc"]') as HTMLButtonElement | null;
+  const decBtn = document.querySelector('[data-action="hire-percent-dec"]') as HTMLButtonElement | null;
+  const minPercent = heroiTemPoderComerciante() ? 70 : 80;
+  if (incBtn) {
+    const canInc = percent < 100;
+    incBtn.disabled = !canInc;
+    incBtn.style.opacity = canInc ? '1' : '0.4';
+    incBtn.style.cursor = canInc ? 'pointer' : 'not-allowed';
+  }
+  if (decBtn) {
+    const canDec = percent > minPercent;
+    decBtn.disabled = !canDec;
+    decBtn.style.opacity = canDec ? '1' : '0.4';
+    decBtn.style.cursor = canDec ? 'pointer' : 'not-allowed';
+  }
 
   const summary = document.getElementById('hireItemSummary');
   const unitLabel = document.getElementById('hireUnitLabel');

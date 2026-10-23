@@ -326,7 +326,7 @@ import { FORJA_PAGES } from '../../src/pages/registry.ts';
   assert.equal(canBeFundamentalist('druida'), true);
   assert.equal(canBeFundamentalist('frade'), true);
   assert.equal(canBeFundamentalist('paladino'), true);
-  assert.equal(canBeFundamentalist('guerreiro'), false);
+  assert.equal(canBeFundamentalist('guerreiro'), true);
 
   assert.equal(isBroadDevotion('clerigo', 'pantheon'), true);
   assert.equal(isBroadDevotion('paladino', 'pantheon'), true);

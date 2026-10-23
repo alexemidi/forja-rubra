@@ -66,20 +66,31 @@ function previewProgressionPower(index, powerId, options = {}) {
     }
   }
 }
+function progressionLevelIndices(){
+  const total = Math.max(1, Number(state.identity?.plannedLevel) || (state.progression || []).length || 1);
+  if(total <= 1) return [];
+  return Array.from({ length: total - 1 }, (_, i) => i + 1);
+}
+if(typeof window !== 'undefined'){
+  (window as any).progressionLevelIndices = progressionLevelIndices;
+}
 function progressionActivePowerIndex(){
-  const slots=state.progression.map((row,index)=>powerSlotAt(classById(row.classId),classLevelAt(index,row.classId))?index:-1).filter(index=>index>=0),
-  explicit=Number(state.progressionActiveIndex),
-  requested=Number.isInteger(explicit)?explicit:validCharacterLevel(state.identity.editingLevel)-1,
-  unresolved=slots.find(index=>!progressionPowerById(state.progression[index].powerId));
-  if(Number.isInteger(explicit)&&slots.includes(explicit))return explicit;
-  if(state.isEditingFinishedSheet||state.editingCharacter){
-    if(slots.includes(requested))return requested;
+  const valid = progressionLevelIndices();
+  if(!valid.length) return 0;
+  const explicit = Number(state.progressionActiveIndex);
+  if(Number.isInteger(explicit) && valid.includes(explicit)) return explicit;
+  if(state.isLevelingUp || state.isEditingFinishedSheet || state.editingCharacter){
+    const requested = validCharacterLevel(state.identity?.editingLevel) - 1;
+    if(valid.includes(requested)) return requested;
+    return valid[valid.length - 1];
   }
-  if(unresolved!==undefined)return unresolved;
-  if(slots.includes(requested))return requested;
-  if(slots.length)return state.isLevelingUp?slots[slots.length-1]:slots[0];
-  if(state.progression.length>1)return 1;
-  return 0;
+  const unresolved = valid.find(index => {
+    const cls = classById(state.progression[index]?.classId);
+    const lvl = classLevelAt(index, state.progression[index]?.classId);
+    return powerSlotAt(cls, lvl) && !progressionPowerById(state.progression[index]?.powerId);
+  });
+  if(unresolved !== undefined) return unresolved;
+  return valid[0];
 }
 function setProgressionEditingIndex(index){state.progressionActiveIndex=index;state.identity.editingLevel=index>=0?index+1:state.identity.plannedLevel}
 function progressionPowerVerdict(power,index){if(power?.distinctionPower||String(power?.id||'').startsWith('distincao:'))return typeof progressionDistinctionEligibility==='function'?progressionDistinctionEligibility(power,index):{ok:true,reasons:[]};if(power?.generalPower)return progressionGeneralEligibility(power,index);if(power?.raceOption||String(power?.id||'').startsWith('racial:'))return typeof progressionRaceEligibility==='function'?progressionRaceEligibility(power,index):{ok:true,reasons:[]};return classProgressionEligibility(power,index)}
@@ -94,11 +105,15 @@ function syncProgressionFooter(){
   const allPending=typeof characterPendingChoices==='function'?characterPendingChoices():missing;
   const active=progressionActivePowerIndex();
   const row=state.progression[active];
+  const cls=classById(row?.classId);
+  const level=classLevelAt(active,row?.classId);
+  const hasSlot=Boolean(cls && powerSlotAt(cls,level));
+  const isMulticlassLevel1 = active > 0 && level === 1 && !hasSlot;
   const candidate=row?(progressionPowerById(row.previewPowerId||row.powerId)):null;
   const verdict=candidate?progressionPowerVerdict(candidate,active):null;
-  const readyToConfirm=Boolean(row?.previewPowerId&&verdict?.ok&&(!['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate.id)||row.previewPowerChoice));
-  const hasConfirmedPower=Boolean(row?.powerId&&(!row?.previewPowerId||row.previewPowerId===row.powerId));
-  const powerLevelIndices=state.progression.map((r,i)=>powerSlotAt(classById(r.classId),classLevelAt(i,r.classId))?i:-1).filter(i=>i>=0);
+  const readyToConfirm=isMulticlassLevel1 || Boolean(row?.previewPowerId&&verdict?.ok&&(!['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate?.id)||row.previewPowerChoice));
+  const hasConfirmedPower=isMulticlassLevel1 || Boolean(row?.powerId&&(!row?.previewPowerId||row.previewPowerId===row.powerId));
+  const powerLevelIndices=progressionLevelIndices();
   const curPos=powerLevelIndices.indexOf(active);
   const isLastLevel=curPos===powerLevelIndices.length-1;
   const otherMissing=missing.filter(item=>!item.selector?.includes('data-index="'+active+'"'));
@@ -119,7 +134,7 @@ function syncProgressionFooter(){
       stepNext.hidden = false;
       const canStep = readyToConfirm || hasConfirmedPower;
       stepNext.disabled = !canStep;
-      stepNext.innerHTML = distIconMini + 'Confirmar poder →';
+      stepNext.innerHTML = isMulticlassLevel1 ? 'Confirmar nível →' : (distIconMini + 'Confirmar poder →');
     }
   } else if(state.isTrainingPowerProgression){
     if(next) next.hidden = true;
@@ -143,11 +158,14 @@ function syncProgressionFooter(){
         stepPrev.disabled = curPos <= 0;
       }
       if(stepNext){
-        stepNext.hidden = false;
+        const isLastAndConfirmed = isLastLevel && (hasConfirmedPower || !row?.previewPowerId);
+        stepNext.hidden = isLastAndConfirmed;
         const canStep = readyToConfirm || (hasConfirmedPower && curPos < powerLevelIndices.length - 1);
         stepNext.disabled = !canStep;
-        if(readyToConfirm){
+        if(readyToConfirm && row?.previewPowerId){
           stepNext.innerHTML = distIconMini + 'Confirmar poder →';
+        } else if(isMulticlassLevel1){
+          stepNext.textContent = curPos < powerLevelIndices.length - 1 ? 'Próxima →' : 'Confirmar nível →';
         } else {
           stepNext.textContent = 'Próxima →';
         }
@@ -157,11 +175,13 @@ function syncProgressionFooter(){
       next.textContent = 'Finalizar ficha';
       next.disabled = !canFinishNow;
       next.classList.toggle('is-incomplete', !canFinishNow);
-      next.hidden = Boolean(readyToConfirm && stepNext && !stepNext.hidden);
+      next.hidden = Boolean(readyToConfirm && row?.previewPowerId && stepNext && !stepNext.hidden);
     }
   }
   const cancelBtn=document.getElementById('cancelLevelUpButton');
   if(cancelBtn)cancelBtn.hidden=!state.isLevelingUp;
+  const cancelEditBtn=document.getElementById('cancelEditCharacterButton');
+  if(cancelEditBtn)cancelEditBtn.hidden=!Boolean(state.isEditingFinishedSheet || state.editingCharacter);
   if(review)review.hidden=state.step!==10||missing.length>0||Boolean(row?.previewPowerId);
 }
 function syncSamuraiKatanaToBackpack(){
@@ -264,7 +284,8 @@ function renderProgressionPhase(){
   ensureProgression();
   const activeIndex=progressionActivePowerIndex(),rows=state.progression.map((row,index)=>{
     if(index!==activeIndex)return '';
-    const cls=classById(row.classId),level=classLevelAt(index,row.classId),abilities=(cls?.habilidades||[]).filter(ability=>Number(ability.nivel)===level),selected=progressionPowerById(row.powerId),hasSlot=powerSlotAt(cls,level),active=hasSlot&&index===activeIndex;
+    const cls=classById(row.classId),level=classLevelAt(index,row.classId),abilities=(cls?.habilidades||[]).filter(ability=>Number(ability.nivel)===level),selected=progressionPowerById(row.powerId),hasSlot=Boolean(cls && powerSlotAt(cls,level)),active=index===activeIndex;
+    const isMulticlassLevel1 = index > 0 && level === 1 && !hasSlot;
     const specialSummary=[];
     if(row.classId==='samurai'){
       const catalog=DATA.samuraiKatanaCatalog||{improvements:[],enchantments:[]};
@@ -283,9 +304,19 @@ function renderProgressionPhase(){
     }
     const summary=[...abilities.filter(ability=>!(level===1&&slug(ability.nome)==='magias')).map(ability=>ability.nome),selected?.nome,...specialSummary].filter(Boolean);
     const specialGrantHtml=renderProgressionSpecialGrants(row,index,level);
-    return '<section class="level-row progression-level-row '+(active?'active':'collapsed')+'" data-progression-level="'+index+'"><div class="level-badge">Nv. '+(index+1)+'</div><div><label class="field"><span>Classe · nível '+level+' nela</span><select class="select" data-action="progress-class" data-index="'+index+'" '+(index===0?'disabled':'')+'>'+DATA.classes.map(option=>'<option value="'+option.id+'" '+(option.id===row.classId?'selected':'')+'>'+esc(option.nome)+'</option>').join('')+'</select></label><div class="progression-level-summary">'+summary.map(name=>'<strong>'+esc(name)+'</strong>').join('')+(false?'<button type="button" class="progression-expand" data-action="progression-open-level" data-index="'+index+'">'+(active?'Recolher':'▸ Ver ou alterar escolhas')+'</button>':'')+'</div>'+(abilities.length?'<details class="progression-ability-details"><summary>Detalhes das habilidades deste nível</summary><div class="ability-list">'+abilities.map(ability=>abilityHtml(ability)).join('')+'</div></details>':'')+specialGrantHtml+(active?renderClassPowerBrowser(row,index,cls):'')+'</div></section>';
+    const multiclassBoxHtml = isMulticlassLevel1
+      ? '<div class="multiclass-first-level-box" style="margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);">' +
+          '<div style="font-weight:700;color:var(--gold2);font-size:0.85rem;margin-bottom:6px;">1º Nível em ' + esc(cls?.nome || '') + ' (Multiclasse)</div>' +
+          '<p style="color:var(--muted);font-size:0.75rem;margin:0 0 10px 0;line-height:1.4;">Ao adquirir o primeiro nível em uma nova classe, você não escolhe um poder de classe, mas recebe automaticamente todas as seguintes habilidades iniciais da classe:</p>' +
+          '<div class="ability-list" style="display:flex;flex-direction:column;gap:8px;">' +
+            abilities.map(ability => abilityHtml(ability)).join('') +
+          '</div>' +
+        '</div>'
+      : '';
+    const sortedClasses = (DATA.classes || []).slice().sort((a,b)=>a.nome.localeCompare(b.nome, 'pt-BR'));
+    return '<section class="level-row progression-level-row '+(active?'active':'collapsed')+'" data-progression-level="'+index+'"><div class="level-badge">Nv. '+(index+1)+'</div><div><label class="field"><span>Classe · nível '+level+' nela</span><select class="select" data-action="progress-class" data-index="'+index+'" '+(index===0?'disabled':'')+'>'+sortedClasses.map(option=>'<option value="'+option.id+'" '+(option.id===row.classId?'selected':'')+'>'+esc(option.nome)+'</option>').join('')+'</select></label><div class="progression-level-summary">'+summary.map(name=>'<strong>'+esc(name)+'</strong>').join('')+'</div>'+(!isMulticlassLevel1 && abilities.length?'<details class="progression-ability-details"><summary>Detalhes das habilidades deste nível</summary><div class="ability-list">'+abilities.map(ability=>abilityHtml(ability)).join('')+'</div></details>':'')+multiclassBoxHtml+specialGrantHtml+(active && hasSlot ? renderClassPowerBrowser(row,index,cls) : '')+'</div></section>';
   }).join('');
-  const powerLevelIndices=state.progression.map((r,i)=>powerSlotAt(classById(r.classId),classLevelAt(i,r.classId))?i:-1).filter(i=>i>=0);
+  const powerLevelIndices=progressionLevelIndices();
   const prevPowerIndex=[...powerLevelIndices].reverse().find(i=>i<activeIndex);
   const nextPowerIndex=powerLevelIndices.find(i=>i>activeIndex);
   const displayLevel=Math.max(1,activeIndex+1);
@@ -353,3 +384,18 @@ function isVisionFeature(feature){
   const desc = feature.descricao || '';
   return /\bvisão na penumbra\b|\bvisão no escuro\b/i.test(desc) && /fada|feerica|elfo|silfide|anão|anao|qareen/i.test(feature.nome + ' ' + desc);
 }
+document.addEventListener('change', event => {
+  const select = (event.target as HTMLElement)?.closest?.('[data-action="progress-class"]') as HTMLSelectElement | null;
+  if (!select) return;
+  const index = Number(select.dataset.index);
+  if (isNaN(index) || index <= 0 || !state.progression[index]) return;
+  const newClassId = select.value;
+  if (state.progression[index].classId === newClassId) return;
+  state.progression[index].classId = newClassId;
+  state.progression[index].powerId = '';
+  state.progression[index].powerChoice = '';
+  state.progression[index].previewPowerId = '';
+  state.progression[index].previewPowerChoice = '';
+  persistNow();
+  renderStage();
+}, true);

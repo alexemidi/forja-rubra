@@ -78,8 +78,8 @@ const isRewardEarly = Boolean(urlParamsEarly && (
 
 function obterFundosIniciaisHeroi() {
   try {
-    if (typeof localStorage === 'undefined') return 0;
-    const STARTING_FUNDS_TABLE = { 2: 300, 3: 600, 4: 1000, 5: 2000, 6: 3000, 7: 5000, 8: 7000, 9: 10000, 10: 13000, 11: 19000, 12: 27000, 13: 36000, 14: 49000, 15: 66000, 16: 88000, 17: 110000, 18: 150000, 19: 200000, 20: 260000 };
+    if (typeof localStorage === 'undefined') return 1000;
+    const STARTING_FUNDS_TABLE: Record<number, number> = { 2: 300, 3: 600, 4: 1000, 5: 2000, 6: 3000, 7: 5000, 8: 7000, 9: 10000, 10: 13000, 11: 19000, 12: 27000, 13: 36000, 14: 49000, 15: 66000, 16: 88000, 17: 110000, 18: 150000, 19: 200000, 20: 260000 };
     
     // 1. Saldo publicado da ficha ativa
     let published = null;
@@ -110,30 +110,126 @@ function obterFundosIniciaisHeroi() {
         if (totalMoedas > 0) return totalMoedas;
       }
 
+      const lvl = Math.max(
+        1,
+        (Array.isArray(hero.progression) ? hero.progression.length : 0) + 1,
+        Number(hero.identity?.plannedLevel) || 1,
+        Number(hero.identity?.initialLevel) || 1,
+        Number(hero.finances?.startingLevel) || 1
+      );
+
       if (hero?.finances) {
-        const lvl = Number(hero.finances.startingLevel) || Number(hero.identity?.initialLevel) || Number(hero.identity?.level) || Number(hero.level) || 1;
         const starting = lvl === 1
-          ? (Number(hero.finances.levelOneTibars) || (STARTING_FUNDS_TABLE[lvl] || Number(hero.finances.startingFunds || 0)))
-          : (STARTING_FUNDS_TABLE[lvl] || Number(hero.finances.startingFunds || 0));
+          ? (Number(hero.finances.levelOneTibars) || (STARTING_FUNDS_TABLE[lvl] || Number(hero.finances.startingFunds || 0) || 140))
+          : (STARTING_FUNDS_TABLE[lvl] || Number(hero.finances.startingFunds || 0) || 300);
         const rewards = Number(hero.finances.rewardFunds || 0);
         const spent = Number(hero.finances.spent || 0);
         const ledgerBalance = Math.max(0, starting + rewards - spent);
         if (ledgerBalance > 0) return ledgerBalance;
+        if (STARTING_FUNDS_TABLE[lvl] && STARTING_FUNDS_TABLE[lvl] > spent) {
+          return STARTING_FUNDS_TABLE[lvl] - spent;
+        }
+      }
+
+      if (lvl >= 2 && STARTING_FUNDS_TABLE[lvl]) {
+        return STARTING_FUNDS_TABLE[lvl];
       }
     }
 
     const rawProfiles = localStorage.getItem('arsenal-arton-character-profiles-v1');
     if (rawProfiles) {
       const prof = JSON.parse(rawProfiles);
-      const active = prof.profiles?.find(p => p.id === 'ficha-ativa') || prof.profiles?.find(p => p.id === prof.activeId) || prof.profiles?.[0];
+      const active = prof.profiles?.find((p: any) => p.id === 'ficha-ativa') || prof.profiles?.find((p: any) => p.id === prof.activeId) || prof.profiles?.[0];
       if (active?.funds != null && Number(active.funds) > 0) return Number(active.funds);
       if (active?.money != null && Number(active.money) > 0) return Number(active.money);
     }
+
+    const rawWallet = localStorage.getItem('forja-taverna-wallet-v1');
+    if (rawWallet && Number(rawWallet) > 0) return Number(rawWallet);
   } catch (e) {}
-  return 0;
+  return 1000;
+}
+
+function obterCraftingCapabilitiesHeroi() {
+  try {
+    if (typeof localStorage === 'undefined') return { enabled: true, improvements: 4, magic: 3, inventorLevel: 20, hasInventorClass: true, hasSuperiorPower: true, hasSuperiorCrafting: true, hasMagicCrafting: true };
+    const rawHero = localStorage.getItem('forja-heroi-t20-v1');
+    let hero: any = null;
+    if (rawHero) {
+      try { hero = JSON.parse(rawHero); } catch {}
+    }
+    if (!hero) {
+      try {
+        const rawProfiles = localStorage.getItem('arsenal-arton-character-profiles-v1');
+        if (rawProfiles) {
+          const parsed = JSON.parse(rawProfiles);
+          hero = parsed.profiles?.find((p: any) => p.id === 'ficha-ativa') || parsed.profiles?.find((p: any) => p.id === parsed.activeId) || parsed.profiles?.[0];
+        }
+      } catch {}
+    }
+
+    const lvl = Math.max(
+      1,
+      (Array.isArray(hero?.progression) ? hero.progression.length : 0) + 1,
+      Number(hero?.identity?.plannedLevel) || 1,
+      Number(hero?.identity?.initialLevel) || 1
+    );
+
+    const powersList = [
+      ...(Array.isArray(hero?.powers) ? hero.powers : []),
+      ...(Array.isArray(hero?.progression) ? hero.progression : []),
+      ...(Array.isArray(hero?.classPowers) ? hero.classPowers : [])
+    ];
+
+    const powersText = powersList.map((p: any) => String(p?.powerId || p?.powerName || p?.id || p?.nome || p || '').toLowerCase()).join(' ');
+
+    const isInventorBase = hero?.identity?.classId === 'inventor';
+    let inventorProgLevels = 0;
+    if (Array.isArray(hero?.progression)) {
+      inventorProgLevels = hero.progression.filter((row: any) => row && row.classId === 'inventor').length;
+    }
+    const inventorLevel = (isInventorBase ? 1 : 0) + inventorProgLevels;
+    const hasInventorClass = inventorLevel > 0;
+
+    const hasSuperiorPower = powersText.includes('fabricar_item_superior') || powersText.includes('fabricar item superior') || inventorLevel >= 2;
+    const hasMagicPower = powersText.includes('fabricar_item_magico') || powersText.includes('fabricar item magico') || inventorLevel >= 9;
+
+    const effImpLevel = hasSuperiorPower ? Math.max(lvl, inventorLevel) : inventorLevel;
+    let improvements = 0;
+    if (hasSuperiorPower || inventorLevel >= 2) {
+      if (effImpLevel >= 11) improvements = 4;
+      else if (effImpLevel >= 8) improvements = 3;
+      else if (effImpLevel >= 5) improvements = 2;
+      else if (effImpLevel >= 2) improvements = 1;
+      else improvements = 1;
+    }
+
+    const effMagicLevel = hasMagicPower ? Math.max(lvl, inventorLevel) : inventorLevel;
+    let magic = 0;
+    if (hasMagicPower || inventorLevel >= 9) {
+      if (effMagicLevel >= 17) magic = 3;
+      else if (effMagicLevel >= 13) magic = 2;
+      else if (effMagicLevel >= 9) magic = 1;
+    }
+
+    return {
+      enabled: true,
+      improvements,
+      magic,
+      inventorLevel,
+      hasInventorClass,
+      hasSuperiorPower,
+      isInventor: hasInventorClass,
+      hasSuperiorCrafting: hasSuperiorPower,
+      hasMagicCrafting: hasMagicPower
+    };
+  } catch {
+    return { enabled: true, improvements: 4, magic: 3, inventorLevel: 20, hasInventorClass: true, hasSuperiorPower: true, hasSuperiorCrafting: true, hasMagicCrafting: true };
+  }
 }
 
 const fundosIniciaisHeroi = obterFundosIniciaisHeroi();
+const craftingCapabilitiesHeroiInicial = obterCraftingCapabilitiesHeroi();
 
 const isWorkshopEarly = Boolean(urlParamsEarly && (
   urlParamsEarly.has('oficina') ||
@@ -181,6 +277,7 @@ let arsenalInitialState = window.__FORJA_CONTEXT__ || (isContraptionAttachEarly 
   workshopSection: (urlParamsEarly.get('oficina') || 'armeiro').toLowerCase().trim(),
   funds: fundosIniciaisHeroi,
   intMod: intModHeroiInicial,
+  crafting: craftingCapabilitiesHeroiInicial,
   contraptionAttach: {
     spellId: urlParamsEarly.get('magia') || '',
     formaUso: (urlParamsEarly.get('forma') || 'empunhada').toLowerCase().trim(),
@@ -194,6 +291,7 @@ let arsenalInitialState = window.__FORJA_CONTEXT__ || (isContraptionAttachEarly 
   workshopSection: (urlParamsEarly.get('oficina') || 'armeiro').toLowerCase().trim(),
   funds: fundosIniciaisHeroi,
   intMod: intModHeroiInicial,
+  crafting: craftingCapabilitiesHeroiInicial,
   storage: {},
   session: Date.now()
 } : (isRewardEarly ? {
@@ -201,9 +299,10 @@ let arsenalInitialState = window.__FORJA_CONTEXT__ || (isContraptionAttachEarly 
   isRewardMode: true,
   funds: fundosIniciaisHeroi,
   intMod: intModHeroiInicial,
+  crafting: craftingCapabilitiesHeroiInicial,
   storage: {},
   session: Date.now()
-} : { mode: 'standalone', funds: fundosIniciaisHeroi, intMod: intModHeroiInicial, storage: {}, session: 0 })));
+} : { mode: 'standalone', funds: fundosIniciaisHeroi, intMod: intModHeroiInicial, crafting: craftingCapabilitiesHeroiInicial, storage: {}, session: 0 })));
 const arsenalStorageValues={...(arsenalInitialState?.storage || {})};
 let arsenalTransaction=false;
 function postArsenal(type,details={}){if(window.__FORJA_CONTEXT__&&window.parent!==window)window.parent.postMessage({channel:'forja-arsenal-v1',session:arsenalInitialState.session,type,...details},'*')}

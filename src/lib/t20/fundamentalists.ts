@@ -99,11 +99,10 @@ export function normalizeDeitySlug(nameOrId: string): string {
 }
 
 /**
- * Verifica se a classe pode optar por ser devoto fundamentalista.
+ * Verifica se a classe pode optar por ser devoto fundamentalista (qualquer classe).
  */
 export function canBeFundamentalist(classId: string): boolean {
-  const norm = normalizeDeitySlug(classId);
-  return (FUNDAMENTALIST_ELIGIBLE_CLASSES as readonly string[]).includes(norm);
+  return Boolean(classId);
 }
 
 /**

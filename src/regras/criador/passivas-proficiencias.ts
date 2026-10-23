@@ -467,7 +467,7 @@ function financesState(){
 }
 function startingFunds(){
   const value=financesState();
-  let base=value.startingLevel===1?value.levelOneTibars:STARTING_FUNDS[value.startingLevel]||0;
+  let base=value.startingLevel===1?value.levelOneTibars:(STARTING_FUNDS[value.startingLevel]||0);
   base+=originMoneyBonus();
   return base;
 }
@@ -562,14 +562,14 @@ function initialItemPlan(){
   if(state.identity.classId==='nobre'){
     choices.push({id:'class-nobre-espolio',title:'Espólio · Escolha um item de até T$ 2.000',source:'class',isBudgetGrant:true,maxBudget:2000});
   }
-  if(state.identity.classId==='inventor'){
-    choices.push({id:'class-inventor-prototipo',title:'Protótipo · Escolha um item de até T$ 500',source:'class',isBudgetGrant:true,maxBudget:500,maxImprovements:1});
-  }
   const inventorLevel = typeof characterClassLevel === 'function'
     ? characterClassLevel('inventor')
     : (Array.isArray(state.progression) && state.progression.length > 0
         ? state.progression.filter(row => row.classId === 'inventor').length
         : (state.identity.classId === 'inventor' ? (Number(state.identity.plannedLevel) || 1) : 0));
+  if(inventorLevel >= 1){
+    choices.push({id:'class-inventor-prototipo',title:'Protótipo · Escolha um item de até T$ 500',source:'class',isBudgetGrant:true,maxBudget:500,maxImprovements:1});
+  }
   if (inventorLevel >= 2) {
     if (inventorLevel < 5) {
       choices.push({

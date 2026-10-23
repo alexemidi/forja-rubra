@@ -1,1 +1,1 @@
-if(window.self!==window.top)document.querySelector(".forja-home").hidden=true;
+if(window.self!==window.top){const h=document.querySelector(".forja-home");if(h)h.hidden=true;}

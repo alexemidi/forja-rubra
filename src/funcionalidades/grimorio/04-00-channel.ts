@@ -9,7 +9,12 @@
     button.forja-clicked{animation:forjaButtonClick .32s ease-out}@keyframes forjaButtonClick{0%{transform:scale(1)}42%{transform:scale(.94);filter:brightness(1.35);box-shadow:0 0 0 3px rgba(233,173,89,0.35)}100%{transform:scale(1)}}
     .view-tabs-wrap{display:none!important}
     .search-row .view-tabs{margin-left:auto;display:flex!important}
-    .card{position:relative!important;padding-bottom:44px!important}
+    .card{position:relative!important;padding-bottom:14px!important}
+    .card-title-row{padding-right:76px!important}
+    .learn-btn{position:absolute!important;top:12px!important;right:12px!important;bottom:auto!important}
+    .card-overlay{justify-content:center!important;padding-left:0!important;padding-bottom:10px!important}
+    .expand-btn{margin:0 auto!important}
+    .card.expanded .expand-btn{margin:8px auto 12px!important}
     .learn-btn.remove-spell{border-color:#dc2626!important;color:#f5eee6!important;background:rgba(197,31,44,0.28)!important}
     .learn-btn.remove-spell:hover{border-color:#ef4444!important;color:#ffffff!important;background:rgba(197,31,44,0.45)!important}
     .learn-btn.replace-spell{border-color:#e9ad59!important;color:#f5c879!important;background:rgba(233,173,89,0.16)!important}
@@ -22,8 +27,8 @@
     .badge-status-magia.badge-learned{background:rgba(233,173,89,0.14);color:#f5c879;border:1px solid #4a252a}
     .badge-status-magia.badge-fixed{background:#181114;color:#c9b2aa;border:1px solid #4a252a}
     .badge-status-magia.badge-relearned{background:rgba(234,179,8,0.22);color:#fde047;border:1px solid rgba(234,179,8,0.5)}
-    .tradition-floating-notice{position:sticky;top:8px;z-index:999;margin:8px auto 14px;width:fit-content;max-width:92%;padding:8px 24px;border-radius:999px;font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.5px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.6);transition:all 0.25s ease;display:none}
-    .tradition-floating-notice.visible{display:flex;align-items:center;justify-content:center;gap:8px}
+    .tradition-floating-notice{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:1000;margin:0;width:fit-content;max-width:92%;padding:8px 24px;border-radius:999px;font-family:'Tormenta','Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.5px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.65);opacity:0;pointer-events:none;transition:opacity 0.4s ease,transform 0.4s ease;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#181114,#110d0f);border:1px solid #e9ad59;color:#f5c879}
+    .tradition-floating-notice.visible{opacity:1;transform:translateX(-50%) translateY(0)}
     .tradition-floating-notice.arcana,.tradition-floating-notice.divina,.tradition-floating-notice.universal{background:linear-gradient(135deg,#181114,#110d0f);border:1px solid #e9ad59;box-shadow:0 8px 28px rgba(0,0,0,0.65);color:#f5c879}
     #defineSchoolsBtn{display:none!important}
     .repeat-spell-note{margin:8px 12px;padding:8px;border:1px solid #4a252a;border-radius:6px;color:#f5eee6;font-size:12px;line-height:1.5}
@@ -37,7 +42,7 @@
     .filter-label{font-size:10px;letter-spacing:.5px;margin-right:1px}
     .filter-sep{margin:0 2px}
     .tipo-btn{padding:4px 9px;font-size:11px}
-    .circ-btn{width:26px;height:26px;flex-basis:26px}.circ-btn[data-circ="0"]{width:auto;min-width:50px;flex:0 0 auto;padding:0 10px;border-radius:16px}
+    .circ-btn{width:26px;height:26px;flex-basis:26px}.circ-btn[data-circ="0"],.circ-btn[data-circ="todos"]{width:auto!important;min-width:52px!important;flex:0 0 auto!important;padding:0 12px!important;border-radius:16px!important}
     .filter-chip{min-height:26px;padding:4px 8px}
     .school-mode-btn{min-width:0;padding-inline:7px}
     #learnedFilterBtn{min-width:0;margin-left:auto;gap:5px;flex:0 0 auto}
@@ -275,13 +280,20 @@
     const isReview = Boolean(context?.mode && context?.mode !== 'consult' && !isHeroSheet);
     const hasClassMagic = Boolean(context?.hasClassMagic);
     const isLimitedBySchools = Boolean(context?.isLimitedBySchools);
-    const types = new Set(context?.traditions || []), circles = new Set(context?.circles || []);
+    const types = new Set(context?.traditions || context?.classTraditions || []), circles = new Set(context?.circles || []);
     document.querySelectorAll('.tipo-btn').forEach(button => {
-      button.disabled = !isConsult && !isReview && !isHeroSheet && button.dataset.tipo !== 'todos' && !types.has(button.dataset.tipo);
+      const tipo = button.dataset.tipo;
+      if (types.size > 0 && tipo !== 'todos' && !types.has(tipo)) {
+        button.disabled = true;
+        button.style.display = 'none';
+      } else {
+        button.disabled = false;
+        button.style.display = '';
+      }
       button.setAttribute('aria-disabled', String(button.disabled));
     });
     const isEngenhoca = context?.mode === 'workshop-engenhoca' || context?.source === 'engenhoca';
-    const isTavernPotion = context?.mode === 'tavern-potion' || context?.source === 'tavern-potion';
+    const isTavernPotion = context?.mode === 'tavern-potion' || context?.source === 'tavern-potion' || context?.mode === 'tavern-tattoo' || context?.source === 'tavern-tattoo';
     document.querySelectorAll('.circ-btn').forEach(button => {
       const circNum = Number(button.dataset.circ);
       if (isEngenhoca || isTavernPotion) {
@@ -419,6 +431,12 @@
         statusBadge.remove();
       }
 
+      const allowedTrad = new Set(context?.traditions || context?.classTraditions || []);
+      if (allowedTrad.size > 0 && tipo !== 'universal' && !allowedTrad.has(tipo) && schoolFilterMode !== 'learned') {
+        card.style.display = 'none';
+        return;
+      }
+
       if (schoolFilterMode === 'learned') {
         if (!isLearned && !isFixed) {
           card.style.display = 'none';
@@ -442,7 +460,7 @@
         }
       }
 
-      const isWorkshopCraftMode = Boolean(context?.mode && (context.mode.endsWith('-craft') || context.mode === 'workshop-engenhoca' || context.mode === 'tavern-potion' || context.source === 'tavern-potion'));
+      const isWorkshopCraftMode = Boolean(context?.mode && (context.mode.endsWith('-craft') || context.mode === 'workshop-engenhoca' || context.mode === 'tavern-potion' || context.source === 'tavern-potion' || context.mode === 'tavern-tattoo' || context.source === 'tavern-tattoo'));
       if (isWorkshopCraftMode) {
         if (!context || !visible.has(key)) {
           card.style.display = 'none';
@@ -473,9 +491,12 @@
           } else if (context.mode === 'scroll-craft' || context.source === 'scroll') {
             craftLabel = 'Fabricar Pergaminho';
             craftTitle = 'Escrever pergaminho a partir desta magia';
-          } else if (context.mode === 'tattoo-craft' || context.source === 'tattoo') {
-            craftLabel = 'Criar Tatuagem';
+          } else if (context.mode === 'tattoo-craft' || context.source === 'tattoo' || context.mode === 'tavern-tattoo' || context.source === 'tavern-tattoo') {
+            craftLabel = context.source === 'tavern-tattoo' || context.mode === 'tavern-tattoo' ? 'Gravar Tatuagem' : 'Criar Tatuagem';
             craftTitle = 'Gravar tatuagem mística a partir desta magia';
+            button.style.background = '#831843';
+            button.style.borderColor = '#db2777';
+            button.style.color = '#ffffff';
           }
           button.textContent = craftLabel;
           button.title = craftTitle;
@@ -576,11 +597,15 @@
     syncTraditionNotice();
   };
 
+  let traditionNoticeTimer: any = null;
   function syncTraditionNotice() {
     let notice = document.getElementById('traditionFloatingNotice');
     const t = context?.traditionNotice;
     if (!t || !t.count || !context?.canChoose || schoolFilterMode === 'consult') {
-      if (notice) notice.classList.remove('visible');
+      if (notice) {
+        notice.classList.remove('visible');
+        clearTimeout(traditionNoticeTimer);
+      }
       return;
     }
     if (!notice) {
@@ -593,20 +618,25 @@
     }
     const type = (t.type || 'universal').toLowerCase();
     const typeTheme = type === 'divina' ? 'divina' : type === 'arcana' ? 'arcana' : 'universal';
-    notice.className = 'tradition-floating-notice visible ' + typeTheme;
     const remaining = Math.max(0, (t.count || 0) - (t.chosen || 0));
-    const typeLabel = type === 'divina' ? 'divina' : type === 'arcana' ? 'arcana' : 'universal';
+    const typeLabel = type === 'divina' ? 'divina' : type === 'arcana' ? 'arcana' : (type === 'any' || type === 'universal') ? 'arcana ou divina' : 'universal';
     const circLabel = (t.circle || 1) + 'º círculo';
+    const stageSuffix = t.stageLabel ? ` - ${t.stageLabel}` : (t.label ? ` - ${t.label}` : '');
     if (remaining > 0) {
       const plural = remaining > 1 ? 's' : '';
-      const typePlural = remaining > 1 ? typeLabel + 's' : typeLabel;
-      notice.textContent = `Escolha ${remaining} magia${plural} ${typePlural} do ${circLabel}`;
+      const typePlural = remaining > 1 ? (typeLabel.includes(' ou ') ? 'arcanas ou divinas' : typeLabel + 's') : typeLabel;
+      notice.textContent = `Escolha ${remaining} magia${plural} ${typePlural} do ${circLabel}${stageSuffix}`;
     } else {
       const total = t.count;
       const plural = total > 1 ? 's' : '';
-      const typePlural = total > 1 ? typeLabel + 's' : typeLabel;
-      notice.textContent = `${total} magia${plural} ${typePlural} do ${circLabel} selecionada${plural}`;
+      const typePlural = total > 1 ? (typeLabel.includes(' ou ') ? 'arcanas ou divinas' : typeLabel + 's') : typeLabel;
+      notice.textContent = `${total} magia${plural} ${typePlural} do ${circLabel} selecionada${plural}${stageSuffix}`;
     }
+    notice.className = 'tradition-floating-notice visible ' + typeTheme;
+    clearTimeout(traditionNoticeTimer);
+    traditionNoticeTimer = setTimeout(() => {
+      if (notice) notice.classList.remove('visible');
+    }, 3800);
   }
   // Capture before the standalone listener: never write its global learned list.
   document.addEventListener('click', event => {
@@ -874,7 +904,7 @@
 
     const isHeroSheet = next.mode === 'character-sheet' || next.group === 'character-grimoire';
     const isMenuConsultation = next.mode === 'consult' || next.group === 'general-consultation';
-    const isWorkshopCraft = Boolean(next.mode && (next.mode.endsWith('-craft') || next.mode === 'workshop-engenhoca' || next.mode === 'tavern-potion' || next.source === 'tavern-potion'));
+    const isWorkshopCraft = Boolean(next.mode && (next.mode.endsWith('-craft') || next.mode === 'workshop-engenhoca' || next.mode === 'tavern-potion' || next.source === 'tavern-potion' || next.mode === 'tavern-tattoo' || next.source === 'tavern-tattoo'));
 
     if (isStepOrGroupChange) {
       const traditions = next.traditions || [];

@@ -516,7 +516,8 @@ grimoireContext=function(){
   const gSource = spellState().grimoireSource;
   const isWorkshopCraft = ['potion','scroll','tattoo','engenhoca'].includes(gSource);
   const isTavernPotion = gSource === 'tavern-potion';
-  const isMenuConsultation = spellState().grimoireSource === 'menu' || isWorkshopCraft || isTavernPotion;
+  const isTavernTattoo = gSource === 'tavern-tattoo';
+  const isMenuConsultation = spellState().grimoireSource === 'menu' || isWorkshopCraft || isTavernPotion || isTavernTattoo;
   if(isMenuConsultation){
     const catalogSpells = (DATA.spells || []).map(spell => spell.id);
     let label = 'Grimório Geral';
@@ -524,13 +525,20 @@ grimoireContext=function(){
     let traditions = ['arcana', 'divina'];
     let visibleSpells = catalogSpells;
     let selectableSpells = [];
-    let isReadOnly = !isWorkshopCraft && !isTavernPotion;
+    let isReadOnly = !isWorkshopCraft && !isTavernPotion && !isTavernTattoo;
     if (isTavernPotion) {
       const circSelected = Number(state.tavernPotionPurchase?.circle) || 1;
       circles = [1, 2, 3, 4, 5];
       label = `Poções da Taverna (${circSelected}º Círculo Selecionado)`;
       visibleSpells = catalogSpells;
       selectableSpells = catalogSpells;
+    } else if (isTavernTattoo) {
+      const price = Number(state.tavernTattooPurchase?.price) || 1000;
+      label = `Tatuagem Mística da Taverna (1º Círculo · T$ ${price.toLocaleString('pt-BR')})`;
+      circles = [1];
+      traditions = ['arcana', 'divina'];
+      visibleSpells = (DATA.spells || []).filter(s => Number(s.circulo || s.circle || 1) === 1).map(s => s.id);
+      selectableSpells = visibleSpells;
     } else if (gSource === 'potion') {
       const known = typeof allLearnedSpellIds === 'function' ? allLearnedSpellIds() : [];
       label = known.length ? 'Poções do Alquimista (Magias Conhecidas)' : 'Poções do Alquimista (Nenhuma magia conhecida)';
@@ -563,10 +571,10 @@ grimoireContext=function(){
       channel: 'forja-t20-grimoire-v1',
       type: 'context',
       session: grimoireSession,
-      group: isTavernPotion ? 'tavern-potion-grimoire' : (isWorkshopCraft ? `${gSource}-grimoire` : 'general-consultation'),
+      group: isTavernPotion ? 'tavern-potion-grimoire' : (isTavernTattoo ? 'tavern-tattoo-grimoire' : (isWorkshopCraft ? `${gSource}-grimoire` : 'general-consultation')),
       label,
-      mode: isTavernPotion ? 'tavern-potion' : (isWorkshopCraft ? (gSource === 'engenhoca' ? 'workshop-engenhoca' : `${gSource}-craft`) : 'consult'),
-      source: isTavernPotion ? 'tavern-potion' : (isWorkshopCraft ? gSource : 'menu'),
+      mode: isTavernPotion ? 'tavern-potion' : (isTavernTattoo ? 'tavern-tattoo' : (isWorkshopCraft ? (gSource === 'engenhoca' ? 'workshop-engenhoca' : `${gSource}-craft`) : 'consult')),
+      source: isTavernPotion ? 'tavern-potion' : (isTavernTattoo ? 'tavern-tattoo' : (isWorkshopCraft ? gSource : 'menu')),
       view: 'available',
       readOnly: isReadOnly,
       schoolsBlocked: true,

@@ -216,7 +216,13 @@ document.addEventListener('click',async event=>{
     }
     else if(action==='edit'){
       saveFinishedCharacter();
-      state.editingCharacter={originalId:characterIdentifier(),originalName:state.identity?.characterName||'Personagem'};
+      const snapshot = JSON.parse(JSON.stringify(state));
+      state.editingCharacter={
+        originalId:characterIdentifier(),
+        originalName:state.identity?.characterName||'Personagem',
+        snapshot
+      };
+      state.editBackup=snapshot;
       state.isEditingFinishedSheet=true;
       state.finished=false;
       state.completed=(state.completed||[]).filter(s=>s<9);
@@ -404,6 +410,10 @@ window.addEventListener('message',event=>{
       if(typeof window.openTattooCraftModal==='function') window.openTattooCraftModal(message.id);
       return;
     }
+    if(gSource==='tavern-tattoo'){
+      aplicarCompraTatuagemTaverna(message.id);
+      return;
+    }
     if(gSource==='tavern-potion'){
       const spell = (typeof DATA !== 'undefined' && DATA.spells ? DATA.spells.find(s => s.id === message.id) : null) || (typeof spellById === 'function' ? spellById(message.id) : null);
       const spellNome = spell?.nome || spell?.name || message.id;
@@ -475,8 +485,101 @@ window.addEventListener('message',event=>{
     }
   }
 });
+
+function countCharacterTattoos(st: any = state): number {
+  const inv = Array.isArray(st.backpack) ? st.backpack : [];
+  return inv.filter((entry: any) => {
+    const id = String(entry.itemId || entry.id || '').toLowerCase();
+    const name = String(entry.displayName || entry.itemName || entry.nome || '').toLowerCase();
+    return Boolean(entry.tatuagemInfo) || id === 'tatuagem_mistica' || id.startsWith('tattoo_') || /tatuagem m[íi]stica/i.test(name);
+  }).length;
+}
+if (typeof window !== 'undefined') {
+  (window as any).countCharacterTattoos = countCharacterTattoos;
+}
+
+function aplicarCompraTatuagemTaverna(spellId: string) {
+  // @ts-ignore
+  const spells = (typeof DATA !== 'undefined' && DATA.spells) || [];
+  // @ts-ignore
+  const spell = spells.find((s: any) => s.id === spellId) || (typeof spellById === 'function' ? spellById(spellId) : null);
+  if (!spell) {
+    if (typeof toast === 'function') toast('Magia selecionada não encontrada.');
+    return;
+  }
+  const tattoosCount = countCharacterTattoos(state);
+  const cost = (tattoosCount + 1) * 1000;
+  const currentFunds = typeof remainingFunds === 'function' ? remainingFunds() : 0;
+  if (currentFunds < cost) {
+    if (typeof toast === 'function') toast(`Saldo insuficiente! Custo: T$ ${cost.toLocaleString('pt-BR')}, Saldo atual: T$ ${currentFunds.toLocaleString('pt-BR')}.`, 'warning');
+    return;
+  }
+
+  financesState().spent = Math.round(((financesState().spent || 0) + cost) * 100) / 100;
+  if (cost > 0 && typeof registrarDespesaAventura === 'function') {
+    registrarDespesaAventura(cost);
+  }
+
+  const spellNome = spell.nome || spell.name;
+  const finalName = `Tatuagem Mística (${spellNome})`;
+  const newEntry: any = {
+    instanceId: 'tattoo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    itemId: 'tatuagem_mistica',
+    itemName: finalName,
+    displayName: finalName,
+    quantity: 1,
+    spaces: 0,
+    espacos: 0,
+    customPrice: 0,
+    preco: { valor: 0, moeda: 'T$' },
+    tipo: 'vestuario',
+    categoriaId: 'vestuario',
+    itemVestido: true,
+    origin: 'taverna',
+    tatuagemInfo: {
+      spellId: spell.id || spellId,
+      spellName: spellNome,
+      circulo: 1
+    }
+  };
+
+  state.backpack = state.backpack || [];
+  state.backpack.push(newEntry);
+
+  const eq = typeof equipmentState === 'function' ? equipmentState() : null;
+  if (eq && Array.isArray(eq.wornIds)) {
+    const curWorn = typeof wornItemsCount === 'function' ? wornItemsCount() : eq.wornIds.length;
+    const maxWorn = typeof wornItemsLimit === 'function' ? wornItemsLimit() : 4;
+    if (curWorn < maxWorn && !eq.wornIds.includes(newEntry.instanceId)) {
+      eq.wornIds.push(newEntry.instanceId);
+    }
+  }
+
+  state.tavernContracts = state.tavernContracts || [];
+  state.tavernContracts.push({
+    id: 'contract_tattoo_' + Date.now(),
+    itemId: 'tatuagem_mistica',
+    itemName: finalName,
+    category: 'cuidados',
+    totalPrice: cost,
+    unitLabel: 'Tatuagem',
+    date: new Date().toLocaleDateString('pt-BR')
+  });
+
+  state.tavernTattooPurchase = null;
+  state.sheetView = state.previousSheetView || 'tavern';
+  persistNow();
+  renderStage();
+  if (typeof toast === 'function') {
+    toast(`Tatuagem Mística (${spellNome}) gravada com sucesso! (T$ ${cost.toLocaleString('pt-BR')})`);
+  }
+  if (state.finished && typeof saveFinishedCharacter === 'function') {
+    setTimeout(() => saveFinishedCharacter(), 0);
+  }
+}
+
 window.addEventListener('message',event=>{
-  const frame=document.getElementById('characterTavern'),message=event?.data;
+  const frame=document.getElementById('characterTavern') as HTMLIFrameElement,message=event?.data;
   if(!message||message.channel!=='forja-taverna-v1')return;
   if(frame?.contentWindow&&event.source===frame.contentWindow){
     if(message.type==='choose-potion-spell'){
@@ -490,6 +593,19 @@ window.addEventListener('message',event=>{
       toast('Escolha no Grimório a magia desejada para comprar a sua poção.');
       return;
     }
+    if(message.type==='choose-tavern-tattoo-spell'){
+      const tattoosCount = countCharacterTattoos(state);
+      const price = (tattoosCount + 1) * 1000;
+      state.tavernTattooPurchase = { price };
+      spellState().grimoireSource = 'tavern-tattoo';
+      spellState().view = 'available';
+      state.previousSheetView = state.sheetView || 'tavern';
+      state.sheetView = 'grimoire';
+      persistNavigationNow();
+      renderStage();
+      toast('Escolha no Grimório a magia de 1º círculo para a sua tatuagem mística.');
+      return;
+    }
     if(message.type==='ready'){
       frame.contentWindow.postMessage({
         channel:'forja-taverna-v1',
@@ -499,6 +615,7 @@ window.addEventListener('message',event=>{
         level:typeof effectiveCharacterLevel==='function'?effectiveCharacterLevel():((state.progression?.length||0)+1),
         trainedSkills:typeof allTrainedSkills==='function'?allTrainedSkills():[],
         contracts:state.tavernContracts||[],
+        tattoosCount: countCharacterTattoos(state),
         partnerLimit: typeof characterPartnerLimitDetails === 'function' ? characterPartnerLimitDetails(typeof effectiveCharacterLevel === 'function' ? effectiveCharacterLevel() : 1) : { maxPartners: (typeof characterPartnerLimit === 'function' ? characterPartnerLimit() : 1), maxVeterans: 0, maxMasters: 0 },
         partners: state.partners || []
       },'*');

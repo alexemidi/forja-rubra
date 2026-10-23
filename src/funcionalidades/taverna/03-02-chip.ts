@@ -33,6 +33,25 @@ document.addEventListener('click', event => {
     return;
   }
 
+  const tavernTattooBtn = event.target.closest?.('#btnTavernChooseTattooSpell');
+  if (tavernTattooBtn) {
+    event.preventDefault();
+    const count = Number(tavernState.tattoosCount || 0);
+    const price = (count + 1) * 1000;
+
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        channel: 'forja-taverna-v1',
+        type: 'choose-tavern-tattoo-spell',
+        price: price,
+        source: 'tavern'
+      }, '*');
+    } else {
+      window.location.href = 'ficha.html?tatuagemTaverna=1';
+    }
+    return;
+  }
+
   const openHire = event.target.closest?.('[data-action="open-hire"]');
   if (openHire) {
     event.preventDefault();
@@ -70,21 +89,28 @@ document.addEventListener('click', event => {
 
   if (event.target.closest?.('[data-action="hire-percent-dec"]')) {
     event.preventDefault();
-    tavernState.hirePercent = Math.max(0, (tavernState.hirePercent ?? 100) - 10);
-    updateHireCalculation();
+    const minPercent = heroiTemPoderComerciante() ? 70 : 80;
+    const curr = Number(tavernState.hirePercent ?? (heroiTemPoderComerciante() ? 90 : 100));
+    if (curr > minPercent) {
+      tavernState.hirePercent = Math.max(minPercent, curr - 10);
+      updateHireCalculation();
+    }
     return;
   }
 
   if (event.target.closest?.('[data-action="hire-percent-inc"]')) {
     event.preventDefault();
-    tavernState.hirePercent = Math.min(300, (tavernState.hirePercent ?? 100) + 10);
-    updateHireCalculation();
+    const curr = Number(tavernState.hirePercent ?? (heroiTemPoderComerciante() ? 90 : 100));
+    if (curr < 100) {
+      tavernState.hirePercent = Math.min(100, curr + 10);
+      updateHireCalculation();
+    }
     return;
   }
 
   if (event.target.closest?.('[data-action="hire-percent-reset"]')) {
     event.preventDefault();
-    tavernState.hirePercent = 100;
+    tavernState.hirePercent = heroiTemPoderComerciante() ? 90 : 100;
     updateHireCalculation();
     return;
   }
@@ -259,6 +285,7 @@ window.addEventListener('message', event => {
     if (msg.funds !== undefined) tavernState.funds = Number(msg.funds) || 0;
     if (msg.characterName !== undefined) tavernState.characterName = msg.characterName;
     if (msg.level !== undefined) tavernState.level = Number(msg.level) || 1;
+    if (msg.tattoosCount !== undefined) tavernState.tattoosCount = Number(msg.tattoosCount) || 0;
     if (Array.isArray(msg.contracts)) tavernState.contracts = msg.contracts;
     if (Array.isArray(msg.trainedSkills)) tavernState.trainedSkills = msg.trainedSkills;
     if (msg.partnerLimit !== undefined) tavernState.partnerLimit = msg.partnerLimit;

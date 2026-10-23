@@ -276,6 +276,13 @@ function characterSpellEntries(){
     learnedSpellNames.push(teurgistSpell);
   }
 
+  const tattooSpells = (Array.isArray(state.backpack) ? state.backpack : []).filter(e => e.tatuagemInfo?.spellName).map(e => e.tatuagemInfo.spellName);
+  for (const sName of tattooSpells) {
+    if (!learnedSpellNames.includes(sName)) {
+      learnedSpellNames.push(sName);
+    }
+  }
+
   const spellsBeforeD = learnedSpellNames.filter(n => n.localeCompare('Ditame', 'pt-BR') < 0).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   const spellsAfterD = learnedSpellNames.filter(n => n.localeCompare('Ditame', 'pt-BR') >= 0);
   const orderedDitames = ditameEntries.sort((a, b) => a.localeCompare(b, 'pt-BR'));

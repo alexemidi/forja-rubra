@@ -437,6 +437,9 @@ const ITEM_CHOICE_DEFINITIONS = {
   item_artistico: {
     fields: [{ id: 'customName', label: 'Nome do item artístico', type: 'text', placeholder: 'Ex. Escultura minotauro, tapeçaria antiga, vaso élfico' }]
   },
+  replica_peca_artistica_elfica: {
+    fields: [{ id: 'customName', label: 'Nome da peça artística élfica (réplica)', type: 'text', placeholder: 'Ex. Escultura de Mármore, Harpa em Miniatura, Vaso...' }]
+  },
   tatuagem_adereco_gangue: {
     fields: [{ id: 'customName', label: 'Nome ou estilo da tatuagem / adereço', type: 'text', placeholder: 'Ex. Tatuagem da Serpente, Brinco de Osso' }]
   },

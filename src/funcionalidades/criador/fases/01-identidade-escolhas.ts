@@ -225,7 +225,7 @@ function syncNextButtonState(){
     }else{
       const saved=typeof arsenalState==='function'?arsenalState():null;
       const complete=Boolean(saved?.complete);
-      next.textContent=typeof arsenalShopOpen!=='undefined'&&arsenalShopOpen?'Confirmar compra':'Avançar →';
+      next.textContent='Avançar →';
       next.disabled=!complete;
       next.classList.toggle('is-incomplete',!complete);
       syncPhaseStepNavigation();

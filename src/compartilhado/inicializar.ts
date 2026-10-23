@@ -158,9 +158,6 @@
       loader.remove();
     }
   })().catch(error=>{
-    endLoading();if(window.parent!==window&&window.parent.location.origin===location.origin)window.parent.Forja?.frameReady(window);document.documentElement.dataset.forjaReady='error';console.error(error);document.querySelector('#forja-loader')?.remove();
-    const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Não foi possível iniciar a Forja. '+error.message+' ';
-    const recovery=document.createElement('a');recovery.href=new URL('backup.html',base);recovery.textContent='Abrir backup e recuperação';warning.append(recovery);
-    document.body.prepend(warning);
+    endLoading();if(window.parent!==window&&window.parent.location.origin===location.origin)window.parent.Forja?.frameReady(window);document.documentElement.dataset.forjaReady='error';console.error('Falha na inicialização da Forja:',error);document.querySelector('#forja-loader')?.remove();
   });
 })();

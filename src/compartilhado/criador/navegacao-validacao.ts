@@ -99,12 +99,13 @@ document.addEventListener('click',event=>{
     if(prevBtn){
       event.preventDefault();event.stopImmediatePropagation();
       const activeIndex=progressionActivePowerIndex();
-      const powerLevelIndices=state.progression.map((r,i)=>powerSlotAt(classById(r.classId),classLevelAt(i,r.classId))?i:-1).filter(i=>i>=0);
-      const prevIndex=[...powerLevelIndices].reverse().find(i=>i<activeIndex);
-      if(prevIndex!==undefined){
+      const levelIndices=typeof progressionLevelIndices==='function'?progressionLevelIndices():state.progression.map((r,i)=>i).slice(1);
+      const curPos=levelIndices.indexOf(activeIndex);
+      if(curPos > 0){
+        const prevIndex = levelIndices[curPos - 1];
         setProgressionEditingIndex(prevIndex);
         const row=state.progression[prevIndex];
-        if(row){row.previewPowerId=row.powerId||'';row.previewPowerChoice=row.powerChoice||''}
+        if(row){row.previewPowerId='';row.previewPowerChoice=''}
         renderStage();
         setTimeout(()=>document.querySelector('[data-progression-level="'+prevIndex+'"]')?.scrollIntoView({behavior:'smooth',block:'start'}),40);
       }
@@ -113,8 +114,12 @@ document.addEventListener('click',event=>{
     const nextBtn=event.target.closest?.('#stepNextButton,[data-action="progression-next-level"]');
     if(nextBtn){
       event.preventDefault();event.stopImmediatePropagation();
-      const active=progressionActivePowerIndex(),row=state.progression[active],candidate=progressionPowerById(row?.previewPowerId||row?.powerId);
-      if(active>=0&&(!row.powerId||row.previewPowerId)){
+      const active=progressionActivePowerIndex(),row=state.progression[active];
+      const cls=classById(row?.classId);
+      const level=classLevelAt(active,row?.classId);
+      const hasSlot=Boolean(cls && powerSlotAt(cls,level));
+      const candidate=progressionPowerById(row?.previewPowerId||row?.powerId);
+      if(hasSlot && active>=0&&(!row.powerId||row.previewPowerId)){
         if(!row.powerId&&!row.previewPowerId){
           toast('Selecione um poder para o nível '+(active+1)+' antes de avançar.','warning');
           document.querySelector('[data-progression-level="'+active+'"]')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -232,10 +237,10 @@ document.addEventListener('click',event=>{
             }
             return;
           }
-          const next=nextUnresolvedProgressionIndex(active);
-          const powerLevelIndices=state.progression.map((r,i)=>powerSlotAt(classById(r.classId),classLevelAt(i,r.classId))?i:-1).filter(i=>i>=0);
-          const nextIndex=powerLevelIndices.find(i=>i>active);
-          const targetIndex=next>=0?next:(nextIndex!==undefined?nextIndex:active);
+          const levelIndices=typeof progressionLevelIndices==='function'?progressionLevelIndices():state.progression.map((r,i)=>i).slice(1);
+          const curPos=levelIndices.indexOf(active);
+          const nextIndex=curPos>=0&&curPos<levelIndices.length-1?levelIndices[curPos+1]:undefined;
+          const targetIndex=nextIndex!==undefined?nextIndex:active;
           setProgressionEditingIndex(targetIndex);
           nextBtn.disabled=false;
           const savedSpells=typeof spellState==='function'?spellState():null;
@@ -266,7 +271,7 @@ document.addEventListener('click',event=>{
             toast('Poder confirmado! Escolha a nova magia recebida no Grimório.');
             return;
           }
-          if(next<0 && nextIndex===undefined && !state.isEditingFinishedSheet && !state.editingCharacter){
+          if(nextIndex===undefined && !state.isEditingFinishedSheet && !state.editingCharacter){
             const overallMissing=typeof characterPendingChoices==='function'?characterPendingChoices():[];
             if(overallMissing.length===0){
               if(typeof finishCharacterCreation==='function')finishCharacterCreation();
@@ -287,12 +292,13 @@ document.addEventListener('click',event=>{
         return;
       }
       const activeIndex=progressionActivePowerIndex();
-      const powerLevelIndices=state.progression.map((r,i)=>powerSlotAt(classById(r.classId),classLevelAt(i,r.classId))?i:-1).filter(i=>i>=0);
-      const nextIndex=powerLevelIndices.find(i=>i>activeIndex);
+      const levelIndices=typeof progressionLevelIndices==='function'?progressionLevelIndices():state.progression.map((r,i)=>i).slice(1);
+      const curPos=levelIndices.indexOf(activeIndex);
+      const nextIndex=curPos>=0&&curPos<levelIndices.length-1?levelIndices[curPos+1]:undefined;
       if(nextIndex!==undefined){
         setProgressionEditingIndex(nextIndex);
         const nextRow=state.progression[nextIndex];
-        if(nextRow){nextRow.previewPowerId=nextRow.powerId||'';nextRow.previewPowerChoice=nextRow.powerChoice||''}
+        if(nextRow){nextRow.previewPowerId='';nextRow.previewPowerChoice=''}
         renderStage();
         setTimeout(()=>document.querySelector('[data-progression-level="'+nextIndex+'"]')?.scrollIntoView({behavior:'smooth',block:'start'}),40);
       }
@@ -364,7 +370,7 @@ document.addEventListener('click',event=>{
     window.scrollTo({top:0,behavior:'smooth'});
   }
 },true);
-document.addEventListener('click',event=>{if(!event.target.closest?.('#reviewProgressionButton')||state.step!==10)return;event.preventDefault();event.stopImmediatePropagation();const first=state.progression.findIndex((row,index)=>powerSlotAt(classById(row.classId),classLevelAt(index,row.classId)));if(first<0)return toast('Não há escolhas de poder para revisar.');setProgressionEditingIndex(first);renderStage();setTimeout(()=>document.querySelector('[data-progression-level="'+first+'"]')?.scrollIntoView({behavior:'smooth',block:'start'}),30)},true);
+document.addEventListener('click',event=>{if(!event.target.closest?.('#reviewProgressionButton')||state.step!==10)return;event.preventDefault();event.stopImmediatePropagation();const levelIndices=typeof progressionLevelIndices==='function'?progressionLevelIndices():state.progression.map((r,i)=>i).slice(1);if(!levelIndices.length)return toast('Não há escolhas de poder para revisar.');const first=levelIndices[0];setProgressionEditingIndex(first);const row=state.progression[first];if(row){row.previewPowerId='';row.previewPowerChoice=''}renderStage();setTimeout(()=>document.querySelector('[data-progression-level="'+first+'"]')?.scrollIntoView({behavior:'smooth',block:'start'}),30);toast('Revisando escolhas a partir do nível 2.');},true);
 document.addEventListener('change',event=>{
   const upg=event.target.closest?.('[data-action="samurai-katana-upgrade"]');
   if(upg){
@@ -912,7 +918,7 @@ function characterTormentaPowersCount(){
   return Math.max(0, count);
 }
 function calculatePassiveCharacterEffects(){
-  const result={defenseAttribute:'des',defenseBonus:0,skillBonuses:{},movementBonus:0,pvPerLevel:0,pmPerLevel:0,pvFlat:0,pmFlat:0,sizeShift:0,reductions:[]};
+  const result={defenseAttribute:'des',defenseBonus:0,skillBonuses:{},movementBonus:0,pvPerLevel:0,pmPerLevel:0,pvFlat:0,pmFlat:0,sizeShift:0,reductions:[],appliedInsolencia:false};
   const addSkill=(id,value)=>{if(id)result.skillBonuses[id]=(result.skillBonuses[id]||0)+Number(value||0)};
   const equippedArm=typeof equippedArmorItem==='function'?equippedArmorItem():null;
   const isWearingHeavyArmor=equippedArm
@@ -925,10 +931,16 @@ function calculatePassiveCharacterEffects(){
   for(const effect of selectedFeatureEffects()){
     const conditional=effect.condicao||effect.condicoes||effect.duracao||effect.gatilho;
     const restrictions=effect.restricoes||[];
-    if(restrictions.some(rule=>rule==='nao_usar_armadura_pesada'&&isWearingHeavyArmor||['nao_estar_imovel','exige_liberdade_de_movimentos'].includes(rule)&&immobile))continue;
+    if(restrictions.some(rule=>(rule==='nao_usar_armadura_pesada'&&isWearingHeavyArmor)||(['nao_estar_imovel','exige_liberdade_de_movimentos'].includes(rule)&&immobile)))continue;
     if(effect.tipo==='somar_atributo_defesa'&&!conditional){
-      const cls=DATA.classes.find(c=>c.habilidades?.some(h=>h.id===effect.feature?.id)),clsLevel=cls?characterClassLevel(cls.id):(Number(state.identity.plannedLevel)||1);
-      result.defenseBonus+=Math.min(Number(finalAttrs()[effect.atributo]||0),effect.limite==='nivel'?clsLevel:Infinity);
+      const cls=(typeof DATA!=='undefined'&&DATA?.classes)?DATA.classes.find(c=>c.habilidades?.some(h=>h.id===effect.feature?.id)):null;
+      const clsLevel=cls?characterClassLevel(cls.id):(Number(state.identity?.plannedLevel)||1);
+      const attrVal = Math.max(0, Number(finalAttrs()[effect.atributo] || 0));
+      const bonus = Math.min(attrVal, effect.limite==='nivel'?clsLevel:Infinity);
+      result.defenseBonus += bonus;
+      if(effect.feature?.id === 'bucaneiro_insolencia' || effect.feature?.id === 'insolencia' || effect.feature?.id === 'duelista_insolencia'){
+        result.appliedInsolencia = true;
+      }
     }
     if(effect.tipo==='bonus_progressivo'&&!conditional){
       const cls=DATA.classes.find(cls=>cls.habilidades?.some(h=>h.id===effect.feature?.id)),level=cls?characterClassLevel(cls.id):(Number(state.identity.plannedLevel)||1),start=Number(effect.nivelInicial)||1;
@@ -1310,8 +1322,6 @@ function calculatePassiveCharacterEffects(){
     }
   }
   const inv = typeof characterInventory === 'function' ? characterInventory() : [];
-  if(inv.some(e => e.itemId === 'tatuagem_adereco_gangue')) addSkill('intimidacao', 1);
-  if(inv.some(e => e.itemId === 'bolas_malabarismo')) addSkill('atuacao', 1);
   if(inv.some(e => e.itemId === 'lupa' || /lupa/i.test(e.itemId))) addSkill('investigacao', 1);
   if(inv.some(e => (e.itemId === 'fragmento_de_estandarte' || /fragmento.*estandarte/i.test(e.itemId || e.nome || '')) && (e.equipped || e.isEquipped || e.equipado))) {
     addSkill('vontade', 1);
@@ -1319,20 +1329,152 @@ function calculatePassiveCharacterEffects(){
   if(inv.some(e => e.itemId === 'tatuagem_antiga_tripulacao' || /tatuagem.*tripulacao/i.test(e.itemId || e.nome || ''))) {
     addSkill('intimidacao', 1);
   }
-  inv.forEach(e => {
+
+  const CANONICAL_ITEM_SKILLS = {
+    maleta_de_medicamentos: { skills: ['cura'], baseBonus: 0 },
+    gazua: { skills: ['ladinagem'], baseBonus: 0 },
+    instrumentos_de_oficio: { skills: ['oficio'], baseBonus: 0 },
+    estojo_de_disfarces: { skills: ['enganacao'], baseBonus: 0 },
+    equipamento_de_viagem: { skills: ['sobrevivencia'], baseBonus: 0 },
+    sela: { skills: ['cavalgar'], baseBonus: 0 },
+    luneta: { skills: ['percepcao'], baseBonus: 0 },
+    pe_de_cabra: { skills: ['atletismo'], baseBonus: 0 },
+    lupa: { skills: ['investigacao'], baseBonus: 0 },
+    apito_de_caca: { skills: ['adestramento'], baseBonus: 1 },
+    baralho_marcado: { skills: ['jogatina'], baseBonus: 2 },
+    camisa_bufante: { skills: ['atuacao'], baseBonus: 1 },
+    bandana: { skills: ['intimidacao'], baseBonus: 1 },
+    capa_esvoacante: { skills: ['enganacao'], baseBonus: 1 },
+    luva_de_pelica: { skills: ['ladinagem'], baseBonus: 1 },
+    veste_de_seda: { skills: ['reflexos'], baseBonus: 1 },
+    manto_camuflado: { skills: ['furtividade'], baseBonus: 2 },
+    capa_pesada: { skills: ['fortitude'], baseBonus: 1 },
+    casaco_longo: { skills: ['fortitude'], baseBonus: 0 },
+    gorro_de_ervas: { skills: ['vontade'], baseBonus: 1 },
+    robe_mistico: { skills: ['misticismo'], baseBonus: 1 },
+    sapatos_de_camurca: { skills: ['acrobacia'], baseBonus: 1 },
+    tabardo: { skills: ['diplomacia'], baseBonus: 1 },
+    jaqueta_de_couro: { skills: ['investigacao'], baseBonus: 1 },
+    luva_de_falcoaria: { skills: ['adestramento'], baseBonus: 2 },
+    oculos_de_aeronauta: { skills: ['pilotagem'], baseBonus: 1 },
+    farrapos_de_ermitao: { skills: ['adestramento'], baseBonus: 2 },
+    andrajos_de_aldeao: { skills: ['investigacao'], baseBonus: 2 },
+    habito_monastico: { skills: ['vontade'], baseBonus: 2 },
+    habito_sacerdotal: { skills: ['diplomacia', 'enganacao', 'intimidacao'], baseBonus: 0 },
+    traje_selako: { skills: ['atletismo'], baseBonus: 2 },
+    anel_eclesiastico: { skills: ['diplomacia', 'intimidacao'], baseBonus: 1 },
+    penas_do_predador_primal: { skills: ['atletismo'], baseBonus: 2 },
+    fragmento_de_estandarte: { skills: ['vontade'], baseBonus: 1 },
+    tatuagem_antiga_tripulacao: { skills: ['intimidacao'], baseBonus: 1 },
+    tatuagem_adereco_gangue: { skills: ['intimidacao'], baseBonus: 1 },
+    bolas_malabarismo: { skills: ['atuacao'], baseBonus: 1 },
+    arreios_namalkahnianos: { skills: ['cavalgar'], baseBonus: 1 },
+    caparazao: { skills: ['diplomacia', 'intimidacao'], baseBonus: 1 },
+    cao_de_caca: { skills: ['percepcao', 'sobrevivencia'], baseBonus: 2 },
+    maquiagem_profissional: { skills: ['enganacao'], baseBonus: 2 }
+  };
+
+  const eqState = typeof equipmentState === 'function' ? equipmentState() : null;
+  const impDataList = (typeof DATA !== 'undefined' && DATA.improvementData && Array.isArray(DATA.improvementData.melhorias)) ? DATA.improvementData.melhorias : [];
+  const impMap = new Map(impDataList.map(m => [m.id, m]));
+
+  inv.forEach((e, idx) => {
+    const catalogItem = (typeof DATA !== 'undefined' && DATA?.pdfItems) ? DATA.pdfItems.find(it => it.id === e.itemId) : null;
+    const catId = String(e.categoriaId || catalogItem?.categoriaId || e.tipo || catalogItem?.tipo || '').toLowerCase();
+    const isTool = catId === 'ferramenta' || ['maleta_de_medicamentos', 'gazua', 'instrumentos_de_oficio', 'estojo_de_disfarces', 'equipamento_de_viagem', 'sela', 'luneta', 'pe_de_cabra', 'apito_de_caca', 'baralho_marcado', 'colecao_de_livros'].includes(e.itemId);
+    const isEquippedInSlots = Boolean(eqState && (
+      (typeof matchEquipmentEntry === 'function' && (
+        (eqState.armorId && matchEquipmentEntry(e, idx, eqState.armorId)) ||
+        (eqState.weaponId && matchEquipmentEntry(e, idx, eqState.weaponId)) ||
+        (eqState.offhandId && matchEquipmentEntry(e, idx, eqState.offhandId)) ||
+        (eqState.shieldId && matchEquipmentEntry(e, idx, eqState.shieldId)) ||
+        (eqState.trailerId && matchEquipmentEntry(e, idx, eqState.trailerId)) ||
+        (Array.isArray(eqState.wornIds) && eqState.wornIds.some(wId => matchEquipmentEntry(e, idx, wId)))
+      )) ||
+      (eqState.armorId === e.itemId || eqState.armorId === e.id) ||
+      (eqState.trailerId === e.itemId || eqState.trailerId === e.id) ||
+      (Array.isArray(eqState.wornIds) && (eqState.wornIds.includes(e.itemId) || eqState.wornIds.includes(e.id)))
+    ));
+    const isEq = Boolean(e.equipped || e.isEquipped || e.equipado || isEquippedInSlots);
+    const isCreationInitial = !state.finished && !state.sheetView && (state.step || 0) < 10;
+    const isWearable = catId === 'vestuario' || /traje|vestuario|acessorio/i.test(catId) || catalogItem?.equipamento?.itemVestido;
+    const isItemActive = isTool || isEq || (isWearable && isCreationInitial);
+
+    if(!isItemActive) return;
+
+    // 1. Bônus Intrínsecos do Item
+    const canon = CANONICAL_ITEM_SKILLS[e.itemId];
+    if(canon){
+      if(canon.baseBonus > 0){
+        for(const sk of canon.skills){
+          addSkill(sk, canon.baseBonus);
+        }
+      }
+    }
     if(e.itemId === 'colecao_de_livros' && e.options?.knowledge){
       addSkill(e.options.knowledge, 1);
     }
-    // Efeitos de itens vestidos / empunhados / equipados
-    const isEq = Boolean(e.equipped || e.isEquipped || e.equipado);
-    if(isEq){
-      const catalogItem = (typeof DATA !== 'undefined' && DATA?.pdfItems) ? DATA.pdfItems.find(it => it.id === e.itemId) : null;
-      const combinedEfeitos = [...(e.efeitos || []), ...(catalogItem?.efeitos || [])];
-      for(const ef of combinedEfeitos){
-        if((ef.tipo === 'bonus_pericia' || ef.tipo === 'pericia') && ef.periciaId){
-          addSkill(ef.periciaId, ef.bonus ?? ef.valor ?? 0);
-        } else if(ef.tipo === 'penalidade_pericia' && ef.periciaId){
-          addSkill(ef.periciaId, ef.penalidade ?? -(ef.valor ?? 0));
+    if(e.itemId === 'mascara_completa' && (e.options?.skill || e.skill)){
+      addSkill(e.options?.skill || e.skill, 1);
+    }
+    const combinedEfeitos = [...(e.efeitos || []), ...(catalogItem?.efeitos || [])];
+    for(const ef of combinedEfeitos){
+      if((ef.tipo === 'bonus_pericia' || ef.tipo === 'pericia') && ef.periciaId){
+        addSkill(ef.periciaId, ef.bonus ?? ef.valor ?? 0);
+      } else if(ef.tipo === 'penalidade_pericia' && ef.periciaId){
+        addSkill(ef.periciaId, ef.penalidade ?? -(ef.valor ?? 0));
+      }
+    }
+
+    // 2. Melhorias do Item
+    const imps = Array.isArray(e.improvements) ? e.improvements : (Array.isArray(e.options?.improvements) ? e.options.improvements : []);
+    for(const imp of imps){
+      const impId = imp?.id || imp;
+      const matId = imp?.materialId;
+      if(impId === 'aprimorado'){
+        let appliedAprimorado = false;
+        if(canon && canon.skills && canon.skills.length > 0){
+          for(const sk of canon.skills){
+            const targetSk = (sk === 'oficio' && (e.options?.oficio || e.options?.craftSkill)) ? (e.options.oficio || e.options.craftSkill) : sk;
+            addSkill(targetSk, 1);
+            appliedAprimorado = true;
+          }
+        }
+        if(e.itemId === 'colecao_de_livros' && e.options?.knowledge){
+          addSkill(e.options.knowledge, 1);
+          appliedAprimorado = true;
+        }
+        if(!appliedAprimorado){
+          for(const ef of combinedEfeitos){
+            if((ef.tipo === 'bonus_pericia' || ef.tipo === 'pericia') && ef.periciaId){
+              addSkill(ef.periciaId, 1);
+              appliedAprimorado = true;
+            }
+          }
+        }
+      } else if(impId === 'banhado_a_ouro'){
+        addSkill('diplomacia', 2);
+      } else if(impId === 'cravejado_de_gemas'){
+        addSkill('enganacao', 2);
+      } else if(impId === 'macabro'){
+        addSkill('intimidacao', 2);
+        addSkill('diplomacia', -2);
+      } else if(impId === 'material_especial' && matId === 'materia_vermelha'){
+        const carSkills = ['adestramento', 'atuacao', 'diplomacia', 'enganacao', 'jogatina'];
+        for(const s of carSkills){
+          addSkill(s, -2);
+        }
+      } else {
+        const impDef = impMap.get(impId);
+        if(impDef && Array.isArray(impDef.efeitos)){
+          for(const ef of impDef.efeitos){
+            if(ef.tipo === 'bonus_pericia' && ef.periciaId){
+              addSkill(ef.periciaId, ef.bonus ?? ef.valor ?? 0);
+            }
+            if(ef.tipo === 'penalidade_pericia' && ef.periciaId){
+              addSkill(ef.periciaId, ef.penalidade ?? -(ef.valor ?? 0));
+            }
+          }
         }
       }
     }
@@ -1409,52 +1551,7 @@ function calculatePassiveCharacterEffects(){
       addSkill('cavalgar', 2);
     }
   }
-  if(typeof heldItemRecords === 'function'){
-    try{
-      const held = heldItemRecords();
-      const impDataList = (typeof DATA !== 'undefined' && DATA.improvementData && Array.isArray(DATA.improvementData.melhorias)) ? DATA.improvementData.melhorias : [];
-      const impMap = new Map(impDataList.map(m => [m.id, m]));
-      for(const record of held){
-        const entry = record.entry;
-        if(!entry) continue;
-        const imps = entry.improvements || [];
-        for(const imp of imps){
-          const impId = imp.id;
-          const matId = imp.materialId;
-          let appliedAny = false;
-          const impDef = impMap.get(impId);
-          if(impDef && Array.isArray(impDef.efeitos)){
-            for(const ef of impDef.efeitos){
-              if(ef.tipo === 'bonus_pericia' && ef.periciaId){
-                addSkill(ef.periciaId, ef.bonus ?? ef.valor ?? 0);
-                appliedAny = true;
-              }
-              if(ef.tipo === 'penalidade_pericia' && ef.periciaId){
-                addSkill(ef.periciaId, ef.penalidade ?? -(ef.valor ?? 0));
-                appliedAny = true;
-              }
-            }
-          }
-          if(!appliedAny){
-            if(impId === 'banhado_a_ouro'){
-              addSkill('diplomacia', 2);
-            } else if(impId === 'cravejado_de_gemas'){
-              addSkill('enganacao', 2);
-            } else if(impId === 'macabro'){
-              addSkill('intimidacao', 2);
-              addSkill('diplomacia', -2);
-            }
-          }
-          if(impId === 'material_especial' && matId === 'materia_vermelha'){
-            const carSkills = ['adestramento', 'atuacao', 'diplomacia', 'enganacao', 'jogatina'];
-            for(const s of carSkills){
-              addSkill(s, -2);
-            }
-          }
-        }
-      }
-    }catch(_err){}
-  }
+
 
   // Bônus em perícias baseadas em atributo (ex: Cosmopolita)
   if(characterHasFeature('cosmopolita')){
@@ -1559,6 +1656,19 @@ function calculatePassiveCharacterEffects(){
   }
   if (characterHasFeature('couraca_rubra') || characterHasFeature('kaijin_couraca_rubra')) {
     result.reductions.push({ tipo: 'reducao_dano', danoTipo: 'fisico', valor: 2 });
+  }
+
+  // Bucaneiro / Duelista - Insolência: Você soma seu Carisma na Defesa, limitado pelo seu nível na classe.
+  // Exige liberdade de movimentos; você não pode usá-la se estiver de armadura pesada ou na condição imóvel.
+  const hasInsolencia = characterHasFeature('bucaneiro_insolencia') || characterHasFeature('insolencia') || characterHasFeature('duelista_insolencia');
+  if (hasInsolencia && !isWearingHeavyArmor && !immobile && !result.appliedInsolencia) {
+    const bucLevel = typeof characterClassLevel === 'function'
+      ? (characterClassLevel('bucaneiro') || characterClassLevel('duelista'))
+      : ((state.progression || []).filter(r => r.classId === 'bucaneiro' || r.classId === 'duelista').length || (['bucaneiro','duelista'].includes(state.identity?.classId) ? Number(state.identity?.plannedLevel) || 1 : 0));
+    const carBonus = Math.max(0, Number(finalAttrs().car) || 0);
+    const bonus = Math.min(carBonus, bucLevel || 1);
+    result.defenseBonus += bonus;
+    result.appliedInsolencia = true;
   }
 
   // Poderes individuais de distinção na progressão

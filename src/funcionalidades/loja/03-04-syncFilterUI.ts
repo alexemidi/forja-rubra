@@ -176,13 +176,41 @@ function materialOptionsForItem(item) {
 }
 
 function itemModifiesSkill(item) {
+  if (!item) return false;
   const effects = item.efeitos || [];
   if (effects.some(function(effect) {
     return /pericia|penalidade/.test(String(effect.tipo || ''));
   })) return true;
+  const knownSkillItemIds = [
+    'maleta_de_medicamentos', 'gazua', 'instrumentos_de_oficio', 'estojo_de_disfarces',
+    'equipamento_de_viagem', 'luneta', 'pe_de_cabra', 'sela', 'apito_de_caca', 'baralho_marcado',
+    'colecao_de_livros', 'andrajos_de_aldeao', 'casaco_longo', 'farrapos_de_ermitao', 'gorro_de_ervas',
+    'luva_de_pelica', 'manto_camuflado', 'robe_mistico', 'sapatos_de_camurca', 'tabardo',
+    'veste_de_seda', 'capa_pesada', 'jaqueta_de_couro', 'luva_de_falcoaria', 'mascara_completa',
+    'oculos_de_aeronauta', 'habito_monastico', 'habito_sacerdotal', 'traje_selako', 'anel_eclesiastico',
+    'penas_do_predador_primal', 'fragmento_de_estandarte', 'tatuagem_antiga_tripulacao'
+  ];
+  if (knownSkillItemIds.includes(item.id || item.itemId)) return true;
   const texts = item.textos || {};
   const rules = [texts.habilidade, texts.variavel].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');
-  return /(?:fornece|recebe)\s*[+–-]\s*\d+[^.]{0,80}(?:teste|perícia)|sem (?:este|esta) item[^.]{0,80}(?:sofre|penalidade)\s*[–-]\s*\d+/.test(rules);
+  if (/(?:fornece|recebe|concede)\s*[+–-]?\s*\d+[^.]{0,80}(?:teste|perícia)/i.test(rules)) return true;
+  if (/sem (?:este|esta|os) item[^.]{0,80}(?:sofre|penalidade)\s*[–-]?\s*\d+/i.test(rules)) return true;
+  if (/sem os instrumentos[^.]{0,80}sofre/i.test(rules)) return true;
+  if (/sofre\s*[–-]?\s*\d+\s*(?:em|nessa)/i.test(rules)) return true;
+  const skills = [
+    'acrobacia', 'adestramento', 'atletismo', 'atua[cç][aã]o', 'cavalgar', 'conhecimento', 'cura',
+    'diplomacia', 'engana[cç][aã]o', 'fortitude', 'furtividade', 'guerra', 'iniciativa', 'intimida[cç][aã]o',
+    'intui[cç][aã]o', 'investiga[cç][aã]o', 'jogatina', 'ladinagem', 'luta', 'misticismo', 'nobreza',
+    'of[ií]cio', 'percep[cç][aã]o', 'pilotagem', 'pontaria', 'reflexos', 'religi[aã]o', 'sobreviv[eê]ncia',
+    'vontade'
+  ];
+  for (const sk of skills) {
+    const rx = new RegExp('(?:fornece|recebe|concede)\\s*[+–-]?\\s*\\d+[^.]{0,50}\\b' + sk + '\\b', 'i');
+    if (rx.test(rules)) return true;
+    const rxPen = new RegExp('sofre\\s*[+–-]?\\s*\\d+[^.]{0,50}\\b' + sk + '\\b', 'i');
+    if (rxPen.test(rules)) return true;
+  }
+  return false;
 }
 
 function restrictionMatches(restriction, item) {

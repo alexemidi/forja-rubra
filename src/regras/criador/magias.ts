@@ -131,7 +131,7 @@ function spellPlan(){
     if(/magia|lançar/i.test(trait.descricao||''))notes.push({label:trait.nome,description:trait.descricao});
   });
   const powerRules={
-    centelha_magica:{count:1},grande_marca_de_wynna:{count:1},glamour:{count:3},glamour_maior:{count:3,maxCircle:2},
+    centelha_magica:{count:1,type:'any',maxCircle:1},grande_marca_de_wynna:{count:1,type:'any',maxCircle:1},glamour:{count:3},glamour_maior:{count:3,maxCircle:2},
     chamado_monstruoso:{fixed:['Conjurar Monstro']},dedo_verde:{fixed:['Controlar Plantas']},dom_da_profecia:{fixed:['Augúrio']},
     farsa_do_fingidor:{fixed:['Criar Ilusão']},manto_ardiloso:{fixed:['Disfarce Ilusório']},manto_da_penumbra:{fixed:['Escuridão']},
     mestre_dos_mares:{fixed:['Acalmar Animal']},olhar_amedrontador:{fixed:['Amedrontar']},palavra_de_poder:{fixed:['Comando']},
@@ -231,7 +231,9 @@ function spellPlan(){
 function groupSpellIds(group){return group.fixed.length?group.fixed:[...new Set((spellState().selections[group.id]||[]).filter(id=>typeof id==='string'))]}
 function knowsCharacterSpell(id){return allLearnedSpellIds().includes(spellKey(id))}
 function allLearnedSpellIds(plan=spellPlan()){
-  return [...new Set(plan.groups.filter(group=>!['reference','consult'].includes(group.kind)).flatMap(group=>groupSpellIds(group).filter(id=>group.fixed.length||basicSpellAllowed(spellById(id),group,plan)&&teurgistUnlocked(group,plan))))].filter(id=>spellById(id));
+  const base = [...new Set(plan.groups.filter(group=>!['reference','consult'].includes(group.kind)).flatMap(group=>groupSpellIds(group).filter(id=>group.fixed.length||basicSpellAllowed(spellById(id),group,plan)&&teurgistUnlocked(group,plan))))].filter(id=>spellById(id));
+  const backpackTattoos = (typeof state !== 'undefined' && Array.isArray(state?.backpack) ? state.backpack : []).filter(e => e.tatuagemInfo?.spellId).map(e => e.tatuagemInfo.spellId);
+  return [...new Set([...base, ...backpackTattoos])];
 }
 function spellRelearnedTimes(spellId, plan = spellPlan()){
   const key = spellKey(spellId);
@@ -288,7 +290,7 @@ function basicSpellAllowed(spell,group,plan){
   if(group.exclusiveType)return spell.type===group.type;
   if(group.type==='any'||spell.type==='universal'||spell.type===group.type)return true;
   if(group.classId==='necromante'&&spell.school==='necromancia')return true;
-  if(group.lineage==='linhagem_abencoada'&&spell.type==='divina'&&spell.circle===1)return true;
+  if(group.lineage==='linhagem_abencoada'&&spell.type==='divina')return true;
   if(group.kind==='class'&&group.type==='divina'&&((plan.powerIds.has('caricia_sombria')&&spell.id==='toque-vampirico')||(plan.powerIds.has('sopro_do_mar')&&spell.id==='sopro-das-uivantes')))return true;
   return false;
 }

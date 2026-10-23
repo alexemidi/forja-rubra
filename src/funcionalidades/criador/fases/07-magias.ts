@@ -12,10 +12,15 @@ function renderSpellChoices(part='all'){
     saved.activeGroup=stepperGroups.find(g=>g.count)?.id||stepperGroups[0]?.id||plan.groups[0]?.id||'';
   }
 
-  const mainCls=plan.classes[0];
+  const schoolCls=plan.classes.find(c=>c.schoolCount>0)||plan.classes[0];
   let schoolsHtml='';
-  if(mainCls){
-    schoolsHtml='<div class="spell-schools-progress-block"><span>'+esc(mainCls.name)+' · escolas '+mainCls.schools.length+'/'+(mainCls.schoolCount+mainCls.fixedSchools.length)+'</span>'+mainCls.schools.map(id=>'<span class="school-pill-tag">'+esc((SPELL_SCHOOLS[id]||id).toUpperCase())+(mainCls.fixedSchools.includes(id)?' - FIXA':'')+'</span>').join('')+'</div>';
+  if(schoolCls&&schoolCls.schoolCount){
+    const curCount=schoolCls.chosenSchools.length;
+    const maxCount=schoolCls.schoolCount;
+    const isPending=curCount<maxCount;
+    const actionAttr='data-action="school-open" data-class-id="'+esc(schoolCls.classId)+'"';
+    const pendingBtn=isPending?'<button type="button" class="button small" '+actionAttr+' style="margin-left:8px;padding:2px 8px;font-size:0.75rem;background:#991b1b;border:1px solid #dc2626;color:#ffffff;border-radius:4px;cursor:pointer;font-weight:700;">+ Escolher '+(maxCount-curCount)+' escola'+(maxCount-curCount>1?'s':'')+'</button>':'';
+    schoolsHtml='<div class="spell-schools-progress-block" style="cursor:pointer;" '+actionAttr+' title="Clique para gerenciar suas escolas de magia"><span>'+esc(schoolCls.name)+' · escolas '+curCount+'/'+maxCount+'</span>'+schoolCls.chosenSchools.map(id=>'<span class="school-pill-tag">'+esc((SPELL_SCHOOLS[id]||id).toUpperCase())+'</span>').join('')+pendingBtn+'</div>';
   }
 
   const activeGroup=stepperGroups.find(g=>g.id===saved.activeGroup)||stepperGroups[0];
@@ -115,9 +120,36 @@ function grimoireContext(){
   }
   const chosen=group?groupSpellIds(group):[],learned=allLearnedSpellIds(plan),available=group?.fixed.length?group.fixed:group?DATA.spells.filter(spell=>basicSpellAllowed(spell,group,plan)).map(spell=>spell.id):DATA.spells.filter(spell=>spell.circle===1).map(spell=>spell.id);
   const cls=plan.classes.find(cls=>cls.classId===group?.classId),visible=saved.view==='learned'?learned:available,metadata=visible.map(spellById).filter(Boolean);
-  let traditions=[...new Set(metadata.filter(spell=>spell.type!=='universal').map(spell=>spell.type))];
-  if(group?.exclusiveType && group.type) traditions=[group.type];
-  else if(!traditions.length&&metadata.some(spell=>spell.type==='universal'))traditions=group?.type&&group.type!=='any'?[group.type]:['arcana','divina'];
+  const conjuringClasses = plan.classes;
+  const isBlessedSorcerer = conjuringClasses.some(c => c.classId === 'arcanista' && c.lineage === 'linhagem_abencoada');
+  const hasDivineClass = conjuringClasses.some(c => ['clerigo', 'frade', 'druida', 'ermitao', 'santo'].includes(c.classId));
+  const hasArcaneClass = conjuringClasses.some(c => ['bardo', 'arcanista'].includes(c.classId));
+  let classTraditions = ['arcana'];
+  if (isBlessedSorcerer || (hasDivineClass && hasArcaneClass)) {
+    classTraditions = ['arcana', 'divina'];
+  } else if (hasDivineClass) {
+    classTraditions = ['divina'];
+  } else if (hasArcaneClass) {
+    classTraditions = ['arcana'];
+  } else if (group?.type && group.type !== 'any') {
+    classTraditions = [group.type];
+  }
+  let traditions = [...classTraditions];
+  if (group?.type === 'any' || group?.id === 'power:centelha_magica' || group?.id === 'power:grande_marca_de_wynna') {
+    traditions = ['arcana', 'divina'];
+  } else if (group?.teurgist && group.type) {
+    traditions = [group.type];
+  } else if (group?.exclusiveType && group.type) {
+    traditions = [group.type];
+  } else if (group?.kind === 'class') {
+    if (group.lineage === 'linhagem_abencoada') {
+      traditions = ['arcana', 'divina'];
+    } else if (['clerigo', 'frade', 'druida', 'ermitao', 'santo'].includes(group.classId)) {
+      traditions = ['divina'];
+    } else {
+      traditions = ['arcana'];
+    }
+  }
   const classSchools=cls?.schools||[];
   const learnedSpellSchools=learned.map(id=>spellById(id)?.school).filter(Boolean);
   const allKnownSchools=[...new Set([...classSchools,...learnedSpellSchools])];
@@ -138,12 +170,14 @@ function grimoireContext(){
     return !beforeSpells.includes(id);
   }).map(id=>[id,group?.id||'']));
   const repeatNotes=Object.fromEntries(repeatable.map(id=>[id,'Você já conhece esta magia. Aprendê-la novamente por este patamar reduz seu custo em –1 PM.']));
+  const stageLabel = group ? (typeof shortSpellGroupLabel === 'function' ? shortSpellGroupLabel(group) : (group.label || '')) : '';
   const traditionNotice = (group && group.count > 0) ? {
     type: group.type && group.type !== 'any' ? group.type : (traditions.length === 1 ? traditions[0] : (group.type || 'universal')),
     count: group.count,
     circle: group.exactCircle || group.maxCircle || 1,
     chosen: chosen.length,
-    label: group.label || ''
+    label: group.label || '',
+    stageLabel: stageLabel || group.label || ''
   } : null;
   return {channel:'forja-t20-grimoire-v1',type:'context',session:grimoireSession,group:group?.id||'',label:group?.label||'Consulta',view:saved.view,section:spellCatalogUI.section,books:[...spellCatalogUI.books],visible,chosen:group?.fixed.length?[]:chosen,learned,relearnedSpells,fixedSpells,repeatable,repeatNotes,removable,wynllaSpells:characterWynllaSpells(),selectable,canChoose:Boolean(group?.count),traditionNotice,classId:cls?.classId||'',schools:classSchools,classSchools,allKnownSchools,fixedSchools:cls?.fixedSchools||[],schoolCount:totalSchoolLimit,schoolLimit:totalSchoolLimit,schoolChoiceCount:cls?.schoolCount||0,schoolsFull,schoolChoicesComplete:cls?classSpellChoicesFilled(cls.classId,plan):false,availableSchools:[...new Set(metadata.map(spell=>spell.school))],circles:[...new Set(metadata.map(spell=>spell.circle))],traditions};
 }
@@ -160,6 +194,18 @@ function refreshSpellStage(){
   renderNav();persist();syncGrimoire();
   if(typeof syncNextButtonState==='function')syncNextButtonState();
   syncTeurgistFooterButton();
+  if(typeof pendingSchoolClass==='function'&&typeof openSchoolDialog==='function'){
+    const pending=pendingSchoolClass();
+    if(pending){
+      const modal=document.getElementById('spellSchoolModal');
+      if(modal&&modal.hidden){
+        setTimeout(()=>{
+          const p=pendingSchoolClass();
+          if(p)openSchoolDialog(p.classId,'choose');
+        },150);
+      }
+    }
+  }
 }
 function resumeProgressionAfterSpells(){
   if(state.step!==7||!spellState().returnToProgression||spellMissingChoices().length)return false;

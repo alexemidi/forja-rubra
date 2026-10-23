@@ -2,7 +2,7 @@
 function isCharacterEligibleForFundamentalist(){
   const allowRule = state.tableRules?.broadDevotionAndFundamentalist !== false;
   if(!allowRule) return false;
-  return ['clerigo','frade','druida','ermitao','paladino','santo'].includes(state.identity.classId);
+  return Boolean(state.identity.classId);
 }
 function renderFundamentalistTogglePanel(){
   if(!isCharacterEligibleForFundamentalist() || (state.deity.mode !== 'devout' && state.deity.mode !== 'pantheon')) return '';

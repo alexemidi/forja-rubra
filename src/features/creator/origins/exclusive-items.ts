@@ -33,6 +33,7 @@ export const ORIGIN_EXCLUSIVE_ITEM_IDS: ReadonlySet<string> = new Set([
   'bolsa_de_minhocas',
   'instrumentos_pescador',
   'dente_falso',
+  'replica_peca_artistica_elfica',
 ]);
 
 export interface InitialChoiceContext {

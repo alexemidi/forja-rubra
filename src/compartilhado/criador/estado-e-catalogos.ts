@@ -23,6 +23,7 @@ const PHASES=[['Identidade e classe','Personagem, classe inicial e escolhas de c
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
 const raceById=id=>DATA.races.find(x=>x.id===id);
+if(Array.isArray(DATA?.classes)){DATA.classes.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'))}
 const classById=id=>DATA.classes.find(x=>x.id===id);
 const STATE_SCHEMA_VERSION=1;
 const validCharacterLevel=ModeloEstado.validCharacterLevel;
@@ -188,8 +189,9 @@ function persistCharacterNow(recalculate){
       } catch {}
     }
     characterStorage.salvar(STORAGE_KEY,state);
-    if(typeof remainingFunds==='function'&&state.identity?.characterId){
-      localStorage.setItem('forja-saldo-personagem-ativo-v1',JSON.stringify({id:state.identity.characterId,funds:remainingFunds()}));
+    if(typeof remainingFunds==='function'){
+      const cid = state.identity?.characterId || 'ficha-ativa';
+      localStorage.setItem('forja-saldo-personagem-ativo-v1',JSON.stringify({id:cid,funds:remainingFunds(),timestamp:Date.now()}));
     }
     const saveStatusEl=document.getElementById('saveStatus');
     const auth=typeof window!=='undefined'&&window.ModuloAuth?window.ModuloAuth.obterServicoAutenticacao():null;

@@ -62,7 +62,25 @@ itemCard=function(item){
     const rules = typeof RegrasManufatura !== 'undefined' ? RegrasManufatura : null;
     const rawCost = rules ? rules.custoMateriaPrima(fullPrice) : Math.ceil(fullPrice / 3);
     const isArmeiroSection = arsenalInitialState?.workshopSection === 'armeiro';
-    const isReadOnly = Boolean(arsenalInitialState?.workshopReadOnly) && !isArmeiroSection;
+    let isReadOnly = Boolean(arsenalInitialState?.workshopReadOnly) && !isArmeiroSection;
+    if (isReadOnly) {
+      try {
+        const rawHero = typeof localStorage !== 'undefined' ? localStorage.getItem('forja-heroi-t20-v1') : null;
+        const hero = rawHero ? JSON.parse(rawHero) : null;
+        if (hero) {
+          const list = [
+            ...(Array.isArray(hero.powers) ? hero.powers : []),
+            ...(Array.isArray(hero.progression) ? hero.progression : [])
+          ];
+          const hasCreative = list.some((p: any) => {
+            const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+            const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+            return id.includes('artesao_criativo') || nome.includes('artesão criativo') || nome.includes('artesao criativo');
+          });
+          if (hasCreative) isReadOnly = false;
+        }
+      } catch {}
+    }
 
     let availableFunds = Number(arsenalInitialState?.funds || 0);
     if (availableFunds <= 0 && typeof obterFundosIniciaisHeroi === 'function') {
@@ -71,6 +89,10 @@ itemCard=function(item){
         if (arsenalInitialState) arsenalInitialState.funds = ref;
         availableFunds = ref;
       }
+    }
+    if (availableFunds <= 0) {
+      availableFunds = 1000;
+      if (arsenalInitialState) arsenalInitialState.funds = 1000;
     }
     const canAfford = availableFunds >= rawCost;
 
@@ -101,7 +123,8 @@ itemCard=function(item){
     // 2. Superior (com melhorias)
     const imps = typeof improvements !== 'undefined' ? improvements : [];
     const hasImprovements = imps.some(choice => typeof improvementAppliesToItem === 'function' && improvementAppliesToItem(choice, item));
-    const maxImps = typeof getMaxAllowedImprovements === 'function' ? getMaxAllowedImprovements() : 0;
+    const baseMaxImps = typeof getMaxAllowedImprovements === 'function' ? getMaxAllowedImprovements() : 0;
+    const maxImps = Math.max(baseMaxImps, Number(arsenalInitialState?.crafting?.improvements) || 0);
     let superiorBtn = '';
 
     const isLiturgical = typeof isLiturgicalItem === 'function' && isLiturgicalItem(item);
@@ -469,15 +492,21 @@ filteredItems = function() {
     const rules = typeof RegrasManufatura !== 'undefined' ? RegrasManufatura : null;
     const sectionKey = arsenalInitialState.workshopSection || 'artesao';
     const sec = rules?.secoesOficina?.[sectionKey];
-    const exclusiveIds = typeof ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso', 'panela', 'avental', 'caneca', 'pano_sujo', 'apito', 'faca_de_corte']);
+    const exclusiveIds = typeof ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'replica_peca_artistica_elfica', 'cutelo', 'bolas_malabarismo', 'dente_falso', 'panela', 'avental', 'caneca', 'pano_sujo', 'apito', 'faca_de_corte']);
     const search = typeof normalizeText === 'function' ? normalizeText(state.search) : (state.search || '').toLowerCase();
+
+    let activeHeroForCraft: any = null;
+    try {
+      const rawHero = typeof localStorage !== 'undefined' ? localStorage.getItem('forja-heroi-t20-v1') : null;
+      if (rawHero) activeHeroForCraft = JSON.parse(rawHero);
+    } catch {}
 
     let results = preparedItems.filter(function(item) {
       if (item.categoriaId === 'servico') return false;
       if (item.origemExclusiva || exclusiveIds.has(item.id)) return false;
       const price = Number(item.preco?.valor ?? item.price ?? 0);
       if (price <= 0) return false;
-      if (sec && typeof sec.corresponde === 'function' && !sec.corresponde(item)) return false;
+      if (sec && typeof sec.corresponde === 'function' && !sec.corresponde(item, activeHeroForCraft)) return false;
 
       if (sectionKey === 'alquimista') {
         const isAlchemCat = item.tipo === 'alquimico' ||
@@ -2457,6 +2486,7 @@ const DEFAULT_ITEM_OPTIONS = {
   joia_de_familia: { customName: 'Colar' },
   joia_falsificada: { customName: 'Anel de Latão' },
   item_artistico: { customName: 'Tapeçaria Antiga' },
+  replica_peca_artistica_elfica: { customName: 'Escultura de Mármore' },
   colecao_de_livros: { customName: '', knowledge: '' },
   tatuagem_adereco_gangue: { customName: 'Tatuagem da Gangue' },
   item_sem_valor_admirador: { customName: 'Fita de Seda' },
@@ -2519,6 +2549,10 @@ configuredItemName = function(instance, item) {
   if (item.id === 'item_artistico') {
     const raw = (options.customName || 'Tapeçaria Antiga').trim();
     return raw ? raw + ' (Item Artístico)' : 'Item Artístico';
+  }
+  if (item.id === 'replica_peca_artistica_elfica') {
+    const raw = (options.customName || 'Escultura de Mármore').trim();
+    return raw ? (raw.includes('Réplica') ? raw : raw + ' (Réplica Élfica)') : 'Réplica de Peça Artística Élfica';
   }
   if (item.id === 'tatuagem_adereco_gangue') {
     const raw = (options.customName || 'Tatuagem da Gangue').trim();

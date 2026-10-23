@@ -1,4 +1,32 @@
 
+function heroiTemPoderComerciante() {
+  try {
+    const rawHero = typeof localStorage !== 'undefined' ? localStorage.getItem('forja-heroi-t20-v1') : null;
+    let hero = rawHero ? JSON.parse(rawHero) : null;
+    if (!hero && typeof localStorage !== 'undefined') {
+      try {
+        const rawProfiles = localStorage.getItem('arsenal-arton-character-profiles-v1');
+        if (rawProfiles) {
+          const parsed = JSON.parse(rawProfiles);
+          hero = parsed.profiles?.find((p) => p.id === 'ficha-ativa') || parsed.profiles?.find((p) => p.id === parsed.activeId) || parsed.profiles?.[0];
+        }
+      } catch {}
+    }
+    const list = [
+      ...(Array.isArray(hero?.powers) ? hero.powers : []),
+      ...(Array.isArray(hero?.progression) ? hero.progression : []),
+      ...(Array.isArray(hero?.classPowers) ? hero.classPowers : [])
+    ];
+    return list.some((p) => {
+      const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+      const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+      return id.includes('comerciante') || nome.includes('comerciante');
+    });
+  } catch {
+    return false;
+  }
+}
+
 function ensureGeneralSaleModal(){
   let modal=document.getElementById('generalSaleModal');if(modal)return modal;
   modal=document.createElement('div');modal.id='generalSaleModal';modal.className='modal-backdrop';modal.hidden=true;
@@ -7,8 +35,8 @@ function ensureGeneralSaleModal(){
   const update=()=>{const q=Math.max(1,Number(modal.querySelector('[data-general-sale-qty]').value)||1),p=Math.max(0,Number(modal.querySelector('[data-general-sale-price]').value)||0);modal.querySelector('[data-general-sale-total]').textContent=formatCurrencyValue(RegrasInventario.totalVenda(q,p,'inteiro'),'T$')};
   const apply=()=>{modal.querySelector('[data-general-sale-percent]').textContent=generalSalePercent+'%';modal.querySelector('[data-general-sale-price]').value=RegrasInventario.precoVenda(generalSaleBase,generalSalePercent);update()};
   modal.addEventListener('input',update);
-  modal.addEventListener('click',event=>{const action=event.target.closest('[data-general-sale]')?.dataset.generalSale;if(!action&&event.target!==modal)return;if(event.target===modal||action==='close'){modal.hidden=true;return}if(action==='up'){generalSalePercent=Math.min(200,generalSalePercent+10);apply();return}if(action==='down'){generalSalePercent=Math.max(0,generalSalePercent-10);apply();return}if(action==='reset'){generalSalePercent=50;apply();return}if(action==='confirm'&&generalSaleInstance){const qty=Math.min(Number(generalSaleInstance.quantity)||1,Math.max(1,Number(modal.querySelector('[data-general-sale-qty]').value)||1)),price=Math.max(0,Number(modal.querySelector('[data-general-sale-price]').value)||0),sale=RegrasInventario.vender(backpackItems,generalSaleInstance.instanceId,qty,price,entry=>entry.instanceId,'inteiro');if(!sale.alterado){modal.hidden=true;showToast('Item não encontrado ou quantidade indisponível.');return}const total=sale.total;backpackItems=sale.backpack;const active=activeCharacterProfile();if(active)active.backpack=backpackItems;modal.hidden=true;showToast('Item vendido por '+formatCurrencyValue(total,'T$')+'.');if(typeof persistBackpack==='function')persistBackpack();if(typeof persistCart==='function')persistCart();if(typeof arsenalInitialState!=='undefined'){arsenalInitialState.funds=Math.round(((Number(arsenalInitialState.funds)||0)+total)*100)/100;if(typeof syncEmbeddedShopActions==='function')syncEmbeddedShopActions()}refreshInventoryUI();postArsenal('sale',{value:total})}});
-  modal.openFor=instance=>{generalSaleInstance=instance;const item=itemById.get(instance.itemId),value=entryValueInfo(instance,effectiveItemForOptions(item,instance));generalSaleBase=Number(value?.unitKnown||instance.customPrice||instance.price||instance.unitValue||instance.preco?.valor||item?.preco?.valor||item?.price||0);if(instance.itemId==='tranqueiras_resgatadas_do_mar'&&generalSaleBase<=0)generalSaleBase=100;generalSalePercent=instance.itemId==='tranqueiras_resgatadas_do_mar'?100:50;modal.querySelector('[data-general-sale-name]').textContent=configuredItemName(instance,item);modal.querySelector('[data-general-sale-meta]').textContent='Valor atual: '+formatCurrencyValue(generalSaleBase,'T$');const qty=modal.querySelector('[data-general-sale-qty]');qty.value=1;qty.max=instance.quantity;apply();modal.hidden=false};
+  modal.addEventListener('click',event=>{const action=event.target.closest('[data-general-sale]')?.dataset.generalSale;if(!action&&event.target!==modal)return;if(event.target===modal||action==='close'){modal.hidden=true;return}if(action==='up'){generalSalePercent=Math.min(200,generalSalePercent+10);apply();return}if(action==='down'){generalSalePercent=Math.max(0,generalSalePercent-10);apply();return}if(action==='reset'){generalSalePercent=heroiTemPoderComerciante()?60:50;apply();return}if(action==='confirm'&&generalSaleInstance){const qty=Math.min(Number(generalSaleInstance.quantity)||1,Math.max(1,Number(modal.querySelector('[data-general-sale-qty]').value)||1)),price=Math.max(0,Number(modal.querySelector('[data-general-sale-price]').value)||0),sale=RegrasInventario.vender(backpackItems,generalSaleInstance.instanceId,qty,price,entry=>entry.instanceId,'inteiro');if(!sale.alterado){modal.hidden=true;showToast('Item não encontrado ou quantidade indisponível.');return}const total=sale.total;backpackItems=sale.backpack;const active=activeCharacterProfile();if(active)active.backpack=backpackItems;modal.hidden=true;showToast('Item vendido por '+formatCurrencyValue(total,'T$')+'.');if(typeof persistBackpack==='function')persistBackpack();if(typeof persistCart==='function')persistCart();if(typeof arsenalInitialState!=='undefined'){arsenalInitialState.funds=Math.round(((Number(arsenalInitialState.funds)||0)+total)*100)/100;if(typeof syncEmbeddedShopActions==='function')syncEmbeddedShopActions()}refreshInventoryUI();postArsenal('sale',{value:total})}});
+  modal.openFor=instance=>{generalSaleInstance=instance;const item=itemById.get(instance.itemId),value=entryValueInfo(instance,effectiveItemForOptions(item,instance));generalSaleBase=Number(value?.unitKnown||instance.customPrice||instance.price||instance.unitValue||instance.preco?.valor||item?.preco?.valor||item?.price||0);if(instance.itemId==='tranqueiras_resgatadas_do_mar'&&generalSaleBase<=0)generalSaleBase=100;generalSalePercent=instance.itemId==='tranqueiras_resgatadas_do_mar'?100:(heroiTemPoderComerciante()?60:50);modal.querySelector('[data-general-sale-name]').textContent=configuredItemName(instance,item);modal.querySelector('[data-general-sale-meta]').textContent='Valor atual: '+formatCurrencyValue(generalSaleBase,'T$');const qty=modal.querySelector('[data-general-sale-qty]');qty.value=1;qty.max=instance.quantity;apply();modal.hidden=false};
   return modal;
 }
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action="sell-general"]');if(!button)return;event.preventDefault();event.stopImmediatePropagation();const row=button.closest('.backpack-compact-entry'),instance=row&&getBackpackInstance(row.dataset.instanceId);if(instance)ensureGeneralSaleModal().openFor(instance)},true);
@@ -229,9 +257,29 @@ function ensureGeneralPurchaseModal(){
 
   const update=()=>{
     const total=Math.max(0,Math.ceil(generalPurchaseBase*(generalPurchasePercent/100)));
-    modal.querySelector('[data-general-purchase-base]').textContent=formatCurrencyValue(generalPurchaseBase,'T$');
-    modal.querySelector('[data-general-purchase-percent]').textContent=generalPurchasePercent+'%';
-    modal.querySelector('[data-general-purchase-total]').textContent=formatCurrencyValue(total,'T$');
+    const baseEl = modal.querySelector('[data-general-purchase-base]');
+    if(baseEl) baseEl.textContent=formatCurrencyValue(generalPurchaseBase,'T$');
+    const percentEl = modal.querySelector('[data-general-purchase-percent]');
+    if(percentEl) percentEl.textContent=generalPurchasePercent+'%';
+    const totalEl = modal.querySelector('[data-general-purchase-total]');
+    if(totalEl) totalEl.textContent=formatCurrencyValue(total,'T$');
+
+    const upBtn = modal.querySelector('[data-general-purchase="up"]');
+    const downBtn = modal.querySelector('[data-general-purchase="down"]');
+    if(upBtn){
+      const canInc = generalPurchasePercent < 100;
+      upBtn.disabled = !canInc;
+      upBtn.style.opacity = canInc ? '1' : '0.4';
+      upBtn.style.cursor = canInc ? 'pointer' : 'not-allowed';
+    }
+    if(downBtn){
+      const hasComerciante = typeof heroiTemPoderComerciante === 'function' && heroiTemPoderComerciante();
+      const minPercent = hasComerciante ? 70 : 80;
+      const canDec = generalPurchasePercent > minPercent;
+      downBtn.disabled = !canDec;
+      downBtn.style.opacity = canDec ? '1' : '0.4';
+      downBtn.style.cursor = canDec ? 'pointer' : 'not-allowed';
+    }
   };
 
   modal.addEventListener('click',event=>{
@@ -276,17 +324,24 @@ function ensureGeneralPurchaseModal(){
       return;
     }
     if(action==='up'){
-      generalPurchasePercent=Math.min(300,generalPurchasePercent+10);
-      update();
+      if(generalPurchasePercent < 100){
+        generalPurchasePercent=Math.min(100,generalPurchasePercent+10);
+        update();
+      }
       return;
     }
     if(action==='down'){
-      generalPurchasePercent=Math.max(0,generalPurchasePercent-10);
-      update();
+      const hasComerciante = typeof heroiTemPoderComerciante === 'function' && heroiTemPoderComerciante();
+      const minPercent = hasComerciante ? 70 : 80;
+      if(generalPurchasePercent > minPercent){
+        generalPurchasePercent=Math.max(minPercent,generalPurchasePercent-10);
+        update();
+      }
       return;
     }
     if(action==='reset'){
-      generalPurchasePercent=100;
+      const hasComerciante = typeof heroiTemPoderComerciante === 'function' && heroiTemPoderComerciante();
+      generalPurchasePercent=hasComerciante?90:100;
       update();
       return;
     }
@@ -314,14 +369,14 @@ function promptGeneralPurchaseModal(baseTotal, items, funds){
     generalPurchaseResolver=resolve;
     currentPurchaseItems=Array.isArray(items)?items:[];
     generalPurchaseBase=Number(baseTotal)||0;
-    generalPurchasePercent=100;
+    const hasComerciante = typeof heroiTemPoderComerciante === 'function' && heroiTemPoderComerciante();
+    generalPurchasePercent=hasComerciante?90:100;
 
     if(typeof modal._renderItemsList==='function')modal._renderItemsList();
+    if(typeof modal._update==='function')modal._update();
 
-    modal.querySelector('[data-general-purchase-base]').textContent=formatCurrencyValue(generalPurchaseBase,'T$');
-    modal.querySelector('[data-general-purchase-funds]').textContent=formatCurrencyValue(funds,'T$');
-    modal.querySelector('[data-general-purchase-percent]').textContent='100%';
-    modal.querySelector('[data-general-purchase-total]').textContent=formatCurrencyValue(generalPurchaseBase,'T$');
+    const fundsEl = modal.querySelector('[data-general-purchase-funds]');
+    if(fundsEl) fundsEl.textContent=formatCurrencyValue(funds,'T$');
 
     modal.hidden=false;
     if(modal.style)modal.style.display='flex';

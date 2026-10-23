@@ -65,11 +65,7 @@ document.addEventListener('click',event=>{
     }
     persist();
     if(typeof state!=='undefined'&&state?.finished&&typeof scheduleSaveFinishedCharacter==='function')scheduleSaveFinishedCharacter();
-    let updated=false;
-    try{
-      if(typeof updateSheetEquipmentAndDefenseOnly==='function')updated=updateSheetEquipmentAndDefenseOnly();
-    }catch(err){console.error('Erro na atualização cirúrgica de equipamento:',err)}
-    if(!updated)renderStage();
+    renderStage();
   }
   if(result.message)toast(result.message);
 },true);

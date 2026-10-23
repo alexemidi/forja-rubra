@@ -14,7 +14,7 @@ function availableInitialItems(){
     const isCraftChoice = Boolean(effectiveChoice.isCraftableChoice || (maxBudget === 50 && /fabricar/i.test(effectiveChoice.title || '')));
     const rawOffices = (typeof (window as any).allTrainedOffices === 'function' ? (window as any).allTrainedOffices() : null) || (typeof (window as any).arsenalInitialState !== 'undefined' ? (window as any).arsenalInitialState?.trainedOffices : null) || [];
     const trainedOffices = rawOffices.length > 0 ? rawOffices : ['artesao'];
-    const exclusiveIds = typeof (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
+    const exclusiveIds = typeof (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? (window as any).ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'replica_peca_artistica_elfica', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
     results=preparedItems.filter(item=>{
       if(item.categoriaId==='servico')return false;
       if(item.origemExclusiva||exclusiveIds.has(item.id))return false;
@@ -130,7 +130,7 @@ function availableInitialItems(){
       return nameMatch||searchMatch;
     });
   }
-  const exclusiveIds = typeof ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
+  const exclusiveIds = typeof ORIGIN_EXCLUSIVE_ITEM_IDS !== 'undefined' ? ORIGIN_EXCLUSIVE_ITEM_IDS : new Set(['rolo_de_macarrao', 'martelo_de_carne', 'ferramenta_pesada', 'ferramenta_pesada_lanca', 'ferramenta_agricola', 'animal_nao_combativo', 'joia_de_familia', 'joia_falsificada', 'item_artistico', 'replica_peca_artistica_elfica', 'cutelo', 'bolas_malabarismo', 'dente_falso']);
   const isOriginChoice = (effectiveChoice?.source === 'origin' || effectiveChoice?.isOriginGrant) && !effectiveChoice?.isBudgetGrant;
   const explicitlyAllowed = new Set((effectiveChoice?.names || []).map(starterKey));
   results = results.filter(item => {

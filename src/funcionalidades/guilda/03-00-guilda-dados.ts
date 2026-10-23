@@ -383,7 +383,8 @@ let guildState = {
   partners: [],
   trainedSkills: [],
   mercenaryChoices: {},
-  mountChoices: {}
+  mountChoices: {},
+  hasComerciante: false
 };
 
 function getGuildPartnerLimit(level) {
@@ -469,16 +470,29 @@ function loadGuildStorage() {
       if (Array.isArray(hero.partners)) guildState.partners = hero.partners;
       if (Array.isArray(hero.tavernContracts)) guildState.contracts = hero.tavernContracts;
 
-      // Detecção de poderes/habilidades (ex: Comitiva de Nobre)
+      // Detecção de poderes/habilidades (ex: Comitiva de Nobre, Comerciante de Inventor)
       const prog = Array.isArray(hero.progression) ? hero.progression : [];
       const powersGeneral = Array.isArray(hero.powers?.general) ? hero.powers.general : [];
       const powersSelected = Array.isArray(hero.powers?.selected) ? hero.powers.selected : [];
-      const hasComitiva = prog.some(r => r.powerId === 'nobre_comitiva' || r.powerId === 'comitiva') ||
+      const hasComitiva = prog.some((r: any) => r.powerId === 'nobre_comitiva' || r.powerId === 'comitiva') ||
         powersGeneral.includes('nobre_comitiva') || powersGeneral.includes('comitiva') ||
         powersSelected.includes('nobre_comitiva') || powersSelected.includes('comitiva');
-      const nobreLvl = prog.filter(r => r.classId === 'nobre').length || (hero.identity?.classId === 'nobre' ? lvl : 0);
+      const nobreLvl = prog.filter((r: any) => r.classId === 'nobre').length || (hero.identity?.classId === 'nobre' ? lvl : 0);
       guildState.hasComitiva = hasComitiva;
       guildState.nobreLevel = nobreLvl;
+
+      const allPowers = [
+        ...(Array.isArray(hero.powers) ? hero.powers : []),
+        ...(Array.isArray(hero.progression) ? hero.progression : []),
+        ...(Array.isArray(hero.classPowers) ? hero.classPowers : []),
+        ...powersGeneral,
+        ...powersSelected
+      ];
+      guildState.hasComerciante = allPowers.some((p: any) => {
+        const id = String(p?.powerId || p?.id || p || '').toLowerCase();
+        const nome = String(p?.powerName || p?.nome || p?.name || '').toLowerCase();
+        return id.includes('comerciante') || nome.includes('comerciante');
+      });
     }
   } catch (e) {}
 

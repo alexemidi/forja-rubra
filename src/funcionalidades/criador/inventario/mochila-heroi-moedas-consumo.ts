@@ -935,21 +935,24 @@
       const slotsHtml = [0, 1, 2].map(idx => {
         const choice = currentList[idx];
         if (choice) {
-          const encObj = available.find(x => x.id === (choice.id || choice)) || { nome: choice.nome || choice.id || choice };
+          const encObj = available.find(x => x.id === (choice.id || choice)) || { nome: choice.nome || choice.id || choice, resumo: '' };
           return `
-            <div class="upgrade-slot-card filled" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#151d2a;border:1px solid #a855f7;border-radius:6px;">
-              <div>
-                <span class="slot-badge" style="font-size:0.7rem;font-weight:700;color:#c084fc;margin-right:8px;">${idx + 1}º ENCANTO</span>
-                <strong style="font-size:0.85rem;color:#f8fafc;">${esc(encObj.nome)}</strong>
+            <div class="upgrade-slot-card filled">
+              <div class="slot-badge">${idx + 1}º ENCANTO</div>
+              <div class="slot-info">
+                <strong>${esc(encObj.nome)}</strong>
+                <small>${esc(encObj.resumo || (encObj as any).descricao || '')}</small>
               </div>
-              <button type="button" class="button small danger" data-sheet-enchant-remove="${idx}" style="padding:2px 8px;font-size:0.75rem;">Remover</button>
+              <button type="button" class="slot-remove-btn" data-sheet-enchant-remove="${idx}" title="Remover este encanto">×</button>
             </div>
           `;
         }
         return `
-          <div class="upgrade-slot-card empty" style="display:flex;align-items:center;padding:10px 14px;background:#0d131d;border:1px dashed #334155;border-radius:6px;color:#64748b;font-size:0.82rem;">
-            <span class="slot-badge" style="font-size:0.7rem;font-weight:700;color:#64748b;margin-right:8px;">${idx + 1}º ENCANTO</span>
-            <em>Vazio · Selecione um encanto mágico na barra lateral</em>
+          <div class="upgrade-slot-card empty">
+            <div class="slot-badge">${idx + 1}º ENCANTO</div>
+            <div class="slot-info">
+              <span style="color:var(--muted,#c9b2aa);font-style:italic">Vazio · Selecione um encanto na barra lateral</span>
+            </div>
           </div>
         `;
       }).join('');
@@ -958,13 +961,13 @@
         const isChosen = chosenIds.has(enc.id);
         const isFull = count >= 3 && !isChosen;
         return `
-          <div class="sidebar-improvement-item ${isChosen ? 'is-active' : ''}" style="padding:8px 10px;background:#141b27;border:1px solid ${isChosen ? '#a855f7' : '#242f44'};border-radius:6px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <strong style="font-size:0.82rem;color:${isChosen ? '#c084fc' : '#f1f5f9'};">${esc(enc.nome)}</strong>
-              ${isChosen ? '<span class="tag purple" style="font-size:0.65rem;">Ativo</span>' : ''}
+          <div class="sidebar-improvement-item ${isChosen ? 'is-active' : ''} ${isFull ? 'is-blocked' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+              <strong style="font-size:0.82rem;color:${isChosen ? 'var(--gold2,#f5c879)' : 'var(--cream,#f5eee6)'};">${esc(enc.nome)}</strong>
+              ${isChosen ? '<span class="tag" style="font-size:0.68rem;">Selecionado</span>' : (isFull ? '<span class="tag" style="font-size:0.68rem;">Limite atingido</span>' : '')}
             </div>
-            <p style="font-size:0.72rem;color:#94a3b8;margin:0 0 6px 0;line-height:1.3;">${esc(enc.resumo || enc.descricao || '')}</p>
-            <div style="text-align:right;">
+            <p style="font-size:0.73rem;color:var(--muted,#c9b2aa);margin:4px 0 6px 0;line-height:1.35;">${esc(enc.resumo || enc.descricao || '')}</p>
+            <div style="display:flex;justify-content:flex-end;">
               ${isChosen
                 ? `<button type="button" class="button small danger" data-sheet-enchant-remove-id="${esc(enc.id)}" style="padding:2px 8px;font-size:0.72rem;">Remover</button>`
                 : `<button type="button" class="button small primary" data-sheet-enchant-add-id="${esc(enc.id)}" ${isFull ? 'disabled' : ''} style="padding:2px 8px;font-size:0.72rem;">+ Adicionar</button>`}
@@ -978,49 +981,49 @@
         : (encMarketDiff > 0 ? `Comprar Encantos (+T$ ${encMarketDiff})` : 'Confirmar Encantos');
 
       return `
-        <section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true" style="width:min(1380px,calc(100vw - 24px));height:min(920px,calc(100vh - 24px));max-height:calc(100vh - 24px);min-height:560px;overflow:hidden;display:flex;flex-direction:column;background:#111620;border:1px solid #2b384e;border-radius:8px;">
-          <header class="modal-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #1e293b;background:#0d121a;">
-            <h2 style="margin:0;font-size:1.15rem;color:#c084fc;font-family:Cinzel,serif;">Encantos · ${esc(entry.displayName || item.nome)}</h2>
-            <button class="modal-close" type="button" data-sheet-upgrade-close aria-label="Fechar" style="background:transparent;border:0;color:#94a3b8;font-size:1.4rem;cursor:pointer;">×</button>
+        <section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true">
+          <header class="modal-header">
+            <h2>Encantos · ${esc(entry.displayName || item.nome)}</h2>
+            <button class="modal-close" type="button" data-sheet-upgrade-close aria-label="Fechar">×</button>
           </header>
 
-          <div class="modal-body" style="flex:1 1 auto;overflow:auto;padding:18px;">
-            <div class="purchase-improvements-layout" style="display:flex;gap:20px;align-items:stretch;min-height:540px;">
-              <div class="improvements-config-main" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
-                <div style="background:#111620;padding:10px 14px;border-radius:6px;border:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;">
+          <div class="modal-body">
+            <div class="purchase-improvements-layout">
+              <div class="improvements-config-main">
+                <div class="item-summary-strip">
                   <div>
-                    <strong style="font-size:1rem;color:var(--gold2,#ffd700);">${esc(item.nome)}</strong>
-                    <div style="font-size:0.75rem;color:#94a3b8;">Encantos Atuais: ${prevEncCount}/3 · ${isCraftMode ? 'Modo: Manufatura do Inventor' : 'Modo: Compra no Mercado'}</div>
+                    <strong style="font-size:1rem;color:var(--gold2,#f5c879);">${esc(item.nome)}</strong>
+                    <div style="font-size:0.75rem;color:var(--muted,#c9b2aa);">Encantos Atuais: ${prevEncCount}/3 · ${isCraftMode ? 'Modo: Manufatura do Inventor' : 'Modo: Compra no Mercado'}</div>
                   </div>
                   <div style="text-align:right;">
-                    <span style="font-size:0.9rem;font-weight:700;color:${count >= 3 ? '#f59e0b' : '#c084fc'};">${count}/3 Encantos</span>
-                    <div style="font-size:0.95rem;font-weight:700;color:#c084fc;margin-top:4px;">${isCraftMode ? `Matéria-prima: T$ ${encMpCost} · CD: ${cdEnc}` : `Custo de mercado: +T$ ${encMarketDiff}`}</div>
+                    <span class="improvement-counter" style="font-size:0.85rem;font-weight:700;color:var(--gold2,#f5c879);">${count}/3 Encantos</span>
+                    <div style="font-size:0.95rem;font-weight:700;color:var(--gold2,#f5c879);margin-top:4px;">${isCraftMode ? `Matéria-prima: T$ ${encMpCost} · CD: ${cdEnc}` : `Custo de mercado: +T$ ${encMarketDiff}`}</div>
                   </div>
                 </div>
 
-                <div class="slots-container" style="display:flex;flex-direction:column;gap:8px;">
+                <div class="slots-container">
                   ${slotsHtml}
                 </div>
 
-                <div style="background:#151b26;border:1px solid #2b384e;border-radius:8px;padding:12px;font-size:0.8rem;color:#94a3b8;line-height:1.45;">
+                <div class="improvements-cost-callout">
                   <strong>Regras de Encantamento:</strong> Um item pode receber até 3 encantos. Cada encanto transforma o item em mágico menor (1º), médio (2º) ou maior (3º).
                 </div>
               </div>
 
-              <aside class="improvements-sidebar" style="width:440px;flex:0 0 440px;background:#0d121a;border:1px solid #1e293b;border-radius:8px;padding:14px;display:flex;flex-direction:column;">
-                <div style="margin-bottom:10px;">
-                  <h4 style="margin:0 0 6px 0;font-size:0.88rem;color:#c084fc;">Catálogo de Encantos</h4>
-                  <input type="search" placeholder="Filtrar encantos..." id="sheetImpSearchInput" style="width:100%;font-size:0.78rem;padding:6px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#f8fafc;">
+              <aside class="improvements-sidebar">
+                <div class="sidebar-header">
+                  <h3>Encantamentos Disponíveis</h3>
+                  <input type="search" class="sidebar-search-input" placeholder="Filtrar encantos..." id="sheetImpSearchInput">
                 </div>
-                <div class="sidebar-list" id="sheetImpSidebarList" style="flex:1;max-height:580px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px;">
+                <div class="sidebar-list" id="sheetImpSidebarList">
                   ${sidebarHtml}
                 </div>
               </aside>
             </div>
           </div>
 
-          <footer class="modal-actions" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid #1e293b;background:#111620;">
-            <button class="secondary-button" type="button" data-sheet-upgrade-close style="padding:8px 16px;cursor:pointer;">Voltar</button>
+          <footer class="modal-actions">
+            <button class="secondary-button" type="button" data-sheet-upgrade-close>Voltar</button>
             <div style="display:flex;align-items:center;gap:12px;">
               ${(() => {
                 const currentFunds = typeof remainingFunds === 'function' ? remainingFunds() : 0;
@@ -1033,7 +1036,7 @@
               <button class="primary-button" type="button" data-sheet-upgrade-confirm ${(() => {
                 const currentFunds = typeof remainingFunds === 'function' ? remainingFunds() : 0;
                 const encCost = isCraftMode ? encMpCost : encMarketDiff;
-                return encCost > currentFunds ? 'disabled style="background:#475569;border:1px solid #64748b;color:#94a3b8;font-weight:700;padding:8px 20px;border-radius:6px;cursor:not-allowed;"' : 'style="background:linear-gradient(135deg,#9333ea,#a855f7);border:1px solid #a855f7;color:#fff;font-weight:700;padding:8px 20px;border-radius:6px;cursor:pointer;"';
+                return encCost > currentFunds ? 'disabled' : '';
               })()}>
                 ${btnActionLabel}
               </button>
@@ -1056,24 +1059,28 @@
       const choice = currentList[idx];
       if (choice) {
         let label = choice.nome || choice.id;
+        const impObj = available.find(x => x.id === choice.id);
         if (choice.id === 'material_especial') {
           const m = materials.find(x => x.id === choice.materialId);
           label = m ? 'Material: ' + m.nome : 'Material Especial';
         }
         return `
-          <div class="upgrade-slot-card filled" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#151d2a;border:1px solid #3b82f6;border-radius:6px;">
-            <div>
-              <span class="slot-badge" style="font-size:0.7rem;font-weight:700;color:var(--gold2,#ffd700);margin-right:8px;">${idx + 1}ª MELHORIA</span>
-              <strong style="font-size:0.85rem;color:#f8fafc;">${esc(label)}</strong>
+          <div class="upgrade-slot-card filled">
+            <div class="slot-badge">${idx + 1}ª MELHORIA</div>
+            <div class="slot-info">
+              <strong>${esc(label)}</strong>
+              <small>${esc(impObj?.resumo || '')}</small>
             </div>
-            <button type="button" class="button small danger" data-sheet-upgrade-remove="${idx}" style="padding:2px 8px;font-size:0.75rem;">Remover</button>
+            <button type="button" class="slot-remove-btn" data-sheet-upgrade-remove="${idx}" title="Remover esta melhoria">×</button>
           </div>
         `;
       }
       return `
-        <div class="upgrade-slot-card empty" style="display:flex;align-items:center;padding:8px 12px;background:#0d131d;border:1px dashed #334155;border-radius:6px;color:#64748b;font-size:0.82rem;">
-          <span class="slot-badge" style="font-size:0.7rem;font-weight:700;color:#64748b;margin-right:8px;">${idx + 1}ª MELHORIA</span>
-          <em>Espaço vazio (selecione na barra lateral)</em>
+        <div class="upgrade-slot-card empty">
+          <div class="slot-badge">${idx + 1}ª MELHORIA</div>
+          <div class="slot-info">
+            <span style="color:var(--muted,#c9b2aa);font-style:italic">Espaço vazio (selecione na barra lateral)</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -1082,12 +1089,12 @@
     const materialCards = materials.map(mat => {
       const isSelected = selectedMat === mat.id;
       return `
-        <div class="material-choice-card ${isSelected ? 'selected' : ''}" data-sheet-upgrade-material="${esc(mat.id)}" style="cursor:pointer;padding:10px;border-radius:6px;border:1px solid ${isSelected ? '#60a5fa' : '#334155'};background:${isSelected ? 'rgba(37,99,235,0.2)' : '#101622'};">
+        <div class="material-choice-card ${isSelected ? 'selected' : ''}" data-sheet-upgrade-material="${esc(mat.id)}" style="cursor:pointer;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <strong style="font-size:0.82rem;color:${isSelected ? '#60a5fa' : 'var(--gold2,#ffd700)'};">${esc(mat.nome)}</strong>
-            <span class="badge" style="font-size:0.7rem;">+T$ ${mat.custo}</span>
+            <strong style="color:var(--gold2,#f5c879);">${esc(mat.nome)}</strong>
+            <span class="badge" style="font-weight:700;">+T$ ${mat.custo}</span>
           </div>
-          <p style="font-size:0.72rem;color:#94a3b8;margin:0;line-height:1.3;">${esc(mat.resumo)}</p>
+          <p style="font-size:0.75rem;margin:0;color:var(--muted,#c9b2aa);line-height:1.35;">${esc(mat.resumo)}</p>
         </div>
       `;
     }).join('');
@@ -1097,13 +1104,13 @@
       const isChosen = chosenIds.has(imp.id);
       const isFull = count >= 4 && !isChosen;
       return `
-        <div class="sidebar-improvement-item ${isChosen ? 'is-active' : ''}" style="padding:8px 10px;background:#141b27;border:1px solid ${isChosen ? '#22c55e' : '#242f44'};border-radius:6px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <strong style="font-size:0.82rem;color:${isChosen ? '#4ade80' : '#f1f5f9'};">${esc(imp.nome)}</strong>
-            ${isChosen ? '<span class="tag green" style="font-size:0.65rem;">Ativa</span>' : ''}
+        <div class="sidebar-improvement-item ${isChosen ? 'is-active' : ''} ${isFull ? 'is-blocked' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+            <strong style="font-size:0.82rem;color:${isChosen ? 'var(--gold2,#f5c879)' : 'var(--cream,#f5eee6)'};">${esc(imp.nome)}</strong>
+            ${isChosen ? '<span class="tag" style="font-size:0.68rem;">Selecionada</span>' : (isFull ? '<span class="tag" style="font-size:0.68rem;">Limite atingido</span>' : '')}
           </div>
-          <p style="font-size:0.72rem;color:#94a3b8;margin:0 0 6px 0;line-height:1.3;">${esc(imp.resumo || '')}</p>
-          <div style="text-align:right;">
+          <p style="font-size:0.73rem;color:var(--muted,#c9b2aa);margin:4px 0 6px 0;line-height:1.35;">${esc(imp.resumo || '')}</p>
+          <div style="display:flex;justify-content:flex-end;">
             ${isChosen
               ? `<button type="button" class="button small danger" data-sheet-upgrade-remove-id="${esc(imp.id)}" style="padding:2px 8px;font-size:0.72rem;">Remover</button>`
               : `<button type="button" class="button small primary" data-sheet-upgrade-add-id="${esc(imp.id)}" ${isFull ? 'disabled' : ''} style="padding:2px 8px;font-size:0.72rem;">+ Adicionar</button>`}
@@ -1119,9 +1126,11 @@
       const matObj = materials.find(m => m.id === selectedMat);
       if (matObj) materialCostDiff = matObj.custo;
     }
+    const TABELA_MELHORIAS = [0, 300, 900, 3000, 9000];
+    const diffMelhoriasFallback = Math.max(0, (TABELA_MELHORIAS[count] || 0) - (TABELA_MELHORIAS[originalCount] || 0));
     const aprimoramentoInfo = rules
       ? rules.calcularAprimoramentoItemExistente(item, originalCount, count, materialCostDiff)
-      : { custoMercadoMelhoria: 300 * (count - originalCount) + materialCostDiff, custoMateriaPrima: Math.ceil((300 * (count - originalCount) + materialCostDiff) / 3), cdFabricacao: 20 + count * 5 };
+      : { custoMercadoMelhoria: diffMelhoriasFallback + materialCostDiff, custoMateriaPrima: Math.ceil((diffMelhoriasFallback + materialCostDiff) / 3), cdFabricacao: 20 + count * 5 };
 
     const hasSpecialMaterialSlot = currentList.some(c => c.id === 'material_especial');
     const needsMaterialChoice = hasSpecialMaterialSlot && !selectedMat;
@@ -1143,24 +1152,26 @@
       confirmLabel = `${confirmLabel} (Saldo Insuficiente)`;
     }
 
+    const titleText = `MELHORIAS · ${(entry.displayName || item.nome).toUpperCase()}`;
+
     return `
-      <section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true" style="width:min(1380px,calc(100vw - 24px));height:min(920px,calc(100vh - 24px));max-height:calc(100vh - 24px);min-height:560px;overflow:hidden;display:flex;flex-direction:column;background:#111620;border:1px solid #2b384e;border-radius:8px;">
-        <header class="modal-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #1e293b;background:#0d121a;">
-          <h2 style="margin:0;font-size:1.15rem;color:var(--gold2,#ffd700);font-family:Cinzel,serif;">Melhorias · ${esc(entry.displayName || item.nome)}</h2>
-          <button class="modal-close" type="button" data-sheet-upgrade-close aria-label="Fechar" style="background:transparent;border:0;color:#94a3b8;font-size:1.4rem;cursor:pointer;">×</button>
+      <section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true">
+        <header class="modal-header">
+          <h2>${esc(titleText)}</h2>
+          <button class="modal-close" type="button" data-sheet-upgrade-close aria-label="Fechar">×</button>
         </header>
 
-        <div class="modal-body" style="flex:1 1 auto;overflow:auto;padding:18px;">
-          <div class="purchase-improvements-layout" style="display:flex;gap:20px;align-items:stretch;min-height:540px;">
-            <div class="improvements-config-main" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
-              <div style="background:#111620;padding:10px 14px;border-radius:6px;border:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;">
+        <div class="modal-body">
+          <div class="purchase-improvements-layout">
+            <div class="improvements-config-main">
+              <div class="item-summary-strip" style="background:var(--panel2,#181114);padding:10px 14px;border-radius:6px;border:1px solid var(--line,#4a252a);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
                 <div>
-                  <strong style="font-size:1rem;color:var(--gold2,#ffd700);">${esc(item.nome)}</strong>
-                  <div style="font-size:0.75rem;color:#94a3b8;">Melhorias Atuais: ${originalCount}/4 · ${isCraftMode ? 'Modo: Manufatura do Inventor' : 'Modo: Compra no Mercado'}</div>
+                  <strong style="font-size:1rem;color:var(--gold2,#f5c879);">${esc(item.nome)}</strong>
+                  <div style="font-size:0.75rem;color:var(--muted,#c9b2aa);">Preço base: T$ ${Number(item.preco?.valor || 0)} · Tipo: ${esc(item.tipo)}</div>
                 </div>
                 <div style="text-align:right;">
-                  <span style="font-size:0.9rem;font-weight:700;color:${count >= 4 ? '#f59e0b' : '#4ade80'};">${count}/4 Melhorias</span>
-                  <div style="font-size:0.95rem;font-weight:700;color:#60a5fa;margin-top:4px;">${isCraftMode ? `Matéria-prima: T$ ${aprimoramentoInfo.custoMateriaPrima} · CD: ${aprimoramentoInfo.cdFabricacao}` : `Custo de mercado: +T$ ${aprimoramentoInfo.custoMercadoMelhoria}`}</div>
+                  <span class="improvement-counter" style="font-size:0.85rem;font-weight:700;color:var(--gold2,#f5c879);">${count}/4 melhorias</span>
+                  <div style="font-size:0.95rem;font-weight:700;color:var(--gold2,#f5c879);margin-top:2px;">${isCraftMode ? `Matéria-prima: T$ ${aprimoramentoInfo.custoMateriaPrima} · CD: ${aprimoramentoInfo.cdFabricacao}` : `Total: T$ ${Number(item.preco?.valor || 0) + aprimoramentoInfo.custoMercadoMelhoria}`}</div>
                 </div>
               </div>
 
@@ -1168,38 +1179,42 @@
                 ${slotsHtml}
               </div>
 
-              <div class="special-material-panel ${needsMaterialChoice ? 'needs-material-selection' : ''}" style="background:#151b26;border:1px solid ${needsMaterialChoice ? '#eab308' : '#2b384e'};border-radius:8px;padding:12px;${needsMaterialChoice ? 'animation:materialPulse 1.2s infinite ease-in-out;' : ''}">
+              <div class="improvements-cost-callout" style="margin-top:14px;padding:10px 12px;border-radius:6px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);font-size:0.8rem;color:var(--cream,#f5eee6);">
+                Escolha até 4 melhorias na barra lateral para aprimorar seu item. Ao aprimorar um item já existente, você paga apenas a diferença pelo valor das novas melhorias adicionadas.
+              </div>
+
+              <div class="special-material-panel ${needsMaterialChoice ? 'needs-material-selection' : ''}" style="margin-top:14px;padding:12px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);border-radius:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                  <h4 style="margin:0;font-size:0.9rem;color:var(--gold2,#ffd700);">Material Especial</h4>
+                  <h4 style="margin:0;font-size:0.9rem;color:var(--gold2,#f5c879);">Escolha o Material Especial</h4>
                   ${needsMaterialChoice
                     ? `<span style="color:#facc15;font-weight:700;font-size:0.76rem;">Selecione um material abaixo para preencher o slot</span>`
-                    : `<small style="color:#94a3b8;font-size:0.72rem;">Clique para selecionar ou alternar</small>`}
+                    : `<small style="color:var(--muted,#c9b2aa);font-size:0.72rem;">Clique para selecionar</small>`}
                 </div>
                 ${needsMaterialChoice ? `<div style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.35);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:0.78rem;color:#fef08a;">Você ativou a melhoria <strong>Material Especial</strong>. Escolha um dos materiais abaixo para continuar:</div>` : ''}
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;">
+                <div class="material-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;">
                   ${materialCards}
                 </div>
               </div>
             </div>
 
-            <aside class="improvements-sidebar" style="width:440px;flex:0 0 440px;background:#0d121a;border:1px solid #1e293b;border-radius:8px;padding:14px;display:flex;flex-direction:column;">
-              <div style="margin-bottom:10px;">
-                <h4 style="margin:0 0 6px 0;font-size:0.88rem;color:var(--gold2,#ffd700);">Catálogo de Melhorias</h4>
-                <input type="search" placeholder="Filtrar melhorias..." id="sheetImpSearchInput" style="width:100%;font-size:0.78rem;padding:6px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#f8fafc;">
+            <aside class="improvements-sidebar">
+              <div class="sidebar-header">
+                <h3>MELHORIAS DISPONÍVEIS</h3>
+                <input type="search" class="sidebar-search-input" placeholder="Filtrar melhorias..." id="sheetImpSearchInput">
               </div>
-              <div class="sidebar-list" id="sheetImpSidebarList" style="flex:1;max-height:580px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px;">
+              <div class="sidebar-list" id="sheetImpSidebarList">
                 ${sidebarHtml}
               </div>
             </aside>
           </div>
         </div>
 
-        <footer class="modal-actions" style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid #1e293b;background:#111620;">
-          <button class="secondary-button" type="button" data-sheet-upgrade-close style="padding:8px 16px;cursor:pointer;">Voltar</button>
+        <footer class="modal-actions">
+          <button class="secondary-button" type="button" data-sheet-upgrade-close>Voltar</button>
           <div style="display:flex;align-items:center;gap:12px;">
             ${needsMaterialChoice ? `<span style="color:#facc15;font-size:0.82rem;font-weight:700;">Selecione um material especial no painel à esquerda.</span>` : ''}
             ${!needsMaterialChoice && hasInsufficientFunds ? `<span style="color:#ef4444;font-size:0.85rem;font-weight:700;">Saldo insuficiente (Você tem T$ ${currentFunds}, faltam T$ ${cost - currentFunds})</span>` : ''}
-            <button class="primary-button" type="button" data-sheet-upgrade-confirm ${!canConfirm ? 'disabled' : ''} style="background:${!canConfirm ? '#475569' : (isCraftMode ? 'linear-gradient(135deg,#16a34a,#22c55e)' : 'linear-gradient(135deg,#2563eb,#3b82f6)')};border:1px solid ${!canConfirm ? '#64748b' : (isCraftMode ? '#22c55e' : '#3b82f6')};color:${!canConfirm ? '#94a3b8' : '#fff'};font-weight:700;padding:8px 20px;border-radius:6px;cursor:${!canConfirm ? 'not-allowed' : 'pointer'};">
+            <button class="primary-button" type="button" data-sheet-upgrade-confirm ${!canConfirm ? 'disabled' : ''}>
               ${confirmLabel}
             </button>
           </div>

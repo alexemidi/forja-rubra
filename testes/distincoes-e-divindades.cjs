@@ -11,7 +11,7 @@ console.log('Iniciando testes de Distinções e Opções de Devoção...');
 const distPath = path.join(__dirname, '..', 'dados', 'distincoes.json');
 assert.ok(fs.existsSync(distPath), 'Arquivo dados/distincoes.json deve existir');
 const distincoes = JSON.parse(fs.readFileSync(distPath, 'utf8'));
-assert.strictEqual(distincoes.length, 59, 'Deve conter as 59 distinções fornecidas');
+assert.strictEqual(distincoes.length, 61, 'Deve conter as 61 distinções fornecidas');
 
 distincoes.forEach(d => {
   assert.ok(d.id, `Distinção ${d.nome} deve ter id`);
@@ -25,7 +25,7 @@ distincoes.forEach(d => {
     assert.ok(p.descricao, `Poder ${p.nome} deve ter descrição`);
   });
 });
-console.log('✔ Catálogo de 59 Distinções validado com integridade total!');
+console.log('✔ Catálogo de 61 Distinções validado com integridade total!');
 
 // 2. Validando opções de Divindade na Fase 4 (04-origens-divindades.js)
 const divindadesJs = fs.readFileSync(path.join(__dirname, '..', 'src', 'funcionalidades', 'criador', 'fases', '04-origens-divindades.js'), 'utf8');

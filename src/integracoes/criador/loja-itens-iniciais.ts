@@ -190,9 +190,9 @@ characterPendingChoices=function(){const pending=pendingBeforeArsenal();if(!arse
 function sendArsenal(type,details={}){document.getElementById('characterArsenal')?.contentWindow?.postMessage({channel:'forja-arsenal-v1',session:arsenalSession,type,...details},'*')}
 function syncInitialItemFooter(){
   if(state.step!==8)return;
-  const saved=arsenalState(),choice=currentItemChoice(),title=saved.complete?(arsenalShopOpen?'Comprar itens':'Itens adquiridos'):choice?.title||'Equipamento inicial';
+  const saved=arsenalState(),choice=currentItemChoice(),title=saved.complete?'Itens adquiridos':choice?.title||'Equipamento inicial';
   const redoBtn=document.getElementById('redoInitialItemsButton');
-  if(redoBtn)redoBtn.hidden=arsenalShopOpen || Boolean(state.isLevelingUp);
+  if(redoBtn)redoBtn.hidden=Boolean(state.isLevelingUp);
   const nextBtn=document.getElementById('nextButton');
   const stepPrev=document.getElementById('stepPrevButton');
   const stepNext=document.getElementById('stepNextButton');
@@ -212,11 +212,10 @@ function syncInitialItemFooter(){
   if(stepPrev)stepPrev.textContent='← Escolha anterior';
   if(redoBtn)redoBtn.classList.add('danger');
 
-  const canShowBuyMore = !state.isLevelingUp && !state.editingCharacter && !state.isEditingFinishedSheet;
   if(saved.complete){
     const skipRemaining = typeof shouldSkipPhase === 'function' && shouldSkipPhase(9) && shouldSkipPhase(10);
     if(nextBtn){
-      nextBtn.textContent=arsenalShopOpen?'Confirmar compra':(state.isLevelingUp ? 'Avançar →' : (skipRemaining ? 'Finalizar ficha' : 'Avançar →'));
+      nextBtn.textContent=state.isLevelingUp ? 'Avançar →' : (skipRemaining ? 'Finalizar ficha' : 'Avançar →');
       nextBtn.classList.remove('is-incomplete');
       nextBtn.disabled=false;
     }
@@ -224,27 +223,12 @@ function syncInitialItemFooter(){
     if(stepNext)stepNext.hidden=true;
     const skipSimpleBtn = document.getElementById('skipSimpleChoiceBtn');
     if(skipSimpleBtn) skipSimpleBtn.hidden = true;
-    let buyMoreBtn = document.getElementById('buyMoreItemsBtn');
-    if(!buyMoreBtn && nextBtn?.parentNode && canShowBuyMore){
-      buyMoreBtn = document.createElement('button');
-      buyMoreBtn.id = 'buyMoreItemsBtn';
-      buyMoreBtn.type = 'button';
-      buyMoreBtn.className = 'button';
-      buyMoreBtn.textContent = 'Comprar itens';
-      buyMoreBtn.style.marginRight = '8px';
-      buyMoreBtn.addEventListener('click', () => {
-        arsenalShopOpen = true;
-        renderStage();
-      });
-      nextBtn.parentNode.insertBefore(buyMoreBtn, nextBtn);
-    }
-    if(buyMoreBtn){
-      buyMoreBtn.hidden = arsenalShopOpen || !canShowBuyMore;
-    }
+    const buyMoreBtn = document.getElementById('buyMoreItemsBtn');
+    if(buyMoreBtn) buyMoreBtn.remove();
     if(nextBtn)nextBtn.hidden=false;
   }else{
     const buyMoreBtn = document.getElementById('buyMoreItemsBtn');
-    if(buyMoreBtn) buyMoreBtn.hidden = true;
+    if(buyMoreBtn) buyMoreBtn.remove();
     const candidateValid=Boolean(saved.pending&&!(saved.pending.itemId==='instrumentos_de_oficio'&&!String(saved.pending.options?.oficio||'').trim()));
     const hasCandidate=candidateValid;
     if(nextBtn){
@@ -542,7 +526,6 @@ function removeGrantFromBackpack(grantId){
     event.preventDefault();event.stopImmediatePropagation();
     const saved=arsenalState();
     if(saved.complete){
-      if(arsenalShopOpen){sendArsenal('confirm-cart');return}
       if(!state.completed.includes(8))state.completed.push(8);
       if(state.isLevelingUp){
         const nextPending = typeof getNextLevelUpPendingPhase === 'function' ? getNextLevelUpPendingPhase() : null;
@@ -600,7 +583,6 @@ window.addEventListener('message',async event=>{
     if(state.step === 8 && !state.sheetView && !arsenalState().complete && !currentItemChoice()) finalizeInitialItems();
     return;
   }
-  if(message.type==='open-shop'&&arsenalState().complete){arsenalShopOpen=true;renderStage();return}
   if(message.type==='choose-potion-spell'){
     spellState().grimoireSource='potion';
     spellState().view='available';

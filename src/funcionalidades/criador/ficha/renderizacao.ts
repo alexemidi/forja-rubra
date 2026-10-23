@@ -81,6 +81,11 @@ function getSheetItemDisplayName(entry, catalog){
     if(custom && !custom.includes('Item Artístico')) return custom + ' (Item Artístico)';
     return custom || 'Item Artístico';
   }
+  if(itemId === 'replica_peca_artistica_elfica'){
+    const custom = (opts.customName || entry.displayName || '').trim();
+    if(custom && !custom.includes('Réplica')) return custom + ' (Réplica de Peça Artística Élfica)';
+    return custom || 'Réplica de uma Peça Artística Élfica';
+  }
   if(itemId === 'tatuagem_adereco_gangue'){
     const custom = (opts.customName || entry.displayName || '').trim();
     if(custom && !custom.includes('Tatuagem/Adereço')) return custom + ' (Tatuagem/Adereço)';
@@ -224,10 +229,10 @@ function updateSheetEquipmentAndDefenseContent(){
   const stats = typeof progressionStats === 'function' ? progressionStats() : {defense:10};
   const armorRec = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
   const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
-  const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : inventory.map(entry=>catalog.get(entry.itemId)).find(item=>item?.tipo==='armadura'));
-  const shield = shieldRec?.item || (typeof equippedShieldItem === 'function' ? equippedShieldItem() : inventory.map(entry=>catalog.get(entry.itemId)).find(item=>item?.tipo==='escudo'));
-  const armorEntry = armorRec?.entry || inventory.find(entry=>entry.itemId===armor?.id);
-  const shieldEntry = shieldRec?.entry || inventory.find(entry=>entry.itemId===shield?.id);
+  const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : null);
+  const shield = shieldRec?.item || (typeof equippedShieldItem === 'function' ? equippedShieldItem() : null);
+  const armorEntry = armorRec?.entry || (armor ? inventory.find(entry=>entry.itemId===armor.id && Boolean(entry.equipped || entry.isEquipped || entry.equipado)) : null);
+  const shieldEntry = shieldRec?.entry || (shield ? inventory.find(entry=>entry.itemId===shield.id && Boolean(entry.equipped || entry.isEquipped || entry.equipado)) : null);
 
   const armorStats = typeof armorPassiveStats === 'function' ? armorPassiveStats(armor, armorEntry) : { defense: Number(armor?.armadura?.defesa || 0), penalty: Number(armor?.armadura?.penalidade || 0) };
   const shieldStats = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(shield, shieldEntry) : { defense: Number(shield?.escudo?.bonusDefesa || 0), penalty: Number(shield?.escudo?.penalidade || 0) };
@@ -270,7 +275,7 @@ function updateSheetEquipmentAndDefenseContent(){
     attacksTbody.innerHTML = attackRows;
   }
 
-  const equipPanelBody = preview.querySelector('.sheet-equipment-sections')?.parentElement || preview.querySelector('.equip-backpack-card')?.closest('.panel-body');
+  const equipPanelBody = preview.querySelector('.sheet-equipment-sections')?.parentElement || preview.querySelector('.sheet-equipment-container') || preview.querySelector('.equip-backpack-card')?.closest('.panel-body');
   if(equipPanelBody && typeof renderEquipmentPanel === 'function'){
     equipPanelBody.innerHTML = renderEquipmentPanel();
   } else if(typeof updateSheetMoneyAndLoadOnly === 'function'){
@@ -2292,10 +2297,10 @@ function renderCharacterDetails(){
   const attrs=finalAttrs(true),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),regional=state.origin.mode==='dual'?selectedRegionalOrigin():null,deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'—',classes=[...new Set(state.progression.map(row=>classById(row.classId)?.nome).filter(Boolean))],inventory=typeof characterInventory==='function'?characterInventory():[],catalog=getPdfItemsCatalog(),trained=new Set(allTrainedSkills()),passives=passiveCharacterEffects();
   const armorRec = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
   const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
-  const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : inventory.map(entry=>catalog.get(entry.itemId)).find(item=>item?.tipo==='armadura'));
-  const shield = shieldRec?.item || (typeof equippedShieldItem === 'function' ? equippedShieldItem() : inventory.map(entry=>catalog.get(entry.itemId)).find(item=>item?.tipo==='escudo'));
-  const armorEntry = armorRec?.entry || inventory.find(entry=>entry.itemId===armor?.id);
-  const shieldEntry = shieldRec?.entry || inventory.find(entry=>entry.itemId===shield?.id);
+  const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : null);
+  const shield = shieldRec?.item || (typeof equippedShieldItem === 'function' ? equippedShieldItem() : null);
+  const armorEntry = armorRec?.entry || (armor ? inventory.find(entry=>entry.itemId===armor.id && Boolean(entry.equipped || entry.isEquipped || entry.equipado)) : null);
+  const shieldEntry = shieldRec?.entry || (shield ? inventory.find(entry=>entry.itemId===shield.id && Boolean(entry.equipped || entry.isEquipped || entry.equipado)) : null);
 
   const armorStats = typeof armorPassiveStats === 'function' ? armorPassiveStats(armor, armorEntry) : { defense: Number(armor?.armadura?.defesa || 0), penalty: Number(armor?.armadura?.penalidade || 0) };
   const shieldStats = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(shield, shieldEntry) : { defense: Number(shield?.escudo?.bonusDefesa || 0), penalty: Number(shield?.escudo?.penalidade || 0) };
@@ -2402,9 +2407,9 @@ function renderCharacterDetails(){
     return '<div><strong>'+esc(itemName(entry))+'</strong><span>Qtd. '+Number(entry.quantity||1)+' · '+espTexto+'</span></div>';
   }).join(''):'<p class="help">Nenhum item na mochila.</p>';
   const equipmentSectionHtml=typeof renderEquipmentPanel==='function'?renderEquipmentPanel():('<div class="sheet-equipment-sections" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:12px"><div class="sheet-equipment-block" style="background:#0d121a;border:1px solid var(--border);border-radius:8px;padding:9px 11px"><h4 style="margin:0 0 7px 0;font-size:0.68rem;color:var(--gold2)">Itens vestidos &amp; equipados</h4><div class="sheet-preview-equipment">'+wornHtml+'</div></div><div class="sheet-equipment-block" style="background:#0d121a;border:1px solid var(--border);border-radius:8px;padding:9px 11px"><h4 style="margin:0 0 7px 0;font-size:0.68rem;color:var(--gold2)">Mochila</h4><div class="sheet-preview-equipment">'+carriedHtml+'</div></div></div>');
-  const equipment=panel('Equipamento',equipmentSectionHtml),extras=panel('Poderes e magias','<div class="sheet-preview-extras"><div><h4>Poderes</h4><div class="tag-row">'+powers.map(power=>'<span class="tag green">'+esc(power.nome)+'</span>').join('')+'</div></div><div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h4>Magias conhecidas</h4><button class="button small primary" type="button" data-sheet-action="grimoire" data-grimoire-view="learned" style="font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1">Grimório</button></div><div class="tag-row">'+learned.sort((a,b)=>a.localeCompare(b,'pt-BR')).map(name=>'<span class="tag">'+esc(name)+'</span>').join('')+'</div></div></div>');
-  const abilitiesTitle = distNames.length > 0 ? 'Habilidades de raça, origem, divindade e distinções' : 'Habilidades de raça, origem e divindade';
-  const abilities='<section class="sheet-preview-box"><h3>'+abilitiesTitle+'</h3><div class="sheet-preview-feature-list">'+selectedCharacterFeatures().filter(feature=>!['class','class-power','class-choice'].includes(feature.source)&&feature.source!=='training'&&feature.category!=='class-power'&&!isSpellFieldFeature(feature)&&!isVisionFeature(feature)).map(f=>sheetFeatureDisclosure(f, false)).join('')+'</div></section>';
+  const equipment='<div class="sheet-equipment-container">'+equipmentSectionHtml+'</div>',extras=panel('Poderes e magias','<div class="sheet-preview-extras"><div><h4>Poderes</h4><div class="tag-row">'+powers.map(power=>'<span class="tag green">'+esc(power.nome)+'</span>').join('')+'</div></div><div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h4>Magias conhecidas</h4><button class="button small primary" type="button" data-sheet-action="grimoire" data-grimoire-view="learned" style="font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1">Grimório</button></div><div class="tag-row">'+learned.sort((a,b)=>a.localeCompare(b,'pt-BR')).map(name=>'<span class="tag">'+esc(name)+'</span>').join('')+'</div></div></div>');
+  const abilitiesTitle = 'Habilidades Iniciais';
+  const abilities='<section class="sheet-preview-box"><h3>'+abilitiesTitle+'</h3><div class="sheet-preview-feature-list">'+selectedCharacterFeatures().filter(feature=>!['class','class-power','class-choice'].includes(feature.source)&&feature.source!=='training'&&feature.category!=='class-power'&&feature.source!=='distinction-mark'&&!isSpellFieldFeature(feature)&&!isVisionFeature(feature)).map(f=>sheetFeatureDisclosure(f, false)).join('')+'</div></section>';
   const profLabels={armas_simples:'Armas simples',armas_marciais:'Armas marciais',armas_exoticas:'Armas exóticas',armaduras_leves:'armaduras leves',armaduras_pesadas:'armaduras pesadas',escudos:'escudos'};
   const profList = (typeof characterProficiencies === 'function' ? characterProficiencies() : []).map(id => profLabels[id] || String(id).replace(/_/g, ' '));
   const profText = profList.length ? profList.join(', ').replace(/, ([^,]*)$/, ' e $1') : 'Nenhuma';
@@ -2465,11 +2470,11 @@ function renderCharacterDetails(){
   const alignmentAndAgeHtml = `
     <div class="sheet-preview-alignment-age" style="display:grid;grid-template-columns:1.75fr 1fr;gap:12px;align-items:center;margin-bottom:0px;">
       <div style="display:flex;align-items:center;gap:8px;background:#0d121a;border:1px solid var(--border);border-radius:8px;padding:6px 12px;box-sizing:border-box;">
-        <span style="font-family:Cinzel,serif;font-weight:700;font-size:0.72rem;color:var(--gold2);text-transform:uppercase;white-space:nowrap;letter-spacing:0.5px;">ALINHAMENTO</span>
+        <span class="sheet-field-label">ALINHAMENTO</span>
         <input type="text" class="input sheet-field-alignment" data-sheet-field="alignment" placeholder="Ex: Leal e Bom, Neutro..." value="${esc(alignmentValue)}" style="flex:1;height:28px;min-height:28px;padding:2px 8px;font-size:0.82rem;background:#111824;border:1px solid #1e2837;color:#f8fafc;border-radius:4px;box-sizing:border-box;">
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:#0d121a;border:1px solid var(--border);border-radius:8px;padding:6px 12px;box-sizing:border-box;">
-        <span style="font-family:Cinzel,serif;font-weight:700;font-size:0.72rem;color:var(--gold2);text-transform:uppercase;white-space:nowrap;letter-spacing:0.5px;">IDADE</span>
+        <span class="sheet-field-label">IDADE</span>
         <input type="text" class="input sheet-field-age" data-sheet-field="age" placeholder="Ex: 25 anos" value="${esc(ageDisplayValue)}" style="flex:1;height:28px;min-height:28px;padding:2px 8px;font-size:0.82rem;background:#111824;border:1px solid #1e2837;color:#f8fafc;border-radius:4px;box-sizing:border-box;">
       </div>
     </div>
@@ -2623,16 +2628,17 @@ function renderSheetDistinctionBlock(){
 
   const itemsHtml = dists.map(dist => {
     const marca = dist.marca;
-    const marcaText = marca ? (marca.nome ? '<strong>' + esc(marca.nome) + ':</strong> ' : '') + esc(marca.descricao || '') : '';
-    return '<div class="sheet-distinction-item">' +
-      '<div style="font-size:0.85rem;color:var(--gold2);font-weight:700;margin-bottom:3px;">' + esc(dist.nome) + '</div>' +
-      (marcaText ? '<p style="font-size:0.75rem;color:var(--text-muted);margin:0;line-height:1.45;white-space:pre-line;">' + marcaText + '</p>' : '') +
-    '</div>';
-  }).join('<div style="border-top:1px solid var(--border);margin:8px 0;padding-top:8px;"></div>');
+    const marcaNome = marca?.nome || 'Marca de Distinção';
+    const marcaDesc = marca?.descricao || '';
+    return '<details class="sheet-feature" style="padding:6px 0;">' +
+      '<summary><strong style="color:var(--gold2);font-size:0.78rem;">' + esc(dist.nome) + ': ' + esc(marcaNome) + '</strong></summary>' +
+      (marcaDesc ? '<p style="margin:6px 0 0 0;font-size:0.74rem;color:var(--text-muted);line-height:1.45;white-space:pre-line;">' + esc(marcaDesc) + '</p>' : '') +
+    '</details>';
+  }).join('');
 
   return '<section class="sheet-preview-box sheet-distinction-box">' +
     '<h3 style="display:flex;align-items:center;gap:6px;">' + headingIcon + 'Distinção</h3>' +
-    '<div>' + itemsHtml + '</div>' +
+    '<div class="sheet-preview-feature-list" style="padding:4px 12px 10px 12px;">' + itemsHtml + '</div>' +
   '</section>';
 }
 
@@ -3126,7 +3132,47 @@ function cancelLevelUp(){
     if(typeof toast==='function')toast('Subida de nível cancelada. Nível anterior restaurado.');
   }
 }
+function cancelEditCharacter(){
+  if(state.isEditingFinishedSheet || state.editingCharacter){
+    const checkpoint = state.editingCharacter?.snapshot || state.editBackup;
+    if(checkpoint){
+      state = checkpoint;
+      if(typeof normalizeState === 'function') normalizeState();
+    } else {
+      try {
+        const raw = localStorage.getItem('forja-heroi-t20-v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.identity) state = parsed;
+        }
+      } catch(e) {}
+    }
+    delete state.editingCharacter;
+    delete state.editBackup;
+    state.isEditingFinishedSheet = false;
+    state.finished = true;
+    state.sheetView = 'sheet';
+    document.body?.classList.remove('is-editing-mode');
+    persistNow();
+    if(typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
+    if(typeof window !== 'undefined' && window.location?.pathname?.endsWith('/criador.html')){
+      window.location.href = 'ficha.html';
+      return;
+    }
+    if(typeof renderStage === 'function') renderStage();
+    if(typeof toast === 'function') toast('Edição cancelada. Ficha original preservada.');
+  }
+}
+if(typeof window !== 'undefined') {
+  (window as any).cancelEditCharacter = cancelEditCharacter;
+}
 document.addEventListener('click',event=>{
+  if(event.target.closest?.('#cancelEditCharacterButton')||event.target.closest?.('[data-action="cancel-edit"]')){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    cancelEditCharacter();
+    return;
+  }
   if(event.target.closest?.('#cancelLevelUpButton')||event.target.closest?.('[data-action="cancel-level-up"]')){
     event.preventDefault();
     event.stopImmediatePropagation();

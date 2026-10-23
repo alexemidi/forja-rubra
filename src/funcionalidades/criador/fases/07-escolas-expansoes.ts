@@ -29,13 +29,21 @@ document.addEventListener('click',event=>{
 },true);
 
 
-// School registration is derived from actual class choices, never racial grants.
+// School registration is derived from actual class choices, never racial grants or general powers.
 function reconcileSpellSchools(plan){
   const saved=spellState();
   for(const cls of plan.classes){
     if(!cls.schoolCount)continue;
-    const groups=plan.groups.filter(group=>group.classId===cls.classId);
-    const inferred=[...new Set(groups.filter(group=>!group.fixed.length&&group.count).flatMap(groupSpellIds).map(spellById).filter(Boolean).map(spell=>spell.school))].filter(id=>!cls.fixedSchools.includes(id));
+    const classGroups=plan.groups.filter(group=>group.classId===cls.classId&&group.kind==='class'&&!group.teurgist&&!group.teurgistConverted);
+    const inferred=[...new Set(
+      classGroups
+        .filter(group=>!group.fixed.length&&group.count)
+        .flatMap(groupSpellIds)
+        .map(spellById)
+        .filter(Boolean)
+        .filter(spell=>(spell.type===cls.effect.magiaTipo||spell.type==='universal')&&!spell.divina)
+        .map(spell=>spell.school)
+    )].filter(id=>!cls.fixedSchools.includes(id));
     const valid=id=>Boolean(SPELL_SCHOOLS[id])&&!cls.fixedSchools.includes(id);
     if(!Array.isArray(saved.manualSchools[cls.classId]))saved.manualSchools[cls.classId]=(saved.schools[cls.classId]||[]).filter(id=>valid(id)&&!inferred.includes(id));
     const locked=(saved.lockedSchools[cls.classId]||[]).filter(valid);
@@ -43,7 +51,7 @@ function reconcileSpellSchools(plan){
     saved.schools[cls.classId]=chosen;
     if(chosen.length===cls.schoolCount)saved.lockedSchools[cls.classId]=[...chosen];
     cls.chosenSchools=chosen;cls.schools=[...cls.fixedSchools,...chosen];
-    for(const group of groups){group.schools=cls.schools;group.schoolOpen=chosen.length<cls.schoolCount}
+    for(const group of plan.groups.filter(group=>group.classId===cls.classId)){group.schools=cls.schools;group.schoolOpen=chosen.length<cls.schoolCount}
   }
 }
 function pendingSchoolClass(){return spellPlan().classes.find(cls=>cls.chosenSchools.length<cls.schoolCount&&classSpellChoicesFilled(cls.classId,spellPlan()))}

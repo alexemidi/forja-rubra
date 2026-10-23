@@ -28,7 +28,8 @@ const ORIGIN_EXCLUSIVE_ITEM_IDS = new Set([
   'bola_ou_objeto_pintado',
   'bolsa_de_minhocas',
   'instrumentos_pescador',
-  'dente_falso'
+  'dente_falso',
+  'replica_peca_artistica_elfica'
 ]);
 
 function isOriginExclusiveItemAllowed(itemIdOrItem) {
