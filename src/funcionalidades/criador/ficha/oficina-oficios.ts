@@ -448,7 +448,6 @@
 
     const circulo = Number(spell.circulo || spell.circle || 1);
     const pm = circulo === 1 ? 1 : (circulo === 2 ? 3 : (circulo === 3 ? 6 : (circulo === 4 ? 10 : 15)));
-    const precoMercado = 30 * pm * pm;
 
     // @ts-ignore
     const lvl = typeof effectiveCharacterLevel === 'function' ? effectiveCharacterLevel() : ((state.progression?.length || 0) + 1);
@@ -461,8 +460,15 @@
       state.isDrogadora
     );
 
-    const custoMateriaPrima = isDrogadora ? Math.ceil(precoMercado / 4) : Math.ceil(precoMercado / 3);
-    const cdFab = 20 + pm;
+    // @ts-ignore
+    const rules = typeof RegrasManufatura !== 'undefined' ? RegrasManufatura : null;
+    const potionRules = rules && typeof rules.regrasPocaoPergaminho === 'function'
+      ? rules.regrasPocaoPergaminho(circulo, { fracao: isDrogadora ? '1/4' : '1/3' })
+      : { precoBase: 30 * pm * pm, custoMateriaPrima: isDrogadora ? Math.ceil((30 * pm * pm) / 4) : Math.ceil((30 * pm * pm) / 3), cdFabricacao: 20 + pm };
+
+    const precoMercado = potionRules.precoBase;
+    const custoMateriaPrima = potionRules.custoMateriaPrima;
+    const cdFab = potionRules.cdFabricacao;
 
     // Perícia Ofício (Alquimia)
     // @ts-ignore
@@ -579,9 +585,16 @@
 
     const circulo = Number(spell.circulo || spell.circle || 1);
     const pm = circulo === 1 ? 1 : (circulo === 2 ? 3 : (circulo === 3 ? 6 : (circulo === 4 ? 10 : 15)));
-    const precoMercado = 30 * pm * pm;
-    const custoMateriaPrima = Math.ceil(precoMercado / 3);
-    const cdFab = 20 + pm;
+
+    // @ts-ignore
+    const rules = typeof RegrasManufatura !== 'undefined' ? RegrasManufatura : null;
+    const scrollRules = rules && typeof rules.regrasPocaoPergaminho === 'function'
+      ? rules.regrasPocaoPergaminho(circulo, { fracao: '1/3' })
+      : { precoBase: 30 * pm * pm, custoMateriaPrima: Math.ceil((30 * pm * pm) / 3), cdFabricacao: 20 + pm };
+
+    const precoMercado = scrollRules.precoBase;
+    const custoMateriaPrima = scrollRules.custoMateriaPrima;
+    const cdFab = scrollRules.cdFabricacao;
 
     // @ts-ignore
     const lvl = typeof effectiveCharacterLevel === 'function' ? effectiveCharacterLevel() : ((state.progression?.length || 0) + 1);

@@ -26,7 +26,7 @@ function gerarProjecoes(items,improvements,cards){
   'magias-textos':spellTexts,
   'criador-pdfItems':items.map(({id,nome,tipo,categoriaId,espacos,preco,equipamento,arma,armadura,escudo,textos,livroOrigemId,magico,origem,origemExclusiva})=>({id,nome,tipo,categoriaId,espacos,preco,equipamento,arma,armadura,escudo,...(textos?{textos}:{}),...(livroOrigemId?{livroOrigemId}:{}),...(magico?{magico}:{}),...(origem?{origem}:{}),...(origemExclusiva?{origemExclusiva}:{})})),
   'criador-inventoryLoadData':{items:items.map(({id,espacos,magico})=>({id,espacos,magico})),improvements:improvements.melhorias.map(({id,efeitos})=>({id,efeitos}))},
-  'criador-grimoireHtml':''
+  'criador-grimoireHtml':descriptions
  };
 }
 module.exports={gerarProjecoes};

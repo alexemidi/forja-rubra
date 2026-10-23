@@ -413,8 +413,6 @@
 
     if (isEngenhoca) {
       bottomSecondaryActions += `<button type="button" data-backpack-action="disassemble" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('gear', 'icon-xs') : ''} Desmanchar</button>`;
-    } else {
-      bottomSecondaryActions += `<button type="button" data-backpack-action="sell" data-entry-id="${esc(expandedSheetItemId)}" title="Vender item" aria-label="Vender item" style="${secBtnStyle};font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1">${window.IconesForja ? window.IconesForja.get('coin', 'icon-xs') : '🪙'}</button>`;
     }
 
     // @ts-ignore
@@ -433,8 +431,8 @@
     let upgradeActionBtns = '';
     if (canReceiveImprovements || canReceiveEnchantments || copyCodeBtn) {
       upgradeActionBtns = '<div style="display:flex;gap:8px;">' +
-        (canReceiveImprovements ? `<button type="button" class="square-action-btn" data-sheet-upgrade-item="${esc(expandedSheetItemId)}" title="Adicionar melhorias">${window.IconesForja ? window.IconesForja.get('tools', 'icon-sm') : 'M'}</button>` : '') +
-        (canReceiveEnchantments ? `<button type="button" class="square-action-btn" data-sheet-enchant-item="${esc(expandedSheetItemId)}" title="Adicionar encantos mágicos" style="color:#f59e0b;">${window.IconesForja ? window.IconesForja.get('sparkles', 'icon-sm') : 'E'}</button>` : '') +
+        (canReceiveImprovements ? `<button type="button" class="square-action-btn" data-sheet-upgrade-item="${esc(expandedSheetItemId)}" title="Aprimorar item">${window.IconesForja ? window.IconesForja.get('hammer', 'icon-sm') : 'M'}</button>` : '') +
+        (canReceiveEnchantments ? `<button type="button" class="square-action-btn" data-sheet-enchant-item="${esc(expandedSheetItemId)}" title="Encantar item" style="color:var(--gold2,#f5c879);">${window.IconesForja ? window.IconesForja.get('sparkles', 'icon-sm') : 'E'}</button>` : '') +
         copyCodeBtn +
       '</div>';
     }
@@ -1066,7 +1064,7 @@
         }
         return `
           <div class="upgrade-slot-card filled">
-            <div class="slot-badge">${idx + 1}ª MELHORIA</div>
+            <div class="slot-badge">${idx + 1}ª melhoria</div>
             <div class="slot-info">
               <strong>${esc(label)}</strong>
               <small>${esc(impObj?.resumo || '')}</small>
@@ -1077,9 +1075,9 @@
       }
       return `
         <div class="upgrade-slot-card empty">
-          <div class="slot-badge">${idx + 1}ª MELHORIA</div>
+          <div class="slot-badge">${idx + 1}ª melhoria</div>
           <div class="slot-info">
-            <span style="color:var(--muted,#c9b2aa);font-style:italic">Espaço vazio (selecione na barra lateral)</span>
+            <span style="color:var(--muted,#c9b2aa);font-style:italic">Vazio · Escolha uma melhoria na barra lateral</span>
           </div>
         </div>
       `;
@@ -1154,6 +1152,21 @@
 
     const titleText = `MELHORIAS · ${(entry.displayName || item.nome).toUpperCase()}`;
 
+    const specialMaterialSectionHtml = hasSpecialMaterialSlot ? `
+      <div class="special-material-panel ${needsMaterialChoice ? 'needs-material-selection' : ''}" style="margin-top:14px;padding:12px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);border-radius:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h4 style="margin:0;font-size:0.9rem;color:var(--gold2,#f5c879);">Escolha o Material Especial</h4>
+          ${needsMaterialChoice
+            ? `<span style="color:#facc15;font-weight:700;font-size:0.76rem;">Selecione um material abaixo para preencher o slot</span>`
+            : `<small style="color:var(--muted,#c9b2aa);font-size:0.72rem;">Clique para selecionar</small>`}
+        </div>
+        ${needsMaterialChoice ? `<div style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.35);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:0.78rem;color:#fef08a;">Você ativou a melhoria <strong>Material Especial</strong>. Escolha um dos materiais abaixo para continuar:</div>` : ''}
+        <div class="material-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;">
+          ${materialCards}
+        </div>
+      </div>
+    ` : '';
+
     return `
       <section class="modal-panel purchase-upgrade-panel" role="dialog" aria-modal="true">
         <header class="modal-header">
@@ -1180,21 +1193,10 @@
               </div>
 
               <div class="improvements-cost-callout" style="margin-top:14px;padding:10px 12px;border-radius:6px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);font-size:0.8rem;color:var(--cream,#f5eee6);">
-                Escolha até 4 melhorias na barra lateral para aprimorar seu item. Ao aprimorar um item já existente, você paga apenas a diferença pelo valor das novas melhorias adicionadas.
+                Escolha até 4 melhorias na barra lateral para aprimorar seu item. Armas, armaduras, escudos e itens superiores possuem custos progressivos (T$ 300, 900, 3.000, 9.000).
               </div>
 
-              <div class="special-material-panel ${needsMaterialChoice ? 'needs-material-selection' : ''}" style="margin-top:14px;padding:12px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);border-radius:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                  <h4 style="margin:0;font-size:0.9rem;color:var(--gold2,#f5c879);">Escolha o Material Especial</h4>
-                  ${needsMaterialChoice
-                    ? `<span style="color:#facc15;font-weight:700;font-size:0.76rem;">Selecione um material abaixo para preencher o slot</span>`
-                    : `<small style="color:var(--muted,#c9b2aa);font-size:0.72rem;">Clique para selecionar</small>`}
-                </div>
-                ${needsMaterialChoice ? `<div style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.35);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:0.78rem;color:#fef08a;">Você ativou a melhoria <strong>Material Especial</strong>. Escolha um dos materiais abaixo para continuar:</div>` : ''}
-                <div class="material-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;">
-                  ${materialCards}
-                </div>
-              </div>
+              ${specialMaterialSectionHtml}
             </div>
 
             <aside class="improvements-sidebar">

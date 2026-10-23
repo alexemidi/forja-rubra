@@ -160,16 +160,19 @@ export function tempoFabricacao(
   return '1 semana';
 }
 
-export function regrasPocaoPergaminho(circulo: number): RegrasPocaoPergaminho {
+export function regrasPocaoPergaminho(
+  circulo: number,
+  opcoes: OpcoesCustoMateriaPrima = {},
+): RegrasPocaoPergaminho {
   const c = Math.max(1, Math.min(5, Number(circulo) || 1));
-  const precoBase = 30 * c * c;
-  const materiaPrima = Math.floor(precoBase / 3);
-  const cd = 20 + c;
+  const pmPorCirculo: Record<number, number> = { 1: 1, 2: 3, 3: 6, 4: 10, 5: 15 };
+  const pm = pmPorCirculo[c] || 1;
+  const precoBase = 30 * pm * pm;
   return {
     circulo: c,
     precoBase,
-    custoMateriaPrima: materiaPrima,
-    cdFabricacao: cd,
+    custoMateriaPrima: custoMateriaPrima(precoBase, opcoes),
+    cdFabricacao: 20 + pm,
   };
 }
 

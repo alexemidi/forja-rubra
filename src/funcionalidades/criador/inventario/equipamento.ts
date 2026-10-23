@@ -401,6 +401,50 @@ function renderEquipmentPanel(){
     if(!isEntryEquipped(entry,i))backpackEntries.push({entry,item:catalog.get(entry.itemId),id});
   });
 
+  // Helper para verificar se possui arma compatível para disparar munição
+  const hasWeaponForAmmo = (ammoEntry: any, ammoItem: any) => {
+    const it = ammoItem || {};
+    const e = ammoEntry || {};
+    const isMunicao = it.tipo === 'municao' || it.categoriaId === 'municao' || e.tipo === 'municao';
+    if (!isMunicao) return false;
+    const idStr = String(it.id || e.itemId || '').toLowerCase();
+    const nameStr = String(it.nome || e.displayName || e.itemName || '').toLowerCase();
+
+    const weapons = inventory.filter((wEntry: any) => {
+      const wItem = catalog.get(wEntry.itemId) || wEntry;
+      return wItem?.tipo === 'arma' || wItem?.arma;
+    });
+
+    if (idStr.includes('flecha') || nameStr.includes('flecha')) {
+      return weapons.some((w: any) => {
+        const wItem = catalog.get(w.itemId) || w;
+        const wId = String(wItem.id || w.itemId || '').toLowerCase();
+        const wName = String(wItem.nome || w.displayName || w.itemName || '').toLowerCase();
+        return wId.includes('arco') || wName.includes('arco') || wItem?.arma?.tipoUso === 'arco';
+      });
+    }
+    if (idStr.includes('virote') || nameStr.includes('virote')) {
+      return weapons.some((w: any) => {
+        const wItem = catalog.get(w.itemId) || w;
+        const wId = String(wItem.id || w.itemId || '').toLowerCase();
+        const wName = String(wItem.nome || w.displayName || w.itemName || '').toLowerCase();
+        return wId.includes('besta') || wName.includes('besta') || wItem?.arma?.tipoUso === 'besta';
+      });
+    }
+    if (idStr.includes('bala') || nameStr.includes('bala') || idStr.includes('polvora') || nameStr.includes('pólvora') || nameStr.includes('polvora')) {
+      return weapons.some((w: any) => {
+        const wItem = catalog.get(w.itemId) || w;
+        const wId = String(wItem.id || w.itemId || '').toLowerCase();
+        const wName = String(wItem.nome || w.displayName || w.itemName || '').toLowerCase();
+        return wId.includes('pistola') || wName.includes('pistola') || wId.includes('mosquete') || wName.includes('mosquete') || wItem?.arma?.empunhaduraId === 'fogo';
+      });
+    }
+    return weapons.some((w: any) => {
+      const wItem = catalog.get(w.itemId) || w;
+      return wItem?.arma?.alcance && wItem.arma.alcance !== 'corpo-a-corpo' && wItem.arma.alcance !== 'nenhum';
+    });
+  };
+
   // ── Bloco da Esquerda: Mochila (2 colunas) ────────────────────────────────
   const backpackRows=backpackEntries.length
     ?backpackEntries.map(({entry,item,id})=>{
@@ -417,14 +461,16 @@ function renderEquipmentPanel(){
       const isTatuagem=!isEngenhoca&&isTattooItem(item, entry);
       const isTraje=!isEngenhoca&&(item?.categoriaId==='vestuario'||item?.tipo==='vestuario'||/(traje|camisa|vestimenta|tunica)/i.test(item?.nome||'')||/(traje|camisa|vestimenta|tunica)/i.test(entry?.displayName||''))&&!isMochila&&!isTatuagem;
       const isOutroVestivel=!isEngenhoca&&!isArmadura&&!isEscudo&&!isArma&&!isEsoterico&&!isInstrumento&&!isTraje&&!isTatuagem&&isWearableItem(item, entry);
-      let actions='';
-      const compactBtnStyle = 'font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1;width:auto;';
       const isEstragado=Boolean(entry?.estragado||entry?.isDamaged||entry?.damaged||/estragad/i.test(entry?.displayName||entry?.itemName||item?.nome||''));
+
+      const getIcon = (name: string) => window.IconesForja ? window.IconesForja.get(name, 'icon-sm') : '';
+      let actionButtons='';
+
       if(isEngenhoca){
         const cIdentifier = entry.contraptionId || entry.id || entry.instanceId || id;
         const isAttachedToArmor = inventory.some((e: any) => Array.isArray(e.attachedContraptions) && e.attachedContraptions.some((ac: any) => (ac?.id || ac?.contraptionId || ac) === cIdentifier));
         if (isAttachedToArmor) {
-          actions += `<span class="tag dim" style="font-size:0.56rem;color:var(--gold2,#f5c879);border-color:var(--line,#4a252a)">Acoplada na Armadura</span>`;
+          actionButtons += `<span class="tag dim" style="font-size:0.56rem;color:var(--gold2,#f5c879);border-color:var(--line,#4a252a)">Acoplada</span>`;
         } else {
           const attachedType = (attached?.tipo || item?.tipo || '').toLowerCase();
           const attachedNome = (attached?.nome || item?.nome || '').toLowerCase();
@@ -436,86 +482,93 @@ function renderEquipmentPanel(){
           const isVestida = forma === 'vestida' || isAttachedArmor || isAttachedTraje;
 
           if(isVestida){
-            // Exclusivamente de vestir (nunca empunhar)
             if(isAttachedArmor){
               if(eq.armorId && eq.armorId !== 'none'){
-                actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="swap-armor" data-entry-id="${esc(id)}" title="Trocar com a armadura vestida" style="${compactBtnStyle}">Trocar</button>`;
+                actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="swap-armor" data-entry-id="${esc(id)}" title="Trocar com a armadura vestida">${getIcon('sync')}</button>`;
               } else {
-                actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-armor" data-entry-id="${esc(id)}" title="Vestir armadura" style="${compactBtnStyle}">Vestir</button>`;
+                actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-armor" data-entry-id="${esc(id)}" title="Vestir armadura">${getIcon('shield')}</button>`;
               }
             } else if(isAttachedTraje){
               if(eq.trailerId && eq.trailerId !== 'none'){
-                actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="swap-trailer" data-entry-id="${esc(id)}" title="Trocar com o traje vestido" style="${compactBtnStyle}">Trocar</button>`;
+                actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="swap-trailer" data-entry-id="${esc(id)}" title="Trocar com o traje vestido">${getIcon('sync')}</button>`;
               } else {
-                actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-trailer" data-entry-id="${esc(id)}" title="Vestir traje" style="${compactBtnStyle}">Vestir</button>`;
+                actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-trailer" data-entry-id="${esc(id)}" title="Vestir traje">${getIcon('user')}</button>`;
               }
             } else {
-              actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-accessory" data-entry-id="${esc(id)}" title="Vestir engenhoca" style="${compactBtnStyle}">Vestir</button>`;
+              actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-accessory" data-entry-id="${esc(id)}" title="Vestir engenhoca">${getIcon('user')}</button>`;
             }
           } else {
-            // Exclusivamente de empunhar (nunca vestir)
             if(isAttachedShield){
               if(equippedWeaponBlocksShield()){
-                actions+=`<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
+                actionButtons += `<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
               } else {
-                actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo" style="${compactBtnStyle}">Equipar</button>`;
+                actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
               }
             } else {
-              actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar engenhoca" style="${compactBtnStyle}">Empunhar</button>`;
+              actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar engenhoca">${getIcon('sword')}</button>`;
             }
           }
         }
-        actions+=`<button class="button small btn-sell-compact" type="button" data-backpack-action="disassemble" data-entry-id="${esc(id)}" title="Desmanchar esta engenhoca para liberar espaço e recuperar itens" style="${compactBtnStyle}">Desmanchar</button>`;
+        actionButtons += `<button class="compact-action-btn" type="button" data-backpack-action="disassemble" data-entry-id="${esc(id)}" title="Desmanchar engenhoca">${getIcon('gear')}</button>`;
       }else if(isArmadura){
-        if(eq.armorId&&eq.armorId!=='none')actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="swap-armor" data-entry-id="${esc(id)}" title="Trocar com a armadura vestida" style="${compactBtnStyle}">Trocar</button>`;
-        else actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-armor" data-entry-id="${esc(id)}" title="Vestir armadura" style="${compactBtnStyle}">Vestir</button>`;
+        if(eq.armorId&&eq.armorId!=='none') actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="swap-armor" data-entry-id="${esc(id)}" title="Trocar com a armadura vestida">${getIcon('sync')}</button>`;
+        else actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-armor" data-entry-id="${esc(id)}" title="Vestir armadura">${getIcon('shield')}</button>`;
       }else if(isEscudo){
         if(equippedWeaponBlocksShield()){
-          actions+=`<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
+          actionButtons += `<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
         }else{
-          actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo" style="${compactBtnStyle}">Equipar</button>`;
+          actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
         }
       }else if(isArma||isEsoterico||isInstrumento){
-        actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar este item" style="${compactBtnStyle}">Empunhar</button>`;
+        actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar ${esc(itemName(entry))}">${getIcon('sword')}</button>`;
       }else if(isTatuagem){
-        actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="reveal-tattoo" data-entry-id="${esc(id)}" title="Descobrir tatuagem mística (consome 1 espaço de item vestido)" style="${compactBtnStyle}">Descobrir</button>`;
+        actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="reveal-tattoo" data-entry-id="${esc(id)}" title="Descobrir tatuagem mística">${getIcon('sparkles')}</button>`;
       }else if(isTraje){
         if(!eq.trailerId||eq.trailerId==='none'){
-          actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-trailer" data-entry-id="${esc(id)}" title="Vestir traje" style="${compactBtnStyle}">Vestir</button>`;
+          actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-trailer" data-entry-id="${esc(id)}" title="Vestir traje">${getIcon('user')}</button>`;
+        } else {
+          actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="swap-trailer" data-entry-id="${esc(id)}" title="Trocar traje">${getIcon('sync')}</button>`;
         }
       }else if(isOutroVestivel){
-        actions+=`<button class="button small btn-sell-compact" type="button" data-equip-action="equip-accessory" data-entry-id="${esc(id)}" title="Vestir acessório" style="${compactBtnStyle}">Vestir</button>`;
+        actionButtons += `<button class="compact-action-btn" type="button" data-equip-action="equip-accessory" data-entry-id="${esc(id)}" title="Vestir acessório">${getIcon('user')}</button>`;
       }
-      if(!isEngenhoca){
-        const sellIcon=window.IconesForja?.get('coin','icon-sm')||'🪙';
-        actions+=`<button class="button small btn-sell-compact" type="button" data-backpack-action="sell" data-entry-id="${esc(id)}" title="Vender este item por tibares" aria-label="Vender este item por tibares" style="${compactBtnStyle}">${sellIcon}</button>`;
-      }
-      let spendButtons='';
+
+      // Consumível / Munição
       if(item?.tipo==='municao'){
         const remaining=Math.max(0,Number(entry.ammoRemaining??entry.quantity??0));
-        spendButtons=`<button class="button small btn-sell-compact" type="button" data-item-spend="fire" data-entry-id="${esc(id)}" style="${compactBtnStyle}" ${remaining<1?'disabled':''}>Disparar <b>${remaining}</b></button>`;
+        const canShoot = hasWeaponForAmmo(entry, item);
+        if(canShoot){
+          actionButtons += `<button class="compact-action-btn" type="button" data-item-spend="fire" data-entry-id="${esc(id)}" title="Disparar munição (${remaining} restantes)" ${remaining<1?'disabled':''}>${getIcon('bow')}</button>`;
+        }
       }else if(typeof isConsumable==='function'&&isConsumable(item)){
-        spendButtons=`<button class="button small btn-sell-compact" type="button" data-item-spend="use" data-entry-id="${esc(id)}" style="${compactBtnStyle}" ${Number(entry.quantity||0)<1?'disabled':''}>Usar</button>`;
-      }else if(typeof window!=='undefined'&&typeof window.isConsumable==='function'&&window.isConsumable(item)){
-        spendButtons=`<button class="button small btn-sell-compact" type="button" data-item-spend="use" data-entry-id="${esc(id)}" style="${compactBtnStyle}" ${Number(entry.quantity||0)<1?'disabled':''}>Usar</button>`;
+        actionButtons += `<button class="compact-action-btn" type="button" data-item-spend="use" data-entry-id="${esc(id)}" title="Usar item" ${Number(entry.quantity||0)<1?'disabled':''}>${getIcon('flask')}</button>`;
+      }else if(typeof window!=='undefined'&&typeof (window as any).isConsumable==='function'&&(window as any).isConsumable(item)){
+        actionButtons += `<button class="compact-action-btn" type="button" data-item-spend="use" data-entry-id="${esc(id)}" title="Usar item" ${Number(entry.quantity||0)<1?'disabled':''}>${getIcon('flask')}</button>`;
       }
+
+      // Botão de Detalhes (link) e botão de Remover (x)
+      const detailsBtn = `<button class="compact-action-btn compact-details-btn" type="button" data-item-details="${esc(id)}" title="Ver detalhes de ${esc(itemName(entry))}">${getIcon('link')}</button>`;
+      const removeBtn = `<button class="compact-action-btn compact-remove" type="button" data-backpack-action="sell" data-entry-id="${esc(id)}" title="Remover item da mochila">×</button>`;
+
       const isExpanded=(typeof expandedSheetItemId!=='undefined'&&expandedSheetItemId===id)||(typeof window!=='undefined'&&window.expandedSheetItemId===id);
       const detailHtml=(isExpanded&&typeof inlineDetails==='function')
         ?inlineDetails(entry,item)
         :(isExpanded&&typeof window!=='undefined'&&typeof window.inlineDetails==='function'?window.inlineDetails(entry,item):'');
 
       return `<div class="backpack-compact-entry ${isExpanded?'is-expanded':''}" data-instance-id="${esc(id)}">
-        <div class="backpack-compact-row" data-item-details="${esc(id)}" tabindex="0" role="button" title="Abrir detalhes do item">
-          <div class="equip-card-info" role="button" data-item-details="${esc(id)}" title="Abrir detalhes do item">
-            <strong class="equip-card-title">${esc(itemName(entry))}${isEstragado?' <span class="tag red" style="font-size:0.56rem;padding:1px 4px;margin-left:4px;border:1px solid #ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;">Estragado (-5)</span>':''}</strong>
-            <span class="equip-card-meta">${isArmadura?`Def +${Number(item?.armadura?.defesa||0)} · Pen ${item?.armadura?.penalidade||0} · `:''}Qtd. ${qty} · ${spaces} esp.</span>
-          </div>
-          <div class="equip-card-actions">
-            ${spendButtons}
-            ${actions}
+        <div class="backpack-compact-row" data-item-details="${esc(id)}" tabindex="0" role="button" title="Abrir detalhes de ${esc(itemName(entry))}">
+          <button class="compact-open-button" type="button" data-item-details="${esc(id)}" title="Abrir detalhes de ${esc(itemName(entry))}">
+            <strong class="compact-item-title">${esc(itemName(entry))}${isEstragado?' <span class="tag red" style="font-size:0.56rem;padding:1px 4px;margin-left:4px;border:1px solid #ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;">Estragado (-5)</span>':''}</strong>
+          </button>
+          <span class="compact-metric metric-quantity"><small>QTD.</small><strong>${qty}</strong></span>
+          <span class="compact-metric metric-spaces"><small>ESPAÇOS</small><strong>${spaces}</strong></span>
+          <div class="compact-actions" style="display:flex;gap:4px;align-items:center;">
+            ${actionButtons}
+            ${detailsBtn}
+            ${removeBtn}
           </div>
         </div>
-        ${detailHtml}
+        ${detailHtml ? `<div class="compact-detail">${detailHtml}</div>` : ''}
       </div>`;
     }).join('')
     :'<p class="help" style="padding:14px;grid-column:1/-1">Nenhum item guardado na mochila.</p>';

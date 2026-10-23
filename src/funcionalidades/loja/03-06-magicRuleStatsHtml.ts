@@ -778,8 +778,6 @@ function backpackItemHtml(instance) {
   const coinIcon = window.IconesForja ? window.IconesForja.get('coin', 'icon-sm') : '<svg class="forja-svg icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>';
   if (isEngenhoca) {
     bottomSecondaryActions += '<button type="button" data-action="destroy-contraption" data-instance-id="' + escapeHtml(instance.instanceId) + '" style="' + secBtnStyle + '">Destruir</button>';
-  } else {
-    bottomSecondaryActions += '<button type="button" data-action="sell-general" data-instance-id="' + escapeHtml(instance.instanceId) + '" title="Vender item" aria-label="Vender item" style="' + secBtnStyle + '">' + coinIcon + '</button>';
   }
 
   const hammerIcon = window.IconesForja ? window.IconesForja.get('hammer', 'icon-sm') : '<svg class="forja-svg icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"></path><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><line x1="9" y1="15" x2="15" y2="9"></line></svg>';
@@ -817,7 +815,10 @@ function backpackCompactHtml(instance) {
     '<button class="compact-open-button" type="button" data-action="open-details" aria-expanded="' + String(isOpen) + '"><strong>' +
     escapeHtml(configuredItemName(instance, originalItem)) + '</strong></button><span class="compact-metric metric-quantity"><small>Qtd.</small><strong>' + instance.quantity +
     '</strong></span>' + ammo + '<span class="compact-metric metric-spaces"><small>Espaços</small><strong>' + formatSpaces(totalSpaces) +
-    '</strong></span><button class="compact-remove" type="button" data-action="remove" aria-label="Remover ' + escapeHtml(configuredItemName(instance, originalItem)) + ' da mochila">×</button></div>' +
+    '</strong></span><div class="compact-actions" style="display:flex;gap:4px;align-items:center;">' +
+      '<button class="compact-action-btn compact-details-btn" type="button" data-action="open-details" title="Ver detalhes de ' + escapeHtml(configuredItemName(instance, originalItem)) + '">' + (window.IconesForja ? window.IconesForja.get('link', 'icon-sm') : '🔗') + '</button>' +
+      '<button class="compact-action-btn compact-remove" type="button" data-action="remove" aria-label="Remover ' + escapeHtml(configuredItemName(instance, originalItem)) + ' da mochila">×</button>' +
+    '</div></div>' +
     (isOpen ? '<div class="compact-detail">' + backpackItemHtml(instance) + '</div>' : '') + '</div>';
 }
 

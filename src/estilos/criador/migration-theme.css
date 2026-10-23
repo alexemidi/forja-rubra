@@ -101,11 +101,11 @@ button[data-item-spend] {
 }
 
 .purchase-upgrade-panel {
-  width: min(1380px, calc(100vw - 24px)) !important;
-  max-width: calc(100vw - 24px) !important;
-  height: min(920px, calc(100vh - 24px)) !important;
-  max-height: calc(100vh - 24px) !important;
-  min-height: 0 !important;
+  width: min(1480px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  height: min(920px, calc(100vh - 24px), calc(100dvh - 24px)) !important;
+  min-height: min(720px, calc(100vh - 24px)) !important;
+  max-height: calc(100vh - 20px) !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;

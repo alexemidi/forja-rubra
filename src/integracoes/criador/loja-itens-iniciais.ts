@@ -144,14 +144,21 @@ function renderPhase8BackpackView(){
           ? inlineDetails(entry, item)
           : (isExpanded && typeof window !== 'undefined' && typeof window.inlineDetails === 'function' ? window.inlineDetails(entry, item) : '');
 
+        const getIcon = (name: string) => window.IconesForja ? window.IconesForja.get(name, 'icon-sm') : '';
+        const detailsBtn = `<button class="compact-action-btn compact-details-btn" type="button" data-item-details="${esc(id)}" title="Ver detalhes de ${esc(itemName(entry))}">${getIcon('link')}</button>`;
+
         return `<div class="backpack-compact-entry ${isExpanded ? 'is-expanded' : ''}" data-instance-id="${esc(id)}">
-          <div class="backpack-compact-row" data-item-details="${esc(id)}" tabindex="0" role="button" title="Abrir detalhes do item">
-            <div class="equip-card-info" role="button" data-item-details="${esc(id)}" title="Abrir detalhes do item">
-              <strong class="equip-card-title">${esc(itemName(entry))}${isEstragado ? ' <span class="tag red" style="font-size:0.56rem;padding:1px 4px;margin-left:4px;border:1px solid #ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;">Estragado (-5)</span>' : ''}</strong>
-              <span class="equip-card-meta">${isArmadura ? `Def +${Number(item?.armadura?.defesa || 0)} · Pen ${item?.armadura?.penalidade || 0} · ` : ''}Qtd. ${qty} · ${spaces} esp.</span>
+          <div class="backpack-compact-row" data-item-details="${esc(id)}" tabindex="0" role="button" title="Abrir detalhes de ${esc(itemName(entry))}">
+            <button class="compact-open-button" type="button" data-item-details="${esc(id)}" title="Abrir detalhes de ${esc(itemName(entry))}">
+              <strong class="compact-item-title">${esc(itemName(entry))}${isEstragado ? ' <span class="tag red" style="font-size:0.56rem;padding:1px 4px;margin-left:4px;border:1px solid #ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;">Estragado (-5)</span>' : ''}</strong>
+            </button>
+            <span class="compact-metric metric-quantity"><small>QTD.</small><strong>${qty}</strong></span>
+            <span class="compact-metric metric-spaces"><small>ESPAÇOS</small><strong>${spaces}</strong></span>
+            <div class="compact-actions" style="display:flex;gap:4px;align-items:center;">
+              ${detailsBtn}
             </div>
           </div>
-          ${detailHtml}
+          ${detailHtml ? `<div class="compact-detail">${detailHtml}</div>` : ''}
         </div>`;
       }).join('')
     : '<p class="help" style="padding:14px;grid-column:1/-1">Nenhum item guardado na mochila.</p>';
