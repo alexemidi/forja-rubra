@@ -54,88 +54,103 @@ function panelHtml(){
   const indActive = isIndividualComplicationsActive();
   const ageLimit = ageComplicationsLimit();
 
-  let ageComplicationsHtml='';
-  if(state.age.enabled && state.age.band && state.age.band !== 'jovem' && ageLimit > 0){
-    const chosenNames=state.age.complications.map(id=>{
-      const c=COMPLICATIONS.find(item=>item[0]===id);
-      return c?c[1]:id;
-    });
-    const hasChosen = chosenNames.length > 0;
-    const buttonLabel = hasChosen ? 'Trocar complicação' + (ageLimit > 1 ? 'ões' : '') : 'Escolher complicação' + (ageLimit > 1 ? 'ões' : '');
-    const buttonClass = hasChosen ? 'button' : 'button primary';
+  // 1. Conteúdo de Idade (Heróis de Arton)
+  let ageFieldsHtml = '';
+  if (state.age.enabled) {
+    const bandsOptions = Object.entries(BANDS).map(([id, b]) => {
+      const x = rs[id];
+      const rangeText = x ? x.min + (x.max === null ? '+' : '–' + x.max) : '';
+      return '<option value="' + id + '" ' + (state.age.band === id ? 'selected' : '') + '>' + b.name + (rangeText ? ' · ' + rangeText : '') + '</option>';
+    }).join('');
 
-    ageComplicationsHtml='<div class="choice-section age-complications-collapsed" style="margin-top:12px;">'
-      +'<div class="age-complications-collapsed-row" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
-      +'<div style="flex:1;"><span class="field-label" style="display:block;margin-bottom:6px">COMPLICAÇ'+(ageLimit>1?'ÕES':'ÃO')+' DE IDADE ('+state.age.complications.length+'/'+ageLimit+')</span>'
-      +(hasChosen
-        ? '<div class="tag-row" style="display:flex;flex-wrap:wrap;gap:6px;">'+chosenNames.map(name=>'<span class="tag gold" style="font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">'+esc(name)+'</span>').join('')+'</div>'
-        : '<div class="empty" style="font-size:0.75rem;color:var(--muted);padding:4px 0;">Nenhuma complicação de idade selecionada.</div>'
-      )
-      +'</div>'
-      +'<button type="button" class="'+buttonClass+'" data-action="open-age-complications-modal" style="min-height:30px;padding:5px 12px;font-size:0.75rem;white-space:nowrap;margin-top:2px;">'+esc(buttonLabel)+'</button>'
-      +'</div></div>';
-  }
+    const yearsInputHtml = r
+      ? '<label style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:0.68rem;color:var(--muted);letter-spacing:0.5px;font-weight:700;text-transform:uppercase;">IDADE</span><input class="input" type="number" min="' + r.min + '" ' + (r.max === null ? '' : 'max="' + r.max + '"') + ' value="' + esc(state.age.years) + '" data-age-field="years" style="min-height:38px;padding:6px 10px;font-size:0.85rem;background:#090708;border:1px solid #4a252a;color:var(--cream);"></label>'
+      : '<label style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:0.68rem;color:var(--muted);letter-spacing:0.5px;font-weight:700;text-transform:uppercase;">IDADE</span><input class="input" type="number" disabled value="" style="min-height:38px;padding:6px 10px;font-size:0.85rem;background:#090708;border:1px solid #4a252a;color:var(--muted);"></label>';
 
-  let generalComplicationsHtml='';
-  if(indActive){
-    const chosenGeneralNames=(state.generalComplications || []).map(id=>{
-      const c=GENERAL_COMPLICATIONS.find(item=>item[0]===id);
-      return c?c[1]:id;
-    });
-    const hasChosenGen = chosenGeneralNames.length > 0;
-    const genButtonLabel = hasChosenGen ? 'Trocar complicação' : 'Escolher complicação';
-    const genButtonClass = hasChosenGen ? 'button' : 'button primary';
-
-    generalComplicationsHtml='<div class="choice-section age-complications-collapsed" style="margin-top:12px;">'
-      +'<div class="age-complications-collapsed-row" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
-      +'<div style="flex:1;"><span class="field-label" style="display:block;margin-bottom:6px">COMPLICAÇÃO GERAL (+1 PODER GERAL) ('+(state.generalComplications || []).length+'/1)</span>'
-      +(hasChosenGen
-        ? '<div class="tag-row" style="display:flex;flex-wrap:wrap;gap:6px;">'+chosenGeneralNames.map(name=>'<span class="tag gold" style="font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">'+esc(name)+'</span>').join('')+'</div>'
-        : '<div class="empty" style="font-size:0.75rem;color:var(--muted);padding:4px 0;">Nenhuma complicação geral selecionada.</div>'
-      )
-      +'</div>'
-      +'<button type="button" class="'+genButtonClass+'" data-action="open-general-complications-modal" style="min-height:30px;padding:5px 12px;font-size:0.75rem;white-space:nowrap;margin-top:2px;">'+esc(genButtonLabel)+'</button>'
-      +'</div></div>';
-  }
-
-  let agePowersHtml = '';
-  if (state.age.enabled && state.age.band && state.age.band !== 'jovem') {
-    const powers = (AGE_POWERS || []).filter(p => p.faixa === state.age.band);
-    if (powers.length) {
-      agePowersHtml = '<div class="choice-section age-powers-display" style="margin-top:12px">'
-        + '<h4>Habilidade' + (powers.length > 1 ? 's' : '') + ' da Faixa Etária</h4>'
-        + '<div class="ability-list">'
-        + powers.map(p => '<div class="ability-card" style="border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--panel2);margin-bottom:6px"><strong style="color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);display:block;margin-bottom:4px">' + esc(p.nome) + '</strong><p style="margin:0;font-size:0.75rem;color:var(--muted);line-height:1.45">' + esc(p.descricao) + '</p></div>').join('')
-        + '</div></div>';
+    let agePowersHtml = '';
+    if (state.age.band && state.age.band !== 'jovem') {
+      const powers = (AGE_POWERS || []).filter(p => p.faixa === state.age.band);
+      if (powers.length) {
+        agePowersHtml = '<div style="margin-top:14px;margin-bottom:10px;">'
+          + powers.map(p => '<strong style="color:var(--gold2,#f5c879);font-family:var(--font-display,serif);font-size:0.88rem;text-transform:uppercase;display:block;margin-bottom:4px;">' + esc(p.nome) + '</strong><p style="margin:0;font-size:0.8rem;color:var(--cream,#f5eee6);line-height:1.45;">' + esc(p.descricao) + '</p>').join('')
+          + '</div>';
+      }
     }
+
+    let ageComplicationsHtml = '';
+    if (state.age.band && state.age.band !== 'jovem' && ageLimit > 0) {
+      const chosenNames = state.age.complications.map(id => {
+        const c = COMPLICATIONS.find(item => item[0] === id);
+        return c ? c[1] : id;
+      });
+      const chosenText = chosenNames.length > 0 ? chosenNames.join(', ') : 'SELECIONAR COMPLICAÇÃO';
+
+      ageComplicationsHtml = '<div class="rule-complication-box" style="border:1px solid #4a252a;background:rgba(24,17,20,0.6);border-radius:6px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;">'
+        + '<span style="font-family:var(--font-display,serif);font-size:0.75rem;color:var(--gold,#e9ad59);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO DE IDADE</span>'
+        + '<button type="button" class="rule-complication-badge-btn" data-action="open-age-complications-modal" style="background:rgba(197,31,44,0.1);border:1px solid #c51f2c;color:#ea3948;border-radius:4px;padding:6px 14px;font-family:var(--font-display,serif);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;">'
+        + esc(chosenText)
+        + '</button>'
+        + '</div>';
+    }
+
+    ageFieldsHtml = '<div style="margin-top:12px;">'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">'
+      + '<label style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:0.68rem;color:var(--muted);letter-spacing:0.5px;font-weight:700;text-transform:uppercase;">FAIXA ETÁRIA</span><select class="select" data-age-field="band" style="min-height:38px;padding:6px 10px;font-size:0.85rem;background:#090708;border:1px solid #4a252a;color:var(--cream);"><option value="">Escolha</option>' + bandsOptions + '</select></label>'
+      + yearsInputHtml
+      + '</div>'
+      + agePowersHtml
+      + ageComplicationsHtml
+      + '</div>';
   }
 
-  const ageFieldsHtml = state.age.enabled
-    ? '<div class="grid two age-fields" style="margin-top:10px;"><label class="field"><span>Faixa etária</span><select class="select" data-age-field="band"><option value="">Escolha</option>'+Object.entries(BANDS).map(([id,b])=>{const x=rs[id];return '<option value="'+id+'" '+(state.age.band===id?'selected':'')+'>'+b.name+' · '+x.min+(x.max===null?'+':'–'+x.max)+'</option>'}).join('')+'</select></label>'+(r?'<label class="field"><span>Idade</span><input class="input" type="number" min="'+r.min+'" '+(r.max===null?'':'max="'+r.max+'"')+' value="'+esc(state.age.years)+'" data-age-field="years"></label>':'')+'</div>'
-    : '';
+  // 2. Conteúdo de Complicações Gerais
+  let generalComplicationsHtml = '';
+  if (indActive) {
+    const chosenGeneralNames = (state.generalComplications || []).map(id => {
+      const c = GENERAL_COMPLICATIONS.find(item => item[0] === id);
+      return c ? c[1] : id;
+    });
+    const chosenGenText = chosenGeneralNames.length > 0 ? chosenGeneralNames.join(', ') : 'SELECIONAR COMPLICAÇÃO';
+
+    generalComplicationsHtml = '<div class="rule-complication-box" style="border:1px solid #4a252a;background:rgba(24,17,20,0.6);border-radius:6px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;">'
+      + '<span style="font-family:var(--font-display,serif);font-size:0.75rem;color:var(--gold,#e9ad59);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO</span>'
+      + '<button type="button" class="rule-complication-badge-btn" data-action="open-general-complications-modal" style="background:rgba(197,31,44,0.1);border:1px solid #c51f2c;color:#ea3948;border-radius:4px;padding:6px 14px;font-family:var(--font-display,serif);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;">'
+      + esc(chosenGenText)
+      + '</button>'
+      + '</div>';
+  }
 
   const notesHtml = r && r.notes && r.notes.length
-    ? '<div class="age-notes-summary">'+r.notes.map(esc).join('<br>')+'</div>'
+    ? '<div class="age-notes-summary" style="margin-top:10px;">'+r.notes.map(esc).join('<br>')+'</div>'
     : '';
 
   const noticeHtml = state.age.notice
-    ? '<div class="age-notes-summary" style="color:var(--gold);">'+esc(state.age.notice)+'</div>'
+    ? '<div class="age-notes-summary" style="color:var(--gold);margin-top:10px;">'+esc(state.age.notice)+'</div>'
     : '';
 
-  return '<div class="panel age-extension">'
-    + '<div class="panel-header"><div class="panel-title">Idade & Complicações</div><div class="panel-note">Regras Opcionais</div></div>'
-    + '<div class="panel-body">'
-    + '<div style="display:flex;flex-direction:column;gap:8px;">'
-    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:var(--cream);"><input type="checkbox" data-age-field="enabled" '+(state.age.enabled?'checked':'')+'> <strong>Usar regras de idade</strong> <span style="font-size:0.72rem;color:var(--muted);">(Heróis de Arton)</span></label>'
-    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:var(--cream);"><input type="checkbox" data-action="toggle-individual-complications" '+(indActive?'checked':'')+'> <strong>Usar regra de complicações</strong> <span style="font-size:0.72rem;color:var(--gold);">(+1 poder geral)</span></label>'
+  return '<div class="panel age-extension" style="border:1px solid #4a252a;background:#110d0f;border-radius:8px;padding:14px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    + '<span style="font-family:var(--font-display,serif);color:var(--gold2,#f5c879);font-weight:700;font-size:0.95rem;letter-spacing:0.5px;">IDADE & COMPLICAÇÕES</span>'
+    + '<span style="font-size:0.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">REGRAS OPCIONAIS</span>'
     + '</div>'
+    + '<div class="age-rule-section">'
+    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:var(--cream);">'
+    + '<input type="checkbox" data-age-field="enabled" ' + (state.age.enabled ? 'checked' : '') + ' style="accent-color:var(--red,#c51f2c);width:16px;height:16px;">'
+    + '<strong>Usar regras de idade</strong> <span style="font-size:0.8rem;color:var(--muted);font-weight:400;">(Heróis de Arton)</span>'
+    + '</label>'
     + ageFieldsHtml
-    + ageComplicationsHtml
-    + agePowersHtml
+    + '</div>'
+    + '<div style="height:1px;background:#4a252a;margin:14px 0;opacity:0.6;"></div>'
+    + '<div class="age-rule-section">'
+    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:var(--cream);">'
+    + '<input type="checkbox" data-action="toggle-individual-complications" ' + (indActive ? 'checked' : '') + ' style="accent-color:var(--red,#c51f2c);width:16px;height:16px;">'
+    + '<strong>Usar regra de complicações</strong>'
+    + '</label>'
     + generalComplicationsHtml
+    + '</div>'
     + noticeHtml
     + notesHtml
-    + '</div></div>';
+    + '</div>';
 }
 window.renderAgePanelHtml=panelHtml;
 

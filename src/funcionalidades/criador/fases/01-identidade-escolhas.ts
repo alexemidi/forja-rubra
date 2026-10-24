@@ -716,6 +716,10 @@ function raceAllocationSources(){
       if(extra>0){
         config.quantidade=Number(config.quantidade||0)+extra;
       }
+      if(Number(config.quantidade)===3){
+        config.maxPorAtributo=2;
+        config.permitirRepetir=true;
+      }
     }
     sources.push({key:'raceAttrs',label:'Raça',config});
   }

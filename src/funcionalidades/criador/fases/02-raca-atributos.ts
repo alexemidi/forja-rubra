@@ -8,11 +8,11 @@ function renderOpenRacesCard(race){
     if(isFlex){
       const fixedCount=(typeof raceFlexibleOpenRaceBonusCount==='function'?raceFlexibleOpenRaceBonusCount(race):0);
       if(race?.id==='moreau'){
-        bodyContent='<p class="open-races-help">Permite converter o modificador fixo da Herança (+1) em escolha livre de atributo.</p>';
+        bodyContent='<p class="open-races-help">Permite converter o modificador fixo da Herança (+1) para distribuir livremente até +2 em um e +1 em outro, ou +1 em três.</p>';
       }else if(fixedCount>0){
-        bodyContent='<p class="open-races-help">Permite converter o modificador fixo da raça (+1) em escolha livre de atributo.</p>';
+        bodyContent='<p class="open-races-help">Permite converter o modificador fixo racial (+1) para distribuir livremente até +2 em um e +1 em outro, ou +1 em três.</p>';
       }else{
-        bodyContent='<p class="open-races-help">Esta raça já possui atributos flexíveis por padrão (+1 em três atributos diferentes à sua escolha).</p>';
+        bodyContent='<p class="open-races-help">Permite distribuir livremente até +2 em um atributo e +1 em outro, ou +1 em três atributos diferentes.</p>';
       }
     }else if(race){
       const mods=raceFixedModifiers(race).map(m=>(m>0?'+':'')+m).join(', ');
@@ -31,7 +31,7 @@ function renderOpenRacesCard(race){
           +'<div class="open-races-info-row"><span>Modificador flexível: <strong>'+allocated+'/'+totalPoints+'</strong></span>'
           +(allocated>0?'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>':'')
           +'</div>'
-          +'<p class="open-races-instruction">Distribua os <strong>'+totalPoints+' pontos</strong> nos controles (−/+) da coluna Racial abaixo.</p>'
+          +'<p class="open-races-instruction">Distribua os <strong>'+totalPoints+' pontos</strong> nos controles (−/+) da coluna Racial (+2 em um e +1 em outro, ou +1 em três).</p>'
           +'</div>';
       }
     }else if(race){

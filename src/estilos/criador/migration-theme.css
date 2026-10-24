@@ -1290,3 +1290,40 @@ button[data-item-spend] {
   background: var(--surface2, #181114) !important;
 }
 
+/* Card Unificado de Idade e Complicações */
+.rule-complication-box {
+  border: 1px solid var(--border, #4a252a) !important;
+  background: rgba(24, 17, 20, 0.6) !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 10px !important;
+}
+
+.rule-complication-badge-btn {
+  background: rgba(197, 31, 44, 0.08) !important;
+  border: 1px solid var(--red, #c51f2c) !important;
+  color: var(--red2, #ea3948) !important;
+  border-radius: 4px !important;
+  padding: 6px 14px !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  clip-path: none !important;
+  min-height: auto !important;
+}
+
+.rule-complication-badge-btn:hover {
+  background: rgba(197, 31, 44, 0.25) !important;
+  border-color: var(--red2, #ea3948) !important;
+  box-shadow: 0 0 8px rgba(234, 57, 72, 0.3) !important;
+}
+
+

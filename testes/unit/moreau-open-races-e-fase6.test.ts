@@ -6,11 +6,13 @@ import path from 'node:path';
 // Carrega os dados de raças
 const races = JSON.parse(fs.readFileSync(path.resolve('dados/criador-races.json'), 'utf8'));
 
-test('Raças Abertas com Moreau (Conversão em 3 Atributos Livres)', () => {
+test('Raças Abertas com Moreau (Conversão em 3 Atributos Livres: +2/+1 ou +1/+1/+1)', () => {
   const moreau = races.find((r: any) => r.id === 'moreau');
   const humano = races.find((r: any) => r.id === 'humano');
+  const meioElfo = races.find((r: any) => r.id === 'meio_elfo');
   assert.ok(moreau, 'Moreau deve existir');
   assert.ok(humano, 'Humano deve existir');
+  assert.ok(meioElfo, 'Meio-Elfo deve existir');
 
   // Simula estado do personagem com Moreau Coruja
   const state: any = {
@@ -19,8 +21,8 @@ test('Raças Abertas com Moreau (Conversão em 3 Atributos Livres)', () => {
       raceChoices: {
         moreau_variacao: 'moreau_coruja'
       },
-      // Usuário escolheu For, Des e Con (3 atributos livres no lugar de 2 flexíveis + Sab fixo)
-      raceAttrs: ['for', 'des', 'con'],
+      // Usuário escolheu For (+2) e Des (+1), totalizando os 3 pontos
+      raceAttrs: ['for', 'for', 'des'],
       openRaceBonusEnabled: true,
       openRaceAllocations: {}
     }
@@ -94,27 +96,44 @@ test('Raças Abertas com Moreau (Conversão em 3 Atributos Livres)', () => {
         if (extra > 0) {
           config.quantidade = Number(config.quantidade || 0) + extra;
         }
+        if (Number(config.quantidade) === 3) {
+          config.maxPorAtributo = 2;
+          config.permitirRepetir = true;
+        }
       }
       sources.push({ key: 'raceAttrs', label: 'Raça', config });
     }
     return sources;
   }
 
-  // Verificações
+  // Verificações Moreau com distribuição +2 / +1
   assert.equal(raceHasFlexibleOpenRaceConversion(moreau), true, 'Moreau possui atributos flexíveis');
   assert.equal(raceFlexibleOpenRaceBonusCount(moreau), 1, 'Moreau Coruja fornece +1 fixo que deve ser convertido');
 
   const sources = raceAllocationSources();
   assert.equal(sources[0].config.quantidade, 3, 'Moreau com Raças Abertas deve ter exatamente 3 escolhas livres');
+  assert.equal(sources[0].config.maxPorAtributo, 2, 'Deve permitir até +2 no mesmo atributo');
+  assert.equal(sources[0].config.permitirRepetir, true, 'Deve permitir repetição para alcançar +2');
 
   const fixed = raceEffectiveFixedAttributes(moreau, true);
   assert.deepEqual(fixed, {}, 'O fixo original de Sabedoria deve ser suprimido para não duplicar');
 
-  const bonuses = raceBonuses();
-  assert.equal(bonuses.con, 1, 'Constituição deve receber +1 escolhido pelo jogador');
-  assert.equal(bonuses.for, 1, 'Força deve receber +1 escolhido pelo jogador');
-  assert.equal(bonuses.des, 1, 'Destreza deve receber +1 escolhido pelo jogador');
-  assert.equal(bonuses.sab, 0, 'Sabedoria não recebe bônus porque o jogador escolheu alocar o ponto extra em Constituição');
+  const bonuses21 = raceBonuses();
+  assert.equal(bonuses21.for, 2, 'Força deve receber +2');
+  assert.equal(bonuses21.des, 1, 'Destreza deve receber +1');
+  assert.equal(bonuses21.con, 0, 'Constituição deve ser 0');
+  assert.equal(bonuses21.sab, 0, 'Sabedoria não recebe fixo compulsório');
+
+  // Moreau com distribuição +1 / +1 / +1
+  state.identity.raceAttrs = ['for', 'des', 'con'];
+  const bonuses111 = raceBonuses();
+  assert.equal(bonuses111.for, 1, 'Força deve receber +1');
+  assert.equal(bonuses111.des, 1, 'Destreza deve receber +1');
+  assert.equal(bonuses111.con, 1, 'Constituição deve receber +1');
+
+  // Teste Meio-Elfo
+  assert.equal(raceHasFlexibleOpenRaceConversion(meioElfo), true, 'Meio-Elfo possui atributos flexíveis');
+  assert.equal(raceFlexibleOpenRaceBonusCount(meioElfo), 1, 'Meio-Elfo possui +1 fixo de Int a converter');
 
   // Teste com Humano
   assert.equal(raceHasFlexibleOpenRaceConversion(humano), true, 'Humano possui atributos flexíveis');
