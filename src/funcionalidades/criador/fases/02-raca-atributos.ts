@@ -680,6 +680,10 @@ function originMissingChoices(){
   }
   if(!state.origin.standard)missing.push({title:'Origem',message:'Escolha a origem do personagem.',selector:'[data-field="standardOrigin"]',step:3});
   if(state.origin.standard&&!isSingleRegional&&originBenefitsCount()!==2)missing.push({title:'Benefícios da origem',message:'Escolha exatamente dois benefícios da origem padrão. Faltam '+(2-originBenefitsCount())+'.',selector:'.benefit-list',step:3});
+  const originHasProfChoice = (state.origin?.benefits || []).some(id => id === 'power:proficiencia' || id.endsWith(':proficiencia') || id === 'proficiencia');
+  if(originHasProfChoice && !state.origin?.proficiencyChoice){
+    missing.push({title:'Proficiência da origem',message:'Escolha a proficiência concedida pelo benefício Proficiência.',selector:'[data-action="origin-benefit-proficiency-select"]',step:3});
+  }
 
   if(activeRegional){
     const regSlug = typeof slug === 'function' ? slug(activeRegional.nome) : '';

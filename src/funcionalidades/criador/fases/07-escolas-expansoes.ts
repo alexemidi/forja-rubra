@@ -321,6 +321,11 @@ function characterProficiencies(classId=state.identity.classId){
       }
     });
   }
+  const originHasDirectProf = (state?.origin?.benefits || []).some(id => id === 'power:proficiencia' || id.endsWith(':proficiencia') || id === 'proficiencia');
+  if (originHasDirectProf) {
+    const c = state.origin?.proficiencyChoice || state.powers?.originGeneralChoices?.['power:proficiencia'];
+    if (c && !values.includes(c)) values.push(c);
+  }
   if (Array.isArray(state?.progression)) {
     state.progression.forEach(row => {
       if (row?.powerId === 'proficiencia' && row.powerChoice) {

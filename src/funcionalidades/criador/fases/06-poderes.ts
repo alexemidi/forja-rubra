@@ -297,7 +297,7 @@ document.addEventListener('click',event=>{
     const weight=option.id==='unique:heranca_2000'?2:1;
     const currentCount=originBenefitsCount();
     const maxAllowed=typeof originMaxBenefits==='function'?originMaxBenefits():2;
-    if(selected){state.origin.benefits=state.origin.benefits.filter(id=>id!==option.id);delete state.origin.officeSpecialties[option.id]}
+    if(selected){state.origin.benefits=state.origin.benefits.filter(id=>id!==option.id);delete state.origin.officeSpecialties[option.id];if(option.id==='power:proficiencia'||option.name==='Proficiência'){delete state.origin.proficiencyChoice;}}
     else if(currentCount+weight>maxAllowed){
       if(maxAllowed===1){
         toast('Você pode escolher apenas 1 benefício da origem.');
@@ -323,7 +323,15 @@ document.addEventListener('click',event=>{
       }
     }
     else if(option.type==='skill'&&skillTokenFromName(option.name)==='oficio'){openOfficeModal({source:'origin-benefit',optionId:option.id});return}
-    else state.origin.benefits.push(option.id);
+    else {
+      state.origin.benefits.push(option.id);
+      if(option.id==='power:proficiencia'||option.name==='Proficiência'){
+        setTimeout(()=>{
+          const sel=document.querySelector('[data-action="origin-benefit-proficiency-select"]');
+          if(sel){sel.scrollIntoView?.({behavior:'smooth',block:'center'});sel.focus?.();}
+        },60);
+      }
+    }
     if(typeof cleanSkillsAfterOriginChange==='function')cleanSkillsAfterOriginChange();
     if(typeof ensureOriginPartners==='function')ensureOriginPartners();
     state.completed=state.completed.filter(step=>step<4);renderStage();

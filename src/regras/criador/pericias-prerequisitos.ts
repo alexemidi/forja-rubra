@@ -500,9 +500,32 @@ renderOrigins=function(){
   } else {
     const benefits = options.length ? options.map(option => {
       const selected = state.origin.benefits.includes(option.id), blocked = originBenefitBlocked(option), optionWeight = option.id === 'unique:heranca_2000' ? 2 : 1, exhausted = !selected && (currentBenefitsCount + optionWeight > maxBenefits);
-      return '<button type="button" class="check-card origin-benefit-button ' + (selected ? 'selected ' : '') + (blocked ? 'disabled ' : '') + (exhausted ? 'choice-exhausted' : '') + '" data-action="origin-benefit-button" data-option-id="' + esc(option.id) + '" data-disabled="' + (blocked ? 'true' : 'false') + '" ' + (exhausted && !blocked ? 'disabled' : '') + '><strong>' + esc(option.name) + '</strong><small>' + esc(originBenefitDescription(option, blocked)) + '</small></button>';
+      let optName = option.name;
+      if (selected && (option.id === 'power:proficiencia' || (typeof slug === 'function' ? slug(option.name) : '') === 'proficiencia')) {
+        const curProf = state.origin?.proficiencyChoice || '';
+        const optFound = typeof getAvailableProficiencyOptions === 'function' ? getAvailableProficiencyOptions(state.identity?.classId, curProf).find(o => o.id === curProf) : null;
+        optName += optFound ? (' (' + optFound.name + ')') : ' (Escolha pendente)';
+      }
+      return '<button type="button" class="check-card origin-benefit-button ' + (selected ? 'selected ' : '') + (blocked ? 'disabled ' : '') + (exhausted ? 'choice-exhausted' : '') + '" data-action="origin-benefit-button" data-option-id="' + esc(option.id) + '" data-disabled="' + (blocked ? 'true' : 'false') + '" ' + (exhausted && !blocked ? 'disabled' : '') + '><strong>' + esc(optName) + '</strong><small>' + esc(originBenefitDescription(option, blocked)) + '</small></button>';
     }).join('') : '<div class="empty">Escolha uma origem para ver seus benefícios.</div>';
-    right = '<div><span class="field-label">Escolha ' + maxBenefits + ' benefício' + (maxBenefits === 1 ? '' : 's') + '</span><div class="origin-benefit-grid" style="margin-top:7px">' + benefits + '</div></div>';
+
+    const hasProfBenefit = (state.origin?.benefits || []).some(id => id === 'power:proficiencia' || id.endsWith(':proficiencia') || id === 'proficiencia');
+    let profSelectorHtml = '';
+    if (hasProfBenefit) {
+      const curChoice = state.origin?.proficiencyChoice || '';
+      const profOptions = typeof getAvailableProficiencyOptions === 'function' ? getAvailableProficiencyOptions(state.identity?.classId, curChoice) : [];
+      profSelectorHtml = '<div class="origin-proficiency-box" style="margin-top:12px;padding:12px 14px;border:1px solid #4a252a;background:rgba(24,17,20,0.8);border-radius:6px;">'
+        + '<label class="field" style="margin:0;">'
+        + '<span style="font-size:0.75rem;color:var(--gold2);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Escolha a Proficiência (Benefício: Proficiência)</span>'
+        + '<select class="select" data-action="origin-benefit-proficiency-select" style="margin-top:6px;width:100%;min-height:36px;background:#090708;border:1px solid #4a252a;color:var(--cream);">'
+        + '<option value="">Selecione uma proficiência...</option>'
+        + profOptions.map(p => '<option value="' + p.id + '" ' + (p.id === curChoice ? 'selected' : '') + '>' + esc(p.name) + '</option>').join('')
+        + '</select>'
+        + '</label>'
+        + '</div>';
+    }
+
+    right = '<div><span class="field-label">Escolha ' + maxBenefits + ' benefício' + (maxBenefits === 1 ? '' : 's') + '</span><div class="origin-benefit-grid" style="margin-top:7px">' + benefits + '</div>' + profSelectorHtml + '</div>';
     standardNote = isTeenCharacter() && state.origin.mode === 'dual' && state.origin.regional ? 'Bloqueada pela escolha de Origem Regional' : 'Selecionados: ' + currentBenefitsCount + '/' + maxBenefits;
   }
 

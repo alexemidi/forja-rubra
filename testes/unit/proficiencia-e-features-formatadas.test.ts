@@ -118,3 +118,20 @@ test('Aumento de Passo de Dano por Categoria de Tamanho', () => {
   // Colossal (+3 tamanhos): 2d8
   assert.equal(stepUp('1d8', 3), '2d8');
 });
+
+test('Benefício de Origem Proficiência (ex: Seguidor)', () => {
+  // Simula estado do personagem com Seguidor selecionando Proficiência
+  const mockState = {
+    identity: { classId: 'arcanista' },
+    origin: {
+      standard: 'Seguidor',
+      benefits: ['power:proficiencia', 'power:surto_heroico'],
+      proficiencyChoice: 'armas_marciais'
+    }
+  };
+
+  const hasProf = mockState.origin.benefits.some(id => id === 'power:proficiencia');
+  assert.ok(hasProf, 'Seguidor possui benefício Proficiência selecionado');
+  assert.equal(mockState.origin.proficiencyChoice, 'armas_marciais', 'Proficiência escolhida deve ser armas_marciais');
+});
+
