@@ -164,3 +164,47 @@ test('Origens T20: Origem Regional em Modo Single (origem única)', () => {
     'Origem padrão em modo single ainda exige 2 benefícios'
   );
 });
+
+test('Complicações T20: Limite de multiseleção (Adulto + Regra de Complicações = 2)', () => {
+  const faixas = JSON.parse(
+    fs.readFileSync(path.join(root, 'dados/idade-faixas.json'), 'utf8')
+  );
+
+  function calcularLimiteComplicações(state: {
+    age?: { enabled: boolean; band: string };
+    complicacoesIndividual?: boolean;
+  }) {
+    const bandData = state.age?.enabled ? faixas[state.age.band] : null;
+    const ageLimit = Number(bandData?.count || 0);
+    const indLimit = state.complicacoesIndividual ? 1 : 0;
+    return ageLimit + indLimit;
+  }
+
+  // Adulto (1 opcional) + Regra de complicações (1) = 2 complicações
+  assert.equal(
+    calcularLimiteComplicações({ age: { enabled: true, band: 'adulto' }, complicacoesIndividual: true }),
+    2,
+    'Adulto com regra de complicação individual permite multiseleção de 2 complicações'
+  );
+
+  // Adulto apenas com regras de idade = 1 complicação
+  assert.equal(
+    calcularLimiteComplicações({ age: { enabled: true, band: 'adulto' }, complicacoesIndividual: false }),
+    1,
+    'Adulto apenas com regra de idade permite 1 complicação'
+  );
+
+  // Sem regras de idade, apenas com regra de complicações = 1 complicação
+  assert.equal(
+    calcularLimiteComplicações({ age: { enabled: false, band: '' }, complicacoesIndividual: true }),
+    1,
+    'Sem regras de idade com regra de complicações permite 1 complicação'
+  );
+
+  // Maduro (2) + Regra de complicações (1) = 3 complicações
+  assert.equal(
+    calcularLimiteComplicações({ age: { enabled: true, band: 'maduro' }, complicacoesIndividual: true }),
+    3,
+    'Maduro com regra de complicações permite 3 complicações'
+  );
+});

@@ -2,7 +2,32 @@
 body{background-color:var(--forja-ink)!important;background-image:radial-gradient(circle at 78% 5%,#7e111c38,transparent 34%),linear-gradient(135deg,#090708,#120a0d 58%,#070607)!important;color:var(--text)!important;font-family:Georgia,'Times New Roman',serif!important}
 .app-header{position:sticky!important;top:0!important;left:0!important;right:0!important;z-index:9999!important;min-height:52px!important;height:52px!important;padding:10px 20px!important;border-bottom:1px solid #1a2230!important;background:#0d1117!important;box-shadow:0 4px 16px rgba(0,0,0,0.4)!important;display:flex!important;justify-content:space-between!important;align-items:center!important;box-sizing:border-box!important;width:100%!important}.brand.brand-link,.topbar-unified-brand{text-decoration:none!important;color:inherit!important;cursor:pointer!important;display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:10px!important;margin:0!important;position:absolute!important;left:50%!important;transform:translateX(-50%)!important;text-align:center!important}.brand.brand-link:hover h1,.topbar-unified-brand:hover h1{color:#fbbf24!important}.brand small{color:#94a3b8!important;font-size:0.72rem!important;letter-spacing:0.5px!important;text-transform:uppercase!important;font-weight:600!important;font-family:system-ui,-apple-system,sans-serif!important;line-height:1!important}.brand h1,.topbar-unified-brand h1{color:#d4af37!important;font-family:'Tormenta','Cinzel',serif!important;font-weight:700!important;font-size:1.16rem!important;line-height:1.2!important;letter-spacing:1px!important;margin:0!important;text-transform:uppercase!important}.brand.brand-link img,.topbar-unified-brand img{width:28px!important;height:28px!important;flex-shrink:0!important;vertical-align:middle!important}.app-header .header-actions{display:flex!important;align-items:center!important;gap:12px!important;margin-left:auto!important}.app-header .save-status,.app-header .hero-status-pill{display:inline-flex!important;align-items:center!important;gap:8px!important;padding:6px 14px!important;background:#141a24!important;border:1px solid #233144!important;border-radius:20px!important;font-size:0.82rem!important;color:#cbd5e1!important;box-shadow:0 2px 6px rgba(0,0,0,0.3)!important;font-family:system-ui,-apple-system,sans-serif!important}.app-header .button{background:#1e293b!important;border:1px solid #475569!important;color:#ffffff!important;font-size:0.82rem!important;padding:6px 16px!important;border-radius:6px!important;text-decoration:none!important;font-weight:600!important;display:inline-flex!important;align-items:center!important;gap:6px!important;box-shadow:0 2px 6px rgba(0,0,0,0.25)!important;clip-path:none!important;cursor:pointer!important}.app-header #levelUpButton,.app-header button[data-sheet-action="level-up"],.app-header [hidden]{display:none!important}.forja-drawer-trigger-btn{background:transparent!important;border:none!important;color:#dc2626!important;cursor:pointer!important;padding:6px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:4px!important}.forja-drawer-trigger-btn svg,.forja-drawer-trigger-btn svg line{stroke:#dc2626!important}body.spell-stage .stage-heading,.spell-stage .stage-heading{display:none!important}
 .phase-nav{border-color:var(--border)!important;background:#0d090b!important;border-radius:0!important;scroll-behavior:smooth!important}.phase-nav-title{color:var(--forja-gold)!important}.phase-button{border-color:#311b1f!important}.phase-button.active{color:var(--text)!important;background:linear-gradient(90deg,#a91c2738,transparent)!important;box-shadow:inset 0 -2px var(--forja-red-hot)}.phase-button.active .phase-number{border-color:var(--forja-red-hot)!important;color:var(--forja-red-hot)!important}.phase-button.done .phase-number{border-color:var(--forja-gold)!important;color:var(--forja-gold)!important}
-.stage-heading h2,.panel-title,.choice-section h4,.attribute-matrix-name,.power-category h4,.power-detail-panel h4{color:var(--forja-gold)!important;font-family:Georgia,'Times New Roman',serif!important}.stage-kicker{color:var(--forja-red-hot)!important}.panel{position:relative;border-color:var(--border)!important;border-radius:0!important;background:linear-gradient(145deg,#1b1215f5,#110d0ff5)!important;box-shadow:0 18px 42px #0004;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}.panel-header{border-color:var(--border)!important;background:#211519!important}.panel-body{background:transparent!important}
+.stage-heading h2,
+.panel-title,
+.panel-header h2,
+.panel-header h3,
+.panel-header h4,
+.panel-header .panel-title,
+.choice-section h3,
+.choice-section h4,
+.choice-section > h4,
+.race-subchoices h4,
+.race-subchoice-item label span,
+.attribute-matrix-name,
+.attribute-name,
+.power-category h4,
+.power-detail-panel h4,
+.deity-card h4,
+.field-label,
+.stage-kicker,
+.summary-card small,
+.confirm-modal h3,
+.age-extension .panel-title {
+  color: var(--forja-gold) !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  letter-spacing: 0.5px !important;
+}
+.panel{position:relative;border-color:var(--border)!important;border-radius:0!important;background:linear-gradient(145deg,#1b1215f5,#110d0ff5)!important;box-shadow:0 18px 42px #0004;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}.panel-header{border-color:var(--border)!important;background:#211519!important}.panel-body{background:transparent!important}
 .input,.select,.textarea{min-height:44px;border-color:#583038!important;border-radius:0!important;background:#0d090b!important;color:var(--text)!important}.input:focus,.select:focus,.textarea:focus{border-color:var(--forja-red-hot)!important;box-shadow:0 0 0 3px #ef39451f!important}
 .button,.btn{border-radius:0!important;border-color:#7d3540!important;background:linear-gradient(135deg,var(--forja-red),#8f121d)!important;color:white!important;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}.button.primary{border-color:#ef394588!important;background:linear-gradient(135deg,#d52635,#81121b)!important;color:#fff!important}.button.danger{background:#271216!important;color:#ef9aa2!important}.button:hover{filter:brightness(1.15)}
 .button.small,.btn.small,.button.is-small,.btn.is-small,.btn-sm,.button-sm,[data-mount-equip-now-btn],[data-mount-equip-close],.sheet-mount-item-btn,.sheet-mount-toggle-btn{min-height:24px!important;height:24px!important;padding:2px 10px!important;font-size:0.72rem!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))!important}
@@ -1132,5 +1157,136 @@ button[data-item-spend] {
 .guild-card .card-title,
 .item-row strong {
   font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+}
+
+/* Subtítulos e Cabeçalhos de Seções do Criador de Personagens */
+.panel-title,
+.panel-header,
+.panel-header h2,
+.panel-header h3,
+.panel-header h4,
+.panel-header .panel-title,
+.stage-heading h2,
+.stage-heading h3,
+.choice-section h3,
+.choice-section h4,
+.choice-section > h4,
+.race-subchoices h4,
+.race-subchoice-item label span,
+.attribute-matrix-name,
+.attribute-name,
+.power-category h4,
+.power-detail-panel h4,
+.deity-card h4,
+.field-label,
+.stage-kicker,
+.summary-card small,
+.confirm-modal h3,
+.age-extension .panel-title,
+.attribute-card-name {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  color: var(--gold2, #e9ad59) !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Modal Canônico de Complicações */
+.age-complications-dialog {
+  width: min(860px, calc(100vw - 32px)) !important;
+  max-height: min(800px, 90vh) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--surface, #110d0f) !important;
+  border: 1px solid var(--border, #4a252a) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85) !important;
+  overflow: hidden !important;
+}
+
+.age-complications-dialog header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 14px 20px !important;
+  border-bottom: 1px solid var(--border, #4a252a) !important;
+  background: var(--surface2, #181114) !important;
+}
+
+.age-complications-dialog h3 {
+  margin: 0 !important;
+  color: var(--gold, #e9ad59) !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.8px !important;
+}
+
+.age-complications-dialog .confirm-modal-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+}
+
+.age-complications-dialog .age-complications-modal-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+@media (max-width: 760px) {
+  .age-complications-dialog .age-complications-modal-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.age-comp-modal-card {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  background: var(--panel, #110d0f) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  user-select: none !important;
+}
+
+.age-comp-modal-card:hover:not(.disabled) {
+  border-color: var(--gold, #e9ad59) !important;
+  background: var(--panel2, #181114) !important;
+}
+
+.age-comp-modal-card.selected {
+  border-color: var(--gold, #e9ad59) !important;
+  background: rgba(233, 173, 89, 0.08) !important;
+  box-shadow: inset 3px 0 var(--gold, #e9ad59) !important;
+}
+
+.age-comp-modal-card.disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+}
+
+.age-comp-modal-card strong {
+  display: block !important;
+  color: var(--gold2, #f5c879) !important;
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.88rem !important;
+  margin-bottom: 4px !important;
+}
+
+.age-comp-modal-card small {
+  display: block !important;
+  color: var(--muted, #c9b2aa) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.45 !important;
+}
+
+.age-complications-dialog footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid var(--border, #4a252a) !important;
+  background: var(--surface2, #181114) !important;
 }
 
