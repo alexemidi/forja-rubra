@@ -145,7 +145,6 @@ function renderPhase8BackpackView(){
           : (isExpanded && typeof window !== 'undefined' && typeof window.inlineDetails === 'function' ? window.inlineDetails(entry, item) : '');
 
         const getIcon = (name: string) => window.IconesForja ? window.IconesForja.get(name, 'icon-sm') : '';
-        const detailsBtn = `<button class="compact-action-btn compact-details-btn" type="button" data-item-details="${esc(id)}" title="Ver detalhes de ${esc(itemName(entry))}">${getIcon('link')}</button>`;
 
         return `<div class="backpack-compact-entry ${isExpanded ? 'is-expanded' : ''}" data-instance-id="${esc(id)}">
           <div class="backpack-compact-row" data-item-details="${esc(id)}" tabindex="0" role="button" title="Abrir detalhes de ${esc(itemName(entry))}">
@@ -154,9 +153,6 @@ function renderPhase8BackpackView(){
             </button>
             <span class="compact-metric metric-quantity"><small>QTD.</small><strong>${qty}</strong></span>
             <span class="compact-metric metric-spaces"><small>ESPAÇOS</small><strong>${spaces}</strong></span>
-            <div class="compact-actions" style="display:flex;gap:4px;align-items:center;">
-              ${detailsBtn}
-            </div>
           </div>
           ${detailHtml ? `<div class="compact-detail">${detailHtml}</div>` : ''}
         </div>`;

@@ -816,7 +816,6 @@ function backpackCompactHtml(instance) {
     escapeHtml(configuredItemName(instance, originalItem)) + '</strong></button><span class="compact-metric metric-quantity"><small>Qtd.</small><strong>' + instance.quantity +
     '</strong></span>' + ammo + '<span class="compact-metric metric-spaces"><small>Espaços</small><strong>' + formatSpaces(totalSpaces) +
     '</strong></span><div class="compact-actions" style="display:flex;gap:4px;align-items:center;">' +
-      '<button class="compact-action-btn compact-details-btn" type="button" data-action="open-details" title="Ver detalhes de ' + escapeHtml(configuredItemName(instance, originalItem)) + '">' + (window.IconesForja ? window.IconesForja.get('link', 'icon-sm') : '🔗') + '</button>' +
       '<button class="compact-action-btn compact-remove" type="button" data-action="remove" aria-label="Remover ' + escapeHtml(configuredItemName(instance, originalItem)) + ' da mochila">×</button>' +
     '</div></div>' +
     (isOpen ? '<div class="compact-detail">' + backpackItemHtml(instance) + '</div>' : '') + '</div>';

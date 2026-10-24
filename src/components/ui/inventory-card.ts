@@ -38,7 +38,7 @@ export function renderCardInventario(card: InventoryCardData): string {
   return `<div class="sheet-item-inline-details" data-inline-details="${escapeHtml(card.id)}">
     <article class="item-card" data-type="${escapeHtml(card.tipo)}" data-item-id="${escapeHtml(card.itemId)}" data-instance-id="${escapeHtml(card.id)}">
       <div class="card-header">
-        <div class="title-row"><div style="display:flex;align-items:center;gap:8px;">
+        <div class="title-row" data-item-details="${escapeHtml(card.id)}" style="cursor:pointer;" title="Clique no título para recolher"><div style="display:flex;align-items:center;gap:8px;">
           <span class="item-icon" aria-hidden="true">${card.iconeHtml}</span><h3 class="item-title">${escapeHtml(card.titulo)}</h3>
         </div></div>
         <div class="badges"><span class="badge badge-type-${escapeHtml(card.tipo)}">${escapeHtml(card.tipoLabel)}</span>

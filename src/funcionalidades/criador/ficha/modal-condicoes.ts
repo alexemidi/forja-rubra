@@ -320,20 +320,8 @@
   }
 
   function renderSheetConditionsLine() {
-    const active = obterCondicoesAtivas();
-    const badgesHtml = active.length > 0
-      ? active.map((name) => `
-          <span class="sheet-condition-badge">
-            ${name}
-            <button class="sheet-condition-badge-remove" type="button" data-remove-condition="${name}" title="Remover ${name}">×</button>
-          </span>
-        `).join('')
-      : '<span class="sheet-condition-empty">Normal</span>';
-
     return `
       <div class="sheet-conditions-line">
-        
-        ${badgesHtml}
         <button class="sheet-add-condition-btn" id="openConditionsModalBtn" type="button" data-action="open-conditions" title="Adicionar Condição">+</button>
       </div>
     `;

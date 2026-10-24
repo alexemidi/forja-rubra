@@ -347,73 +347,48 @@
     }
 
     let bottomSecondaryActions = '';
-    const secBtnStyle = 'font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1;background:#141b27;border:1px solid #263345;color:#cbd5e1;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;';
+    const eid = esc(expandedSheetItemId);
+    const ico = (name) => (window.IconesForja ? window.IconesForja.get(name, 'icon-sm') : '');
+    const actBtn = (attrs, icon, title, disabled = false) =>
+      `<button type="button" class="square-action-btn" ${attrs} title="${title}" aria-label="${title}" ${disabled ? 'disabled' : ''}>${ico(icon)}</button>`;
+    const equipBtn = (action, icon, title) => actBtn(`data-equip-action="${action}" data-entry-id="${eid}"`, icon, title);
 
     if (isArmadura) {
-      if (isEquippedArmor) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="store-armor" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('shield', 'icon-xs') : ''} Guardar</button>`;
-      } else if (eq.armorId && eq.armorId !== 'none') {
-        bottomSecondaryActions += `<button type="button" data-equip-action="swap-armor" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('sync', 'icon-xs') : ''} Trocar</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-armor" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('shield', 'icon-xs') : ''} Vestir</button>`;
-      }
+      bottomSecondaryActions += isEquippedArmor ? equipBtn('store-armor', 'archive', 'Guardar armadura')
+        : (eq.armorId && eq.armorId !== 'none') ? equipBtn('swap-armor', 'sync', 'Trocar com a armadura vestida')
+        : equipBtn('equip-armor', 'shield', 'Vestir armadura');
     } else if (isEscudo) {
-      if (isEquippedShield) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="store-shield" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('shield', 'icon-xs') : ''} Guardar</button>`;
-      } else if (typeof equippedWeaponBlocksShield === 'function' && equippedWeaponBlocksShield()) {
-        bottomSecondaryActions += `<span class="tag dim" style="font-size:0.6rem;">Bloqueado</span>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-shield" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('shield', 'icon-xs') : ''} Equipar</button>`;
-      }
+      if (isEquippedShield) bottomSecondaryActions += equipBtn('store-shield', 'archive', 'Guardar escudo');
+      else if (typeof equippedWeaponBlocksShield === 'function' && equippedWeaponBlocksShield()) bottomSecondaryActions += actBtn('', 'shield', 'Bloqueado: arma de duas mãos empunhada', true);
+      else bottomSecondaryActions += equipBtn('equip-shield', 'shield', 'Equipar escudo');
     } else if (isTraje) {
-      if (isEquippedTrailer) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="store-trailer" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Guardar</button>`;
-      } else if (eq.trailerId && eq.trailerId !== 'none') {
-        bottomSecondaryActions += `<button type="button" data-equip-action="swap-trailer" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Trocar</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-trailer" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Vestir</button>`;
-      }
+      bottomSecondaryActions += isEquippedTrailer ? equipBtn('store-trailer', 'archive', 'Guardar traje')
+        : (eq.trailerId && eq.trailerId !== 'none') ? equipBtn('swap-trailer', 'sync', 'Trocar traje')
+        : equipBtn('equip-trailer', 'user', 'Vestir traje');
     } else if (isEngenhoca && isAttachedToArmor) {
-      bottomSecondaryActions += `<button type="button" data-action="desacoplar-engenhoca-armadura" data-contraption-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('gear', 'icon-xs') : ''} Desacoplar da Armadura</button>`;
+      bottomSecondaryActions += actBtn(`data-action="desacoplar-engenhoca-armadura" data-contraption-id="${eid}"`, 'gear', 'Desacoplar da armadura');
     } else if (isArma || isEsoterico || isInstrumento || (isEngenhoca && (entry.formaUso === 'empunhada' || entry.engenhocaInfo?.formaUso === 'empunhada' || !entry.formaUso))) {
-      if (isEquippedWeapon) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="store-weapon" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Guardar</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-weapon" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Empunhar</button>`;
-      }
+      bottomSecondaryActions += isEquippedWeapon ? equipBtn('store-weapon', 'archive', 'Guardar') : equipBtn('equip-weapon', 'sword', 'Empunhar');
     } else if (isTatuagem) {
-      if (isEquippedWorn) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="cover-tattoo" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Cobrir</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="reveal-tattoo" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Descobrir</button>`;
-      }
+      bottomSecondaryActions += isEquippedWorn ? equipBtn('cover-tattoo', 'user', 'Cobrir tatuagem') : equipBtn('reveal-tattoo', 'sparkles', 'Descobrir tatuagem');
     } else if (isOutroVestivel || (isEngenhoca && (entry.formaUso === 'vestida' || entry.engenhocaInfo?.formaUso === 'vestida'))) {
-      if (isEquippedWorn) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="store-accessory" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Guardar</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-accessory" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Vestir</button>`;
-      }
+      bottomSecondaryActions += isEquippedWorn ? equipBtn('store-accessory', 'archive', 'Guardar') : equipBtn('equip-accessory', 'user', 'Vestir');
     } else if (isConsumable(source)) {
-      bottomSecondaryActions += `<button type="button" data-item-spend="use" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}" ${Number(entry.quantity || 0) < 1 ? 'disabled' : ''}>Usar</button>`;
-    } else if (source.tipo === 'municao') {
+      bottomSecondaryActions += actBtn(`data-item-spend="use" data-entry-id="${eid}"`, 'flask', 'Usar', Number(entry.quantity || 0) < 1);
+    } else if (source.tipo === 'municao' && (typeof hasWeaponForAmmo !== 'function' || hasWeaponForAmmo(entry, source))) {
       const remaining = Math.max(0, Number(entry.ammoRemaining ?? entry.quantity ?? 0));
-      bottomSecondaryActions += `<button type="button" data-item-spend="fire" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}" ${remaining < 1 ? 'disabled' : ''}>Disparar ${remaining}</button>`;
+      bottomSecondaryActions += actBtn(`data-item-spend="fire" data-entry-id="${eid}"`, 'bow', `Disparar (${remaining} restantes)`, remaining < 1);
     }
 
     const isAnimalGear = (typeof RegrasMontarias !== 'undefined' && RegrasMontarias.tipoEquipamentoAnimal(source.id || entry.itemId)) || ['sela', 'alforje', 'armadura_de_montaria_leve', 'armadura_de_montaria_pesada'].includes(source.id || entry.itemId);
     const hasMountPartner = (typeof state !== 'undefined' && Array.isArray(state?.partners)) ? state.partners.some(p => typeof mountRecord === 'function' && mountRecord(p)) : false;
-
     if (isAnimalGear && hasMountPartner) {
-      if (entry.mountPartnerId) {
-        bottomSecondaryActions += `<button type="button" data-equip-action="unequip-mount-gear" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Desequipar da Montaria</button>`;
-      } else {
-        bottomSecondaryActions += `<button type="button" data-equip-action="equip-mount-gear" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">Equipar na Montaria</button>`;
-      }
+      bottomSecondaryActions += entry.mountPartnerId ? equipBtn('unequip-mount-gear', 'paw', 'Desequipar da montaria') : equipBtn('equip-mount-gear', 'paw', 'Equipar na montaria');
     }
-
     if (isEngenhoca) {
-      bottomSecondaryActions += `<button type="button" data-backpack-action="disassemble" data-entry-id="${esc(expandedSheetItemId)}" style="${secBtnStyle}">${window.IconesForja ? window.IconesForja.get('gear', 'icon-xs') : ''} Desmanchar</button>`;
+      bottomSecondaryActions += actBtn(`data-backpack-action="disassemble" data-entry-id="${eid}"`, 'gear', 'Desmanchar engenhoca');
     }
+    bottomSecondaryActions += actBtn(`data-backpack-action="sell" data-entry-id="${eid}"`, 'coin', 'Vender');
 
     // @ts-ignore
     const rules = typeof RegrasManufatura !== 'undefined' ? RegrasManufatura : null;
