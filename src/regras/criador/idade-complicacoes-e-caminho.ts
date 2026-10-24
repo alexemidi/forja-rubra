@@ -33,12 +33,6 @@ function totalComplicationsLimit(){
   const indLimit = isIndividualComplicationsActive() ? 1 : 0;
   return ageLimit + indLimit;
 }
-function adultBonusPowers(){
-  if (!state.age?.enabled || state.age.band !== 'adulto') return 0;
-  // No adulto, o poder de idade base é garantido. A complicação de idade é opcional; se escolhida, concede +1 poder geral extra.
-  const compsCount = (state.age?.complications || []).length;
-  return compsCount >= 1 ? 1 : 0;
-}
 
 function individualComplicationGrantedPowers(){
   if (!isIndividualComplicationsActive()) return 0;
@@ -47,9 +41,6 @@ function individualComplicationGrantedPowers(){
   if (!state.age?.enabled) {
     return totalComps >= 1 ? 1 : 0;
   }
-  if (state.age.band === 'adulto') {
-    return totalComps >= 2 ? 1 : 0;
-  }
   const ageLimit = Number(r?.count || 0);
   return totalComps > ageLimit ? 1 : 0;
 }
@@ -57,9 +48,8 @@ const baseGeneralPowerSlots=generalPowerSlots;
 generalPowerSlots=function(){
   const r=rule();
   const agePowers = Number(state.age?.enabled ? (r?.generalPowers || 0) : 0);
-  const adultBonus = adultBonusPowers();
   const indPowers = individualComplicationGrantedPowers();
-  return baseGeneralPowerSlots() + agePowers + adultBonus + indPowers;
+  return baseGeneralPowerSlots() + agePowers + indPowers;
 };
 
 function panelHtml(){
@@ -93,7 +83,7 @@ function panelHtml(){
   }
 
   let agePowersHtml = '';
-  if (state.age.enabled && ['crianca', 'adolescente'].includes(state.age.band)) {
+  if (state.age.enabled && state.age.band && state.age.band !== 'jovem') {
     const powers = (AGE_POWERS || []).filter(p => p.faixa === state.age.band);
     if (powers.length) {
       agePowersHtml = '<div class="choice-section age-powers-display" style="margin-top:12px">'

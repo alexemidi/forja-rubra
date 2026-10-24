@@ -298,7 +298,26 @@ document.addEventListener('click',event=>{
     event.preventDefault();event.stopImmediatePropagation();
     state.powers.activeSlot=Number(state.powers.activeSlot??pendingGeneralPowerSlot()??0);
     state.powers.previewId=button.dataset.powerId;
-    renderStage();document.querySelector('[data-action="power-preview"][data-power-id="'+button.dataset.powerId+'"]')?.focus({preventScroll:true});return;
+
+    const listContainer = button.closest('.power-list');
+    const savedListScroll = listContainer ? listContainer.scrollTop : 0;
+    const savedWinScroll = typeof window !== 'undefined' ? window.scrollY : 0;
+
+    renderStage();
+
+    const restoredList = document.querySelector('.power-list');
+    if (restoredList && savedListScroll > 0) {
+      restoredList.scrollTop = savedListScroll;
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
+      requestAnimationFrame(() => {
+        const rList = document.querySelector('.power-list');
+        if (rList && savedListScroll > 0) rList.scrollTop = savedListScroll;
+        window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
+      });
+    }
+    return;
   }
   if(event.target.closest('#nextButton')){
     event.preventDefault();event.stopImmediatePropagation();

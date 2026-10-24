@@ -101,10 +101,14 @@ function cosmopolitaClassPowerEligibility(power, classId, classLevel){
 function cosmopolitaEligiblePowers(){
   const items = [];
   const currentChosenKey = state.powers?.cosmopolitaPower || '';
+  const currentChosenPowerId = currentChosenKey.startsWith('geral:') ? currentChosenKey.slice(6) : currentChosenKey;
+  const ownedNames = new Set((typeof ownedPowerNames === 'function' ? [...ownedPowerNames(currentChosenPowerId)] : []).map(slug));
 
   // 1. Poderes Gerais (Combate, Destino, Magia, Tormenta)
   for (const p of DATA.generalPowers || []) {
     if (['concedido', 'raca'].includes(p.categoria)) continue;
+    const isCurrent = currentChosenKey === ('geral:' + p.id) || currentChosenKey === p.id;
+    if (!isCurrent && ownedNames.has(slug(p.nome))) continue;
     const verdict = cosmopolitaGeneralPowerEligibility(p);
     items.push({
       ...p,
@@ -113,7 +117,7 @@ function cosmopolitaEligiblePowers(){
       categoryLabel: p.categoria === 'combate' ? 'Combate' : p.categoria === 'destino' ? 'Destino' : p.categoria === 'magia' ? 'Magia' : p.categoria === 'tormenta' ? 'Tormenta' : 'Geral',
       originLabel: 'Poder Geral (' + (p.categoria ? (p.categoria.charAt(0).toUpperCase() + p.categoria.slice(1)) : 'Geral') + ')',
       verdict,
-      isSelected: currentChosenKey === ('geral:' + p.id) || currentChosenKey === p.id
+      isSelected: isCurrent
     });
   }
 
@@ -125,6 +129,8 @@ function cosmopolitaEligiblePowers(){
     const className = cls?.nome || classId;
     const powers = (DATA.classPowers || []).filter(cp => (cp.classeIds || []).includes(classId));
     for (const p of powers) {
+      const isCurrent = currentChosenKey === ('classe:' + classId + ':' + p.id) || currentChosenKey === p.id;
+      if (!isCurrent && ownedNames.has(slug(p.nome))) continue;
       const verdict = cosmopolitaClassPowerEligibility(p, classId, lvl);
       items.push({
         ...p,
@@ -135,7 +141,7 @@ function cosmopolitaEligiblePowers(){
         categoryLabel: className,
         originLabel: className + ' (Nv. ' + lvl + ')',
         verdict,
-        isSelected: currentChosenKey === ('classe:' + classId + ':' + p.id) || currentChosenKey === p.id
+        isSelected: isCurrent
       });
     }
   }
@@ -584,7 +590,20 @@ document.addEventListener('click', event => {
       state.powers.cosmopolitaPower = key;
       if (typeof persistNow === 'function') persistNow(); else persist();
     }
+    const listContainer = selectItemBtn.closest('.power-list');
+    const savedListScroll = listContainer ? listContainer.scrollTop : 0;
+    const savedWinScroll = typeof window !== 'undefined' ? window.scrollY : 0;
     renderStage();
+    const restoredList = document.querySelector('.power-list');
+    if (restoredList && savedListScroll > 0) restoredList.scrollTop = savedListScroll;
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
+      requestAnimationFrame(() => {
+        const rList = document.querySelector('.power-list');
+        if (rList && savedListScroll > 0) rList.scrollTop = savedListScroll;
+        window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
+      });
+    }
     return;
   }
 

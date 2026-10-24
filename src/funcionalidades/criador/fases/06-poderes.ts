@@ -348,26 +348,18 @@ document.addEventListener('click',event=>{
         const next=Array.from({length:generalPowerSlots()},(_,i)=>i).find(i=>!state.powers.general[i]);
         if(next!==undefined){
           state.powers.activeSlot=next;
-        }else{
-          setTimeout(()=>{
-            if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
-              const target=document.querySelector('.duplo-feerico-row')||document.querySelector('[data-action^="duplo-feerico"]');
-              target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'start'});
-            }else if(typeof hasCosmopolita==='function'&&hasCosmopolita()&&!selectedCosmopolitaPower()){
-              const target=document.querySelector('[data-action^="cosmopolita-"]');
-              target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'start'});
-            }else if(typeof hasFuturaLenda==='function'&&hasFuturaLenda()&&!selectedFuturaLendaPower()){
-              const target=document.querySelector('[data-action^="futura-lenda-"]');
-              target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'start'});
-            }
-          },60);
         }
         toast('Poder "'+(pwr?.nome||id)+'" selecionado.');
       }
     }
+    const listContainer = button.closest('.power-list');
+    const savedListScroll = listContainer ? listContainer.scrollTop : 0;
+    const savedWinScroll = typeof window !== 'undefined' ? window.scrollY : 0;
     renderStage();
+    const restoredList = document.querySelector('.power-list');
+    if (restoredList && savedListScroll > 0) restoredList.scrollTop = savedListScroll;
+    if (typeof window !== 'undefined') window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
     if(typeof syncNextButtonState==='function')syncNextButtonState();
-    revealPowerDetail();
     return;
   }
   if(action==='power-filter-category'){state.powers.categoryFilter=button.dataset.value;renderStage();return}

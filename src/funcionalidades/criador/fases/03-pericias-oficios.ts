@@ -88,7 +88,14 @@ function raceAbilityText(){
 }
 function classAbilityText(){const cls=classById(state.identity.classId);return (cls?.habilidades||[]).filter(ability=>Number(ability.nivel||1)<=Number(state.identity.plannedLevel||1)).flatMap(ability=>[ability.nome,ability.descricao]).filter(Boolean).join(' ')}
 function ownedPowerNames(exceptId=''){
-  const names=[...originPowerNames(),...selectedGeneralPowers(exceptId).map(power=>power.nome),...String(state.deity.power||'').split('|').filter(Boolean)];
+  const names=[
+    ...originPowerNames(),
+    ...Object.values(state.powers?.originGeneral||{}).map(id=>powerById(id)?.nome),
+    ...selectedGeneralPowers(exceptId).map(power=>power.nome),
+    ...String(state.deity.power||'').split('|'),
+    state.deity?.pantheonBonusPower ? (powerById(state.deity.pantheonBonusPower)?.nome || state.deity.pantheonBonusPower) : '',
+    state.deity?.fundamentalistPower ? (powerById(state.deity.fundamentalistPower)?.nome || state.deity.fundamentalistPower) : ''
+  ];
   const cls=classById(state.identity.classId),race=raceById(state.identity.raceId);
   (cls?.habilidades||[]).filter(ability=>Number(ability.nivel||1)<=Number(state.identity.plannedLevel||1)).forEach(ability=>names.push(ability.nome));
   (race?.habilidades?.fixas||[]).forEach(ability=>names.push(ability.nome));
@@ -103,9 +110,12 @@ function requiredOtherPowerCount(text,category){
   return match[1]==='outro'?1:(words[match[1]]||0);
 }
 function magicCircleAvailable(){if(!/\bmagias?\b/i.test(classAbilityText()))return 0;return Math.min(5,1+Math.floor((Math.max(1,Number(state.identity.plannedLevel))-1)/4))}
-function generalPowerEligibility(power){
+function generalPowerEligibility(power, exceptId=''){
   if(power?.id==='carga_de_cavalaria'&&state.identity.raceId==='centauro')return{ok:true,reasons:[]};
-  const reasons=[],requirements=String(power.preRequisitosTexto||'').trim(),normalized=slug(requirements),attrs=finalAttrs(),trained=allTrainedSkills(),race=raceById(state.identity.raceId),cls=classById(state.identity.classId),deity=chosenDeity(),owned=ownedPowerNames(power.id);
+  const reasons=[],requirements=String(power.preRequisitosTexto||'').trim(),normalized=slug(requirements),attrs=finalAttrs(),trained=allTrainedSkills(),race=raceById(state.identity.raceId),cls=classById(state.identity.classId),deity=chosenDeity(),owned=ownedPowerNames(exceptId||power.id);
+  const currentSlotId = typeof state !== 'undefined' && state.powers?.general ? (state.powers.general[Number(state.powers.activeSlot||0)] || '') : '';
+  const isCurrentSlotPower = (exceptId && power.id === exceptId) || (currentSlotId && power.id === currentSlotId);
+  if (!isCurrentSlotPower && owned.has(slug(power.nome))) addReason(reasons, 'Você já possui este poder.');
   if(power.categoria==='concedido'&&(!deity||!(deity.poderes_concedidos||[]).some(name=>slug(name)===slug(power.nome))))addReason(reasons,'O poder não é concedido pela divindade escolhida.');
   if(power.categoria==='raca'){
     const source=String(power.racasTexto||''),allowed=source.split(',').map(slug).filter(Boolean);
@@ -199,7 +209,17 @@ function renderGeneralPowerBrowser(slots){
   const currentSlot=Math.max(0,Math.min(slots-1,Number(state.powers.activeSlot||0)));
   const category=state.powers.categoryFilter||'all',status=state.powers.statusFilter||'all';
   const otherChosenIds=(state.powers.general||[]).filter((id,i)=>i!==currentSlot&&Boolean(id));
-  const entries=DATA.generalPowers.filter(power=>!otherChosenIds.includes(power.id)&&(category==='all'||power.categoria===category)).map(power=>{const verdict=generalPowerEligibility(power);return{power,verdict,status:verdict.ok?'available':'locked'}}),visible=entries.filter(entry=>status==='all'||entry.status===status);
+  const currentSlotPowerId = state.powers.general[currentSlot] || '';
+  const currentSlotPower = currentSlotPowerId ? powerById(currentSlotPowerId) : null;
+  const currentSlotPowerNameSlug = currentSlotPower ? slug(currentSlotPower.nome) : '';
+  const owned = ownedPowerNames(currentSlotPowerId);
+
+  const entries=DATA.generalPowers.filter(power=>{
+    if (otherChosenIds.includes(power.id)) return false;
+    const isCurrent = power.id === currentSlotPowerId || (currentSlotPowerNameSlug && slug(power.nome) === currentSlotPowerNameSlug);
+    if (!isCurrent && owned.has(slug(power.nome))) return false;
+    return category==='all'||power.categoria===category;
+  }).map(power=>{const verdict=generalPowerEligibility(power, currentSlotPowerId);return{power,verdict,status:verdict.ok?'available':'locked'}}),visible=entries.filter(entry=>status==='all'||entry.status===status);
   let preview=state.powers.previewId?powerById(state.powers.previewId):null;
   if(preview&&!visible.some(entry=>entry.power.id===preview.id)){preview=null;state.powers.previewId=''}
 

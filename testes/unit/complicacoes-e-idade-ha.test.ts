@@ -209,7 +209,7 @@ test('Complicações T20: Limite de multiseleção (Adulto + Regra de Complicaç
   );
 });
 
-test('Complicações T20: Progressão de poderes do Adulto (1 garantido, +1 complicação opcional, +1 regra individual)', () => {
+test('Complicações T20: Progressão de poderes do Adulto (Já Vi Coisas: 1 complicação = 1 poder; +1 regra individual = 2 poderes)', () => {
   const faixas = JSON.parse(
     fs.readFileSync(path.join(root, 'dados/idade-faixas.json'), 'utf8')
   );
@@ -226,41 +226,58 @@ test('Complicações T20: Progressão de poderes do Adulto (1 garantido, +1 comp
     const baseAgePowers = Number(bandData?.generalPowers || 0); // 1 para adulto
 
     const compsCount = (state.age?.complications || []).length;
-    // Bônus da complicação opcional do adulto
-    const adultBonus = (state.age?.enabled && state.age.band === 'adulto' && compsCount >= 1) ? 1 : 0;
-    // Bônus da regra individual de complicações
-    const indPowers = (isIndividualActive && compsCount >= (state.age?.enabled && state.age.band === 'adulto' ? 2 : 1)) ? 1 : 0;
+    const ageLimit = Number(bandData?.count || 0);
+    // Bônus da regra individual de complicações (se pegar além da complicação de idade)
+    const indPowers = (isIndividualActive && compsCount > ageLimit) ? 1 : 0;
 
-    return baseAgePowers + adultBonus + indPowers;
+    return baseAgePowers + indPowers;
   }
 
-  // 1. Adulto sem complicações: 1 poder geral garantido
-  assert.equal(
-    calcularTotalPoderesAdulto({
-      age: { enabled: true, band: 'adulto', complications: [] },
-      complicacoesIndividual: false
-    }),
-    1,
-    'Adulto sem complicações recebe 1 poder geral garantido'
-  );
-
-  // 2. Adulto com 1 complicação opcional (regra individual inativa): 2 poderes gerais
+  // 1. Adulto apenas com Já Vi Coisas (1 complicação de idade): 1 poder geral
   assert.equal(
     calcularTotalPoderesAdulto({
       age: { enabled: true, band: 'adulto', complications: ['rabugento'] },
       complicacoesIndividual: false
     }),
-    2,
-    'Adulto com complicação opcional de idade recebe 2 poderes gerais (1 base + 1 complicação)'
+    1,
+    'Adulto com Já Vi Coisas recebe 1 poder geral por 1 complicação de idade'
   );
 
-  // 3. Adulto com 2 complicações (1 opcional de idade + 1 da regra individual): 3 poderes gerais!
+  // 2. Adulto com Já Vi Coisas + Regra de Complicações (2 complicações): 2 poderes gerais!
   assert.equal(
     calcularTotalPoderesAdulto({
       age: { enabled: true, band: 'adulto', complications: ['rabugento', 'sono_ruim'] },
       complicacoesIndividual: true
     }),
-    3,
-    'Adulto com 2 complicações (idade + regra individual) recebe 3 poderes gerais!'
+    2,
+    'Adulto com 2 complicações (idade + regra individual) recebe 2 poderes gerais'
   );
+});
+
+test('Poderes T20: Poderes de origem e concedidos não podem ser escolhidos novamente', () => {
+  const generalPowers = [
+    { id: 'sortudo', nome: 'Sortudo', categoria: 'destino' },
+    { id: 'surto_heroico', nome: 'Surto Heroico', categoria: 'destino' },
+    { id: 'vitalidade', nome: 'Vitalidade', categoria: 'destino' },
+    { id: 'coragem_total', nome: 'Coragem Total', categoria: 'concedido' },
+    { id: 'ataque_poderoso', nome: 'Ataque Poderoso', categoria: 'combate' }
+  ];
+
+  function filtrarPoderesDisponiveis(powerList: typeof generalPowers, ownedNamesSet: Set<string>, currentPowerId: string = '') {
+    return powerList.filter(p => {
+      const isCurrent = p.id === currentPowerId;
+      if (!isCurrent && ownedNamesSet.has(p.nome.toLowerCase())) return false;
+      return true;
+    });
+  }
+
+  // Personagem pegou Sortudo na origem e Coragem Total na divindade
+  const owned = new Set(['sortudo', 'coragem total']);
+
+  const disponiveis = filtrarPoderesDisponiveis(generalPowers, owned);
+  assert.equal(disponiveis.some(p => p.id === 'sortudo'), false, 'Sortudo já pego na origem NÃO deve aparecer');
+  assert.equal(disponiveis.some(p => p.id === 'coragem_total'), false, 'Coragem Total já pego na divindade NÃO deve aparecer');
+  assert.equal(disponiveis.some(p => p.id === 'surto_heroico'), true, 'Surto Heroico não adquirido DEVE aparecer');
+  assert.equal(disponiveis.some(p => p.id === 'vitalidade'), true, 'Vitalidade não adquirido DEVE aparecer');
+  assert.equal(disponiveis.some(p => p.id === 'ataque_poderoso'), true, 'Ataque Poderoso não adquirido DEVE aparecer');
 });

@@ -43,5 +43,53 @@
         "aplicacao": "manual"
       }
     ]
+  },
+  {
+    "id": "idade_ja_vi_coisas",
+    "nome": "Já Vi Coisas",
+    "faixa": "adulto",
+    "descricao": "Você pode receber um poder geral. Nesse caso, também recebe uma complicação de idade (veja a seguir).",
+    "efeitos": [
+      {
+        "tipo": "poder_geral_extra",
+        "quantidade": 1
+      }
+    ]
+  },
+  {
+    "id": "idade_veterano_calejado",
+    "nome": "Veterano Calejado",
+    "faixa": "maduro",
+    "descricao": "Você começa o jogo com um nível adicional em relação aos personagens mais novos do grupo. Por exemplo, se o grupo vai começar no 1º nível, você começa no 2º. Contudo, essa experiência tem seu preço — você recebe duas complicações de idade.",
+    "efeitos": [
+      {
+        "tipo": "nivel_adicional",
+        "quantidade": 1
+      }
+    ]
+  },
+  {
+    "id": "idade_ai_minhas_costas",
+    "nome": "Ai Minhas Costas",
+    "faixa": "velho",
+    "descricao": "Você começa o jogo com dois níveis adicionais. Contudo, perde 1 ponto em todos os atributos físicos (Força, Destreza e Constituição) e recebe três complicações de idade. Além disso, não pode escolher o poder Aumento de Atributo para nenhum atributo físico — infelizmente, os tempos de vigor ficaram para trás. A partir deste ponto, mesmo o mais saudável dos aventureiros começa a sentir que a idade é um caminho sem volta…",
+    "efeitos": [
+      {
+        "tipo": "nivel_adicional",
+        "quantidade": 2
+      }
+    ]
+  },
+  {
+    "id": "idade_o_inverno_da_vida",
+    "nome": "O Inverno da Vida",
+    "faixa": "anciao",
+    "descricao": "Você começa o jogo com três níveis adicionais. Porém, perde 2 pontos em todos os atributos físicos (Força, Destreza e Constituição) e recebe quatro complicações de idade. Assim como velhos, você não pode escolher o poder Aumento de Atributo para atributos físicos.",
+    "efeitos": [
+      {
+        "tipo": "nivel_adicional",
+        "quantidade": 3
+      }
+    ]
   }
 ]
