@@ -491,7 +491,8 @@ function renderAttributesRace(){
   }
 
   let ageContent='';
-  if(rCamp.idade==='herois_arton'){
+  const hasAgeHeroisOrComplications = rCamp.idade === 'herois_arton' || Boolean(rCamp.complicacoes) || Boolean(state.age?.enabled) || Boolean(state.complicacoesIndividual);
+  if(hasAgeHeroisOrComplications){
     const ageHtml=typeof renderAgePanelHtml==='function'?renderAgePanelHtml():(typeof window!=='undefined'&&window.renderAgePanelHtml?window.renderAgePanelHtml():'');
     ageContent=ageHtml||'';
   }else if(rCamp.idade==='basico'){
@@ -515,10 +516,10 @@ function renderAttributesRace(){
   }
 
   let optionalRulesDisabledNotice='';
-  if(!rCamp.racasAbertas&&rCamp.idade==='desativada'){
+  if(!rCamp.racasAbertas&&rCamp.idade==='desativada'&&!rCamp.complicacoes&&!state.age?.enabled&&!state.complicacoesIndividual){
     optionalRulesDisabledNotice='<div class="rules-campaign-trigger-box" data-action="abrir-regras-campanha" data-tooltip="Clique para configurar as Regras da Campanha e Variantes (Idade, Raças Abertas, Complicações, etc.)" style="margin-top:10px;padding:6px 12px;border:1px dashed rgba(234,57,72,0.4);border-radius:6px;background:rgba(23,17,20,0.6);cursor:pointer;display:inline-flex;align-items:center;gap:8px;">'
       +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ea3948" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>'
-      +'<strong style="color:var(--gold,#e9ad59);font-family:\'Tormenta\',Cinzel,serif;font-size:0.85rem;font-weight:700;">Regras de Idade e Raças Abertas</strong>'
+      +'<strong style="color:var(--gold,#e9ad59);font-family:\'Tormenta\',Cinzel,serif;font-size:0.85rem;font-weight:700;">Regras de Idade, Complicações e Variantes</strong>'
       +'</div>';
   }
 
@@ -615,15 +616,18 @@ function raceMissingChoices(){
 function originMissingChoices(){
   if(shouldSkipOriginPhase())return [];
   const missing=[];
+  const isSingleRegional = state.origin.mode === 'single' && Boolean(selectedRegionalOrigin());
+  const activeRegional = selectedRegionalOrigin();
+
   if(isChildCharacter()){
-    if(!state.origin.standard)missing.push({title:'Origem padrão',message:'Escolha a origem padrão do personagem.',selector:'[data-field="standardOrigin"]',step:3});
-    else if(originBenefitsCount()!==1)missing.push({title:'Benefício da origem',message:'Crianças recebem apenas 1 benefício da origem padrão (atualmente selecionados: '+originBenefitsCount()+').',selector:'.benefit-list',step:3});
+    if(!state.origin.standard)missing.push({title:'Origem',message:'Escolha a origem do personagem.',selector:'[data-field="standardOrigin"]',step:3});
+    else if(!isSingleRegional && originBenefitsCount()!==1)missing.push({title:'Benefício da origem',message:'Crianças recebem apenas 1 benefício da origem padrão (atualmente selecionados: '+originBenefitsCount()+').',selector:'.benefit-list',step:3});
     return missing;
   }
   if(isTeenCharacter()){
     if(state.origin.mode==='single'){
-      if(!state.origin.standard)missing.push({title:'Origem padrão',message:'Escolha a origem padrão do personagem.',selector:'[data-field="standardOrigin"]',step:3});
-      else if(originBenefitsCount()!==1)missing.push({title:'Benefício da origem',message:'Adolescentes com origem única recebem apenas 1 benefício da origem padrão (atualmente selecionados: '+originBenefitsCount()+').',selector:'.benefit-list',step:3});
+      if(!state.origin.standard)missing.push({title:'Origem',message:'Escolha a origem do personagem.',selector:'[data-field="standardOrigin"]',step:3});
+      else if(!isSingleRegional && originBenefitsCount()!==1)missing.push({title:'Benefício da origem',message:'Adolescentes com origem única recebem apenas 1 benefício da origem padrão (atualmente selecionados: '+originBenefitsCount()+').',selector:'.benefit-list',step:3});
       return missing;
     } else {
       const hasStandardComplete=Boolean(state.origin.standard&&originBenefitsCount()===2&&!state.origin.regional);
@@ -634,22 +638,25 @@ function originMissingChoices(){
       return missing;
     }
   }
-  if(!state.origin.standard)missing.push({title:'Origem padrão',message:'Escolha a origem padrão do personagem.',selector:'[data-field="standardOrigin"]',step:3});
-  if(state.origin.standard&&originBenefitsCount()!==2)missing.push({title:'Benefícios da origem',message:'Escolha exatamente dois benefícios da origem padrão. Faltam '+(2-originBenefitsCount())+'.',selector:'.benefit-list',step:3});
+  if(!state.origin.standard)missing.push({title:'Origem',message:'Escolha a origem do personagem.',selector:'[data-field="standardOrigin"]',step:3});
+  if(state.origin.standard&&!isSingleRegional&&originBenefitsCount()!==2)missing.push({title:'Benefícios da origem',message:'Escolha exatamente dois benefícios da origem padrão. Faltam '+(2-originBenefitsCount())+'.',selector:'.benefit-list',step:3});
+
+  if(activeRegional){
+    const regSlug = typeof slug === 'function' ? slug(activeRegional.nome) : '';
+    if(regSlug === 'duplo_feerico' && (typeof selectedDuploFeericoPower !== 'function' || !selectedDuploFeericoPower())){
+      missing.push({title:'Duplo Feérico',message:'Escolha uma habilidade de classe de 1º nível para a origem Duplo Feérico.',selector:'[data-action="duplo-feerico-select-dropdown"], #duploFeericoChoiceSection, [data-action^="duplo-feerico"]',step:3});
+    }
+    if(regSlug === 'aspirante_a_heroi' && !state.origin?.aspiranteHeroiAttr){
+      missing.push({title:'Aspirante a Herói',message:'Escolha 1 atributo para receber o bônus permanente de +1 da origem.',selector:'.aspirante-heroi-section',step:3});
+    }
+    if(regSlug === 'de_outro_mundo' && !state.origin?.deOutroMundo?.spellId){
+      missing.push({title:'De Outro Mundo',message:'Escolha uma magia de 1º círculo para a origem De Outro Mundo.',selector:'.de-outro-mundo-section',step:3});
+    }
+  }
+
   if(state.origin.mode==='dual'){
     if(!state.origin.regional){
       missing.push({title:'Origem regional',message:'Escolha a origem regional que acompanhará a origem padrão.',selector:'[data-field="regionalOrigin"]',step:3});
-    } else {
-      const regSlug = typeof slug === 'function' ? slug(state.origin.regional) : '';
-      if(regSlug === 'duplo_feerico' && (typeof selectedDuploFeericoPower !== 'function' || !selectedDuploFeericoPower())){
-        missing.push({title:'Duplo Feérico',message:'Escolha uma habilidade de classe de 1º nível para a origem Duplo Feérico.',selector:'[data-action="duplo-feerico-select-dropdown"], #duploFeericoChoiceSection, [data-action^="duplo-feerico"]',step:3});
-      }
-      if(regSlug === 'aspirante_a_heroi' && !state.origin?.aspiranteHeroiAttr){
-        missing.push({title:'Aspirante a Herói',message:'Escolha 1 atributo para receber o bônus permanente de +1 da origem.',selector:'.aspirante-heroi-section',step:3});
-      }
-      if(regSlug === 'de_outro_mundo' && !state.origin?.deOutroMundo?.spellId){
-        missing.push({title:'De Outro Mundo',message:'Escolha uma magia de 1º círculo para a origem De Outro Mundo.',selector:'.de-outro-mundo-section',step:3});
-      }
     }
   }
   return missing;

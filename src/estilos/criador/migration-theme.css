@@ -470,13 +470,36 @@ button[data-item-spend] {
   color: #fff !important;
 }
 
+/* Painel Idade & Complicações e eliminação de quadros coloridos destoantes */
+.age-extension .info-box,
+.age-extension .warning-box {
+  background: transparent !important;
+  border: none !important;
+  border-left: 2px solid var(--line, #4a252a) !important;
+  border-radius: 0 !important;
+  padding: 6px 0 6px 10px !important;
+  color: var(--muted, #c9b2aa) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.45 !important;
+  box-shadow: none !important;
+}
+
+.age-notes-summary {
+  margin-top: 10px;
+  padding: 6px 0 6px 10px;
+  border-left: 2px solid var(--line, #4a252a);
+  color: var(--muted, #c9b2aa);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
 /* Quadro de complicações de idade retraído */
 .age-complications-collapsed {
   margin-top: 12px;
-  background: var(--surface2, #171d28);
-  border: 1px solid var(--border, #2b3445);
-  border-radius: 8px;
-  padding: 12px 14px;
+  background: var(--panel, #110d0f) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
 }
 
 .age-complications-collapsed-row {
@@ -492,6 +515,36 @@ button[data-item-spend] {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
+}
+
+.age-complications-collapsed-row .tag-row .tag {
+  background: var(--panel2, #181114) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  color: var(--gold, #e9ad59) !important;
+  font-family: 'Tormenta', Cinzel, serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  text-transform: uppercase !important;
+}
+
+.age-complications-collapsed-row .button {
+  min-height: 30px !important;
+  padding: 5px 12px !important;
+  font-size: 0.75rem !important;
+  background: var(--panel2, #181114) !important;
+  border: 1px solid var(--line, #4a252a) !important;
+  color: var(--cream, #f5eee6) !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.age-complications-collapsed-row .button:hover {
+  background: var(--line, #4a252a) !important;
+  border-color: var(--gold, #e9ad59) !important;
+  color: var(--gold2, #f5c879) !important;
 }
 
 /* Vitais Circulares Interativos (PV & PM) */

@@ -23,31 +23,70 @@ finalAttrs=function(){
   }
   return result;
 };
-const baseGeneralPowerSlots=generalPowerSlots;generalPowerSlots=function(){const r=rule();return baseGeneralPowerSlots()+Number(state.age.enabled?r?.generalPowers||0:0)};
+function isIndividualComplicationsActive(){
+  const rCamp = typeof RegrasCampanha !== 'undefined' ? RegrasCampanha.obterRegrasCampanha(state) : state?.regrasCampanha;
+  return Boolean(state.complicacoesIndividual || rCamp?.complicacoes);
+}
+function totalComplicationsLimit(){
+  const r = rule();
+  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
+  const indLimit = isIndividualComplicationsActive() ? 1 : 0;
+  return ageLimit + indLimit;
+}
+function individualComplicationGrantedPowers(){
+  if (!isIndividualComplicationsActive()) return 0;
+  const r = rule();
+  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
+  const totalComps = (state.age?.complications || []).length;
+  if (!state.age?.enabled) {
+    return totalComps >= 1 ? 1 : 0;
+  }
+  if (state.age.band === 'adulto') {
+    return totalComps >= 2 ? 1 : 0;
+  }
+  return totalComps > ageLimit ? 1 : 0;
+}
+const baseGeneralPowerSlots=generalPowerSlots;
+generalPowerSlots=function(){
+  const r=rule();
+  const agePowers = Number(state.age?.enabled ? (r?.generalPowers || 0) : 0);
+  const indPowers = individualComplicationGrantedPowers();
+  return baseGeneralPowerSlots() + agePowers + indPowers;
+};
 
 function panelHtml(){
   ensure();
-  const rs=ranges(),r=rule(),limit=Number(r?.count||0);
-  const isComplete=Boolean(limit&&state.age.complications.length>=limit);
-  const isCollapsed=Boolean(isComplete&&!state.age.editingComplications);
+  const rs=ranges(),r=rule();
+  const indActive = isIndividualComplicationsActive();
+  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
+  const limit = ageLimit + (indActive ? 1 : 0);
+  const isComplete = Boolean(limit && state.age.complications.length >= limit);
+  const isCollapsed = Boolean(limit && (isComplete || (state.age.complications.length > 0 && !state.age.editingComplications)));
 
   let complicationsHtml='';
-  if(state.age.enabled&&limit){
+  if(limit > 0){
     if(isCollapsed){
       const chosenNames=state.age.complications.map(id=>{
         const c=COMPLICATIONS.find(item=>item[0]===id);
         return c?c[1]:id;
       });
+      const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
       complicationsHtml='<div class="choice-section age-complications-collapsed">'
         +'<div class="age-complications-collapsed-row">'
-        +'<div><span class="field-label" style="display:block;margin-bottom:4px">Complicaç'+(limit>1?'ões':'ão')+(r.optional?' (opcional)':'')+' ('+state.age.complications.length+'/'+limit+')</span>'
+        +'<div><span class="field-label" style="display:block;margin-bottom:4px">COMPLICAÇ'+(limit>1?'ÕES':'ÃO')+(isOptional?' (OPCIONAL)':'')+' ('+state.age.complications.length+'/'+limit+')</span>'
         +'<div class="tag-row">'+chosenNames.map(name=>'<span class="tag gold">'+esc(name)+'</span>').join('')+'</div></div>'
         +'<button type="button" class="button" data-action="toggle-age-complications">Trocar complicação'+(limit>1?'s':'')+'</button>'
         +'</div></div>';
     }else{
-      complicationsHtml='<div class="choice-section"><h4>Complicações '+(r.optional?'opcionais':'')+' · '+state.age.complications.length+'/'+limit+'</h4>'
-        +(state.age.editingComplications&&isComplete?'<div style="margin-bottom:8px;text-align:right"><button type="button" class="button" data-action="toggle-age-complications" style="min-height:28px;padding:4px 10px;font-size:0.75rem">Concluir</button></div>':'')
-        +'<div class="age-complication-grid">'+COMPLICATIONS.map(c=>'<label class="check-card '+(state.age.complications.includes(c[0])?'selected':'')+'"><input type="checkbox" data-age-complication="'+c[0]+'" '+(state.age.complications.includes(c[0])?'checked':'')+' '+(!state.age.complications.includes(c[0])&&state.age.complications.length>=limit?'disabled':'')+'><span><strong>'+c[1]+'</strong><small>'+c[2]+'</small></span></label>').join('')+'</div></div>';
+      const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
+      complicationsHtml='<div class="choice-section" style="margin-top:12px;">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+        +'<h4 style="margin:0;font-size:0.85rem;color:var(--gold2);font-family:\'Tormenta\',Cinzel,serif;">Complicações '+(isOptional?'opcionais':'')+' · '+state.age.complications.length+'/'+limit+'</h4>'
+        +(state.age.editingComplications || isComplete ? '<button type="button" class="button" data-action="toggle-age-complications" style="min-height:28px;padding:4px 10px;font-size:0.75rem">Concluir</button>' : '')
+        +'</div>'
+        +'<div class="age-complication-grid" style="display:grid;grid-template-columns:1fr;gap:8px;">'
+        +COMPLICATIONS.map(c=>'<label class="check-card '+(state.age.complications.includes(c[0])?'selected':'')+'" style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;cursor:pointer;"><input type="checkbox" data-age-complication="'+c[0]+'" '+(state.age.complications.includes(c[0])?'checked':'')+' '+(!state.age.complications.includes(c[0])&&state.age.complications.length>=limit?'disabled':'')+' style="margin-top:2px;"><span><strong style="color:var(--gold2);display:block;margin-bottom:2px;font-family:\'Tormenta\',Cinzel,serif;font-size:0.82rem;">'+c[1]+'</strong><small style="color:var(--muted);font-size:0.73rem;line-height:1.4;display:block;">'+c[2]+'</small></span></label>').join('')
+        +'</div></div>';
     }
   }
 
@@ -58,12 +97,36 @@ function panelHtml(){
       agePowersHtml = '<div class="choice-section age-powers-display" style="margin-top:12px">'
         + '<h4>Habilidade' + (powers.length > 1 ? 's' : '') + ' da Faixa Etária</h4>'
         + '<div class="ability-list">'
-        + powers.map(p => '<div class="ability-card" style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;background:#111824;margin-bottom:6px"><strong style="color:var(--gold2);font-family:Cinzel,serif;display:block;margin-bottom:4px">' + esc(p.nome) + '</strong><p style="margin:0;font-size:0.75rem;color:var(--text-muted);line-height:1.45">' + esc(p.descricao) + '</p></div>').join('')
+        + powers.map(p => '<div class="ability-card" style="border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--panel2);margin-bottom:6px"><strong style="color:var(--gold2);font-family:\'Tormenta\',Cinzel,serif;display:block;margin-bottom:4px">' + esc(p.nome) + '</strong><p style="margin:0;font-size:0.75rem;color:var(--muted);line-height:1.45">' + esc(p.descricao) + '</p></div>').join('')
         + '</div></div>';
     }
   }
 
-  return '<div class="panel age-extension"><div class="panel-header"><div class="panel-title">Idade</div><div class="panel-note">Opcional</div></div><div class="panel-body"><label class="age-check"><input type="checkbox" data-age-field="enabled" '+(state.age.enabled?'checked':'')+'> Usar regras de idade</label>'+(state.age.enabled?'<div class="grid two age-fields"><label class="field"><span>Faixa etária</span><select class="select" data-age-field="band"><option value="">Escolha</option>'+Object.entries(BANDS).map(([id,b])=>{const x=rs[id];return '<option value="'+id+'" '+(state.age.band===id?'selected':'')+'>'+b.name+' · '+x.min+(x.max===null?'+':'–'+x.max)+'</option>'}).join('')+'</select></label>'+(r?'<label class="field"><span>Idade</span><input class="input" type="number" min="'+r.min+'" '+(r.max===null?'':'max="'+r.max+'"')+' value="'+esc(state.age.years)+'" data-age-field="years"></label>':'')+'</div>':'')+complicationsHtml+agePowersHtml+(state.age.notice?'<div class="info-box">'+esc(state.age.notice)+'</div>':'')+(r?'<div class="info-box">'+r.notes.map(esc).join('<br>')+'</div>':'')+'</div></div>';
+  const ageFieldsHtml = state.age.enabled
+    ? '<div class="grid two age-fields" style="margin-top:10px;"><label class="field"><span>Faixa etária</span><select class="select" data-age-field="band"><option value="">Escolha</option>'+Object.entries(BANDS).map(([id,b])=>{const x=rs[id];return '<option value="'+id+'" '+(state.age.band===id?'selected':'')+'>'+b.name+' · '+x.min+(x.max===null?'+':'–'+x.max)+'</option>'}).join('')+'</select></label>'+(r?'<label class="field"><span>Idade</span><input class="input" type="number" min="'+r.min+'" '+(r.max===null?'':'max="'+r.max+'"')+' value="'+esc(state.age.years)+'" data-age-field="years"></label>':'')+'</div>'
+    : '';
+
+  const notesHtml = r && r.notes && r.notes.length
+    ? '<div class="age-notes-summary">'+r.notes.map(esc).join('<br>')+'</div>'
+    : '';
+
+  const noticeHtml = state.age.notice
+    ? '<div class="age-notes-summary" style="color:var(--gold);">'+esc(state.age.notice)+'</div>'
+    : '';
+
+  return '<div class="panel age-extension">'
+    + '<div class="panel-header"><div class="panel-title">Idade & Complicações</div><div class="panel-note">Regras Opcionais</div></div>'
+    + '<div class="panel-body">'
+    + '<div style="display:flex;flex-direction:column;gap:8px;">'
+    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:var(--cream);"><input type="checkbox" data-age-field="enabled" '+(state.age.enabled?'checked':'')+'> <strong>Usar regras de idade</strong> <span style="font-size:0.72rem;color:var(--muted);">(Heróis de Arton)</span></label>'
+    + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:var(--cream);"><input type="checkbox" data-action="toggle-individual-complications" '+(indActive?'checked':'')+'> <strong>Usar regra de complicações</strong> <span style="font-size:0.72rem;color:var(--gold);">(+1 poder geral)</span></label>'
+    + '</div>'
+    + ageFieldsHtml
+    + complicationsHtml
+    + agePowersHtml
+    + noticeHtml
+    + notesHtml
+    + '</div></div>';
 }
 window.renderAgePanelHtml=panelHtml;
 function classPathText(){return ExportacaoPersonagem.caminho({
@@ -77,9 +140,71 @@ function downloadClassPath(){const blob=new Blob([classPathText()],{type:'text/p
 if(typeof window!=='undefined')window.downloadClassPath=downloadClassPath;
 function closeAgeConfirmation(){document.getElementById('ageContinueConfirmation')?.remove()}
 function confirmWithoutAge(){if(document.getElementById('ageContinueConfirmation'))return;const modal=document.createElement('div');modal.id='ageContinueConfirmation';modal.className='modal-backdrop';modal.innerHTML='<section class="confirm-modal"><header><h3>Continuar sem regras de idade?</h3></header><div class="confirm-modal-body"><p>Nenhuma regra de idade será aplicada a este personagem.</p></div><footer><button class="button" type="button" data-age-cancel>Voltar</button><button class="button primary" type="button" data-age-confirm>Continuar sem regras de idade</button></footer></section>';document.body.appendChild(modal)}
-document.addEventListener('change',event=>{const field=event.target.dataset.ageField;if(field){ensure();if(field==='enabled')state.age.enabled=event.target.checked;if(field==='band'){state.age.band=event.target.value;state.age.years='';state.age.complications=[];state.age.mode='benefits';state.age.editingComplications=false}if(field==='years'){state.age.years=event.target.value;clamp()}persist();renderStage();return}const id=event.target.dataset.ageComplication;if(id){const at=state.age.complications.indexOf(id);if(event.target.checked&&at<0)state.age.complications.push(id);if(!event.target.checked&&at>=0)state.age.complications.splice(at,1);const limit=Number(rule()?.count||0);if(state.age.complications.length>=limit)state.age.editingComplications=false;persist();renderStage()}});
-document.addEventListener('click',event=>{if(event.target.closest?.('[data-action="toggle-age-complications"]')){state.age.editingComplications=!state.age.editingComplications;persist();renderStage();return}const button=event.target.closest?.('[data-action="class-power-attribute"]'),r=rule();if(!button||!state.age.enabled||!r?.blocked?.includes(button.dataset.attr))return;event.preventDefault();event.stopImmediatePropagation();toast('Esta faixa etária bloqueia Aumento de Atributo em atributos físicos.')},true);
-document.addEventListener('click',event=>{if(event.target.closest?.('[data-age-cancel]')){closeAgeConfirmation();return}if(event.target.closest?.('[data-age-confirm]')){state.age.noRulesConfirmed=true;persist();closeAgeConfirmation();document.getElementById('nextButton')?.click();return}const next=event.target.closest?.('#nextButton');if(!next||state.step!==2)return;ensure();if(state.age.enabled&&!state.age.band){event.preventDefault();event.stopImmediatePropagation();toast('Escolha a faixa etária antes de continuar.');return}if(state.age.enabled&&state.age.years===''){state.age.years=String(rule().min);persist()}const required=Number(rule()?.count||0);if(state.age.enabled&&!rule()?.optional&&state.age.complications.length!==required){event.preventDefault();event.stopImmediatePropagation();toast('Escolha '+required+' complicações de idade antes de continuar.');return}if(!state.age.enabled&&!state.age.noRulesConfirmed){event.preventDefault();event.stopImmediatePropagation();confirmWithoutAge()}},true);
+document.addEventListener('change',event=>{
+  const field=event.target.dataset.ageField;
+  if(field){
+    ensure();
+    if(field==='enabled')state.age.enabled=event.target.checked;
+    if(field==='band'){state.age.band=event.target.value;state.age.years='';state.age.complications=[];state.age.mode='benefits';state.age.editingComplications=false}
+    if(field==='years'){state.age.years=event.target.value;clamp()}
+    persist();
+    renderStage();
+    return;
+  }
+  if(event.target.dataset.action==='toggle-individual-complications'){
+    const checked=event.target.checked;
+    state.complicacoesIndividual=checked;
+    if(!state.regrasCampanha)state.regrasCampanha={};
+    state.regrasCampanha.complicacoes=checked;
+    persist();
+    renderStage();
+    return;
+  }
+  const id=event.target.dataset.ageComplication;
+  if(id){
+    const at=state.age.complications.indexOf(id);
+    if(event.target.checked&&at<0)state.age.complications.push(id);
+    if(!event.target.checked&&at>=0)state.age.complications.splice(at,1);
+    const limit=totalComplicationsLimit();
+    if(limit>0&&state.age.complications.length>=limit)state.age.editingComplications=false;
+    persist();
+    renderStage();
+  }
+});
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('[data-action="toggle-age-complications"]')){
+    state.age.editingComplications=!state.age.editingComplications;
+    persist();
+    renderStage();
+    return;
+  }
+  const button=event.target.closest?.('[data-action="class-power-attribute"]'),r=rule();
+  if(!button||!state.age.enabled||!r?.blocked?.includes(button.dataset.attr))return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  toast('Esta faixa etária bloqueia Aumento de Atributo em atributos físicos.');
+},true);
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('[data-age-cancel]')){closeAgeConfirmation();return}
+  if(event.target.closest?.('[data-age-confirm]')){state.age.noRulesConfirmed=true;persist();closeAgeConfirmation();document.getElementById('nextButton')?.click();return}
+  const next=event.target.closest?.('#nextButton');
+  if(!next||state.step!==2)return;
+  ensure();
+  if(state.age.enabled&&!state.age.band){event.preventDefault();event.stopImmediatePropagation();toast('Escolha a faixa etária antes de continuar.');return}
+  if(state.age.enabled&&state.age.years===''){state.age.years=String(rule().min);persist()}
+  const required=Number(rule()?.count||0);
+  if(state.age.enabled&&!rule()?.optional&&state.age.complications.length<required){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    toast('Escolha '+required+' complicações de idade antes de continuar.');
+    return;
+  }
+  if(!state.age.enabled&&!isIndividualComplicationsActive()&&!state.age.noRulesConfirmed){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    confirmWithoutAge();
+  }
+},true);
 const basePdfSetText=pdfSetText;pdfSetText=function(form,name,value){basePdfSetText(form,name,value);if(name==='Nível'&&state.age?.enabled&&rule()){const bandName=BANDS[state.age.band]?.name||'';const y=state.age.years||String(rule().min);basePdfSetText(form,'Idade',bandName&&y?`${y} (${bandName})`:bandName||y||'')}};
 if(typeof pdfFeatureText==='undefined') pdfFeatureText=ExportacaoPersonagem.titulo;
 if(typeof sheetFeatureSummary==='undefined') sheetFeatureSummary=function(){return ''};

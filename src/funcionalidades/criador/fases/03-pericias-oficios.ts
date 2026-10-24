@@ -190,6 +190,9 @@ function generalPowerSlotSourceText(index){
   if(state.age?.enabled&&state.age?.band){
     return 'Poder geral da idade ('+state.age.band+')';
   }
+  if(state.complicacoesIndividual || (state.regrasCampanha?.complicacoes && (state.age?.complications||[]).length > 0)){
+    return 'Poder geral por complicação permanente';
+  }
   return 'Poder geral adicional';
 }
 function renderGeneralPowerBrowser(slots){

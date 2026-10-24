@@ -378,7 +378,7 @@ renderOrigins=function(){
   }
   const origin=selectedStandardOrigin(),regional=selectedRegionalOrigin(),options=originBenefitOptions(origin),currentBenefitsCount=originBenefitsCount();
   const maxBenefits=originMaxBenefits();
-  let modeDescSingle='Escolha uma origem sem região e dois benefícios dela.';
+  let modeDescSingle='Escolha uma única origem entre todas as origens gerais e regionais de Arton.';
   let modeDescDual='Escolha dois benefícios da origem padrão e receba todos os benefícios da regional.';
   if(isChildCharacter()){
     modeDescSingle='Crianças não recebem origem com regra de origem única.';
@@ -387,24 +387,16 @@ renderOrigins=function(){
     modeDescSingle='Adolescentes escolhem apenas 1 benefício da origem padrão.';
     modeDescDual='Adolescentes podem escolher uma Origem Padrão completa (com 2 benefícios) OU uma Origem Regional.';
   }
-  const mode=panel('Estrutura das origens','<div class="choice-cards"><label class="choice-card '+(state.origin.mode==='single'?'selected':'')+'"><input type="radio" data-field="originMode" value="single" '+(state.origin.mode==='single'?'checked':'')+'><strong>Uma origem padrão</strong><p>'+esc(modeDescSingle)+'</p></label><label class="choice-card '+(state.origin.mode==='dual'?'selected':'')+'"><input type="radio" data-field="originMode" value="dual" '+(state.origin.mode==='dual'?'checked':'')+'><strong>Padrão + regional</strong><p>'+esc(modeDescDual)+'</p></label></div>');
-  const benefits=options.length?options.map(option=>{const selected=state.origin.benefits.includes(option.id),blocked=originBenefitBlocked(option),optionWeight=option.id==='unique:heranca_2000'?2:1,exhausted=!selected&&(currentBenefitsCount+optionWeight>maxBenefits);return '<button type="button" class="check-card origin-benefit-button '+(selected?'selected ':'')+(blocked?'disabled ':'')+(exhausted?'choice-exhausted':'')+'" data-action="origin-benefit-button" data-option-id="'+esc(option.id)+'" data-disabled="'+(blocked?'true':'false')+'" '+(exhausted&&!blocked?'disabled':'')+'><strong>'+esc(option.name)+'</strong><small>'+esc(originBenefitDescription(option,blocked))+'</small></button>'}).join(''):'<div class="empty">Escolha uma origem para ver seus benefícios.</div>';
-  const items=origin?.itens||[],left='<div><label class="field"><span>Origem</span><select class="select" data-field="standardOrigin"><option value="">Escolha uma origem</option>'+DATA.origins.map(item=>'<option value="'+esc(item.nome)+'" '+(item.nome===state.origin.standard?'selected':'')+'>'+esc(item.nome)+'</option>').join('')+'</select></label><div style="margin-top:18px"><span class="field-label">Itens da origem</span><div class="origin-items" style="margin-top:7px">'+(items.length?items.map(item=>'<div class="origin-item">'+esc(item)+'</div>').join(''):'<div class="empty">Nenhum item listado para esta origem.</div>')+'</div></div></div>';
-  const right='<div><span class="field-label">Escolha '+maxBenefits+' benefício'+(maxBenefits===1?'':'s')+'</span><div class="origin-benefit-grid" style="margin-top:7px">'+benefits+'</div></div>';
-  const standardNote=isTeenCharacter()&&state.origin.mode==='dual'&&state.origin.regional?'Bloqueada pela escolha de Origem Regional':'Selecionados: '+currentBenefitsCount+'/'+maxBenefits;
-  const standard=panel('Origem padrão','<div class="origin-standard-layout">'+left+right+'</div>',standardNote);
-  const wynllaRestricted=state.origin.mode==='dual'&&hasWynllaOriginPower();
-  const regionalOriginsList=wynllaRestricted?DATA.regionalOrigins.filter(isWynllaRegional):DATA.regionalOrigins;
-  const regionalPlaceholder=wynllaRestricted?'Escolha uma origem regional de Wynlla':'Escolha uma origem regional';
-  let regionalPanel='';
-  if(state.origin.mode==='dual'&&!isChildCharacter()){
-    const regionalNote=isTeenCharacter()&&state.origin.standard?'Bloqueada pela escolha de Origem Padrão':'';
-    let extraRegionalChoices = '';
-    const regSlug = regional ? (typeof slug === 'function' ? slug(regional.nome) : '') : '';
+  const mode=panel('Estrutura das origens','<div class="choice-cards"><label class="choice-card '+(state.origin.mode==='single'?'selected':'')+'"><input type="radio" data-field="originMode" value="single" '+(state.origin.mode==='single'?'checked':'')+'><strong>Origem única (Regra do Livro)</strong><p>'+esc(modeDescSingle)+'</p></label><label class="choice-card '+(state.origin.mode==='dual'?'selected':'')+'"><input type="radio" data-field="originMode" value="dual" '+(state.origin.mode==='dual'?'checked':'')+'><strong>Padrão + regional (Variante)</strong><p>'+esc(modeDescDual)+'</p></label></div>');
+
+  function renderExtraRegionalChoices(reg){
+    if(!reg) return '';
+    let extra = '';
+    const regSlug = typeof slug === 'function' ? slug(reg.nome) : '';
     if(regSlug === 'aspirante_a_heroi'){
       const chosen = state.origin?.aspiranteHeroiAttr || '';
       const totals = typeof finalAttrs === 'function' ? finalAttrs() : {};
-      extraRegionalChoices = '<div class="choice-section aspirante-heroi-section" style="margin-top:12px;background:#0d121a;border:1px solid #d9a84e44;border-radius:8px;padding:14px">' +
+      extra = '<div class="choice-section aspirante-heroi-section" style="margin-top:12px;background:#0d121a;border:1px solid #d9a84e44;border-radius:8px;padding:14px">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
           '<strong style="color:var(--gold2);font-size:0.9rem">Benefício: +1 em Atributo</strong>' +
           '<span class="tag ' + (chosen ? 'gold' : 'muted') + '">' + (chosen ? '1/1 selecionado' : 'Selecione 1 atributo') + '</span>' +
@@ -428,7 +420,7 @@ renderOrigins=function(){
     } else if(regSlug === 'de_outro_mundo'){
       const cfg = state.origin?.deOutroMundo || { spellId: '', keyAttr: 'int', form: 'habilidade', nature: 'magico' };
       const firstCircleSpells = (DATA.spells || []).filter(s => Number(s.circulo || s.circle || 0) === 1).sort((a,b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-      extraRegionalChoices = '<div class="choice-section de-outro-mundo-section" style="margin-top:12px;background:#0d121a;border:1px solid #38bdf844;border-radius:8px;padding:14px">' +
+      extra = '<div class="choice-section de-outro-mundo-section" style="margin-top:12px;background:#0d121a;border:1px solid #38bdf844;border-radius:8px;padding:14px">' +
         '<div style="margin-bottom:10px"><strong style="color:#38bdf8;font-size:0.92rem">Benefício: Magia de Outro Mundo</strong><p style="font-size:0.75rem;color:var(--muted);margin:3px 0 0 0">Aprenda uma magia de 1º círculo e configure se funciona como habilidade ou tecnologia, mágica ou mundana.</p></div>' +
         '<div class="grid two" style="gap:10px;margin-bottom:10px">' +
           '<label class="field"><span>Magia de 1º Círculo</span><select class="select" data-action="de-outro-mundo-spell"><option value="">Escolha uma magia…</option>' +
@@ -463,7 +455,7 @@ renderOrigins=function(){
         return true;
       });
       const otherClasses = [...new Map(allOptions.map(o => [o.classId, o.className])).entries()];
-      extraRegionalChoices = '<div class="choice-section duplo-feerico-section" id="duploFeericoChoiceSection" style="margin-top:12px;background:#0d121a;border:1px solid #d9a84e44;border-radius:8px;padding:14px">' +
+      extra = '<div class="choice-section duplo-feerico-section" id="duploFeericoChoiceSection" style="margin-top:12px;background:#0d121a;border:1px solid #d9a84e44;border-radius:8px;padding:14px">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
           '<strong style="color:var(--gold2);font-size:0.9rem">Benefício: Habilidade de Classe de 1º Nível</strong>' +
           '<span class="tag ' + (chosen ? 'gold' : 'muted') + '">' + (chosen ? ('1/1 selecionado: ' + esc(chosen.nome)) : 'Escolha obrigatória') + '</span>' +
@@ -481,7 +473,49 @@ renderOrigins=function(){
         (chosen ? '<div class="power-detail" style="margin-top:8px"><strong>' + esc(chosen.nome) + ' (' + esc(chosen.className) + ')</strong><br>' + esc(chosen.descricao || '') + '</div>' : '') +
       '</div>';
     }
+    return extra;
+  }
 
+  let selectOptionsHtml = '<option value="">Escolha uma origem</option>';
+  if(state.origin.mode === 'single'){
+    selectOptionsHtml += '<optgroup label="Origens Gerais (Livro Básico)">' +
+      DATA.origins.map(item => '<option value="' + esc(item.nome) + '" ' + (item.nome === state.origin.standard ? 'selected' : '') + '>' + esc(item.nome) + '</option>').join('') +
+      '</optgroup>' +
+      '<optgroup label="Origens Regionais (Atlas de Arton)">' +
+      DATA.regionalOrigins.map(item => '<option value="' + esc(item.nome) + '" ' + (item.nome === state.origin.standard ? 'selected' : '') + '>' + esc(item.nome) + ' · ' + esc(item.regiao || 'Arton') + '</option>').join('') +
+      '</optgroup>';
+  } else {
+    selectOptionsHtml += DATA.origins.map(item => '<option value="' + esc(item.nome) + '" ' + (item.nome === state.origin.standard ? 'selected' : '') + '>' + esc(item.nome) + '</option>').join('');
+  }
+
+  const isRegionalSingle = state.origin.mode === 'single' && !origin && Boolean(regional);
+  const activeItems = (origin ? origin.itens : regional?.itens) || [];
+  const left = '<div><label class="field"><span>Origem</span><select class="select" data-field="standardOrigin">' + selectOptionsHtml + '</select></label><div style="margin-top:18px"><span class="field-label">Itens da origem</span><div class="origin-items" style="margin-top:7px">' + (activeItems.length ? activeItems.map(item => '<div class="origin-item">' + esc(item) + '</div>').join('') : '<div class="empty">Nenhum item listado para esta origem.</div>') + '</div></div></div>';
+
+  let right = '';
+  let standardNote = '';
+  if(isRegionalSingle){
+    standardNote = 'Origem Regional Completa';
+    right = '<div><span class="field-label">Benefício da origem regional</span><div class="origin-benefit-grid" style="margin-top:7px;grid-template-columns:1fr;"><div class="check-card origin-benefit-button selected" style="cursor:default;width:100%;min-height:auto;padding:12px 14px;"><strong>' + esc(regional.nome) + ' · ' + esc(regional.regiao || 'Arton') + '</strong><small style="margin-top:6px;display:block;line-height:1.45;">' + esc(regional.beneficios?.descricao || '') + '</small></div></div>' + renderExtraRegionalChoices(regional) + '</div>';
+  } else {
+    const benefits = options.length ? options.map(option => {
+      const selected = state.origin.benefits.includes(option.id), blocked = originBenefitBlocked(option), optionWeight = option.id === 'unique:heranca_2000' ? 2 : 1, exhausted = !selected && (currentBenefitsCount + optionWeight > maxBenefits);
+      return '<button type="button" class="check-card origin-benefit-button ' + (selected ? 'selected ' : '') + (blocked ? 'disabled ' : '') + (exhausted ? 'choice-exhausted' : '') + '" data-action="origin-benefit-button" data-option-id="' + esc(option.id) + '" data-disabled="' + (blocked ? 'true' : 'false') + '" ' + (exhausted && !blocked ? 'disabled' : '') + '><strong>' + esc(option.name) + '</strong><small>' + esc(originBenefitDescription(option, blocked)) + '</small></button>';
+    }).join('') : '<div class="empty">Escolha uma origem para ver seus benefícios.</div>';
+    right = '<div><span class="field-label">Escolha ' + maxBenefits + ' benefício' + (maxBenefits === 1 ? '' : 's') + '</span><div class="origin-benefit-grid" style="margin-top:7px">' + benefits + '</div></div>';
+    standardNote = isTeenCharacter() && state.origin.mode === 'dual' && state.origin.regional ? 'Bloqueada pela escolha de Origem Regional' : 'Selecionados: ' + currentBenefitsCount + '/' + maxBenefits;
+  }
+
+  const panelTitle = state.origin.mode === 'single' ? 'Origem do Personagem' : 'Origem padrão';
+  const standard = panel(panelTitle, '<div class="origin-standard-layout">' + left + right + '</div>', standardNote);
+
+  const wynllaRestricted = state.origin.mode === 'dual' && hasWynllaOriginPower();
+  const regionalOriginsList = wynllaRestricted ? DATA.regionalOrigins.filter(isWynllaRegional) : DATA.regionalOrigins;
+  const regionalPlaceholder = wynllaRestricted ? 'Escolha uma origem regional de Wynlla' : 'Escolha uma origem regional';
+  let regionalPanel = '';
+  if (state.origin.mode === 'dual' && !isChildCharacter()) {
+    const regionalNote = isTeenCharacter() && state.origin.standard ? 'Bloqueada pela escolha de Origem Padrão' : '';
+    const extraRegionalChoices = renderExtraRegionalChoices(regional);
     const regItems = regional?.itens || [];
     const regionalLeft = '<div>' +
       '<label class="field"><span>Origem regional</span><select class="select" data-field="regionalOrigin"><option value="">' + esc(regionalPlaceholder) + '</option>' +
@@ -505,7 +539,7 @@ renderOrigins=function(){
 
     regionalPanel = panel('Origem regional', '<div class="origin-standard-layout">' + regionalLeft + regionalRight + '</div>' + (regional ? extraRegionalChoices : ''), regionalNote);
   }
-  return standard+regionalPanel;
+  return standard + regionalPanel;
 };
 
 document.addEventListener('click', event => {
