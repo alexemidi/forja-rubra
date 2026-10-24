@@ -387,15 +387,21 @@ function renderCosmopolitaPowerBrowser(totalStages = 1, currentStageIndex = 0){
 // Renderização em etapas sequenciais dentro da Fase 6
 const baseRenderPowersCosmopolita = renderPowers;
 renderPowers = function(){
-  if (!hasCosmopolita()) return baseRenderPowersCosmopolita();
-
   const stages = getPhase6SubStages();
+  if (!stages.length) {
+    return panel('Nenhuma escolha pendente', '<div class="info-box">Sua raça e origem não exigem escolhas adicionais de poderes nesta fase.</div>');
+  }
+
   let curIdx = Number(state.powers.phase6StageIndex);
   if (!Number.isInteger(curIdx) || curIdx < 0 || curIdx >= stages.length) {
     curIdx = stages.findIndex(st => {
       if (st.type === 'race') return !racePowerGroups().every(g => (state.powers.raceGroups[g.id] || []).length === Number(g.quantity || 0));
       if (st.type === 'general') return !state.powers.general[st.slot];
       if (st.type === 'cosmopolita') return !state.powers.cosmopolitaPower;
+      if (st.type === 'origin_general') return !state.powers?.originGeneral?.[st.optionId];
+      if (st.type === 'duplo_feerico') return typeof selectedDuploFeericoPower === 'function' ? !selectedDuploFeericoPower() : false;
+      if (st.type === 'futura_lenda') return typeof selectedFuturaLendaPower === 'function' ? !selectedFuturaLendaPower() : false;
+      if (st.type === 'criacao_dos_deuses') return typeof selectedCriacaoDosDeusesDeity === 'function' ? !selectedCriacaoDosDeusesDeity() : false;
       return false;
     });
     if (curIdx < 0) curIdx = 0;
@@ -403,7 +409,7 @@ renderPowers = function(){
   }
 
   const currentStage = stages[curIdx];
-  if (!currentStage) return baseRenderPowersCosmopolita();
+  if (!currentStage) return '';
 
   if (currentStage.type === 'cosmopolita') {
     return panel('Origem Cosmopolita · Poder adicional', renderCosmopolitaPowerBrowser(stages.length, curIdx), selectedCosmopolitaPower() ? 'Selecionado: ' + selectedCosmopolitaPower().nome : 'Escolha pendente');
@@ -451,6 +457,29 @@ renderPowers = function(){
     return panel('Poderes gerais da raça e origem', renderGeneralPowerBrowser(slots), 'Selecionados: ' + state.powers.general.filter(Boolean).length + '/' + slots);
   }
 
+  if (currentStage.type === 'origin_general') {
+    const renderFn = typeof (globalThis as any).renderOriginGeneralPowerBrowser === 'function' ? (globalThis as any).renderOriginGeneralPowerBrowser : null;
+    if (renderFn) {
+      return panel('Poder da Origem · ' + (currentStage.label || 'Geral'), renderFn(currentStage.optionId), state.powers?.originGeneral?.[currentStage.optionId] ? 'Selecionado' : 'Escolha pendente');
+    }
+    const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 0;
+    return panel('Poder da Origem', renderGeneralPowerBrowser(slots), 'Escolha pendente');
+  }
+
+  if (currentStage.type === 'duplo_feerico') {
+    const renderFn = typeof (globalThis as any).renderDuploFeericoBrowser === 'function'
+      ? (globalThis as any).renderDuploFeericoBrowser
+      : (typeof (window as any).renderDuploFeericoBrowser === 'function' ? (window as any).renderDuploFeericoBrowser : null);
+    return panel('Duplo Feérico · Habilidade de 1º Nível', renderFn ? renderFn() : '', typeof selectedDuploFeericoPower === 'function' && selectedDuploFeericoPower() ? 'Selecionado' : 'Escolha pendente');
+  }
+
+  if (currentStage.type === 'futura_lenda') {
+    const renderFn = typeof (globalThis as any).renderFuturaLendaBrowser === 'function'
+      ? (globalThis as any).renderFuturaLendaBrowser
+      : (typeof (window as any).renderFuturaLendaBrowser === 'function' ? (window as any).renderFuturaLendaBrowser : null);
+    return panel('Origem Regional (Futura Lenda) · Poder de Classe (2º Nível)', renderFn ? renderFn() : '', typeof selectedFuturaLendaPower === 'function' && selectedFuturaLendaPower() ? 'Selecionado' : 'Escolha pendente');
+  }
+
   if (currentStage.type === 'criacao_dos_deuses') {
     const opt = typeof getCriacaoDosDeusesPowerOption === 'function' ? getCriacaoDosDeusesPowerOption() : null;
     const renderFn = typeof (globalThis as any).renderCriacaoDosDeusesBrowser === 'function'
@@ -462,10 +491,10 @@ renderPowers = function(){
   return baseRenderPowersCosmopolita();
 };
 
-// Sincronização do rodapé na Fase 6 com Cosmopolita
+// Sincronização do rodapé na Fase 6
 const baseSyncFooterCosmopolita = typeof syncSequentialPowerFooter === 'function' ? syncSequentialPowerFooter : null;
 syncSequentialPowerFooter = function(){
-  if (state.step !== 6 || !hasCosmopolita()) {
+  if (state.step !== 6) {
     if (typeof baseSyncFooterCosmopolita === 'function') return baseSyncFooterCosmopolita();
     return;
   }
@@ -591,12 +620,18 @@ document.addEventListener('click', event => {
 
   // Interceptar #previousButton quando dentro de sub-estágio da Fase 6
   const prevStageBtn = target.closest?.('#previousButton');
-  if (prevStageBtn && state.step === 6 && hasCosmopolita()) {
+  if (prevStageBtn && state.step === 6) {
     const cur = Number(state.powers.phase6StageIndex || 0);
     if (cur > 0) {
       event.preventDefault();
       event.stopImmediatePropagation();
       state.powers.phase6StageIndex = cur - 1;
+      const stages = getPhase6SubStages();
+      const prevStage = stages[cur - 1];
+      if (prevStage?.type === 'general') {
+        state.powers.activeSlot = prevStage.slot;
+        state.powers.previewId = state.powers.general[prevStage.slot] || '';
+      }
       renderStage();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -605,12 +640,18 @@ document.addEventListener('click', event => {
 
   // Interceptar #stepPrevButton
   const stepPrev = target.closest?.('#stepPrevButton');
-  if (stepPrev && state.step === 6 && hasCosmopolita()) {
+  if (stepPrev && state.step === 6) {
     event.preventDefault();
     event.stopImmediatePropagation();
     const cur = Number(state.powers.phase6StageIndex || 0);
     if (cur > 0) {
       state.powers.phase6StageIndex = cur - 1;
+      const stages = getPhase6SubStages();
+      const prevStage = stages[cur - 1];
+      if (prevStage?.type === 'general') {
+        state.powers.activeSlot = prevStage.slot;
+        state.powers.previewId = state.powers.general[prevStage.slot] || '';
+      }
       renderStage();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -620,7 +661,7 @@ document.addEventListener('click', event => {
   // Interceptar #stepNextButton ou #nextButton na Fase 6
   const isStepNext = Boolean(target.closest?.('#stepNextButton'));
   const isNext = Boolean(target.closest?.('#nextButton'));
-  if ((isStepNext || isNext) && state.step === 6 && hasCosmopolita()) {
+  if ((isStepNext || isNext) && state.step === 6) {
     const stages = getPhase6SubStages();
     const cur = Number(state.powers.phase6StageIndex || 0);
     const currentStage = stages[cur];
@@ -644,7 +685,6 @@ document.addEventListener('click', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
         if (typeof toast === 'function') toast('Selecione um poder de Cosmopolita para continuar.', 'warning');
-        document.querySelector('.power-list')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
@@ -666,7 +706,6 @@ document.addEventListener('click', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
         if (typeof toast === 'function') toast('Selecione um poder geral na lista para continuar.', 'warning');
-        document.querySelector('.power-list')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
@@ -682,11 +721,56 @@ document.addEventListener('click', event => {
       }
     }
 
+    // Se estiver em Origin General
+    if (currentStage?.type === 'origin_general') {
+      if (!state.powers?.originGeneral?.[currentStage.optionId]) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (typeof toast === 'function') toast('Selecione o poder concedido pela origem para continuar.', 'warning');
+        return;
+      }
+    }
+
+    // Se estiver em Duplo Feérico
+    if (currentStage?.type === 'duplo_feerico') {
+      if (typeof selectedDuploFeericoPower === 'function' && !selectedDuploFeericoPower()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (typeof toast === 'function') toast('Selecione a habilidade para Duplo Feérico para continuar.', 'warning');
+        return;
+      }
+    }
+
+    // Se estiver em Futura Lenda
+    if (currentStage?.type === 'futura_lenda') {
+      if (typeof selectedFuturaLendaPower === 'function' && !selectedFuturaLendaPower()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (typeof toast === 'function') toast('Selecione um poder de classe para Futura Lenda para continuar.', 'warning');
+        return;
+      }
+    }
+
+    // Se estiver em Criação dos Deuses
+    if (currentStage?.type === 'criacao_dos_deuses') {
+      if (typeof selectedCriacaoDosDeusesDeity === 'function' && !selectedCriacaoDosDeusesDeity()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (typeof toast === 'function') toast('Selecione a divindade criadora para continuar.', 'warning');
+        return;
+      }
+    }
+
     // Se não for o último sub-estágio: avançar para o próximo sub-estágio
     if (!isLast) {
       event.preventDefault();
       event.stopImmediatePropagation();
       state.powers.phase6StageIndex = cur + 1;
+      const nextStage = stages[cur + 1];
+      if (nextStage?.type === 'general') {
+        state.powers.activeSlot = nextStage.slot;
+        state.powers.previewId = state.powers.general[nextStage.slot] || '';
+      }
       persist();
       renderStage();
       window.scrollTo({ top: 0, behavior: 'smooth' });

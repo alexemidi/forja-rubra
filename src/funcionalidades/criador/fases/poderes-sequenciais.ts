@@ -235,7 +235,6 @@ document.addEventListener('click',event=>{
           state.powers.previewId='';
         }else if(!state.powers.general?.[curSlot]){
           toast('Selecione um poder geral na lista antes de avançar.', 'warning');
-          document.querySelector('.power-list')?.scrollIntoView({behavior:'smooth',block:'center'});
           return;
         }
       }
@@ -251,28 +250,23 @@ document.addEventListener('click',event=>{
         state.powers.cosmopolitaPreview='';
       }else if(!state.powers.cosmopolitaPower){
         toast('Selecione um poder de Cosmopolita antes de avançar.', 'warning');
-        document.querySelector('.power-list')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='futura_lenda'){
       if(typeof hasFuturaLenda==='function'&&hasFuturaLenda()&&!selectedFuturaLendaPower()){
         toast('Selecione um poder de classe de 2º nível para Futura Lenda antes de avançar.', 'warning');
-        const target=document.querySelector('[data-action^="futura-lenda-"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='duplo_feerico'){
       if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
         toast('Selecione uma habilidade de classe de 1º nível para Duplo Feérico antes de avançar.', 'warning');
         const target=document.querySelector('.duplo-feerico-row')||document.querySelector('[data-action^="duplo-feerico"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
+        target?.classList.add('validation-target');
         return;
       }
     }else if(currentStage.type==='criacao_dos_deuses'){
       if(typeof hasCriacaoDosDeuses==='function'&&hasCriacaoDosDeuses()&&!selectedCriacaoDosDeusesDeity()){
         toast('Selecione uma divindade criadora para a Criação dos Deuses antes de avançar.', 'warning');
-        const target=document.querySelector('[data-action^="criacao-deus-"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='origin_general'){
@@ -325,7 +319,6 @@ document.addEventListener('click',event=>{
           state.powers.previewId='';
         }else if(!state.powers.general?.[curSlot]){
           toast('Selecione um poder geral na lista para continuar.', 'warning');
-          document.querySelector('.power-list')?.scrollIntoView({behavior:'smooth',block:'center'});
           return;
         }
       }
@@ -341,28 +334,23 @@ document.addEventListener('click',event=>{
         state.powers.cosmopolitaPreview='';
       }else if(!state.powers.cosmopolitaPower){
         toast('Selecione um poder de Cosmopolita para continuar.', 'warning');
-        document.querySelector('.power-list')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='futura_lenda'){
       if(typeof hasFuturaLenda==='function'&&hasFuturaLenda()&&!selectedFuturaLendaPower()){
         toast('Selecione um poder de classe de 2º nível para Futura Lenda para continuar.', 'warning');
-        const target=document.querySelector('[data-action^="futura-lenda-"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='duplo_feerico'){
       if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
         toast('Selecione uma habilidade de classe de 1º nível para Duplo Feérico para continuar.', 'warning');
         const target=document.querySelector('.duplo-feerico-row')||document.querySelector('[data-action^="duplo-feerico"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
+        target?.classList.add('validation-target');
         return;
       }
     }else if(currentStage.type==='criacao_dos_deuses'){
       if(typeof hasCriacaoDosDeuses==='function'&&hasCriacaoDosDeuses()&&!selectedCriacaoDosDeusesDeity()){
         toast('Selecione uma divindade criadora para a Criação dos Deuses para continuar.', 'warning');
-        const target=document.querySelector('[data-action^="criacao-deus-"]');
-        target?.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }else if(currentStage.type==='origin_general'){

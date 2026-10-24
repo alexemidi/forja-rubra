@@ -208,3 +208,59 @@ test('Complicações T20: Limite de multiseleção (Adulto + Regra de Complicaç
     'Maduro com regra de complicações permite 3 complicações'
   );
 });
+
+test('Complicações T20: Progressão de poderes do Adulto (1 garantido, +1 complicação opcional, +1 regra individual)', () => {
+  const faixas = JSON.parse(
+    fs.readFileSync(path.join(root, 'dados/idade-faixas.json'), 'utf8')
+  );
+
+  function calcularTotalPoderesAdulto(state: {
+    age?: { enabled: boolean; band: string; complications: string[] };
+    complicacoesIndividual?: boolean;
+    regrasCampanha?: { complicacoes?: boolean };
+  }) {
+    const isIndividualActive = Boolean(
+      state.complicacoesIndividual || state.regrasCampanha?.complicacoes
+    );
+    const bandData = state.age?.enabled ? faixas[state.age.band] : null;
+    const baseAgePowers = Number(bandData?.generalPowers || 0); // 1 para adulto
+
+    const compsCount = (state.age?.complications || []).length;
+    // Bônus da complicação opcional do adulto
+    const adultBonus = (state.age?.enabled && state.age.band === 'adulto' && compsCount >= 1) ? 1 : 0;
+    // Bônus da regra individual de complicações
+    const indPowers = (isIndividualActive && compsCount >= (state.age?.enabled && state.age.band === 'adulto' ? 2 : 1)) ? 1 : 0;
+
+    return baseAgePowers + adultBonus + indPowers;
+  }
+
+  // 1. Adulto sem complicações: 1 poder geral garantido
+  assert.equal(
+    calcularTotalPoderesAdulto({
+      age: { enabled: true, band: 'adulto', complications: [] },
+      complicacoesIndividual: false
+    }),
+    1,
+    'Adulto sem complicações recebe 1 poder geral garantido'
+  );
+
+  // 2. Adulto com 1 complicação opcional (regra individual inativa): 2 poderes gerais
+  assert.equal(
+    calcularTotalPoderesAdulto({
+      age: { enabled: true, band: 'adulto', complications: ['rabugento'] },
+      complicacoesIndividual: false
+    }),
+    2,
+    'Adulto com complicação opcional de idade recebe 2 poderes gerais (1 base + 1 complicação)'
+  );
+
+  // 3. Adulto com 2 complicações (1 opcional de idade + 1 da regra individual): 3 poderes gerais!
+  assert.equal(
+    calcularTotalPoderesAdulto({
+      age: { enabled: true, band: 'adulto', complications: ['rabugento', 'sono_ruim'] },
+      complicacoesIndividual: true
+    }),
+    3,
+    'Adulto com 2 complicações (idade + regra individual) recebe 3 poderes gerais!'
+  );
+});

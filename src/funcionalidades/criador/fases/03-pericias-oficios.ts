@@ -218,7 +218,7 @@ function renderGeneralPowerBrowser(slots){
   return navBar+filters+'<div class="power-browser">'+list+detail+'</div>';
 }
 renderPowers=function(){
-  const groups=racePowerGroups(),slots=generalPowerSlots(),originPowers=originPowerNames();let html=originPowers.length?panel('Poderes da origem','<div class="tag-row">'+originPowers.map(name=>'<span class="tag green">'+esc(name)+'</span>').join('')+'</div>'):'';
+  const groups=racePowerGroups(),slots=generalPowerSlots();let html='';
   groups.forEach(group=>{const selected=state.powers.raceGroups[group.id]||[];html+=panel(group.name,'<p class="help" style="margin-bottom:9px">'+esc(group.description||'Escolha os poderes raciais exigidos.')+'</p><div class="choice-cards">'+group.options.map(option=>{const id=choiceId(option),active=selected.includes(id);return '<label class="choice-card '+(active?'selected':'')+'"><input type="checkbox" data-action="race-power" data-group="'+esc(group.id)+'" value="'+esc(id)+'" '+(active?'checked':'')+'><strong>'+esc(choiceName(option))+'</strong><p>'+esc(option.descricao||'')+'</p></label>'}).join('')+'</div>','Selecionados: '+selected.length+'/'+group.quantity)});
   if(slots)html+=panel('Poderes gerais da raça e origem',renderGeneralPowerBrowser(slots),'Selecionados: '+state.powers.general.filter(Boolean).length+'/'+slots);
   if(!html)html=panel('Nenhuma escolha pendente','<div class="info-box">Sua raça e origem não exigem escolhas adicionais de poderes nesta fase.</div>');

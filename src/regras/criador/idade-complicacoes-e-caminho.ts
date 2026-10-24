@@ -33,10 +33,16 @@ function totalComplicationsLimit(){
   const indLimit = isIndividualComplicationsActive() ? 1 : 0;
   return ageLimit + indLimit;
 }
+function adultBonusPowers(){
+  if (!state.age?.enabled || state.age.band !== 'adulto') return 0;
+  // No adulto, o poder de idade base é garantido. A complicação de idade é opcional; se escolhida, concede +1 poder geral extra.
+  const compsCount = (state.age?.complications || []).length;
+  return compsCount >= 1 ? 1 : 0;
+}
+
 function individualComplicationGrantedPowers(){
   if (!isIndividualComplicationsActive()) return 0;
   const r = rule();
-  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
   const totalComps = (state.age?.complications || []).length;
   if (!state.age?.enabled) {
     return totalComps >= 1 ? 1 : 0;
@@ -44,14 +50,16 @@ function individualComplicationGrantedPowers(){
   if (state.age.band === 'adulto') {
     return totalComps >= 2 ? 1 : 0;
   }
+  const ageLimit = Number(r?.count || 0);
   return totalComps > ageLimit ? 1 : 0;
 }
 const baseGeneralPowerSlots=generalPowerSlots;
 generalPowerSlots=function(){
   const r=rule();
   const agePowers = Number(state.age?.enabled ? (r?.generalPowers || 0) : 0);
+  const adultBonus = adultBonusPowers();
   const indPowers = individualComplicationGrantedPowers();
-  return baseGeneralPowerSlots() + agePowers + indPowers;
+  return baseGeneralPowerSlots() + agePowers + adultBonus + indPowers;
 };
 
 function panelHtml(){
@@ -206,13 +214,43 @@ function updateAgeComplicationsModalContent(){
     + '</div>'
     + '</div>'
     + '<footer>'
-    + '<span style="font-size:0.85rem;font-weight:700;color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">Selecionadas: ' + selectedCount + '/' + limit + (isOptional ? ' (Opcional)' : '') + '</span>'
+    + '<span id="ageCompModalCounter" style="font-size:0.85rem;font-weight:700;color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">Selecionadas: ' + selectedCount + '/' + limit + (isOptional ? ' (Opcional)' : '') + '</span>'
     + '<div style="display:flex;gap:10px;">'
     + '<button type="button" class="button" data-action="close-age-complications-modal">Cancelar</button>'
     + '<button type="button" class="button primary" data-action="confirm-age-complications-modal">Confirmar Escolha</button>'
     + '</div>'
     + '</footer>'
     + '</section>';
+}
+
+function syncAgeComplicationsModalDom(){
+  const modal = document.getElementById('ageComplicationsModal');
+  if(!modal) return;
+  const r = rule();
+  const indActive = isIndividualComplicationsActive();
+  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
+  const limit = ageLimit + (indActive ? 1 : 0);
+  const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
+  const selectedCount = modalSelectedComplications.length;
+
+  const counterEl = modal.querySelector('#ageCompModalCounter');
+  if(counterEl){
+    counterEl.textContent = 'Selecionadas: ' + selectedCount + '/' + limit + (isOptional ? ' (Opcional)' : '');
+  }
+
+  const allCards = modal.querySelectorAll('.age-comp-modal-card');
+  allCards.forEach(c => {
+    const inp = c.querySelector('input[data-modal-comp-id]');
+    if(!inp) return;
+    const cid = inp.dataset.modalCompId;
+    const isSel = modalSelectedComplications.includes(cid);
+    inp.checked = isSel;
+    c.classList.toggle('selected', isSel);
+    const shouldDisable = !isSel && selectedCount >= limit;
+    c.classList.toggle('disabled', shouldDisable);
+    inp.disabled = shouldDisable;
+    c.style.cursor = shouldDisable ? 'not-allowed' : 'pointer';
+  });
 }
 
 function classPathText(){return ExportacaoPersonagem.caminho({
@@ -290,7 +328,7 @@ document.addEventListener('change',event=>{
     } else if(!modalCompInput.checked && idx >= 0){
       modalSelectedComplications.splice(idx, 1);
     }
-    updateAgeComplicationsModalContent();
+    syncAgeComplicationsModalDom();
     return;
   }
   const id=event.target.dataset.ageComplication;
