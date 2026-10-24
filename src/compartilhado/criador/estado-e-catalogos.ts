@@ -257,11 +257,70 @@ function choiceName(value){return String(value?.nome||value?.id||value||'')}
 function addAttrs(target,source){Object.entries(source||{}).forEach(([id,value])=>target[id]=(target[id]||0)+Number(value||0))}
 function allocationCounts(values){return (values||[]).reduce((o,id)=>(o[id]=(o[id]||0)+1,o),{})}
 function addAllocation(target,values,value=1){(values||[]).forEach(id=>target[id]=(target[id]||0)+Number(value||1))}
-function isRaceEligibleForOpenRaces(race){if(!race||!race.atributos?.fixos)return false;const fixed=Object.entries(race.atributos.fixos).filter(([_,v])=>Number(v)!==0);if(!fixed.length)return false;if(race.atributos?.flexiveis&&Number(race.atributos.flexiveis.quantidade||0)>0)return false;if((race.habilidades?.selecionadas||[]).some(h=>h.tipo==='atributos_flexiveis'))return false;return true;}
-function raceFixedModifiers(race){if(!race||!race.atributos?.fixos)return [];return Object.values(race.atributos.fixos).map(Number).filter(v=>v!==0).sort((a,b)=>b-a);}
+function raceEffectiveFixedAttributes(race,applySuppression=true){
+  if(!race) return {};
+  const fixed = {};
+  addAttrs(fixed, race.atributos?.fixos);
+  (race.habilidades?.selecionadas||[]).forEach(def=>{
+    const opt=selectedRaceOption(def);
+    if(opt&&opt.atributos) addAttrs(fixed, opt.atributos);
+  });
+  (race.habilidades?.fixas||[]).forEach(h=>{
+    if(!h.escolha)return;
+    const opt=(h.escolha.opcoes||[]).find(x=>choiceId(x)===state.identity.raceChoices[h.id]);
+    if(opt&&opt.atributos) addAttrs(fixed, opt.atributos);
+  });
+  if(applySuppression && state?.identity?.openRaceBonusEnabled && raceHasFlexibleOpenRaceConversion(race)){
+    Object.keys(fixed).forEach(k => {
+      if(Number(fixed[k]) === 1) delete fixed[k];
+    });
+  }
+  return fixed;
+}
+function raceHasFlexibleOpenRaceConversion(race){
+  if(!race) return false;
+  return Boolean(race.atributos?.flexiveis);
+}
+function raceFlexibleOpenRaceBonusCount(race){
+  if(!race || !state?.identity?.openRaceBonusEnabled || !raceHasFlexibleOpenRaceConversion(race)) return 0;
+  const fixed = raceEffectiveFixedAttributes(race, false);
+  let count = 0;
+  Object.values(fixed).forEach(v => {
+    if(Number(v) === 1) count += 1;
+  });
+  return count;
+}
+function isRaceEligibleForOpenRaces(race){
+  if(!race) return false;
+  const mods = raceFixedModifiers(race);
+  return mods.length > 0;
+}
+function raceFixedModifiers(race){
+  const fixedAttrs = raceEffectiveFixedAttributes(race, false);
+  return Object.values(fixedAttrs).map(Number).filter(v=>v!==0).sort((a,b)=>b-a);
+}
 function remainingOpenRaceModifiers(race,allocations){const remaining=raceFixedModifiers(race);Object.values(allocations||{}).forEach(val=>{const idx=remaining.indexOf(Number(val));if(idx!==-1)remaining.splice(idx,1);});return remaining;}
 function selectedRaceOption(def){const current=state.identity.raceChoices[def.id];return optionList(def).find(x=>choiceId(x)===current)}
-function raceBonuses(){const race=raceById(state.identity.raceId),bonus={for:0,des:0,con:0,int:0,sab:0,car:0};if(!race)return bonus;if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)){Object.entries(state.identity.openRaceAllocations||{}).forEach(([attr,val])=>{if(bonus[attr]!==undefined)bonus[attr]+=Number(val||0);});}else{addAttrs(bonus,race.atributos?.fixos);}addAllocation(bonus,state.identity.raceAttrs,race.atributos?.flexiveis?.valor||1);(race.habilidades?.selecionadas||[]).forEach(def=>{if(def.tipo==='atributos_flexiveis')addAllocation(bonus,state.identity.raceSpecialAttrs[def.id],def.valor||1);const opt=selectedRaceOption(def);if(opt){addAttrs(bonus,opt.atributos);if(race?.id!=='duende'||def.id!=='duende_natureza')addAllocation(bonus,state.identity.raceSubAttrs[def.id],opt.atributosFlexiveis?.valor||1)}});(race.habilidades?.fixas||[]).forEach(h=>{if(!h.escolha)return;const opt=(h.escolha.opcoes||[]).find(x=>choiceId(x)===state.identity.raceChoices[h.id]);if(opt)addAttrs(bonus,opt.atributos)});return bonus}
+function raceBonuses(){
+  const race=raceById(state.identity.raceId),bonus={for:0,des:0,con:0,int:0,sab:0,car:0};
+  if(!race)return bonus;
+  if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)&&!raceHasFlexibleOpenRaceConversion(race)){
+    Object.entries(state.identity.openRaceAllocations||{}).forEach(([attr,val])=>{
+      if(bonus[attr]!==undefined)bonus[attr]+=Number(val||0);
+    });
+  }else{
+    addAttrs(bonus, raceEffectiveFixedAttributes(race, true));
+  }
+  addAllocation(bonus,state.identity.raceAttrs,race.atributos?.flexiveis?.valor||1);
+  (race.habilidades?.selecionadas||[]).forEach(def=>{
+    if(def.tipo==='atributos_flexiveis')addAllocation(bonus,state.identity.raceSpecialAttrs[def.id],def.valor||1);
+    const opt=selectedRaceOption(def);
+    if(opt){
+      if(race?.id!=='duende'||def.id!=='duende_natureza')addAllocation(bonus,state.identity.raceSubAttrs[def.id],opt.atributosFlexiveis?.valor||1);
+    }
+  });
+  return bonus;
+}
 function formatConfiguredItemName(entry, item) {
   if (!entry) return item?.nome || '';
   const baseName = entry.options?.customName || entry.itemName || item?.nome || entry.itemId || '';

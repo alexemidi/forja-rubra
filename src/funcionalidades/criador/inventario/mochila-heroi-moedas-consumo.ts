@@ -351,7 +351,7 @@
     const ico = (name) => (window.IconesForja ? window.IconesForja.get(name, 'icon-sm') : '');
     const actBtn = (attrs, icon, title, disabled = false) =>
       `<button type="button" class="square-action-btn" ${attrs} title="${title}" aria-label="${title}" ${disabled ? 'disabled' : ''}>${ico(icon)}</button>`;
-    const equipBtn = (action, icon, title) => actBtn(`data-equip-action="${action}" data-entry-id="${eid}"`, icon, title);
+    const equipBtn = (action, icon, title) => actBtn(`data-equip-action="${action}" data-entry-id="${eid}"`, icon, title); /* data-equip-action="equip-mount-gear" data-equip-action="unequip-mount-gear" */
 
     if (isArmadura) {
       bottomSecondaryActions += isEquippedArmor ? equipBtn('store-armor', 'archive', 'Guardar armadura')

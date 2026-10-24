@@ -103,6 +103,7 @@
       "DATA.distinctions": "dados/distincoes.json",
       "BANDS": "dados/idade-faixas.json",
       "COMPLICATIONS": "dados/idade-complicacoes.json",
+      "GENERAL_COMPLICATIONS": "dados/complicacoes-gerais.json",
       "AGE_POWERS": "dados/idade-poderes.json"
     },
     "origin": "raiz/dist/criador.html"
@@ -354,6 +355,7 @@
       "DATA.partners": "dados/criador-parceiros.json",
       "BANDS": "dados/idade-faixas.json",
       "COMPLICATIONS": "dados/idade-complicacoes.json",
+      "GENERAL_COMPLICATIONS": "dados/complicacoes-gerais.json",
       "AGE_POWERS": "dados/idade-poderes.json",
       "DATA.distinctions": "dados/distincoes.json"
     },

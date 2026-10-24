@@ -91,15 +91,41 @@ function ownedPowerNames(exceptId=''){
   const names=[
     ...originPowerNames(),
     ...Object.values(state.powers?.originGeneral||{}).map(id=>powerById(id)?.nome),
+    ...Object.values(state.powers?.originGeneral||{}),
     ...selectedGeneralPowers(exceptId).map(power=>power.nome),
+    ...selectedGeneralPowers(exceptId).map(power=>power.id),
     ...String(state.deity.power||'').split('|'),
     state.deity?.pantheonBonusPower ? (powerById(state.deity.pantheonBonusPower)?.nome || state.deity.pantheonBonusPower) : '',
     state.deity?.fundamentalistPower ? (powerById(state.deity.fundamentalistPower)?.nome || state.deity.fundamentalistPower) : ''
   ];
+  (state.powers?.general || []).forEach((id, idx) => {
+    if (id && id !== exceptId) {
+      names.push(id);
+      const p = powerById(id);
+      if (p) names.push(p.nome);
+    }
+  });
+  if (state.powers?.cosmopolitaPower && typeof selectedCosmopolitaPower === 'function') {
+    const cp = selectedCosmopolitaPower();
+    if (cp && cp.nome && cp.id !== exceptId) {
+      names.push(cp.nome);
+      names.push(cp.id);
+    }
+  }
   const cls=classById(state.identity.classId),race=raceById(state.identity.raceId);
-  (cls?.habilidades||[]).filter(ability=>Number(ability.nivel||1)<=Number(state.identity.plannedLevel||1)).forEach(ability=>names.push(ability.nome));
-  (race?.habilidades?.fixas||[]).forEach(ability=>names.push(ability.nome));
-  racePowerGroups().forEach(group=>(state.powers.raceGroups[group.id]||[]).forEach(id=>{const option=group.options.find(item=>choiceId(item)===id);if(option)names.push(choiceName(option))}));
+  (cls?.habilidades||[]).filter(ability=>Number(ability.nivel||1)<=Number(state.identity.plannedLevel||1)).forEach(ability=>{
+    names.push(ability.nome);
+    names.push(ability.id);
+  });
+  (race?.habilidades?.fixas||[]).forEach(ability=>{
+    names.push(ability.nome);
+    names.push(ability.id);
+  });
+  racePowerGroups().forEach(group=>(state.powers.raceGroups[group.id]||[]).forEach(id=>{
+    names.push(id);
+    const option=group.options.find(item=>choiceId(item)===id);
+    if(option)names.push(choiceName(option));
+  }));
   return new Set(names.filter(Boolean).map(slug));
 }
 function addReason(reasons,text){if(text&&!reasons.includes(text))reasons.push(text)}
@@ -157,8 +183,8 @@ function generalPowerEligibility(power, exceptId=''){
   const unique=[];candidates.forEach(candidate=>{if(!unique.some(other=>slug(other.nome).includes(slug(candidate.nome))))unique.push(candidate)});
   if(unique.length){
     const hasOr=/\bou\b/i.test(requirements);
-    if(hasOr){if(!unique.some(candidate=>owned.has(slug(candidate.nome))))addReason(reasons,'Requer um destes poderes: '+unique.map(candidate=>candidate.nome).join(' ou ')+'.')}
-    else unique.forEach(candidate=>{if(!owned.has(slug(candidate.nome)))addReason(reasons,'Requer '+candidate.nome+'.')});
+    if(hasOr){if(!unique.some(candidate=>owned.has(slug(candidate.nome))||owned.has(candidate.id)))addReason(reasons,'Requer um destes poderes: '+unique.map(candidate=>candidate.nome).join(' ou ')+'.')}
+    else unique.forEach(candidate=>{if(!owned.has(slug(candidate.nome))&&!owned.has(candidate.id))addReason(reasons,'Requer '+candidate.nome+'.')});
   }
   let masterPermissionNotice = '';
   if(power.categoria === 'escolhido_dos_deuses'){
@@ -172,14 +198,27 @@ function generalPowerEligibility(power, exceptId=''){
   return{ok:reasons.length===0,reasons,masterPermissionNotice};
 }
 function renderPowerRows(entries,status){
-  const chosenIds=(state.powers.general||[]).filter(Boolean);
+  const currentSlotId = state.powers.general[Number(state.powers.activeSlot||0)] || '';
   return POWER_CATEGORY_ORDER.map(category=>{
-    const rows=entries.filter(entry=>entry.power.categoria===category&&entry.status===status).sort((a,b)=>a.power.nome.localeCompare(b.power.nome,'pt-BR'));
+    const rows=entries.filter(entry=>entry.power.categoria===category&&(status==='all'||entry.status===status)).sort((a,b)=>a.power.nome.localeCompare(b.power.nome,'pt-BR'));
     if(!rows.length)return '';
     return '<section class="power-category"><h4>'+esc(POWER_CATEGORY_LABEL[category])+'</h4>'+rows.map(entry=>{
-      const isChosen=chosenIds.includes(entry.power.id);
+      const isChosenElsewhere = entry.status === 'chosen';
+      const isCurrentSlotSelected = entry.power.id === currentSlotId;
+      const isChosen = isChosenElsewhere || isCurrentSlotSelected;
       const isCurrentPreview=entry.power.id===state.powers.previewId;
-      return '<button type="button" class="power-row '+(isCurrentPreview?'selected ':'')+(isChosen?'chosen ':'')+(entry.verdict.ok?'':'locked')+'" data-action="power-preview" data-power-id="'+entry.power.id+'" data-search="'+esc(slug(entry.power.nome+' '+entry.power.preRequisitosTexto))+'"><strong>'+esc(entry.power.nome)+'</strong></button>';
+      const isLocked = entry.status === 'locked';
+
+      let rowClass = 'power-row';
+      if (isCurrentPreview) rowClass += ' selected';
+      if (isChosen) rowClass += ' chosen';
+      if (isLocked) rowClass += ' locked';
+
+      const tagHtml = isChosenElsewhere
+        ? '<span class="tag gold" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Já adquirido</span>'
+        : (isCurrentSlotSelected ? '<span class="tag green" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Selecionado</span>' : '');
+
+      return '<button type="button" class="'+rowClass+'" data-action="power-preview" data-power-id="'+entry.power.id+'" data-search="'+esc(slug(entry.power.nome+' '+entry.power.preRequisitosTexto))+'"><span style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:6px"><strong>'+esc(entry.power.nome)+'</strong>'+tagHtml+'</span></button>';
     }).join('')+'</section>';
   }).join('');
 }
@@ -207,7 +246,9 @@ function generalPowerSlotSourceText(index){
 }
 function renderGeneralPowerBrowser(slots){
   const currentSlot=Math.max(0,Math.min(slots-1,Number(state.powers.activeSlot||0)));
-  const category=state.powers.categoryFilter||'all',status=state.powers.statusFilter||'all';
+  const slotReq = typeof originPowerSlotRequirement === 'function' ? originPowerSlotRequirement(currentSlot) : null;
+  const initialCategory = slotReq?.category ? (slotReq.category === 'combate_ou_tormenta' ? 'combate' : slotReq.category) : 'all';
+  const category=state.powers.categoryFilter||initialCategory,status=state.powers.statusFilter||'available';
   const otherChosenIds=(state.powers.general||[]).filter((id,i)=>i!==currentSlot&&Boolean(id));
   const currentSlotPowerId = state.powers.general[currentSlot] || '';
   const currentSlotPower = currentSlotPowerId ? powerById(currentSlotPowerId) : null;
@@ -217,24 +258,42 @@ function renderGeneralPowerBrowser(slots){
   const entries=DATA.generalPowers.filter(power=>{
     if (otherChosenIds.includes(power.id)) return false;
     const isCurrent = power.id === currentSlotPowerId || (currentSlotPowerNameSlug && slug(power.nome) === currentSlotPowerNameSlug);
-    if (!isCurrent && owned.has(slug(power.nome))) return false;
+    if (!isCurrent && (owned.has(slug(power.nome)) || owned.has(power.id))) return false;
     return category==='all'||power.categoria===category;
-  }).map(power=>{const verdict=generalPowerEligibility(power, currentSlotPowerId);return{power,verdict,status:verdict.ok?'available':'locked'}}),visible=entries.filter(entry=>status==='all'||entry.status===status);
-  let preview=state.powers.previewId?powerById(state.powers.previewId):null;
-  if(preview&&!visible.some(entry=>entry.power.id===preview.id)){preview=null;state.powers.previewId=''}
+  }).map(power=>{
+    const verdict=generalPowerEligibility(power, currentSlotPowerId);
+    return {power, verdict, status: verdict.ok ? 'available' : 'locked'};
+  });
 
-  const previewEntry=preview?visible.find(entry=>entry.power.id===preview.id):null;
+  const visible=entries.filter(entry=>{
+    if(status==='available') return entry.status==='available';
+    if(status==='locked') return entry.status==='locked';
+    return true;
+  });
+
+  let preview=state.powers.previewId?powerById(state.powers.previewId):null;
+  if(preview&&!entries.some(entry=>entry.power.id===preview.id)){preview=null;state.powers.previewId=''}
+
+  const previewEntry=preview?entries.find(entry=>entry.power.id===preview.id):null;
   const selectedPowerId=state.powers.general[currentSlot],isSelected=preview&&selectedPowerId===preview.id;
   const sourceText=generalPowerSlotSourceText(currentSlot);
   const hasPrev=currentSlot>0;
   const hasNext=Boolean(state.powers.general[currentSlot])&&currentSlot<slots-1;
   const navBar='<div class="sequential-power-nav" style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px"><button type="button" class="button small" data-action="general-power-prev" '+(hasPrev?'':'disabled')+'>← Poder anterior</button><span style="font-weight:700;color:var(--gold2);text-align:center">Poder '+(currentSlot+1)+' de '+slots+'<br><small style="font-weight:400;color:var(--muted)">Fonte: '+esc(sourceText)+'</small></span><button type="button" class="button small" data-action="general-power-next" '+(hasNext?'':'disabled')+'>Próximo poder →</button></div>';
-  const filters='<div class="power-filterbar"><button type="button" class="filter-chip '+(category==='all'?'active':'')+'" data-action="power-filter-category" data-value="all">Todos</button>'+POWER_CATEGORY_ORDER.map(id=>'<button type="button" class="filter-chip '+(category===id?'active':'')+'" data-action="power-filter-category" data-value="'+id+'">'+esc(POWER_CATEGORY_LABEL[id].replace('Poderes de ','').replace('Poderes da ',''))+'</button>').join('')+'</div><div class="power-filterbar"><button type="button" class="filter-chip '+(status==='all'?'active':'')+'" data-action="power-filter-status" data-value="all">Todos os estados</button><button type="button" class="filter-chip '+(status==='available'?'active':'')+'" data-action="power-filter-status" data-value="available">Disponíveis</button><button type="button" class="filter-chip '+(status==='locked'?'active':'')+'" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button></div>';
-  const availableRows=status==='locked'?'':renderPowerRows(visible,'available'),lockedRows=status==='available'?'':renderPowerRows(visible,'locked');
+  const filters='<div class="power-filterbar"><button type="button" class="filter-chip '+(category==='all'?'active':'')+'" data-action="power-filter-category" data-value="all">Todos</button>'+POWER_CATEGORY_ORDER.map(id=>'<button type="button" class="filter-chip '+(category===id?'active':'')+'" data-action="power-filter-category" data-value="'+id+'">'+esc(POWER_CATEGORY_LABEL[id].replace('Poderes de ','').replace('Poderes da ',''))+'</button>').join('')+'</div><div class="power-filterbar"><button type="button" class="filter-chip '+(status==='available'?'active':'')+'" data-action="power-filter-status" data-value="available">Disponíveis</button><button type="button" class="filter-chip '+(status==='locked'?'active':'')+'" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button><button type="button" class="filter-chip '+(status==='all'?'active':'')+'" data-action="power-filter-status" data-value="all">Ver tudo</button></div>';
+  const availableRows=(status==='locked')?'':renderPowerRows(visible,'available');
+  const lockedRows=(status==='available')?'':renderPowerRows(visible,'locked');
   const list='<div><input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…"><div class="power-list">'+(availableRows?'<div class="power-status" style="margin-bottom:8px">Disponíveis</div>'+availableRows:'')+(lockedRows?'<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>'+lockedRows:'')+(!availableRows&&!lockedRows?'<div class="empty">Nenhum poder corresponde aos filtros.</div>':'')+'</div></div>';
-  const actions=preview&&previewEntry?.verdict.ok?'<p><strong>Clique em Continuar para obter esse poder</strong></p>':'';
+  let actions='';
+  if(preview&&previewEntry){
+    if(previewEntry.verdict.ok){
+      actions=state.powers.general[currentSlot]===preview.id
+        ?'<div class="power-status" style="margin-top:8px;font-size:0.75rem;"><strong>Poder selecionado para este slot.</strong></div>'
+        :'<p><strong>Clique em Próxima ou Avançar para confirmar este poder.</strong></p>';
+    }
+  }
   const masterNotice=previewEntry?.verdict?.masterPermissionNotice?'<div class="warning-box gold" style="margin-top:8px;font-size:0.75rem;"><strong>Aviso de Requisito:</strong> '+esc(previewEntry.verdict.masterPermissionNotice)+'</div>':'';
-  const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+(!previewEntry?.verdict.ok?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
+  const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+(!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
   return navBar+filters+'<div class="power-browser">'+list+detail+'</div>';
 }
 renderPowers=function(){

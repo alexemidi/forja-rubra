@@ -204,12 +204,15 @@ powerMissingChoices=function(){
   if(generalMissing>0){
     missing.push({title:'Poder geral',message:'Selecione '+generalMissing+' poder(es) geral(is) que ainda faltam.',selector:'[data-action="power-preview"], .power-browser'});
   }
-  (typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[]).forEach(opt=>{
-    if(!state.powers?.originGeneral?.[opt.id]){
-      const label = opt.category === 'combate_ou_tormenta' ? 'Combate ou Tormenta' : (opt.category === 'combate' ? 'Combate' : 'Tormenta');
-      missing.push({title:'Poder da origem',message:'Escolha o poder de '+label+' concedido pela origem.',selector:'[data-action="origin-general-power"][data-benefit-id="'+opt.id+'"]'});
-    }
-  });
+  const originInGeneralCount = typeof originChoiceSlotsCount === 'function' ? originChoiceSlotsCount() : 0;
+  if(originInGeneralCount === 0){
+    (typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[]).forEach(opt=>{
+      if(!state.powers?.originGeneral?.[opt.id]){
+        const label = opt.category === 'combate_ou_tormenta' ? 'Combate ou Tormenta' : (opt.category === 'combate' ? 'Combate' : 'Tormenta');
+        missing.push({title:'Poder da origem',message:'Escolha o poder de '+label+' concedido pela origem.',selector:'[data-action="origin-general-power"][data-benefit-id="'+opt.id+'"]'});
+      }
+    });
+  }
   if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
     missing.push({title:'Duplo Feérico',message:'Escolha uma habilidade de classe de 1º nível para Duplo Feérico.',selector:'[data-action^="duplo-feerico"]'});
   }

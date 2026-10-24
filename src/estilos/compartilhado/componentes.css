@@ -134,6 +134,17 @@ summary:focus-visible {
   box-shadow: inset 3px 0 var(--forja-red-hot);
 }
 
+.power-row.chosen {
+  border-color: rgba(233, 173, 89, 0.4);
+  background: rgba(233, 173, 89, 0.05);
+  box-shadow: inset 3px 0 var(--gold);
+}
+.power-row.chosen.selected {
+  border-color: var(--forja-red-hot);
+  background: linear-gradient(110deg, rgba(197, 31, 44, 0.24), rgba(233, 173, 89, 0.1));
+  box-shadow: inset 3px 0 var(--forja-red-hot);
+}
+
 /* Anatomia unificada de Cards de Catálogo (Guilda, Taverna, Loja, Parceiros) */
 .forja-catalog-card,
 .guild-card,

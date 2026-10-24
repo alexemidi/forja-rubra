@@ -94,7 +94,10 @@ assert.equal(s6.penalty, -2);
 assert.equal(formatConfiguredItemName({ improvements: [{ id: 'reforcada' }], enchantments: [{ id: 'defensor' }] }, { nome: 'Cota de Malha' }), 'Cota de Malha reforçada defensor');
 assert.equal(formatConfiguredItemName({ material: 'adamante', improvements: [{ id: 'certeira' }] }, { nome: 'Adaga' }), 'Adaga de adamante certeira');
 // Testes de Raças Abertas (Heróis de Arton)
-const openRaceSlice = estadoCatalogosSrc.slice(estadoCatalogosSrc.indexOf('function isRaceEligibleForOpenRaces'), estadoCatalogosSrc.indexOf('function formatConfiguredItemName'));
+const openRaceStartIdx = estadoCatalogosSrc.indexOf('function optionList') !== -1
+  ? estadoCatalogosSrc.indexOf('function optionList')
+  : estadoCatalogosSrc.indexOf('function isRaceEligibleForOpenRaces');
+const openRaceSlice = estadoCatalogosSrc.slice(openRaceStartIdx, estadoCatalogosSrc.indexOf('function formatConfiguredItemName'));
 const openRaceCtx = {
   window: {},
   state: { identity: { raceId: 'anao', openRaceBonusEnabled: false, openRaceAllocations: {}, raceAttrs: [], raceSpecialAttrs: {}, raceSubAttrs: {}, raceChoices: {} } },
@@ -107,6 +110,7 @@ const openRaceCtx = {
   },
   addAttrs: (t, s) => Object.entries(s || {}).forEach(([k, v]) => t[k] = (t[k] || 0) + Number(v || 0)),
   addAllocation: () => {},
+  optionList: def => def?.opcoes || [],
   selectedRaceOption: () => null,
   choiceId: x => String(x?.id || x || '')
 };

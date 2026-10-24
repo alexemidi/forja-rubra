@@ -1,7 +1,7 @@
 /* Formatação de exportação separada da UI, downloads e biblioteca PDF. */
 const ExportacaoPersonagem = Object.freeze({
   titulo(feature){return feature?.nome||''},
-  caminho({identity,progression,classes,powerById,features,spells,age,ageRule,complications}){
+  caminho({identity,progression,classes,powerById,features,spells,age,ageRule,complications,generalComplications,generalComplicationsCatalog}){
     const lines=['Personagem: '+(identity.characterName||'Sem nome'),'Jogador: '+(identity.playerName||'Não informado'),'','CAMINHO DA CLASSE'];
     const rows=progression?.length?progression:[{classId:identity.classId}];
     const classLevels=new Map();
@@ -35,7 +35,13 @@ const ExportacaoPersonagem = Object.freeze({
     for(const spell of spells)if(spell)lines.push('',spell.name,spell.description||spell.descricao||spell.text||'');
     if(age?.enabled){
       lines.push('','IDADE',ageRule?`${ageRule.name}: ${age.years||ageRule.min} anos`:'Faixa pendente',...(ageRule?.notes||[]));
-      complications.filter(c=>age.complications.includes(c[0])).forEach(c=>lines.push(c[1]+': '+c[2]));
+      if(complications && Array.isArray(age.complications)) {
+        complications.filter(c=>age.complications.includes(c[0])).forEach(c=>lines.push(c[1]+': '+c[2]));
+      }
+    }
+    if(generalComplications && generalComplications.length && generalComplicationsCatalog){
+      lines.push('','COMPLICAÇÃO GERAL');
+      generalComplicationsCatalog.filter(c=>generalComplications.includes(c[0])).forEach(c=>lines.push(c[1]+': '+c[2]));
     }
     lines.push('','ESCOLHAS PENDENTES','Leia todo o caminho e procure escolhas ainda não preenchidas antes de continuar.');
     const combatNames=features.map(f=>f.nome||'');

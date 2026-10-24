@@ -49,6 +49,8 @@ global.slug = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u
 global.persist = () => {};
 global.renderStage = () => {};
 global.isRaceEligibleForOpenRaces = () => true;
+global.raceHasFlexibleOpenRaceConversion = (race) => Boolean(race?.atributos?.flexiveis);
+global.raceFlexibleOpenRaceBonusCount = () => 0;
 global.raceFixedModifiers = () => [];
 global.remainingOpenRaceModifiers = () => [];
 global.bookTag = () => '';

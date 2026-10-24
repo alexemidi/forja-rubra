@@ -94,7 +94,16 @@
       frame.removeAttribute('srcdoc');frame.src=new URL(url+'?sessao='+encodeURIComponent(token),base).href;
     },
     loadPdf(){
-      if(!pdfPromise)pdfPromise=Promise.all([script('assets/vendor/pako.min.js'),script('assets/vendor/pdf-lib.min.js'),load('assets/pdf/ficha-padrao.pdf').then(r=>r.arrayBuffer()).then(b=>{Forja.pdfBytes=new Uint8Array(b)})]).catch(error=>{pdfPromise=null;throw error});
+      if(!pdfPromise)pdfPromise=Promise.all([
+        (typeof window!=='undefined'&&window.pako)?Promise.resolve():script('assets/vendor/pako.min.js'),
+        (typeof window!=='undefined'&&window.PDFLib)?Promise.resolve():(async()=>{
+          const res=await load('assets/vendor/pdf-lib.min.js');
+          const code=await res.text();
+          const fn=new Function(code);
+          fn.call(window);
+        })(),
+        load('assets/pdf/ficha-padrao.pdf').then(r=>r.arrayBuffer()).then(b=>{Forja.pdfBytes=new Uint8Array(b)})
+      ]).catch(error=>{pdfPromise=null;throw error});
       return pdfPromise;
     }
   };

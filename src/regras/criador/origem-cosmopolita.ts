@@ -189,10 +189,13 @@ function getPhase6SubStages(){
   for (let i = 0; i < genSlots; i++) {
     stages.push({ type: 'general', slot: i, label: 'Poder Geral ' + (i + 1) });
   }
-  const originChoices = typeof originGeneralPowerOptions === 'function' ? originGeneralPowerOptions() : [];
-  originChoices.forEach(opt => {
-    stages.push({ type: 'origin_general', optionId: opt.id, label: 'Poder da Origem (' + (opt.name || 'Geral') + ')' });
-  });
+  const originInGeneralCount = typeof originChoiceSlotsCount === 'function' ? originChoiceSlotsCount() : 0;
+  if (originInGeneralCount === 0) {
+    const originChoices = typeof originGeneralPowerOptions === 'function' ? originGeneralPowerOptions() : [];
+    originChoices.forEach(opt => {
+      stages.push({ type: 'origin_general', optionId: opt.id, label: 'Poder da Origem (' + (opt.name || 'Geral') + ')' });
+    });
+  }
   if (typeof hasDuploFeerico === 'function' && hasDuploFeerico()) {
     stages.push({ type: 'duplo_feerico', label: 'Duplo Feérico' });
   }
@@ -201,6 +204,9 @@ function getPhase6SubStages(){
   }
   if (typeof hasFuturaLenda === 'function' && hasFuturaLenda()) {
     stages.push({ type: 'futura_lenda', label: 'Origem Regional (Futura Lenda)' });
+  }
+  if (typeof hasCriacaoDosDeuses === 'function' && hasCriacaoDosDeuses()) {
+    stages.push({ type: 'criacao_dos_deuses', label: 'Origem (Criação dos Deuses)' });
   }
   return stages;
 }
@@ -295,7 +301,7 @@ function renderCosmopolitaPowerBrowser(totalStages = 1, currentStageIndex = 0){
   const preview = previewKey ? (options.find(o => o.cosmopolitaKey === previewKey) || null) : null;
 
   const category = state.powers.cosmopolitaCategoryFilter || 'all';
-  const status = state.powers.cosmopolitaStatusFilter || 'all';
+  const status = state.powers.cosmopolitaStatusFilter || 'available';
   const searchQuery = slug(state.powers.cosmopolitaSearchQuery || '');
 
   const classLvls = cosmopolitaClassLevels();
@@ -349,9 +355,9 @@ function renderCosmopolitaPowerBrowser(totalStages = 1, currentStageIndex = 0){
   '</div>';
 
   const statusFilters = '<div class="power-filterbar">' +
-    '<button type="button" class="filter-chip ' + (status === 'all' ? 'active' : '') + '" data-action="cosmopolita-status" data-value="all">Todos os estados</button>' +
     '<button type="button" class="filter-chip ' + (status === 'available' ? 'active' : '') + '" data-action="cosmopolita-status" data-value="available">Disponíveis</button>' +
     '<button type="button" class="filter-chip ' + (status === 'locked' ? 'active' : '') + '" data-action="cosmopolita-status" data-value="locked">Pré-requisito pendente</button>' +
+    '<button type="button" class="filter-chip ' + (status === 'all' ? 'active' : '') + '" data-action="cosmopolita-status" data-value="all">Ver tudo</button>' +
   '</div>';
 
   const renderRows = (list) => list.map(opt => {
@@ -559,6 +565,7 @@ syncSequentialPowerFooter = function(){
     }
     if (!isLast) {
       next.hidden = true;
+      next.disabled = true;
       if (stepNext) {
         stepNext.hidden = false;
         stepNext.disabled = !canAdvanceCurrent;

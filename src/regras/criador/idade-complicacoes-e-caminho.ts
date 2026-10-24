@@ -1,9 +1,14 @@
 (function(){
 const ATTR_NAMES={for:'Força',des:'Destreza',con:'Constituição',int:'Inteligência',sab:'Sabedoria',car:'Carisma'};
-const BANDS=window.__FORJA_DATA__.BANDS;
-const COMPLICATIONS=window.__FORJA_DATA__.COMPLICATIONS;
-const AGE_POWERS=window.__FORJA_DATA__.AGE_POWERS;
-function ensure(){state.age=Object.assign({enabled:false,band:'',years:'',mode:'benefits',complications:[],notice:'',editingComplications:false},state.age||{});if(!Array.isArray(state.age.complications))state.age.complications=[]}
+const BANDS=(typeof window !== 'undefined' && window.__FORJA_DATA__?.BANDS) || (typeof DATA !== 'undefined' && DATA.BANDS) || {};
+const COMPLICATIONS=(typeof window !== 'undefined' && window.__FORJA_DATA__?.COMPLICATIONS) || (typeof DATA !== 'undefined' && DATA.COMPLICATIONS) || [];
+const GENERAL_COMPLICATIONS=(typeof window !== 'undefined' && window.__FORJA_DATA__?.GENERAL_COMPLICATIONS) || (typeof DATA !== 'undefined' && DATA.GENERAL_COMPLICATIONS) || [];
+const AGE_POWERS=(typeof window !== 'undefined' && window.__FORJA_DATA__?.AGE_POWERS) || (typeof DATA !== 'undefined' && DATA.AGE_POWERS) || [];
+function ensure(){
+  state.age=Object.assign({enabled:false,band:'',years:'',mode:'benefits',complications:[],notice:'',editingComplications:false},state.age||{});
+  if(!Array.isArray(state.age.complications))state.age.complications=[];
+  if(!Array.isArray(state.generalComplications))state.generalComplications=[];
+}
 function multiplier(){return 1}
 function ranges(){return RegrasIdade.intervalos(BANDS)}
 function rule(){ensure();const band=BANDS[state.age.band],range=ranges()[state.age.band];return band&&range?Object.assign({},band,range):null}
@@ -27,28 +32,19 @@ function isIndividualComplicationsActive(){
   const rCamp = typeof RegrasCampanha !== 'undefined' ? RegrasCampanha.obterRegrasCampanha(state) : state?.regrasCampanha;
   return Boolean(state.complicacoesIndividual || rCamp?.complicacoes);
 }
-function totalComplicationsLimit(){
+function ageComplicationsLimit(){
   const r = rule();
-  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
-  const indLimit = isIndividualComplicationsActive() ? 1 : 0;
-  return ageLimit + indLimit;
+  return state.age?.enabled ? Number(r?.count || 0) : 0;
+}
+function generalComplicationsLimit(){
+  return isIndividualComplicationsActive() ? 1 : 0;
 }
 
-function individualComplicationGrantedPowers(){
-  if (!isIndividualComplicationsActive()) return 0;
-  const r = rule();
-  const totalComps = (state.age?.complications || []).length;
-  if (!state.age?.enabled) {
-    return totalComps >= 1 ? 1 : 0;
-  }
-  const ageLimit = Number(r?.count || 0);
-  return totalComps > ageLimit ? 1 : 0;
-}
 const baseGeneralPowerSlots=generalPowerSlots;
 generalPowerSlots=function(){
   const r=rule();
   const agePowers = Number(state.age?.enabled ? (r?.generalPowers || 0) : 0);
-  const indPowers = individualComplicationGrantedPowers();
+  const indPowers = (isIndividualComplicationsActive() && (state.generalComplications || []).length > 0) ? 1 : 0;
   return baseGeneralPowerSlots() + agePowers + indPowers;
 };
 
@@ -56,29 +52,49 @@ function panelHtml(){
   ensure();
   const rs=ranges(),r=rule();
   const indActive = isIndividualComplicationsActive();
-  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
-  const limit = ageLimit + (indActive ? 1 : 0);
+  const ageLimit = ageComplicationsLimit();
 
-  let complicationsHtml='';
-  if(limit > 0){
+  let ageComplicationsHtml='';
+  if(state.age.enabled && state.age.band && state.age.band !== 'jovem' && ageLimit > 0){
     const chosenNames=state.age.complications.map(id=>{
       const c=COMPLICATIONS.find(item=>item[0]===id);
       return c?c[1]:id;
     });
-    const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
     const hasChosen = chosenNames.length > 0;
-    const buttonLabel = hasChosen ? 'Trocar complicação' + (limit > 1 ? 's' : '') : 'Escolher complicação' + (limit > 1 ? 's' : '');
+    const buttonLabel = hasChosen ? 'Trocar complicação' + (ageLimit > 1 ? 'ões' : '') : 'Escolher complicação' + (ageLimit > 1 ? 'ões' : '');
     const buttonClass = hasChosen ? 'button' : 'button primary';
 
-    complicationsHtml='<div class="choice-section age-complications-collapsed" style="margin-top:12px;">'
+    ageComplicationsHtml='<div class="choice-section age-complications-collapsed" style="margin-top:12px;">'
       +'<div class="age-complications-collapsed-row" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
-      +'<div style="flex:1;"><span class="field-label" style="display:block;margin-bottom:6px">COMPLICAÇ'+(limit>1?'ÕES':'ÃO')+(isOptional?' (OPCIONAL)':'')+' ('+state.age.complications.length+'/'+limit+')</span>'
+      +'<div style="flex:1;"><span class="field-label" style="display:block;margin-bottom:6px">COMPLICAÇ'+(ageLimit>1?'ÕES':'ÃO')+' DE IDADE ('+state.age.complications.length+'/'+ageLimit+')</span>'
       +(hasChosen
         ? '<div class="tag-row" style="display:flex;flex-wrap:wrap;gap:6px;">'+chosenNames.map(name=>'<span class="tag gold" style="font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">'+esc(name)+'</span>').join('')+'</div>'
-        : '<div class="empty" style="font-size:0.75rem;color:var(--muted);padding:4px 0;">Nenhuma complicação selecionada.</div>'
+        : '<div class="empty" style="font-size:0.75rem;color:var(--muted);padding:4px 0;">Nenhuma complicação de idade selecionada.</div>'
       )
       +'</div>'
       +'<button type="button" class="'+buttonClass+'" data-action="open-age-complications-modal" style="min-height:30px;padding:5px 12px;font-size:0.75rem;white-space:nowrap;margin-top:2px;">'+esc(buttonLabel)+'</button>'
+      +'</div></div>';
+  }
+
+  let generalComplicationsHtml='';
+  if(indActive){
+    const chosenGeneralNames=(state.generalComplications || []).map(id=>{
+      const c=GENERAL_COMPLICATIONS.find(item=>item[0]===id);
+      return c?c[1]:id;
+    });
+    const hasChosenGen = chosenGeneralNames.length > 0;
+    const genButtonLabel = hasChosenGen ? 'Trocar complicação' : 'Escolher complicação';
+    const genButtonClass = hasChosenGen ? 'button' : 'button primary';
+
+    generalComplicationsHtml='<div class="choice-section age-complications-collapsed" style="margin-top:12px;">'
+      +'<div class="age-complications-collapsed-row" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
+      +'<div style="flex:1;"><span class="field-label" style="display:block;margin-bottom:6px">COMPLICAÇÃO GERAL (+1 PODER GERAL) ('+(state.generalComplications || []).length+'/1)</span>'
+      +(hasChosenGen
+        ? '<div class="tag-row" style="display:flex;flex-wrap:wrap;gap:6px;">'+chosenGeneralNames.map(name=>'<span class="tag gold" style="font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">'+esc(name)+'</span>').join('')+'</div>'
+        : '<div class="empty" style="font-size:0.75rem;color:var(--muted);padding:4px 0;">Nenhuma complicação geral selecionada.</div>'
+      )
+      +'</div>'
+      +'<button type="button" class="'+genButtonClass+'" data-action="open-general-complications-modal" style="min-height:30px;padding:5px 12px;font-size:0.75rem;white-space:nowrap;margin-top:2px;">'+esc(genButtonLabel)+'</button>'
       +'</div></div>';
   }
 
@@ -114,24 +130,25 @@ function panelHtml(){
     + '<label class="age-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:var(--cream);"><input type="checkbox" data-action="toggle-individual-complications" '+(indActive?'checked':'')+'> <strong>Usar regra de complicações</strong> <span style="font-size:0.72rem;color:var(--gold);">(+1 poder geral)</span></label>'
     + '</div>'
     + ageFieldsHtml
-    + complicationsHtml
+    + ageComplicationsHtml
     + agePowersHtml
+    + generalComplicationsHtml
     + noticeHtml
     + notesHtml
     + '</div></div>';
 }
 window.renderAgePanelHtml=panelHtml;
 
-let modalSelectedComplications = [];
+let modalSelectedAgeComplications = [];
 
 function openAgeComplicationsModal(){
   ensure();
-  const limit = totalComplicationsLimit();
+  const limit = ageComplicationsLimit();
   if(limit <= 0){
-    toast('Nenhuma complicação disponível para a faixa ou variante atual.');
+    toast('Nenhuma complicação de idade para a faixa selecionada.');
     return;
   }
-  modalSelectedComplications = [...(state.age?.complications || [])];
+  modalSelectedAgeComplications = [...(state.age?.complications || [])];
   let modal = document.getElementById('ageComplicationsModal');
   if(!modal){
     modal = document.createElement('div');
@@ -162,27 +179,17 @@ function updateAgeComplicationsModalContent(){
   const modal = document.getElementById('ageComplicationsModal');
   if(!modal) return;
   const r = rule();
-  const indActive = isIndividualComplicationsActive();
-  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
-  const limit = ageLimit + (indActive ? 1 : 0);
-  const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
-  const selectedCount = modalSelectedComplications.length;
+  const limit = ageComplicationsLimit();
+  const selectedCount = modalSelectedAgeComplications.length;
 
-  let subtitle = 'Você pode selecionar até ' + limit + ' complicação' + (limit > 1 ? 'ões' : '') + '.';
-  if(state.age?.enabled && indActive && ageLimit > 0){
-    subtitle = 'Você tem direito a ' + limit + ' complicações (' + ageLimit + ' da faixa etária + 1 da regra de complicação permanente).';
-  } else if(indActive && (!state.age?.enabled || ageLimit === 0)){
-    subtitle = 'Escolha 1 complicação para receber +1 poder geral extra.';
-  } else if(state.age?.enabled && r?.name){
-    subtitle = 'A faixa etária ' + r.name + ' concede ' + limit + ' complicação' + (limit > 1 ? 'ões' : '') + (isOptional ? ' (opcional).' : '.');
-  }
+  const subtitle = 'A faixa etária ' + (r?.name || '') + ' exige ' + limit + ' complicação' + (limit > 1 ? 'ões' : '') + ' de idade.';
 
   const cardsHtml = COMPLICATIONS.map(c => {
     const id = c[0], name = c[1], desc = c[2];
-    const isSelected = modalSelectedComplications.includes(id);
+    const isSelected = modalSelectedAgeComplications.includes(id);
     const disabled = !isSelected && selectedCount >= limit;
     return '<label class="age-comp-modal-card ' + (isSelected ? 'selected ' : '') + (disabled ? 'disabled ' : '') + '">'
-      + '<input type="checkbox" data-modal-comp-id="' + esc(id) + '" ' + (isSelected ? 'checked' : '') + ' ' + (disabled ? 'disabled' : '') + ' style="margin-top:3px;accent-color:var(--gold);">'
+      + '<input type="checkbox" data-modal-age-comp-id="' + esc(id) + '" ' + (isSelected ? 'checked' : '') + ' ' + (disabled ? 'disabled' : '') + ' style="margin-top:3px;accent-color:var(--gold);">'
       + '<span style="flex:1;">'
       + '<strong>' + esc(name) + '</strong>'
       + '<small>' + esc(desc) + '</small>'
@@ -193,7 +200,7 @@ function updateAgeComplicationsModalContent(){
   modal.innerHTML = '<section class="confirm-modal age-complications-dialog" role="dialog" aria-modal="true">'
     + '<header>'
     + '<div>'
-    + '<h3>Escolha de Complicações</h3>'
+    + '<h3>Escolha de Complicações de Idade</h3>'
     + '<small style="color:var(--muted);font-size:0.78rem;display:block;margin-top:3px;">' + esc(subtitle) + '</small>'
     + '</div>'
     + '<button type="button" class="button" data-action="close-age-complications-modal" style="min-width:32px;padding:4px 8px;font-size:0.95rem;background:transparent;border:1px solid var(--line);color:var(--muted);cursor:pointer;" title="Fechar">✕</button>'
@@ -204,7 +211,7 @@ function updateAgeComplicationsModalContent(){
     + '</div>'
     + '</div>'
     + '<footer>'
-    + '<span id="ageCompModalCounter" style="font-size:0.85rem;font-weight:700;color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">Selecionadas: ' + selectedCount + '/' + limit + (isOptional ? ' (Opcional)' : '') + '</span>'
+    + '<span id="ageCompModalCounter" style="font-size:0.85rem;font-weight:700;color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">Selecionadas: ' + selectedCount + '/' + limit + '</span>'
     + '<div style="display:flex;gap:10px;">'
     + '<button type="button" class="button" data-action="close-age-complications-modal">Cancelar</button>'
     + '<button type="button" class="button primary" data-action="confirm-age-complications-modal">Confirmar Escolha</button>'
@@ -216,24 +223,124 @@ function updateAgeComplicationsModalContent(){
 function syncAgeComplicationsModalDom(){
   const modal = document.getElementById('ageComplicationsModal');
   if(!modal) return;
-  const r = rule();
-  const indActive = isIndividualComplicationsActive();
-  const ageLimit = state.age?.enabled ? Number(r?.count || 0) : 0;
-  const limit = ageLimit + (indActive ? 1 : 0);
-  const isOptional = Boolean((state.age?.enabled && r?.optional) || indActive);
-  const selectedCount = modalSelectedComplications.length;
+  const limit = ageComplicationsLimit();
+  const selectedCount = modalSelectedAgeComplications.length;
 
   const counterEl = modal.querySelector('#ageCompModalCounter');
   if(counterEl){
-    counterEl.textContent = 'Selecionadas: ' + selectedCount + '/' + limit + (isOptional ? ' (Opcional)' : '');
+    counterEl.textContent = 'Selecionadas: ' + selectedCount + '/' + limit;
   }
 
   const allCards = modal.querySelectorAll('.age-comp-modal-card');
   allCards.forEach(c => {
-    const inp = c.querySelector('input[data-modal-comp-id]');
+    const inp = c.querySelector('input[data-modal-age-comp-id]');
     if(!inp) return;
-    const cid = inp.dataset.modalCompId;
-    const isSel = modalSelectedComplications.includes(cid);
+    const cid = inp.dataset.modalAgeCompId;
+    const isSel = modalSelectedAgeComplications.includes(cid);
+    inp.checked = isSel;
+    c.classList.toggle('selected', isSel);
+    const shouldDisable = !isSel && selectedCount >= limit;
+    c.classList.toggle('disabled', shouldDisable);
+    inp.disabled = shouldDisable;
+    c.style.cursor = shouldDisable ? 'not-allowed' : 'pointer';
+  });
+}
+
+let modalSelectedGeneralComplications = [];
+
+function openGeneralComplicationsModal(){
+  ensure();
+  if(!isIndividualComplicationsActive()){
+    toast('Ative a regra de complicações para escolher uma complicação.');
+    return;
+  }
+  modalSelectedGeneralComplications = [...(state.generalComplications || [])];
+  let modal = document.getElementById('generalComplicationsModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'generalComplicationsModal';
+    modal.className = 'modal-backdrop';
+    document.body.appendChild(modal);
+  }
+  updateGeneralComplicationsModalContent();
+  modal.removeAttribute('hidden');
+  modal.style.display = 'grid';
+}
+if(typeof window !== 'undefined'){
+  window.openGeneralComplicationsModal = openGeneralComplicationsModal;
+}
+
+function closeGeneralComplicationsModal(){
+  const modal = document.getElementById('generalComplicationsModal');
+  if(modal){
+    modal.setAttribute('hidden', '');
+    modal.style.display = 'none';
+  }
+}
+if(typeof window !== 'undefined'){
+  window.closeGeneralComplicationsModal = closeGeneralComplicationsModal;
+}
+
+function updateGeneralComplicationsModalContent(){
+  const modal = document.getElementById('generalComplicationsModal');
+  if(!modal) return;
+  const limit = 1;
+  const selectedCount = modalSelectedGeneralComplications.length;
+  const subtitle = 'Escolha 1 complicação geral para receber +1 poder geral extra.';
+
+  const cardsHtml = GENERAL_COMPLICATIONS.map(c => {
+    const id = c[0], name = c[1], desc = c[2];
+    const isSelected = modalSelectedGeneralComplications.includes(id);
+    const disabled = !isSelected && selectedCount >= limit;
+    return '<label class="age-comp-modal-card ' + (isSelected ? 'selected ' : '') + (disabled ? 'disabled ' : '') + '">'
+      + '<input type="checkbox" data-modal-general-comp-id="' + esc(id) + '" ' + (isSelected ? 'checked' : '') + ' ' + (disabled ? 'disabled' : '') + ' style="margin-top:3px;accent-color:var(--gold);">'
+      + '<span style="flex:1;">'
+      + '<strong>' + esc(name) + '</strong>'
+      + '<small>' + esc(desc) + '</small>'
+      + '</span>'
+      + '</label>';
+  }).join('');
+
+  modal.innerHTML = '<section class="confirm-modal age-complications-dialog" role="dialog" aria-modal="true">'
+    + '<header>'
+    + '<div>'
+    + '<h3>Escolha de Complicação Geral</h3>'
+    + '<small style="color:var(--muted);font-size:0.78rem;display:block;margin-top:3px;">' + esc(subtitle) + '</small>'
+    + '</div>'
+    + '<button type="button" class="button" data-action="close-general-complications-modal" style="min-width:32px;padding:4px 8px;font-size:0.95rem;background:transparent;border:1px solid var(--line);color:var(--muted);cursor:pointer;" title="Fechar">✕</button>'
+    + '</header>'
+    + '<div class="confirm-modal-body">'
+    + '<div class="age-complications-modal-grid">'
+    + cardsHtml
+    + '</div>'
+    + '</div>'
+    + '<footer>'
+    + '<span id="generalCompModalCounter" style="font-size:0.85rem;font-weight:700;color:var(--gold2);font-family:var(--font-display,\'Tormenta\',Cinzel,serif);">Selecionadas: ' + selectedCount + '/' + limit + '</span>'
+    + '<div style="display:flex;gap:10px;">'
+    + '<button type="button" class="button" data-action="close-general-complications-modal">Cancelar</button>'
+    + '<button type="button" class="button primary" data-action="confirm-general-complications-modal">Confirmar Escolha</button>'
+    + '</div>'
+    + '</footer>'
+    + '</section>';
+}
+
+function syncGeneralComplicationsModalDom(){
+  const modal = document.getElementById('generalComplicationsModal');
+  if(!modal) return;
+  const limit = 1;
+  const selectedCount = modalSelectedGeneralComplications.length;
+
+  const counterEl = modal.querySelector('#generalCompModalCounter');
+  if(counterEl){
+    counterEl.textContent = 'Selecionadas: ' + selectedCount + '/' + limit;
+  }
+
+  const allCards = modal.querySelectorAll('.age-comp-modal-card');
+  allCards.forEach(c => {
+    const inp = c.querySelector('input[data-modal-general-comp-id]');
+    if(!inp) return;
+    const cid = inp.dataset.modalGeneralCompId;
+    const isSel = modalSelectedGeneralComplications.includes(cid);
     inp.checked = isSel;
     c.classList.toggle('selected', isSel);
     const shouldDisable = !isSel && selectedCount >= limit;
@@ -248,7 +355,9 @@ function classPathText(){return ExportacaoPersonagem.caminho({
  powerById:id=>typeof progressionPowerById==='function'?progressionPowerById(id):DATA.classPowers.find(p=>p.id===id),
  features:typeof selectedCharacterFeatures==='function'?selectedCharacterFeatures():[],
  spells:typeof spellPlan==='function'&&typeof allLearnedSpellIds==='function'?[...allLearnedSpellIds(spellPlan())].map(id=>{const spell=DATA.spells.find(item=>item.id===id);return spell?{...spell,description:DATA.spellTexts?.[id]||spell.description||spell.descricao||spell.text}:null}):[],
- age:state.age,ageRule:state.age?.enabled?rule():null,complications:COMPLICATIONS
+ age:state.age,ageRule:state.age?.enabled?rule():null,complications:COMPLICATIONS,
+ generalComplications:state.generalComplications||[],
+ generalComplicationsCatalog:GENERAL_COMPLICATIONS
 })}
 function downloadClassPath(){const blob=new Blob([classPathText()],{type:'text/plain;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=(state.identity.characterName||'Personagem')+' - Caminho da Classe.txt';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
 if(typeof window!=='undefined')window.downloadClassPath=downloadClassPath;
@@ -262,12 +371,7 @@ document.addEventListener('change',event=>{
     if(field==='enabled'){
       state.age.enabled=event.target.checked;
       if(!state.age.enabled){
-        const indActive = isIndividualComplicationsActive();
-        if(!indActive){
-          state.age.complications=[];
-        } else if(state.age.complications.length > 1){
-          state.age.complications = state.age.complications.slice(0, 1);
-        }
+        state.age.complications=[];
       }
     }
     if(field==='band'){
@@ -280,8 +384,7 @@ document.addEventListener('change',event=>{
       persist();
       renderStage();
       const rNow = rule();
-      const givesComps = (Number(rNow?.count || 0) > 0) || isIndividualComplicationsActive();
-      if(givesComps){
+      if(Number(rNow?.count || 0) > 0){
         setTimeout(() => openAgeComplicationsModal(), 50);
       }
       return;
@@ -296,43 +399,56 @@ document.addEventListener('change',event=>{
     state.complicacoesIndividual=checked;
     if(!state.regrasCampanha)state.regrasCampanha={};
     state.regrasCampanha.complicacoes=checked;
+    if(!checked){
+      state.generalComplications=[];
+    }
     persist();
     renderStage();
-    if(checked){
-      setTimeout(() => openAgeComplicationsModal(), 50);
+    if(checked && (!state.generalComplications || state.generalComplications.length === 0)){
+      setTimeout(() => openGeneralComplicationsModal(), 50);
     }
     return;
   }
-  const modalCompInput = event.target.closest?.('input[data-modal-comp-id]');
-  if(modalCompInput){
-    const id = modalCompInput.dataset.modalCompId;
-    const limit = totalComplicationsLimit();
-    const idx = modalSelectedComplications.indexOf(id);
-    if(modalCompInput.checked && idx < 0){
-      if(modalSelectedComplications.length < limit){
-        modalSelectedComplications.push(id);
+  const modalAgeCompInput = event.target.closest?.('input[data-modal-age-comp-id]');
+  if(modalAgeCompInput){
+    const id = modalAgeCompInput.dataset.modalAgeCompId;
+    const limit = ageComplicationsLimit();
+    const idx = modalSelectedAgeComplications.indexOf(id);
+    if(modalAgeCompInput.checked && idx < 0){
+      if(modalSelectedAgeComplications.length < limit){
+        modalSelectedAgeComplications.push(id);
       } else {
-        modalCompInput.checked = false;
-        toast('Você já selecionou o limite de ' + limit + ' complicação' + (limit > 1 ? 'ões' : '') + '.');
+        modalAgeCompInput.checked = false;
+        toast('Você já selecionou o limite de ' + limit + ' complicação' + (limit > 1 ? 'ões' : '') + ' de idade.');
       }
-    } else if(!modalCompInput.checked && idx >= 0){
-      modalSelectedComplications.splice(idx, 1);
+    } else if(!modalAgeCompInput.checked && idx >= 0){
+      modalSelectedAgeComplications.splice(idx, 1);
     }
     syncAgeComplicationsModalDom();
     return;
   }
-  const id=event.target.dataset.ageComplication;
-  if(id){
-    const at=state.age.complications.indexOf(id);
-    if(event.target.checked&&at<0)state.age.complications.push(id);
-    if(!event.target.checked&&at>=0)state.age.complications.splice(at,1);
-    persist();
-    renderStage();
+  const modalGeneralCompInput = event.target.closest?.('input[data-modal-general-comp-id]');
+  if(modalGeneralCompInput){
+    const id = modalGeneralCompInput.dataset.modalGeneralCompId;
+    const limit = 1;
+    const idx = modalSelectedGeneralComplications.indexOf(id);
+    if(modalGeneralCompInput.checked && idx < 0){
+      if(modalSelectedGeneralComplications.length < limit){
+        modalSelectedGeneralComplications.push(id);
+      } else {
+        modalGeneralCompInput.checked = false;
+        toast('Você já selecionou 1 complicação geral.');
+      }
+    } else if(!modalGeneralCompInput.checked && idx >= 0){
+      modalSelectedGeneralComplications.splice(idx, 1);
+    }
+    syncGeneralComplicationsModalDom();
+    return;
   }
 });
 
 document.addEventListener('click',event=>{
-  if(event.target.closest?.('[data-action="open-age-complications-modal"]') || event.target.closest?.('[data-action="toggle-age-complications"]')){
+  if(event.target.closest?.('[data-action="open-age-complications-modal"]')){
     openAgeComplicationsModal();
     return;
   }
@@ -345,20 +461,43 @@ document.addEventListener('click',event=>{
     return;
   }
   if(event.target.closest?.('[data-action="confirm-age-complications-modal"]')){
-    state.age.complications = [...modalSelectedComplications];
+    state.age.complications = [...modalSelectedAgeComplications];
     state.age.editingComplications = false;
     persist();
     closeAgeComplicationsModal();
     renderStage();
-    toast('Complicações atualizadas!');
+    toast('Complicações de idade atualizadas!');
     return;
   }
+
+  if(event.target.closest?.('[data-action="open-general-complications-modal"]')){
+    openGeneralComplicationsModal();
+    return;
+  }
+  if(event.target.closest?.('[data-action="close-general-complications-modal"]')){
+    closeGeneralComplicationsModal();
+    return;
+  }
+  if(event.target.id === 'generalComplicationsModal'){
+    closeGeneralComplicationsModal();
+    return;
+  }
+  if(event.target.closest?.('[data-action="confirm-general-complications-modal"]')){
+    state.generalComplications = [...modalSelectedGeneralComplications];
+    persist();
+    closeGeneralComplicationsModal();
+    renderStage();
+    toast('Complicação geral atualizada!');
+    return;
+  }
+
   const button=event.target.closest?.('[data-action="class-power-attribute"]'),r=rule();
   if(!button||!state.age.enabled||!r?.blocked?.includes(button.dataset.attr))return;
   event.preventDefault();
   event.stopImmediatePropagation();
   toast('Esta faixa etária bloqueia Aumento de Atributo em atributos físicos.');
 },true);
+
 document.addEventListener('click',event=>{
   if(event.target.closest?.('[data-age-cancel]')){closeAgeConfirmation();return}
   if(event.target.closest?.('[data-age-confirm]')){state.age.noRulesConfirmed=true;persist();closeAgeConfirmation();document.getElementById('nextButton')?.click();return}
@@ -368,11 +507,18 @@ document.addEventListener('click',event=>{
   if(state.age.enabled&&!state.age.band){event.preventDefault();event.stopImmediatePropagation();toast('Escolha a faixa etária antes de continuar.');return}
   if(state.age.enabled&&state.age.years===''){state.age.years=String(rule().min);persist()}
   const required=Number(rule()?.count||0);
-  if(state.age.enabled&&!rule()?.optional&&state.age.complications.length<required){
+  if(state.age.enabled&&state.age.band!=='jovem'&&state.age.complications.length<required){
     event.preventDefault();
     event.stopImmediatePropagation();
-    toast('Escolha '+required+' complicações de idade antes de continuar.');
+    toast('Escolha '+required+' complicação'+(required>1?'ões':'')+' de idade antes de continuar.');
     openAgeComplicationsModal();
+    return;
+  }
+  if(isIndividualComplicationsActive()&&(!state.generalComplications||state.generalComplications.length<1)){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    toast('Escolha 1 complicação geral antes de continuar.');
+    openGeneralComplicationsModal();
     return;
   }
   if(!state.age.enabled&&!isIndividualComplicationsActive()&&!state.age.noRulesConfirmed){
@@ -459,7 +605,23 @@ if (typeof globalThis !== 'undefined') {
 
 const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterFeatures=function(){
   const features=baseSelectedCharacterFeatures();
-  if(state.age?.enabled)for(const power of AGE_POWERS.filter(power=>power.faixa===state.age.band))features.push({...power,source:'age'});
+  if(state.age?.enabled) for(const power of AGE_POWERS.filter(power=>power.faixa===state.age.band)){
+    if(['adulto','maduro','velho','anciao'].includes(power.faixa) && (!state.age.complications || state.age.complications.length === 0)) continue;
+    features.push({...power,source:'age'});
+  }
+  if(isIndividualComplicationsActive() && Array.isArray(state.generalComplications)){
+    for(const compId of state.generalComplications){
+      const c = GENERAL_COMPLICATIONS.find(item => item[0] === compId);
+      if(c && !features.some(f => f.id === c[0] || f.nome === c[1])){
+        features.push({
+          id: c[0],
+          nome: c[1],
+          descricao: c[2],
+          source: 'complication'
+        });
+      }
+    }
+  }
   const duplo=selectedDuploFeericoPower();
   if(hasDuploFeerico()&&duplo&&!features.some(f=>f.id==='duplo_feerico'||f.origemRegional==='Duplo Feérico'||(f.nome&&f.nome.startsWith('Duplo Feérico')))){
     const reg=typeof selectedRegionalOrigin==='function'?selectedRegionalOrigin():null;

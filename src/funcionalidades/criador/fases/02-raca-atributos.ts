@@ -1,39 +1,65 @@
 
 
 function renderOpenRacesCard(race){
-  const eligible=isRaceEligibleForOpenRaces(race);
-  const enabled=Boolean(state.identity.openRaceBonusEnabled&&eligible);
+  const enabled=Boolean(state.identity.openRaceBonusEnabled);
+  const isFlex=typeof raceHasFlexibleOpenRaceConversion==='function'?raceHasFlexibleOpenRaceConversion(race):Boolean(race?.atributos?.flexiveis);
   let bodyContent='';
-  if(!eligible){
-    bodyContent='<p class="open-races-help">Esta raça já possui atributos flexíveis por padrão (não utiliza esta variante de Heróis de Arton).</p>';
-  }else if(!enabled){
-    const mods=raceFixedModifiers(race).map(m=>(m>0?'+':'')+m).join(', ');
-    bodyContent='<p class="open-races-help">Permite redistribuir os modificadores raciais da raça ('+esc(mods)+') entre os atributos, sem repetir atributo.</p>';
-  }else{
-    const allMods=raceFixedModifiers(race);
-    const allocs=state.identity.openRaceAllocations||{};
-    const remaining=remainingOpenRaceModifiers(race,allocs);
-    const allocatedCount=allMods.length-remaining.length;
-    if(remaining.length>0){
-      const nextMod=remaining[0];
-      const signNext=nextMod>0?'+'+nextMod:String(nextMod);
-      bodyContent='<div class="open-races-status">'
-        +'<div class="open-races-info-row"><span>Modificadores: <strong>'+allocatedCount+'/'+allMods.length+'</strong></span>'
-        +(allocatedCount>0?'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>':'')
-        +'</div>'
-        +'<p class="open-races-instruction">Próximo modificador a atribuir: <strong>'+esc(signNext)+'</strong></p>'
-        +'</div>';
+  if(!enabled){
+    if(isFlex){
+      const fixedCount=(typeof raceFlexibleOpenRaceBonusCount==='function'?raceFlexibleOpenRaceBonusCount(race):0);
+      if(race?.id==='moreau'){
+        bodyContent='<p class="open-races-help">Permite converter o modificador fixo da Herança (+1) em escolha livre de atributo.</p>';
+      }else if(fixedCount>0){
+        bodyContent='<p class="open-races-help">Permite converter o modificador fixo da raça (+1) em escolha livre de atributo.</p>';
+      }else{
+        bodyContent='<p class="open-races-help">Esta raça já possui atributos flexíveis por padrão (+1 em três atributos diferentes à sua escolha).</p>';
+      }
+    }else if(race){
+      const mods=raceFixedModifiers(race).map(m=>(m>0?'+':'')+m).join(', ');
+      bodyContent='<p class="open-races-help">Permite redistribuir os modificadores raciais da raça ('+esc(mods)+') entre os atributos, sem repetir atributo.</p>';
     }else{
-      bodyContent='<div class="open-races-status">'
-        +'<div class="open-races-info-row"><span>Modificadores distribuídos: <strong>'+allMods.length+'/'+allMods.length+'</strong></span>'
-        +'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>'
-        +'</div>'
-        +'</div>';
+      bodyContent='<p class="open-races-help">Permite redistribuir os modificadores raciais fixos entre os atributos livremente.</p>';
+    }
+  }else{
+    if(isFlex){
+      if(race?.id==='moreau'&&!state.identity.raceChoices?.moreau_variacao){
+        bodyContent='<p class="open-races-help" style="color:var(--gold2)">Escolha uma <strong>Herança</strong> acima para liberar o ponto de atributo adicional.</p>';
+      }else{
+        const totalPoints=race?.atributos?.flexiveis?.quantidade ? (Number(race.atributos.flexiveis.quantidade) + (typeof raceFlexibleOpenRaceBonusCount==='function'?raceFlexibleOpenRaceBonusCount(race):0)) : 3;
+        const allocated=(state.identity.raceAttrs||[]).length;
+        bodyContent='<div class="open-races-status">'
+          +'<div class="open-races-info-row"><span>Modificador flexível: <strong>'+allocated+'/'+totalPoints+'</strong></span>'
+          +(allocated>0?'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>':'')
+          +'</div>'
+          +'<p class="open-races-instruction">Distribua os <strong>'+totalPoints+' pontos</strong> nos controles (−/+) da coluna Racial abaixo.</p>'
+          +'</div>';
+      }
+    }else if(race){
+      const allMods=raceFixedModifiers(race);
+      const allocs=state.identity.openRaceAllocations||{};
+      const remaining=remainingOpenRaceModifiers(race,allocs);
+      const allocatedCount=allMods.length-remaining.length;
+      if(remaining.length>0){
+        const nextMod=remaining[0];
+        const signNext=nextMod>0?'+'+nextMod:String(nextMod);
+        bodyContent='<div class="open-races-status">'
+          +'<div class="open-races-info-row"><span>Modificadores: <strong>'+allocatedCount+'/'+allMods.length+'</strong></span>'
+          +(allocatedCount>0?'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>':'')
+          +'</div>'
+          +'<p class="open-races-instruction">Próximo modificador a atribuir: <strong>'+esc(signNext)+'</strong></p>'
+          +'</div>';
+      }else{
+        bodyContent='<div class="open-races-status">'
+          +'<div class="open-races-info-row"><span>Modificadores distribuídos: <strong>'+allMods.length+'/'+allMods.length+'</strong></span>'
+          +'<button type="button" class="open-races-reset-btn" data-action="reset-open-races">Redefinir</button>'
+          +'</div>'
+          +'</div>';
+      }
     }
   }
   return '<div class="open-races-card '+(enabled?'is-active':'')+'">'
-    +'<label class="open-races-toggle '+(!eligible?'disabled':'')+'">'
-    +'<input type="checkbox" data-action="toggle-open-races" '+(enabled?'checked':'')+' '+(!eligible?'disabled':'')+'>'
+    +'<label class="open-races-toggle">'
+    +'<input type="checkbox" data-action="toggle-open-races" '+(enabled?'checked':'')+'>'
     +'<span class="open-races-toggle-label"><strong>Raças Abertas</strong></span>'
     +'</label>'
     +bodyContent
@@ -42,7 +68,8 @@ function renderOpenRacesCard(race){
 
 function renderRacialCell(attr,bonus,sources){
   const race=raceById(state.identity.raceId);
-  if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)){
+  const isFlexConversion=typeof raceHasFlexibleOpenRaceConversion==='function'?raceHasFlexibleOpenRaceConversion(race):Boolean(race?.atributos?.flexiveis);
+  if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)&&!isFlexConversion){
     const allocs=state.identity.openRaceAllocations||{};
     if(allocs[attr]!==undefined){
       const val=Number(allocs[attr]);
@@ -51,18 +78,19 @@ function renderRacialCell(attr,bonus,sources){
         +'<div class="matrix-value racial-static open-race-assigned-field">'+formatted+'</div>'
         +'<button type="button" class="open-race-remove-btn" data-action="open-race-remove" data-attr="'+attr+'" title="Desalocar modificador">×</button>'
         +'</div>';
+    }else{
+      const remaining=remainingOpenRaceModifiers(race,allocs);
+      if(remaining.length>0){
+        const next=remaining[0];
+        const signNext=next>0?'+'+next:String(next);
+        return '<div class="open-race-cell-container">'
+          +'<button type="button" class="matrix-value racial-static open-race-assign-box" data-action="open-race-assign" data-attr="'+attr+'" data-val="'+next+'">'
+          +'Atribuir '+signNext
+          +'</button>'
+          +'</div>';
+      }
+      return '<div class="matrix-value racial-static">0</div>';
     }
-    const remaining=remainingOpenRaceModifiers(race,allocs);
-    if(remaining.length>0){
-      const next=remaining[0];
-      const signNext=next>0?'+'+next:String(next);
-      return '<div class="open-race-cell-container">'
-        +'<button type="button" class="matrix-value racial-static open-race-assign-box" data-action="open-race-assign" data-attr="'+attr+'" data-val="'+next+'">'
-        +'Atribuir '+signNext
-        +'</button>'
-        +'</div>';
-    }
-    return '<div class="matrix-value racial-static">0</div>';
   }
   const available=sources.filter(source=>(source.config.atributosPermitidos||ATTRS.map(item=>item[0])).includes(attr));
   if(!available.length)return '<div class="matrix-value racial-static">'+(bonus>0?'+':'')+bonus+'</div>';
@@ -592,7 +620,7 @@ function classMissingChoices(){
 function raceMissingChoices(){
   const missing=[],race=raceById(state.identity.raceId);
   if(pointSpent()!==10)missing.push({title:'Compra de atributos',message:'Distribua exatamente os 10 pontos. Ainda restam '+(10-pointSpent())+' ponto(s).',selector:'.point-banner'});
-  if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)){
+  if(state.identity.openRaceBonusEnabled&&isRaceEligibleForOpenRaces(race)&&!raceHasFlexibleOpenRaceConversion(race)){
     const needed=raceFixedModifiers(race).length;
     const allocated=Object.keys(state.identity.openRaceAllocations||{}).length;
     if(allocated<needed)missing.push({title:'Raças Abertas',message:'Distribua todos os '+needed+' modificadores raciais nos atributos (faltam '+(needed-allocated)+').',selector:'.open-races-card'});
@@ -682,12 +710,15 @@ function powerMissingChoices(){
   racePowerGroups().forEach(group=>{const amount=(state.powers.raceGroups[group.id]||[]).length;if(amount!==Number(group.quantity||0))missing.push({title:group.name,message:'Escolha '+(Number(group.quantity||0)-amount)+' poder(es) que ainda faltam em '+group.name+'.',selector:'[data-action="race-power"][data-group="'+group.id+'"]',step:6})});
   const generalMissing=generalPowerSlots()-state.powers.general.filter(Boolean).length;
   if(generalMissing>0)missing.push({title:'Poder geral',message:'Escolha '+generalMissing+' poder(es) geral(is) que ainda faltam.',selector:'[data-action="power-preview"], .power-browser',step:6});
-  (typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[]).forEach(opt=>{
-    if(!state.powers?.originGeneral?.[opt.id]){
-      const label = opt.category === 'combate_ou_tormenta' ? 'Combate ou Tormenta' : (opt.category === 'combate' ? 'Combate' : 'Tormenta');
-      missing.push({title:'Poder da origem',message:'Escolha o poder de '+label+' concedido pela origem.',selector:'[data-action="origin-general-power"][data-benefit-id="'+opt.id+'"]',step:6});
-    }
-  });
+  const originInGeneralCount = typeof originChoiceSlotsCount === 'function' ? originChoiceSlotsCount() : 0;
+  if(originInGeneralCount === 0){
+    (typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[]).forEach(opt=>{
+      if(!state.powers?.originGeneral?.[opt.id]){
+        const label = opt.category === 'combate_ou_tormenta' ? 'Combate ou Tormenta' : (opt.category === 'combate' ? 'Combate' : 'Tormenta');
+        missing.push({title:'Poder da origem',message:'Escolha o poder de '+label+' concedido pela origem.',selector:'[data-action="origin-general-power"][data-benefit-id="'+opt.id+'"]',step:6});
+      }
+    });
+  }
   if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
     missing.push({title:'Duplo Feérico',message:'Escolha uma habilidade de classe de 1º nível para Duplo Feérico.',selector:'[data-action^="duplo-feerico"]',step:6});
   }
@@ -880,6 +911,7 @@ document.addEventListener('click',event=>{
   const resetBtn=event.target.closest?.('[data-action="reset-open-races"]');
   if(resetBtn){
     state.identity.openRaceAllocations={};
+    state.identity.raceAttrs=[];
     persist();
     renderStage();
     return;

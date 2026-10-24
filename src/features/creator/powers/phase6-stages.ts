@@ -12,6 +12,7 @@ export interface Phase6StageContext {
   racePowerGroups?: () => Array<{ id: string; quantity?: number }>;
   generalPowerSlots?: () => number;
   originGeneralPowerOptions?: () => Array<{ id: string; name?: string }>;
+  originChoiceSlotsCount?: () => number;
   hasDuploFeerico?: () => boolean;
   hasCosmopolita?: () => boolean;
   hasFuturaLenda?: () => boolean;
@@ -43,17 +44,23 @@ export function computePhase6SubStages(
     stages.push({ type: 'general', slot: i, label: `Poder Geral ${i + 1}` });
   }
 
-  const originChoices =
-    typeof ctx.originGeneralPowerOptions === 'function'
-      ? ctx.originGeneralPowerOptions()
-      : [];
-  originChoices.forEach((opt) => {
-    stages.push({
-      type: 'origin_general',
-      optionId: opt.id,
-      label: `Poder da Origem (${opt.name || 'Geral'})`,
+  const originInGeneralCount =
+    typeof ctx.originChoiceSlotsCount === 'function'
+      ? ctx.originChoiceSlotsCount()
+      : 0;
+  if (originInGeneralCount === 0) {
+    const originChoices =
+      typeof ctx.originGeneralPowerOptions === 'function'
+        ? ctx.originGeneralPowerOptions()
+        : [];
+    originChoices.forEach((opt) => {
+      stages.push({
+        type: 'origin_general',
+        optionId: opt.id,
+        label: `Poder da Origem (${opt.name || 'Geral'})`,
+      });
     });
-  });
+  }
 
   if (typeof ctx.hasDuploFeerico === 'function' && ctx.hasDuploFeerico()) {
     stages.push({ type: 'duplo_feerico', label: 'Duplo Feérico' });

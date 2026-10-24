@@ -19,10 +19,13 @@ function getPhase6SubStages(){
   for(let i=0;i<genSlots;i++){
     stages.push({type:'general',slot:i,label:'Poder Geral '+(i+1)});
   }
-  const originChoices=typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[];
-  originChoices.forEach(opt=>{
-    stages.push({type:'origin_general',optionId:opt.id,label:'Poder da Origem ('+(opt.name||'Geral')+')'});
-  });
+  const originInGeneralCount = typeof originChoiceSlotsCount === 'function' ? originChoiceSlotsCount() : 0;
+  if(originInGeneralCount === 0){
+    const originChoices=typeof originGeneralPowerOptions==='function'?originGeneralPowerOptions():[];
+    originChoices.forEach(opt=>{
+      stages.push({type:'origin_general',optionId:opt.id,label:'Poder da Origem ('+(opt.name||'Geral')+')'});
+    });
+  }
   if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()){
     stages.push({type:'duplo_feerico',label:'Duplo Feérico'});
   }
@@ -297,7 +300,33 @@ document.addEventListener('click',event=>{
   if(button){
     event.preventDefault();event.stopImmediatePropagation();
     state.powers.activeSlot=Number(state.powers.activeSlot??pendingGeneralPowerSlot()??0);
-    state.powers.previewId=button.dataset.powerId;
+    const powerId = button.dataset.powerId;
+    state.powers.previewId=powerId;
+
+    if(button.dataset.action==='power-select'){
+      const curSlot=Number(state.powers.activeSlot||0);
+      const power=typeof powerById==='function'?powerById(powerId):null;
+      const currentSlotPowerId=state.powers.general[curSlot]||'';
+      const otherChosenIds=(state.powers.general||[]).filter((id,i)=>i!==curSlot&&Boolean(id));
+      const owned=typeof ownedPowerNames==='function'?ownedPowerNames(currentSlotPowerId):new Set();
+      const isOtherChosen=otherChosenIds.includes(powerId);
+      const isGrantedElsewhere=power&&power.id!==currentSlotPowerId&&owned.has(typeof slug==='function'?slug(power.nome):'');
+
+      if(power&&!isOtherChosen&&!isGrantedElsewhere){
+        const verdict=typeof generalPowerEligibility==='function'?generalPowerEligibility(power, currentSlotPowerId):{ok:true};
+        const req=typeof originPowerSlotRequirement==='function'?originPowerSlotRequirement(curSlot):null;
+        const categoryOk=!req||power.categoria===req.category||(req.category==='combate_ou_tormenta'&&['combate','tormenta'].includes(power.categoria));
+
+        if(verdict.ok&&categoryOk){
+          state.powers.general[curSlot]=powerId;
+          if(req){
+            state.powers.originGeneral=state.powers.originGeneral||{};
+            state.powers.originGeneral[req.id]=powerId;
+          }
+          if(typeof persist==='function')persist();
+        }
+      }
+    }
 
     const listContainer = button.closest('.power-list');
     const savedListScroll = listContainer ? listContainer.scrollTop : 0;
