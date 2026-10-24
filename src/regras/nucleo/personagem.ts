@@ -5,7 +5,7 @@ const RegrasPersonagem = (() => {
       ...base,
       pv: base.pv + efeitos.pvPerLevel * nivel + efeitos.pvFlat,
       pm: base.pm + efeitos.pmPerLevel * nivel + efeitos.pmFlat,
-      defense: 10 + Number(atributos[efeitos.defenseAttribute] || 0) + efeitos.defenseBonus
+      defense: 10 + ((efeitos.defenseAttribute && efeitos.defenseAttribute !== 'nenhum' && efeitos.defenseAttribute !== 'none') ? Number(atributos[efeitos.defenseAttribute] || 0) : 0) + efeitos.defenseBonus
     };
   }
 

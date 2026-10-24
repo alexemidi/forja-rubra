@@ -100,7 +100,7 @@ export interface PassiveEffectsSummary {
   pvFlat: number;
   pmPerLevel: number;
   pmFlat: number;
-  defenseAttribute: AtributoChave;
+  defenseAttribute: AtributoChave | 'nenhum' | 'none';
   defenseBonus: number;
 }
 

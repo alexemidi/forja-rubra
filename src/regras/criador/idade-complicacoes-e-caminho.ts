@@ -614,23 +614,73 @@ if (typeof globalThis !== 'undefined') {
 }
 
 const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterFeatures=function(){
-  const features=baseSelectedCharacterFeatures();
-  if(state.age?.enabled) for(const power of AGE_POWERS.filter(power=>power.faixa===state.age.band)){
-    if(['adulto','maduro','velho','anciao'].includes(power.faixa) && (!state.age.complications || state.age.complications.length === 0)) continue;
-    features.push({...power,source:'age'});
-  }
-  if(isIndividualComplicationsActive() && Array.isArray(state.generalComplications)){
-    for(const compId of state.generalComplications){
-      const c = GENERAL_COMPLICATIONS.find(item => item[0] === compId);
-      if(c && !features.some(f => f.id === c[0] || f.nome === c[1])){
+  const rawFeatures=baseSelectedCharacterFeatures();
+  const baseCount = typeof baseGeneralPowerSlots === 'function' ? baseGeneralPowerSlots() : 0;
+  const r = typeof rule === 'function' ? rule() : null;
+  const agePowers = Number(state.age?.enabled ? (r?.generalPowers || 0) : 0);
+  const indPowers = (typeof isIndividualComplicationsActive === 'function' && isIndividualComplicationsActive() && (state.generalComplications || []).length > 0) ? 1 : 0;
+
+  const agePwrId = state.powers?.general?.[baseCount];
+  const compPwrId = state.powers?.general?.[baseCount + agePowers];
+
+  // Filtra os poderes gerais que agora serão embutidos nos cartões de Idade e Complicações
+  const features = rawFeatures.filter(f => {
+    if (f.source === 'general-power') {
+      const fSlug = typeof slug === 'function' ? slug(f.id || f.nome || '') : String(f.id || f.nome || '').toLowerCase();
+      if (agePwrId && (f.id === agePwrId || fSlug === (typeof slug === 'function' ? slug(powerById(agePwrId)?.nome || agePwrId) : agePwrId))) return false;
+      if (compPwrId && (f.id === compPwrId || fSlug === (typeof slug === 'function' ? slug(powerById(compPwrId)?.nome || compPwrId) : compPwrId))) return false;
+    }
+    return true;
+  });
+
+  if(state.age?.enabled){
+    for(const power of AGE_POWERS.filter(power=>power.faixa===state.age.band)){
+      if(['adulto','maduro','velho','anciao'].includes(power.faixa) && (!state.age.complications || state.age.complications.length === 0)) continue;
+      if(power.id === 'idade_ja_vi_coisas'){
+        const chosenPwr = agePwrId ? powerById(agePwrId) : null;
+        const chosenName = chosenPwr ? chosenPwr.nome : '';
+        const title = chosenName ? ('Idade/' + power.nome + '(' + chosenName + ')') : ('Idade/' + power.nome);
+        const desc = chosenPwr ? (power.descricao + '\n\n• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : power.descricao;
+        const effects = [...(power.efeitos || []), ...(chosenPwr?.efeitos || [])];
         features.push({
-          id: c[0],
-          nome: c[1],
-          descricao: c[2],
-          source: 'complication'
+          ...power,
+          id: 'idade_ja_vi_coisas',
+          nome: title,
+          descricao: desc,
+          efeitos: effects,
+          chosenPower: chosenPwr,
+          source: 'age'
+        });
+      } else {
+        features.push({
+          ...power,
+          nome: 'Idade/' + power.nome,
+          source: 'age'
         });
       }
     }
+  }
+
+  if(isIndividualComplicationsActive() && Array.isArray(state.generalComplications)){
+    state.generalComplications.forEach((compId, cIdx) => {
+      const c = GENERAL_COMPLICATIONS.find(item => item[0] === compId);
+      if(!c) return;
+      const compSlot = baseCount + agePowers + cIdx;
+      const chosenId = state.powers?.general?.[compSlot];
+      const chosenPwr = chosenId ? powerById(chosenId) : null;
+      const chosenName = chosenPwr ? chosenPwr.nome : '';
+      const title = chosenName ? ('Complicações/' + c[1] + '(' + chosenName + ')') : ('Complicações/' + c[1]);
+      const desc = chosenPwr ? (c[2] + '\n\n• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : c[2];
+      const effects = chosenPwr?.efeitos || [];
+      features.push({
+        id: c[0],
+        nome: title,
+        descricao: desc,
+        efeitos: effects,
+        chosenPower: chosenPwr,
+        source: 'complication'
+      });
+    });
   }
   const duplo=selectedDuploFeericoPower();
   if(hasDuploFeerico()&&duplo&&!features.some(f=>f.id==='duplo_feerico'||f.origemRegional==='Duplo Feérico'||(f.nome&&f.nome.startsWith('Duplo Feérico')))){

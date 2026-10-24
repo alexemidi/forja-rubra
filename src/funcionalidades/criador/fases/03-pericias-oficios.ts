@@ -236,6 +236,22 @@ function generalPowerSlotSourceText(index){
     const catLabel=req?.category?(POWER_CATEGORY_LABEL[req.category]||req.category):'Poder Geral';
     return 'Poder de '+(catLabel.replace('Poderes de ','').replace('Poderes da ',''))+' da origem ('+(stdOrigin?.nome||'Origem')+')';
   }
+  const baseCount = raceSlots + originChoices.length;
+  const agePowers = Number(state.age?.enabled && ['adulto','maduro','velho','anciao'].includes(state.age?.band) && (state.age?.complications||[]).length > 0 ? 1 : 0);
+  if(index >= baseCount && index < baseCount + agePowers){
+    return 'Idade (Já Vi Coisas)';
+  }
+  const indActive = Boolean(state.complicacoesIndividual || state.regrasCampanha?.complicacoes || state.regrasCampanha?.complicacaoIndividual);
+  if(indActive && Array.isArray(state.generalComplications)){
+    const compIdx = index - (baseCount + agePowers);
+    if(compIdx >= 0 && compIdx < state.generalComplications.length){
+      const compId = state.generalComplications[compIdx];
+      const compList = typeof GENERAL_COMPLICATIONS !== 'undefined' ? GENERAL_COMPLICATIONS : (typeof window !== 'undefined' ? (window as any).GENERAL_COMPLICATIONS : []);
+      const compItem = Array.isArray(compList) ? compList.find((c: any) => c[0] === compId) : null;
+      const compName = compItem ? compItem[1] : (compId || 'Complicação');
+      return 'Complicação (' + compName + ')';
+    }
+  }
   if(state.age?.enabled&&state.age?.band){
     return 'Poder geral da idade ('+state.age.band+')';
   }
@@ -292,8 +308,22 @@ function renderGeneralPowerBrowser(slots){
         :'<p><strong>Clique em Próxima ou Avançar para confirmar este poder.</strong></p>';
     }
   }
+  let proficiencyChoiceHtml='';
+  if(preview?.id==='proficiencia'||state.powers.general[currentSlot]==='proficiencia'){
+    const curChoice=state.powers.generalChoices?.[currentSlot]||'';
+    const profOptions=typeof getAvailableProficiencyOptions==='function'
+      ? getAvailableProficiencyOptions(state.identity?.classId, curChoice)
+      : [];
+    proficiencyChoiceHtml='<div class="field" style="margin-top:12px;background:rgba(24,17,20,0.6);border:1px solid #4a252a;border-radius:6px;padding:10px;">'
+      + '<label style="display:block;font-size:0.78rem;font-weight:700;color:var(--gold2);margin-bottom:6px;text-transform:uppercase;">Escolha a Proficiência</label>'
+      + '<select class="select" data-action="general-proficiency-choice" data-slot="'+currentSlot+'" style="width:100%;min-height:36px;background:#090708;border:1px solid #4a252a;color:var(--cream);">'
+      + '<option value="">Selecione uma proficiência...</option>'
+      + profOptions.map(opt=>'<option value="'+opt.id+'" '+(opt.id===curChoice?'selected':'')+'>'+esc(opt.name)+'</option>').join('')
+      + '</select>'
+      + '</div>';
+  }
   const masterNotice=previewEntry?.verdict?.masterPermissionNotice?'<div class="warning-box gold" style="margin-top:8px;font-size:0.75rem;"><strong>Aviso de Requisito:</strong> '+esc(previewEntry.verdict.masterPermissionNotice)+'</div>':'';
-  const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+(!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
+  const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+proficiencyChoiceHtml+(!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
   return navBar+filters+'<div class="power-browser">'+list+detail+'</div>';
 }
 renderPowers=function(){

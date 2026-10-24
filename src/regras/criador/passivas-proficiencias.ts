@@ -274,11 +274,22 @@ function weaponPassiveStats(item,entry){
       baseDmg = ladder[baseDmg] || baseDmg;
     }
   }
+  // Escalonamento de dano por tamanho da criatura (Passos de Dano T20)
+  const charSize = typeof characterSizeId === 'function' ? characterSizeId() : 'Médio';
+  const sizeShiftMap = { 'minusculo': -2, 'pequeno': -1, 'medio': 0, 'grande': 1, 'enorme': 2, 'colossal': 3 };
+  const sizeSteps = sizeShiftMap[slug(String(charSize || 'medio'))] || 0;
+  if (sizeSteps !== 0 && typeof stepUpDamage === 'function' && baseDmg) {
+    baseDmg = stepUpDamage(baseDmg, sizeSteps, { allowAltLadder: true });
+  }
+
   if(!baseDmg)return{skill,attack,damage:'—'};
 
   let damage='';
   if(isAdaptable&&arma.dano?.alternativas?.length){
-    const altDmg=arma.dano.alternativas[0];
+    let altDmg=arma.dano.alternativas[0];
+    if (sizeSteps !== 0 && typeof stepUpDamage === 'function' && altDmg) {
+      altDmg = stepUpDamage(altDmg, sizeSteps, { allowAltLadder: true });
+    }
     const bonus1m=attrDamage+extraDamage;
     const bonus2m=attrDamage+extraDamage;
     if(bonus1m===bonus2m){
@@ -543,8 +554,11 @@ function initialItemPlan(){
   // 1. Arma simples
   choices.push({id:'simple',title:'Escolha uma arma simples (Opcional)',type:'arma',category:'simples'});
   // 2. Arma marcial e exótica (se proficiente)
-  if(proficiencies.has('armas_marciais'))choices.push({id:'martial',title:'Escolha uma arma marcial',type:'arma',category:'marcial'});
-  if(proficiencies.has('armas_exoticas'))choices.push({id:'exotic',title:'Escolha uma arma exótica',type:'arma',category:'exotica'});
+  if(proficiencies.has('armas_exoticas')){
+    choices.push({id:'martial',title:'Escolha uma arma exótica, marcial ou simples',type:'arma',categories:['exotica','marcial','simples']});
+  }else if(proficiencies.has('armas_marciais')){
+    choices.push({id:'martial',title:'Escolha uma arma marcial ou simples',type:'arma',categories:['marcial','simples']});
+  }
   // 3. Armadura (se aplicável)
   if(!arcanist)choices.push({id:'armor',title:'Escolha uma armadura',type:'armadura',names:['Armadura de Couro','Couro Batido','Gibão de Peles',...(proficiencies.has('armaduras_pesadas')?['Brunea']:[])]});
   // 4. Origem

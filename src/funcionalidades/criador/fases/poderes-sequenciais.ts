@@ -17,7 +17,8 @@ function getPhase6SubStages(){
   }
   const genSlots=typeof generalPowerSlots==='function'?generalPowerSlots():0;
   for(let i=0;i<genSlots;i++){
-    stages.push({type:'general',slot:i,label:'Poder Geral '+(i+1)});
+    const source=typeof generalPowerSlotSourceText==='function'?generalPowerSlotSourceText(i):('Poder Geral '+(i+1));
+    stages.push({type:'general',slot:i,label:'Poder Geral '+(i+1),source:source});
   }
   const originInGeneralCount = typeof originChoiceSlotsCount === 'function' ? originChoiceSlotsCount() : 0;
   if(originInGeneralCount === 0){
@@ -52,6 +53,10 @@ function isPhase6StageComplete(currentStage, curIdx){
   }
   if(currentStage.type==='general'){
     const curSlot=currentStage.slot??curIdx;
+    const curPower=state.powers?.previewId||state.powers?.general?.[curSlot];
+    if(curPower==='proficiencia'&&!state.powers?.generalChoices?.[curSlot]){
+      return false;
+    }
     const hasCurrent=Boolean(state.powers?.general?.[curSlot]);
     const isDraft=Boolean(state.powers?.previewId);
     return (isDraft&&typeof generalPowerDraftAllowed==='function'&&generalPowerDraftAllowed())||hasCurrent;
@@ -229,6 +234,11 @@ document.addEventListener('click',event=>{
     if(!currentStage||currentStage.type==='general'){
       const curSlot=currentStage?currentStage.slot:curIdx;
       if(currentStage?.type==='general'||(typeof generalPowerSlots==='function'&&generalPowerSlots()>0)){
+        const curPower=state.powers.previewId||state.powers.general?.[curSlot];
+        if(curPower==='proficiencia'&&!state.powers.generalChoices?.[curSlot]){
+          toast('Escolha uma proficiência para continuar.', 'warning');
+          return;
+        }
         if(state.powers.previewId){
           if(typeof generalPowerDraftAllowed==='function'&&!generalPowerDraftAllowed()){
             toast('Este poder não atende aos pré-requisitos.', 'warning');
@@ -358,6 +368,11 @@ document.addEventListener('click',event=>{
     if(!currentStage||currentStage.type==='general'){
       const curSlot=currentStage?currentStage.slot:curIdx;
       if(currentStage?.type==='general'||(typeof generalPowerSlots==='function'&&generalPowerSlots()>0)){
+        const curPower=state.powers.previewId||state.powers.general?.[curSlot];
+        if(curPower==='proficiencia'&&!state.powers.generalChoices?.[curSlot]){
+          toast('Escolha uma proficiência para continuar.', 'warning');
+          return;
+        }
         if(state.powers.previewId){
           if(typeof generalPowerDraftAllowed==='function'&&!generalPowerDraftAllowed()){
             toast('Este poder não atende aos pré-requisitos.', 'warning');

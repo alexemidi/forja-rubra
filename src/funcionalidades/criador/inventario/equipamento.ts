@@ -78,6 +78,31 @@ function initEquipmentState(){
       }
     }
 
+    const hasDualWieldStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_duas_armas');
+    const hasTwoHandStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_duas_maos');
+
+    if (hasTwoHandStyle && eq.weaponId && eq.weaponId !== 'none') {
+      const wepEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
+      const wepItem = wepEntry ? catalog.get(wepEntry.itemId) : null;
+      if ((wepItem?.arma?.propriedadesIds || []).includes('adaptavel')) {
+        eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
+        isTwoHanded = true;
+      }
+    }
+
+    if ((hasDualWieldStyle || hasTwoHandStyle) && eq.weaponId && eq.weaponId !== 'none') {
+      const secondWeapon = inventory.find((e, i) => {
+        const id = equipEntryId(e, i);
+        if (id === eq.weaponId) return false;
+        const item = catalog.get(e.itemId);
+        return item?.tipo === 'arma' || e.tipo === 'arma';
+      });
+      if (secondWeapon) {
+        eq.offhandId = equipEntryId(secondWeapon, inventory.indexOf(secondWeapon));
+        eq.shieldId = 'none';
+      }
+    }
+
     if(eq.offhandId&&eq.offhandId!=='none'){
       const offEntry=inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.offhandId));
       if(offEntry) eq.offhandId=equipEntryId(offEntry,inventory.indexOf(offEntry));
@@ -86,7 +111,7 @@ function initEquipmentState(){
     if(eq.offhandId&&eq.offhandId!=='none')eq.shieldId='none';
 
     // Auto-equipa escudo se permitido
-    if(isTwoHanded){
+    if(isTwoHanded || (eq.offhandId && eq.offhandId !== 'none')){
       if(eq.shieldId&&eq.shieldId!=='none')eq.shieldId='none';
     }else if(eq.shieldId===null||eq.shieldId===undefined){
       const shieldEntry=inventory.find((e,i)=>catalog.get(e.itemId)?.tipo==='escudo'||e.tipo==='escudo'||e.escudo||e.attachedItem?.tipo==='escudo');

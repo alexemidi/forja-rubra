@@ -22,7 +22,9 @@ export function estatisticas(
     pm: base.pm + efeitos.pmPerLevel * nivel + efeitos.pmFlat,
     defense:
       10 +
-      Number(atributos[efeitos.defenseAttribute] || 0) +
+      ((efeitos.defenseAttribute && efeitos.defenseAttribute !== 'nenhum' && efeitos.defenseAttribute !== 'none')
+        ? Number(atributos[efeitos.defenseAttribute] || 0)
+        : 0) +
       efeitos.defenseBonus,
   };
 }

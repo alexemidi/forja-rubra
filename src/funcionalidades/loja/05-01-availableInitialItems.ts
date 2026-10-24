@@ -345,8 +345,11 @@ function getChoiceNoticeInfo(choice){
   if(choice.id === 'simple' || (choice.category === 'simples' && choice.type === 'arma')){
     return { title: 'Escolha uma Arma Simples' };
   }
-  if(choice.id === 'martial' || (choice.category === 'marcial' && choice.type === 'arma')){
-    return { title: 'Escolha uma Arma Marcial' };
+  if(choice.id === 'martial' || (choice.category === 'marcial' && choice.type === 'arma') || (choice.categories && choice.categories.includes('marcial'))){
+    if(choice.categories && choice.categories.includes('exotica')){
+      return { title: 'Escolha uma Arma Exótica, Marcial ou Simples' };
+    }
+    return { title: 'Escolha uma Arma Marcial ou Simples' };
   }
   if(choice.id === 'exotic' || (choice.category === 'exotica' && choice.type === 'arma')){
     return { title: 'Escolha uma Arma Exótica' };

@@ -1,3 +1,39 @@
+function getAvailableProficiencyOptions(classId = state.identity?.classId, currentChoice = '') {
+  let currentValues = new Set([...(classById(classId)?.caracteristicas?.proficiencias || [])]);
+  if (typeof characterProficiencies === 'function') {
+    const all = characterProficiencies(classId);
+    currentValues = new Set(all.filter(id => id !== currentChoice));
+  }
+  if (classId === state.identity?.classId && typeof suraggelHeritage === 'function' && suraggelHeritage() === 'heranca_de_werra' && state.identity?.raceChoices?.suraggel_werra_proficiencia === 'armas_marciais') {
+    currentValues.add('armas_marciais');
+  }
+  const std = typeof selectedStandardOrigin === 'function' ? selectedStandardOrigin() : null;
+  const reg = typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin() : null;
+  const isUbaneri = std?.nome === 'Andarilho Ubaneri' || reg?.nome === 'Andarilho Ubaneri' || state.origin?.regional === 'Andarilho Ubaneri' || state.origin?.standard === 'Andarilho Ubaneri' || state.origin?.regional === 'andarilho_ubaneri';
+  if (isUbaneri) currentValues.add('escudos');
+  const isDesertor = std?.nome === 'Desertor da Supremacia' || reg?.nome === 'Desertor da Supremacia' || state.origin?.standard === 'desertor_da_supremacia' || state.origin?.regional === 'desertor_da_supremacia';
+  if (isDesertor) currentValues.add('escudos');
+  const isLegionario = std?.nome === 'Legionário' || reg?.nome === 'Legionário' || state.origin?.standard === 'legionario' || state.origin?.regional === 'legionario';
+  if (isLegionario) currentValues.add('escudos');
+  const isProcurado = std?.nome === 'Procurado: Vivo ou Morto' || reg?.nome === 'Procurado: Vivo ou Morto' || state.origin?.standard === 'procurado_vivo_ou_morto' || state.origin?.regional === 'procurado_vivo_ou_morto';
+  if (isProcurado) currentValues.add('armas_de_fogo');
+
+  const allProfOptions = [
+    { id: 'armas_marciais', name: 'Armas marciais' },
+    { id: 'armas_de_fogo', name: 'Armas de fogo' },
+    { id: 'armaduras_pesadas', name: 'Armaduras pesadas' },
+    { id: 'escudos', name: 'Escudos' }
+  ];
+
+  if (currentValues.has('armas_marciais') || currentChoice === 'armas_exoticas') {
+    allProfOptions.push({ id: 'armas_exoticas', name: 'Armas exóticas' });
+  }
+
+  return allProfOptions.filter(opt => opt.id === currentChoice || !currentValues.has(opt.id));
+}
+if(typeof window !== 'undefined'){ window.getAvailableProficiencyOptions = getAvailableProficiencyOptions; }
+if(typeof globalThis !== 'undefined'){ globalThis.getAvailableProficiencyOptions = getAvailableProficiencyOptions; }
+
 
 document.addEventListener('click',event=>{
   const next=event.target.closest?.('#nextButton');
@@ -267,6 +303,30 @@ function characterProficiencies(classId=state.identity.classId){
   const isProcurado = std?.nome === 'Procurado: Vivo ou Morto' || reg?.nome === 'Procurado: Vivo ou Morto' || state.origin?.standard === 'procurado_vivo_ou_morto' || state.origin?.regional === 'procurado_vivo_ou_morto';
   if(isProcurado){
     if(!values.includes('armas_de_fogo')) values.push('armas_de_fogo');
+  }
+  // Proficiências do poder geral "Proficiência"
+  if (state?.powers?.general) {
+    state.powers.general.forEach((pId, idx) => {
+      if (pId === 'proficiencia') {
+        const c = state.powers.generalChoices?.[idx];
+        if (c && !values.includes(c)) values.push(c);
+      }
+    });
+  }
+  if (state?.powers?.originGeneral) {
+    Object.entries(state.powers.originGeneral).forEach(([bId, pId]) => {
+      if (pId === 'proficiencia') {
+        const c = state.powers.originGeneralChoices?.[bId];
+        if (c && !values.includes(c)) values.push(c);
+      }
+    });
+  }
+  if (Array.isArray(state?.progression)) {
+    state.progression.forEach(row => {
+      if (row?.powerId === 'proficiencia' && row.powerChoice) {
+        if (!values.includes(row.powerChoice)) values.push(row.powerChoice);
+      }
+    });
   }
   return [...new Set(values)];
 }

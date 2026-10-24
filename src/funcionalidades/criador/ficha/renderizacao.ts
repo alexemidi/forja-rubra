@@ -217,6 +217,144 @@ function updateSheetSkillsOnly(){
   return true;
 }
 
+function characterNaturalWeaponRecords() {
+  const list = [];
+  if (typeof state === 'undefined' || !state.identity) return list;
+  const raceId = state.identity.raceId;
+  const subChoices = state.identity.raceChoices || {};
+  const features = typeof selectedCharacterFeatures === 'function' ? selectedCharacterFeatures() : [];
+  const featureIds = new Set(features.map(f => (typeof slug === 'function' ? slug(f.id || f.nome || '') : String(f.id || f.nome || '').toLowerCase())));
+
+  // Minotauro: Chifres (1d6 perfuração)
+  if (raceId === 'minotauro' || featureIds.has('chifres') || featureIds.has('minotauro_chifres')) {
+    list.push({
+      entry: { itemId: 'chifres', displayName: 'Chifres' },
+      item: { id: 'chifres', nome: 'Chifres', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+
+  // Trog / Trog Anão: Mordida (1d6 perfuração)
+  if (raceId === 'trog' || raceId === 'trog_anao' || featureIds.has('mau_cheiro_mordida') || featureIds.has('trog_mordida')) {
+    list.push({
+      entry: { itemId: 'mordida', displayName: 'Mordida' },
+      item: { id: 'mordida', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+
+  // Sátiro: Chifres (1d6 impacto)
+  if (raceId === 'satiro' || featureIds.has('chifres_satiro') || featureIds.has('satiro_chifres')) {
+    list.push({
+      entry: { itemId: 'chifres_satiro', displayName: 'Chifres' },
+      item: { id: 'chifres_satiro', nome: 'Chifres', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['impacto'] } }
+    });
+  }
+
+  // Ceratops: Chifres (1d8 perfuração)
+  if (raceId === 'ceratops' || featureIds.has('ceratops_chifres')) {
+    list.push({
+      entry: { itemId: 'chifres_ceratops', displayName: 'Chifres' },
+      item: { id: 'chifres_ceratops', nome: 'Chifres', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d8' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+
+  // Centauro: Cascos (1d8 impacto)
+  if (raceId === 'centauro' || featureIds.has('centauro_cascos') || featureIds.has('cascos')) {
+    list.push({
+      entry: { itemId: 'cascos', displayName: 'Cascos' },
+      item: { id: 'cascos', nome: 'Cascos', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d8' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['impacto'] } }
+    });
+  }
+
+  // Gnoll: Mordida (1d6 perfuração)
+  if (raceId === 'gnoll' || featureIds.has('gnoll_mordida') || featureIds.has('mordida_gnoll')) {
+    list.push({
+      entry: { itemId: 'mordida_gnoll', displayName: 'Mordida' },
+      item: { id: 'mordida_gnoll', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+
+  // Nezumi: Mordida (1d6 corte)
+  if (raceId === 'nezumi' || featureIds.has('nezumi_mordida')) {
+    list.push({
+      entry: { itemId: 'mordida_nezumi', displayName: 'Mordida' },
+      item: { id: 'mordida_nezumi', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['corte'] } }
+    });
+  }
+
+  // Nagah: Cauda (1d6 impacto)
+  if (raceId === 'nagah' || raceId === 'nagah_femea' || raceId === 'nagah_macho' || featureIds.has('nagah_cauda') || featureIds.has('cauda')) {
+    list.push({
+      entry: { itemId: 'cauda_nagah', displayName: 'Cauda' },
+      item: { id: 'cauda_nagah', nome: 'Cauda', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['impacto'] } }
+    });
+  }
+
+  // Tabrachi: Mordida (1d6 perfuração) e Língua (1d4 impacto, alcance 3m)
+  if (raceId === 'tabrachi' || featureIds.has('tabrachi_mordida') || featureIds.has('lingua_prossil')) {
+    list.push({
+      entry: { itemId: 'mordida_tabrachi', displayName: 'Mordida' },
+      item: { id: 'mordida_tabrachi', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+    list.push({
+      entry: { itemId: 'lingua_tabrachi', displayName: 'Língua' },
+      item: { id: 'lingua_tabrachi', nome: 'Língua', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: '3m', dano: { principal: '1d4' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['impacto'] } }
+    });
+  }
+
+  // Moreau heritages
+  const moreauH = subChoices['moreau_variacao'] || subChoices['moreau_heranca'] || subChoices['heranca_moreau'] || (raceId?.startsWith('moreau_') ? raceId : '');
+  if (moreauH === 'moreau_bufalo' || featureIds.has('moreau_bufalo_chifres')) {
+    list.push({
+      entry: { itemId: 'chifres_bufalo', displayName: 'Chifres' },
+      item: { id: 'chifres_bufalo', nome: 'Chifres', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+  if (moreauH === 'moreau_coruja' || moreauH === 'moreau_gato' || featureIds.has('moreau_garras')) {
+    list.push({
+      entry: { itemId: 'garras_moreau', displayName: 'Garras' },
+      item: { id: 'garras_moreau', nome: 'Garras', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['corte'] } }
+    });
+  }
+  if (moreauH === 'moreau_crocodilo' || featureIds.has('moreau_crocodilo_mordida')) {
+    list.push({
+      entry: { itemId: 'mordida_crocodilo', displayName: 'Mordida Poderosa' },
+      item: { id: 'mordida_crocodilo', nome: 'Mordida Poderosa', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+  if (moreauH === 'moreau_leao' || moreauH === 'moreau_urso' || featureIds.has('moreau_leao_mordida') || featureIds.has('moreau_urso_mordida')) {
+    list.push({
+      entry: { itemId: 'mordida_moreau', displayName: 'Mordida' },
+      item: { id: 'mordida_moreau', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d8' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+  if (moreauH === 'moreau_lobo' || featureIds.has('moreau_lobo_mordida')) {
+    list.push({
+      entry: { itemId: 'mordida_lobo', displayName: 'Mordida' },
+      item: { id: 'mordida_lobo', nome: 'Mordida', tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: ['perfuracao'] } }
+    });
+  }
+
+  // Kallyanach: Armamento Kallyanach (cauda, chifres ou mordida)
+  const hasKallyanachArmamento = raceId === 'kallyanach' && (
+    subChoices['kallyanach_bencao_de_kallyadranoch'] === 'armamento_kallyanach' ||
+    featureIds.has('armamento_kallyanach')
+  );
+  if (hasKallyanachArmamento) {
+    const kType = subChoices['kallyanach_armamento_tipo'] || 'mordida';
+    const kConfig = {
+      cauda: { name: 'Cauda (Kallyanach)', dType: 'impacto' },
+      chifres: { name: 'Chifres (Kallyanach)', dType: 'perfuracao' },
+      mordida: { name: 'Mordida (Kallyanach)', dType: 'perfuracao' }
+    }[kType] || { name: 'Mordida (Kallyanach)', dType: 'perfuracao' };
+    list.push({
+      entry: { itemId: 'armamento_kallyanach_' + kType, displayName: kConfig.name },
+      item: { id: 'armamento_kallyanach_' + kType, nome: kConfig.name, tipo: 'arma', arma: { combateId: 'corpo_a_corpo', empunhaduraId: 'leve', alcanceId: null, dano: { principal: '1d6' }, critico: { margem: 20, multiplicador: 2 }, tipoDanoIds: [kConfig.dType] } }
+    });
+  }
+
+  return list;
+}
+
 function updateSheetEquipmentAndDefenseOnly(){
   return ForjaCalculo.executar(updateSheetEquipmentAndDefenseContent);
 }
@@ -242,8 +380,11 @@ function updateSheetEquipmentAndDefenseContent(){
   const previewDefense = stats.defense + equipmentDefense + manualDef;
   const defVal = preview.querySelector('.sheet-defense-value strong');
   const defSpan = preview.querySelector('.sheet-defense-value span');
+  const defAttrKey = typeof characterDefenseAttribute === 'function' ? characterDefenseAttribute() : 'des';
+  const hasDefAttr = defAttrKey && defAttrKey !== 'nenhum' && defAttrKey !== 'none';
+  const defAttrLabel = hasDefAttr ? defAttrKey.toUpperCase() : '0';
   if(defVal) defVal.textContent = previewDefense;
-  if(defSpan) defSpan.textContent = 'Base 10 + ' + (typeof characterDefenseAttribute === 'function' ? characterDefenseAttribute().toUpperCase() : 'DES') + ' + ' + armorStats.defense + ' de armadura + ' + shieldStats.defense + ' de escudo + ' + Number(passives.defenseBonus || 0) + ' bônus' + (manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '');
+  if(defSpan) defSpan.textContent = 'Base 10 + ' + defAttrLabel + ' + ' + armorStats.defense + ' de armadura + ' + shieldStats.defense + ' de escudo + ' + Number(passives.defenseBonus || 0) + ' bônus' + (manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '');
   
   const defTbody = preview.querySelector('.sheet-preview-table.defense-equipment tbody');
   const defenseSection=defTbody?.closest('section');
@@ -268,6 +409,10 @@ function updateSheetEquipmentAndDefenseContent(){
   if(eqWeapon?.item?.tipo==='arma') sortedWeapons.push({entry: eqWeapon.entry, item: eqWeapon.item});
   const equippedWeaponId = eqWeapon && typeof equipmentState === 'function' ? equipmentState().weaponId : '';
   rawWeapons.filter(w=>!eqWeapon || (typeof equipEntryId==='function'?equipEntryId(w.entry,inventory.indexOf(w.entry))!==equippedWeaponId:w.entry!==eqWeapon.entry)).sort((a,b)=>{const rA=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(a.item):0,rB=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(b.item):0;return rB-rA}).forEach(w=>{if(sortedWeapons.length<5)sortedWeapons.push(w)});
+  const naturalWeapons1 = characterNaturalWeaponRecords();
+  naturalWeapons1.forEach(nw => {
+    if(!sortedWeapons.some(w => w.entry.itemId === nw.entry.itemId || w.item.id === nw.item.id)) sortedWeapons.push(nw);
+  });
   const attacksTbody = preview.querySelector('.sheet-preview-table.attacks tbody');
   if(attacksTbody){
     const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
@@ -2309,6 +2454,10 @@ function renderCharacterDetails(){
   if(eqWeapon?.item?.tipo==='arma')sortedWeapons.push({entry:eqWeapon.entry,item:eqWeapon.item});
   const equippedWeaponId=eqWeapon&&typeof equipmentState==='function'?equipmentState().weaponId:'';
   rawWeapons.filter(w=>!eqWeapon||(typeof equipEntryId==='function'?equipEntryId(w.entry,inventory.indexOf(w.entry))!==equippedWeaponId:w.entry!==eqWeapon.entry)).sort((a,b)=>{const rA=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(a.item):0,rB=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(b.item):0;return rB-rA}).forEach(w=>{if(sortedWeapons.length<5)sortedWeapons.push(w)});
+  const naturalWeapons2 = characterNaturalWeaponRecords();
+  naturalWeapons2.forEach(nw => {
+    if(!sortedWeapons.some(w => w.entry.itemId === nw.entry.itemId || w.item.id === nw.item.id)) sortedWeapons.push(nw);
+  });
   const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
   const attackRows=sortedWeapons.length?sortedWeapons.map(({entry,item})=>{const values=weaponPassiveStats(item,entry);const rangeText=item.arma?.alcanceId?((typeof RANGE_LABELS!=='undefined'&&RANGE_LABELS[item.arma.alcanceId])||rangeLabels[item.arma.alcanceId]||item.arma.alcanceId):'—';return '<tr><td>'+esc(itemName(entry))+'</td><td>'+values.attack+'</td><td>'+esc(values.damage)+'</td><td>'+esc(formatWeaponCritical(values.critical||item.arma?.critico))+'</td><td>'+esc((item.arma?.tipoDanoIds||[]).join('/'))+'</td><td>'+esc(rangeText)+'</td></tr>'}).join(''):'<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
   const skillRows=renderSheetSkillRows();
@@ -2369,7 +2518,7 @@ function renderCharacterDetails(){
   const rdHtml = rdSummary ? '<p class="sheet-defense-rd">' + renderSheetReductionText(rdSummary) + '</p>' : '';
 
   
-  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+characterDefenseAttribute().toUpperCase()+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><h3 class="sheet-attacks-heading">'+sheetHeadingIcon('sword')+'Ataques</h3><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
+  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+((characterDefenseAttribute()&&characterDefenseAttribute()!=='nenhum'&&characterDefenseAttribute()!=='none')?characterDefenseAttribute().toUpperCase():'0')+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><h3 class="sheet-attacks-heading">'+sheetHeadingIcon('sword')+'Ataques</h3><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
   const wornEntries=[],carriedEntries=[],seenTraje=new Set();
   for(const entry of inventory){
     if(/traje_de_viaj/i.test(entry?.itemId)||/traje_de_viaj/i.test(entry?.displayName)||/traje_de_viaj/i.test(entry?.itemName)){

@@ -94,11 +94,23 @@ function renderClassPowerDetailPanel(preview: any, verdict: any, row: any, index
     attrChoices = '<div class="progression-attribute-calculator">' + [ATTRS.slice(0, 3), ATTRS.slice(3)].map(group => '<div class="progression-attribute-column"><div class="progression-attribute-head"><span>Atributo</span><span>Total</span></div>' + group.map(attributeRow).join('') + '</div>').join('') + '</div>';
   }
 
+  let profChoices = '';
+  if (preview?.originalId === 'proficiencia' || preview?.id === 'geral:proficiencia' || preview?.id === 'proficiencia') {
+    const currentProf = row.powerChoice || row.previewPowerChoice || '';
+    const profOptions = typeof getAvailableProficiencyOptions === 'function' ? getAvailableProficiencyOptions(row.classId, currentProf) : [];
+    profChoices = '<div class="field" style="margin-top:12px;background:rgba(24,17,20,0.6);border:1px solid #4a252a;border-radius:6px;padding:10px;">'
+      + '<label style="display:block;font-size:0.78rem;font-weight:700;color:var(--gold2);margin-bottom:6px;text-transform:uppercase;">Escolha a Proficiência</label>'
+      + '<select class="select" data-action="progression-proficiency-choice" data-index="' + index + '" style="width:100%;min-height:36px;background:#090708;border:1px solid #4a252a;color:var(--cream);">'
+      + '<option value="">Selecione uma proficiência...</option>'
+      + profOptions.map(opt => '<option value="' + opt.id + '" ' + (opt.id === currentProf ? 'selected' : '') + '>' + esc(opt.name) + '</option>').join('')
+      + '</select>'
+      + '</div>';
+  }
   const reasonsHtml = verdict?.reasons?.length ? '<div class="power-status locked" style="margin-top:8px">' + esc(verdict.reasons.join(' ')) + '</div>' : '';
   const familiarBtn = (['arcanista_familiar', 'arcanista_familiar_aprimorado'].includes(preview.id))
     ? '<button type="button" class="button primary" data-action="choose-familiar" data-index="' + index + '" style="margin-top:10px">' + (typeof familiarById === 'function' && familiarById(row.previewPowerChoice || row.powerChoice) ? 'Familiar: ' + esc(familiarById(row.previewPowerChoice || row.powerChoice)[1]) + ' · alterar' : 'Escolher familiar') + '</button>'
     : '';
-  return '<aside class="power-detail-panel">' + distBadge + '<h4>' + esc(preview.nome) + '</h4><p>' + esc(description) + '</p>' + prereqHtml + reasonsHtml + attrChoices + familiarBtn + '</aside>';
+  return '<aside class="power-detail-panel">' + distBadge + '<h4>' + esc(preview.nome) + '</h4><p>' + esc(description) + '</p>' + prereqHtml + reasonsHtml + attrChoices + profChoices + familiarBtn + '</aside>';
 }
 
 function renderClassPowerBrowser(row: any, index: number, cls: any) {

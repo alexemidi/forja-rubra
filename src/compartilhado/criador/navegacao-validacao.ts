@@ -130,8 +130,9 @@ document.addEventListener('click',event=>{
           toast('Pré-requisito não atendido: '+(verdict?.reasons?.join(' ')||'Escolha inválida.'),'warning');
           return;
         }
-        if(['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate.id)&&!row.previewPowerChoice){
-          toast('Escolha qual atributo deseja aumentar neste nível.','warning');
+        const isChoicePower = ['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado','geral:proficiencia','proficiencia'].includes(candidate.id) || candidate.originalId === 'proficiencia';
+        if(isChoicePower&&!row.previewPowerChoice){
+          toast(candidate.id.includes('proficiencia') || candidate.originalId === 'proficiencia' ? 'Escolha a proficiência desejada para continuar.' : 'Escolha qual atributo deseja aumentar neste nível.','warning');
           return;
         }
         const current=document.querySelector('[data-progression-level="'+active+'"]');
@@ -139,7 +140,7 @@ document.addEventListener('click',event=>{
         nextBtn.disabled=true;
         setTimeout(()=>{
           row.powerId=candidate.id;
-          row.powerChoice=['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate.id)?row.previewPowerChoice:'';
+          row.powerChoice=isChoicePower?row.previewPowerChoice:'';
           row.previewPowerId='';
           invalidateDependentProgressionPowers(active);
           if(state.isTrainingPowerProgression){
@@ -320,12 +321,13 @@ document.addEventListener('click',event=>{
       toast('Pré-requisito não atendido no nível '+(active+1)+': '+(verdict?.reasons?.join(' ')||'Escolha inválida.'),'warning');
       return;
     }
-    if(['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate.id)&&!row.previewPowerChoice){
-      toast('Escolha qual atributo deseja aumentar no nível '+(active+1)+'.','warning');
+    const isChoicePower2 = ['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado','geral:proficiencia','proficiencia'].includes(candidate.id) || candidate.originalId === 'proficiencia';
+    if(isChoicePower2&&!row.previewPowerChoice){
+      toast(candidate.id.includes('proficiencia') || candidate.originalId === 'proficiencia' ? 'Escolha a proficiência desejada para continuar.' : 'Escolha qual atributo deseja aumentar no nível '+(active+1)+'.','warning');
       return;
     }
     row.powerId=candidate.id;
-    row.powerChoice=['classe_aumento_de_atributo','arcanista_familiar','arcanista_familiar_aprimorado'].includes(candidate.id)?row.previewPowerChoice:'';
+    row.powerChoice=isChoicePower2?row.previewPowerChoice:'';
     row.previewPowerId='';
     invalidateDependentProgressionPowers(active);
   }
@@ -920,12 +922,13 @@ function characterTormentaPowersCount(){
 function calculatePassiveCharacterEffects(){
   const result={defenseAttribute:'des',defenseBonus:0,skillBonuses:{},movementBonus:0,pvPerLevel:0,pmPerLevel:0,pvFlat:0,pmFlat:0,sizeShift:0,reductions:[],appliedInsolencia:false};
   const addSkill=(id,value)=>{if(id)result.skillBonuses[id]=(result.skillBonuses[id]||0)+Number(value||0)};
-  const equippedArm=typeof equippedArmorItem==='function'?equippedArmorItem():null;
-  const isWearingHeavyArmor=equippedArm
-    ?(equippedArm.armadura?.categoriaId==='pesada'||equippedArm.categoriaId==='pesada'||equippedArm.tipo==='armadura_pesada')
-    :(typeof characterInventory==='function'?characterInventory():[]).some(entry=>{
-        const it=(typeof DATA!=='undefined'&&DATA.pdfItems)?DATA.pdfItems.find(item=>item.id===entry.itemId):null;
-        return (entry.equipped||entry.isEquipped||entry.equipado)&&(it?.armadura?.categoriaId==='pesada'||entry.tipo==='armadura_pesada'||it?.tipo==='armadura_pesada'||entry.item?.categoriaId==='pesada');
+  const armorRec = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
+  const equippedArm = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : null);
+  const isWearingHeavyArmor = equippedArm
+    ? (equippedArm.armadura?.categoriaId === 'pesada' || equippedArm.categoriaId === 'pesada' || equippedArm.tipo === 'armadura_pesada')
+    : (typeof characterInventory === 'function' ? characterInventory() : []).some(entry => {
+        const it = (typeof DATA !== 'undefined' && DATA.pdfItems) ? DATA.pdfItems.find(item => item.id === entry.itemId) : (entry.item || null);
+        return (entry.equipped || entry.isEquipped || entry.equipado) && (it?.armadura?.categoriaId === 'pesada' || entry.tipo === 'armadura_pesada' || it?.tipo === 'armadura_pesada' || entry.item?.categoriaId === 'pesada');
       });
   const immobile=typeof sheetConditions==='function'&&sheetConditions().some(name=>['Imóvel','Agarrado','Paralisado','Petrificado','Inconsciente'].includes(name));
   for(const effect of selectedFeatureEffects()){
@@ -1726,6 +1729,14 @@ function calculatePassiveCharacterEffects(){
   result.movementBonus+=marks.movement||0;
   if(Array.isArray(marks.reductions)){
     for(const r of marks.reductions) result.reductions.push(r);
+  }
+  if (isWearingHeavyArmor) {
+    const hasArmaduraBrilhante = typeof characterHasFeature === 'function' && (characterHasFeature('nobre_armadura_brilhante') || characterHasFeature('armadura_brilhante'));
+    if (hasArmaduraBrilhante) {
+      result.defenseAttribute = 'car';
+    } else {
+      result.defenseAttribute = 'nenhum';
+    }
   }
   return result;
 }
