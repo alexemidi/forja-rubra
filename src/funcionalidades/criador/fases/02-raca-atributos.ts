@@ -125,7 +125,19 @@ function renderAttributeMatrix(){
     return '<div class="attribute-matrix-row '+prereqClass+'" data-attribute-id="'+id+'" '+(tooltip?'data-tooltip="'+esc(tooltip)+'"':'')+'><div class="attribute-matrix-name"><span>'+esc(name)+'</span></div><div class="matrix-control"><button data-action="attr" data-attr="'+id+'" data-dir="-1" '+(base<=-1?'disabled':'')+'>−</button><output title="Custo '+ATTR_COST[base]+'">'+base+'</output><button data-action="attr" data-attr="'+id+'" data-dir="1" '+(base>=4?'disabled':'')+'>+</button></div>'+renderRacialCell(id,bonuses[id],sources)+'<div class="matrix-total">'+attributes[id]+'</div></div>';
   }).join('')+'</div><p class="help" style="margin-top:9px">Barra amarela: pré-requisito atingido. Barra vermelha: valor mínimo ainda não alcançado (passe o mouse para conferir os poderes futuros).</p>';
 }
-function renderAttributeVitals(){const stats=progressionStats();return '<div class="attribute-vitals"><div class="summary-card"><small>Pontos de Vida (PV)</small><strong>'+stats.pv+'</strong></div><div class="summary-card"><small>Pontos de Mana (PM)</small><strong>'+stats.pm+'</strong></div></div>'}
+function renderAttributeVitals(){
+  const stats=progressionStats();
+  return '<div class="attribute-vitals">'
+    + '<div class="summary-card attribute-vitals-card">'
+    + '<span class="attribute-vitals-label">Pontos de Vida</span>'
+    + '<strong class="attribute-vitals-value">' + stats.pv + ' PV</strong>'
+    + '</div>'
+    + '<div class="summary-card attribute-vitals-card">'
+    + '<span class="attribute-vitals-label">Pontos de Mana</span>'
+    + '<strong class="attribute-vitals-value">' + stats.pm + ' PM</strong>'
+    + '</div>'
+    + '</div>';
+}
 
 function formatRaceSizeName(sizeId){
   const map={'minusculo':'Minúsculo','pequeno':'Pequeno','medio':'Médio','grande':'Grande','enorme':'Enorme','colossal':'Colossal'};

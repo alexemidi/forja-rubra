@@ -131,6 +131,27 @@ test('Raças Abertas com Moreau (Conversão em 3 Atributos Livres: +2/+1 ou +1/+
   assert.equal(bonuses111.des, 1, 'Destreza deve receber +1');
   assert.equal(bonuses111.con, 1, 'Constituição deve receber +1');
 
+  // Validação de requiredRaceChoicesComplete com Moreau e Raças Abertas
+  function requiredRaceChoicesComplete() {
+    const race = moreau;
+    if (!race) return false;
+    const selected = (race.habilidades?.selecionadas || []).filter((x: any) => x.obrigatoria && x.tipo !== 'escolha_multipla');
+    for (const def of selected) {
+      if (!state.identity.raceChoices[def.id]) return false;
+    }
+    const flex = race.atributos?.flexiveis;
+    if (flex) {
+      let targetFlexQty = Number(flex.quantidade || 0);
+      if (state.identity.openRaceBonusEnabled && typeof raceFlexibleOpenRaceBonusCount === 'function') {
+        targetFlexQty += raceFlexibleOpenRaceBonusCount(race);
+      }
+      if (state.identity.raceAttrs.length !== targetFlexQty) return false;
+    }
+    return true;
+  }
+
+  assert.equal(requiredRaceChoicesComplete(), true, 'requiredRaceChoicesComplete deve ser true quando os 3 atributos livres estiverem alocados');
+
   // Teste Meio-Elfo
   assert.equal(raceHasFlexibleOpenRaceConversion(meioElfo), true, 'Meio-Elfo possui atributos flexíveis');
   assert.equal(raceFlexibleOpenRaceBonusCount(meioElfo), 1, 'Meio-Elfo possui +1 fixo de Int a converter');

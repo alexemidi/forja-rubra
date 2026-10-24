@@ -1303,6 +1303,15 @@ button[data-item-spend] {
   margin-top: 10px !important;
 }
 
+.rule-complication-label {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  color: var(--gold2, #f5c879) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
 .rule-complication-badge-btn {
   background: rgba(197, 31, 44, 0.08) !important;
   border: 1px solid var(--red, #c51f2c) !important;
@@ -1324,6 +1333,45 @@ button[data-item-spend] {
   background: rgba(197, 31, 44, 0.25) !important;
   border-color: var(--red2, #ea3948) !important;
   box-shadow: 0 0 8px rgba(234, 57, 72, 0.3) !important;
+}
+
+/* Cards de PV e PM em Atributos (Fase 2) */
+.attribute-vitals {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+
+.attribute-vitals .attribute-vitals-card {
+  text-align: center !important;
+  border: 1px solid var(--border, #4a252a) !important;
+  background: var(--panel, #110d0f) !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.attribute-vitals .attribute-vitals-label {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--gold, #e9ad59) !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.2 !important;
+}
+
+.attribute-vitals .attribute-vitals-value {
+  font-family: var(--font-display, 'Tormenta', 'Cinzel', serif) !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: var(--gold2, #f5c879) !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.2 !important;
 }
 
 

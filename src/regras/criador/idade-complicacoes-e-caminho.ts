@@ -86,7 +86,7 @@ function panelHtml(){
       const chosenText = chosenNames.length > 0 ? chosenNames.join(', ') : 'SELECIONAR COMPLICAÇÃO';
 
       ageComplicationsHtml = '<div class="rule-complication-box" style="border:1px solid #4a252a;background:rgba(24,17,20,0.6);border-radius:6px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;">'
-        + '<span style="font-family:var(--font-display,serif);font-size:0.75rem;color:var(--gold,#e9ad59);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO DE IDADE</span>'
+        + '<span class="rule-complication-label" style="font-family:var(--font-display,serif);font-size:0.8rem;color:var(--gold2,#f5c879);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO DE IDADE</span>'
         + '<button type="button" class="rule-complication-badge-btn" data-action="open-age-complications-modal" style="background:rgba(197,31,44,0.1);border:1px solid #c51f2c;color:#ea3948;border-radius:4px;padding:6px 14px;font-family:var(--font-display,serif);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;">'
         + esc(chosenText)
         + '</button>'
@@ -113,16 +113,12 @@ function panelHtml(){
     const chosenGenText = chosenGeneralNames.length > 0 ? chosenGeneralNames.join(', ') : 'SELECIONAR COMPLICAÇÃO';
 
     generalComplicationsHtml = '<div class="rule-complication-box" style="border:1px solid #4a252a;background:rgba(24,17,20,0.6);border-radius:6px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;">'
-      + '<span style="font-family:var(--font-display,serif);font-size:0.75rem;color:var(--gold,#e9ad59);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO</span>'
+      + '<span class="rule-complication-label" style="font-family:var(--font-display,serif);font-size:0.8rem;color:var(--gold2,#f5c879);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">COMPLICAÇÃO</span>'
       + '<button type="button" class="rule-complication-badge-btn" data-action="open-general-complications-modal" style="background:rgba(197,31,44,0.1);border:1px solid #c51f2c;color:#ea3948;border-radius:4px;padding:6px 14px;font-family:var(--font-display,serif);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;">'
       + esc(chosenGenText)
       + '</button>'
       + '</div>';
   }
-
-  const notesHtml = r && r.notes && r.notes.length
-    ? '<div class="age-notes-summary" style="margin-top:10px;">'+r.notes.map(esc).join('<br>')+'</div>'
-    : '';
 
   const noticeHtml = state.age.notice
     ? '<div class="age-notes-summary" style="color:var(--gold);margin-top:10px;">'+esc(state.age.notice)+'</div>'
@@ -149,7 +145,6 @@ function panelHtml(){
     + generalComplicationsHtml
     + '</div>'
     + noticeHtml
-    + notesHtml
     + '</div>';
 }
 window.renderAgePanelHtml=panelHtml;
