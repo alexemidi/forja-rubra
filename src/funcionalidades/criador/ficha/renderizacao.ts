@@ -470,6 +470,39 @@ function renderSheetAttackRows(inventory: any[], catalog: any): string {
   return rows.join('');
 }
 
+function parseAttackCritical(critStr: string): { margin: number; mult: number } {
+  const s = String(critStr || '').trim().toLowerCase();
+  if (!s || s === '—' || s === '-') return { margin: 20, mult: 2 };
+  if (/^x?\d+x?$/.test(s)) {
+    const num = parseInt(s.replace(/x/g, ''), 10);
+    if (num <= 5 && num >= 2) return { margin: 20, mult: num };
+    if (num >= 10 && num <= 20) return { margin: num, mult: 2 };
+  }
+  const m = s.match(/(?:(\d{2})(?:-\d{2})?|(\d{1,2}))(?:[^\d]*(\d+))?/);
+  if (m) {
+    const p1 = parseInt(m[1] || m[2], 10);
+    const p2 = m[3] ? parseInt(m[3], 10) : null;
+    if (p1 >= 10 && p1 <= 20) return { margin: p1, mult: p2 || 2 };
+    if (p1 <= 5 && p1 >= 2) return { margin: 20, mult: p1 };
+  }
+  return { margin: 20, mult: 2 };
+}
+
+function formatAttackCritical(margin: number, mult: number): string {
+  const safeMargin = Math.max(2, Math.min(20, margin));
+  const safeMult = Math.max(2, mult);
+  if (safeMargin >= 20) return safeMult + 'x';
+  if (safeMult <= 2) return String(safeMargin);
+  return safeMargin + '/' + safeMult + 'x';
+}
+
+function adjustAttackBonus(atkStr: string, bonus: number): string {
+  if (bonus === 0) return atkStr;
+  const num = parseInt(String(atkStr || '0').replace('+', ''), 10) || 0;
+  const total = num + bonus;
+  return total >= 0 ? `+${total}` : String(total);
+}
+
 function openEditAttacksModal(){
   let modal = document.getElementById('forjaEditAttacksModal');
   if(!modal){
@@ -497,9 +530,11 @@ function openEditAttacksModal(){
     const defaultCrit = typeof formatWeaponCritical === 'function' ? formatWeaponCritical(values.critical || item?.arma?.critico) : (item?.arma?.critico || '—');
     const defaultTipo = (item?.arma?.tipoDanoIds || []).join('/') || '—';
     const defaultAlcance = item?.arma?.alcanceId ? ((typeof RANGE_LABELS !== 'undefined' && RANGE_LABELS[item.arma.alcanceId]) || rangeLabels[item.arma.alcanceId] || item.arma.alcanceId) : '—';
+    const isRanged = item?.arma?.combateId === 'a_distancia' || (defaultAlcance !== '-' && defaultAlcance !== '—' && !/corpo/i.test(defaultAlcance));
 
     return {
       key,
+      isRanged,
       hasOverride: Boolean(ov),
       defaultName,
       defaultAtk,
@@ -516,26 +551,125 @@ function openEditAttacksModal(){
     };
   });
 
+  const stepUp = (typeof stepUpDamage === 'function') 
+    ? stepUpDamage 
+    : (((window as any)?.ForjaPassosDano && typeof (window as any).ForjaPassosDano.stepUpDamage === 'function')
+      ? (window as any).ForjaPassosDano.stepUpDamage
+      : ((dmg: string, steps: number) => {
+          const ladder = ['1', '1d2', '1d3', '1d4', '1d6', '1d8', '1d10', '1d12', '2d8', '3d6', '4d6', '4d8'];
+          const m = String(dmg || '').match(/^(\d+d\d+)(.*)$/);
+          if (!m) return dmg;
+          let base = m[1];
+          const rest = m[2] || '';
+          let idx = ladder.indexOf(base);
+          if (idx >= 0) {
+            idx = Math.min(ladder.length - 1, idx + steps);
+            return ladder[idx] + rest;
+          }
+          return dmg;
+        }));
+
+  const addFlatDmg = (typeof addFlatDamageBonus === 'function')
+    ? addFlatDamageBonus
+    : (((window as any)?.ForjaPassosDano && typeof (window as any).ForjaPassosDano.addFlatDamageBonus === 'function')
+      ? (window as any).ForjaPassosDano.addFlatDamageBonus
+      : ((dmg: string, bonus: number) => {
+          if (!dmg || bonus === 0) return dmg;
+          const m = String(dmg).match(/^(.*?)([+-]\d+)?$/);
+          if (!m) return dmg;
+          const base = m[1];
+          const cur = m[2] ? parseInt(m[2], 10) : 0;
+          const tot = cur + bonus;
+          return tot === 0 ? base : (tot > 0 ? `${base}+${tot}` : `${base}${tot}`);
+        }));
+
   const renderModalContent = () => {
     modal.innerHTML = `
-      <section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:760px;width:95vw;max-height:90vh;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
+      <section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:800px;width:95vw;max-height:92vh;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
         <header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;">
-          <h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Editar e Personalizar Ataques</h3>
+          <div>
+            <h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Editar e Personalizar Ataques</h3>
+            <span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Ajuste bônus rápidos temporários ou personalize individualmente cada ataque</span>
+          </div>
           <button type="button" class="button small" id="closeEditAttacksX" style="min-width:28px;padding:2px 6px;">✕</button>
         </header>
         <div class="confirm-modal-body" style="overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:16px;">
-          <p style="font-size:0.75rem;color:var(--muted,#c9b2aa);margin:0;line-height:1.45;">
-            Personalize os valores de teste, dano, crítico, tipo e alcance dos ataques existentes ou cadastre novos ataques personalizados.
-          </p>
+          
+          <!-- Seção de Modificadores Globais e Temporários -->
+          <div class="attack-global-modifiers-section" style="background:#181114;border:1px solid #d9a84e55;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <div>
+                <strong style="color:var(--gold2,#e9ad59);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Modificadores Gerais &amp; Temporários</strong>
+                <div style="font-size:0.7rem;color:var(--muted,#c9b2aa);margin-top:2px;">Bônus rápidos de magias (ex: <em>Arma Mágica</em>, <em>Bênção</em>), parceiros ou condições temporárias.</div>
+              </div>
+              <button type="button" class="button small" id="btnResetAllAttacksDefault" style="font-size:0.7rem;padding:4px 10px;background:rgba(220,38,38,0.18);border-color:#b91c1c;color:#fca5a5;">
+                Voltar aos Valores Padrão
+              </button>
+            </div>
 
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-items:end;">
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Ataque C.a.C.</span>
+                <input type="number" id="globalModLuta" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Pontaria</span>
+                <input type="number" id="globalModPontaria" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Bônus no Dano</span>
+                <input type="number" id="globalModDamage" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Passos de Dano</span>
+                <input type="number" min="0" max="6" id="globalModSteps" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Margem Ameaça</span>
+                <input type="number" min="0" max="10" id="globalModThreat" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+              <label class="field" style="margin:0;">
+                <span style="font-size:0.68rem;color:var(--cream,#f5eee6);">+ Mult. Crítico</span>
+                <input type="number" min="0" max="5" id="globalModMult" class="input" value="0" style="font-size:0.75rem;padding:4px 6px;text-align:center;" />
+              </label>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px dashed #4a252a;padding-top:10px;flex-wrap:wrap;gap:8px;">
+              <div style="display:flex;align-items:center;gap:14px;font-size:0.74rem;">
+                <span style="color:var(--muted,#c9b2aa);">Aplicar modificadores em:</span>
+                <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:var(--cream,#f5eee6);">
+                  <input type="radio" name="globalModScope" value="all" checked style="accent-color:#c51f2c;" />
+                  Todos os ataques
+                </label>
+                <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:var(--cream,#f5eee6);">
+                  <input type="radio" name="globalModScope" value="selected" style="accent-color:#c51f2c;" />
+                  Apenas ataques marcados abaixo
+                </label>
+              </div>
+              <button type="button" class="button small primary" id="btnApplyGlobalModifiers" style="font-size:0.75rem;padding:5px 14px;">
+                Aplicar Modificadores
+              </button>
+            </div>
+          </div>
+
+          <!-- Ataques do Equipamento e Naturais -->
           <div style="display:flex;flex-direction:column;gap:12px;">
-            <h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Ataques do Equipamento &amp; Naturais</h4>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Ataques do Equipamento &amp; Naturais</h4>
+              <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Marque a caixa para incluir na aplicação seletiva</span>
+            </div>
             ${autoAttackItems.length ? autoAttackItems.map((atk) => `
               <div class="attack-edit-row" data-attack-key="${esc(atk.key)}" style="background:#181114;border:1px solid var(--line,#4a252a);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-items:center;">
-                <label class="field" style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;margin:0;">
-                  <span style="font-weight:bold;color:var(--cream,#f5eee6);font-size:0.8rem;">${esc(atk.defaultName)}</span>
-                  ${atk.hasOverride ? `<button type="button" class="button small btn-reset-attack-override" data-reset-key="${esc(atk.key)}" style="font-size:0.62rem;padding:2px 6px;">Restaurar Padrão</button>` : ''}
-                </label>
+                <div style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;margin:0;">
+                  <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;margin:0;">
+                    <input type="checkbox" class="attack-select-chk" checked style="accent-color:#c51f2c;width:15px;height:15px;" />
+                    <span style="font-weight:bold;color:var(--cream,#f5eee6);font-size:0.8rem;">${esc(atk.defaultName)}</span>
+                    <span class="tag" style="font-size:0.62rem;padding:1px 5px;background:#2a161b;color:${atk.isRanged ? '#93c5fd' : '#fca5a5'};border:1px solid #4a252a;">
+                      ${atk.isRanged ? 'À Distância' : 'Corpo a Corpo'}
+                    </span>
+                  </label>
+                  ${atk.hasOverride ? `<button type="button" class="button small btn-reset-attack-override" data-reset-key="${esc(atk.key)}" style="font-size:0.62rem;padding:2px 6px;">Padrão</button>` : ''}
+                </div>
                 <label class="field" style="margin:0;">
                   <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Nome exibido</span>
                   <input type="text" class="input input-ov-name" value="${esc(atk.name)}" style="font-size:0.75rem;padding:4px 6px;" />
@@ -564,6 +698,7 @@ function openEditAttacksModal(){
             `).join('') : '<p style="font-size:0.75rem;color:var(--muted);">Nenhum ataque automático detectado.</p>'}
           </div>
 
+          <!-- Ataques Personalizados Livres -->
           <div style="display:flex;flex-direction:column;gap:12px;margin-top:6px;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Ataques Personalizados Livres</h4>
@@ -572,6 +707,13 @@ function openEditAttacksModal(){
             <div id="customAttacksContainer" style="display:flex;flex-direction:column;gap:10px;">
               ${state.customAttacks.map((c: any, idx: number) => `
                 <div class="custom-attack-row" data-custom-idx="${idx}" style="background:#181114;border:1px solid #4a252a;border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-items:center;position:relative;">
+                  <div style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+                    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;margin:0;">
+                      <input type="checkbox" class="attack-select-chk" checked style="accent-color:#c51f2c;width:15px;height:15px;" />
+                      <span style="font-weight:bold;color:var(--cream,#f5eee6);font-size:0.78rem;">${esc(c.nome || 'Ataque Personalizado')}</span>
+                    </label>
+                    <button type="button" class="button small btn-delete-custom-attack" data-del-idx="${idx}" style="font-size:0.65rem;padding:2px 8px;background:rgba(220,38,38,0.2);border-color:#b91c1c;color:#fca5a5;">Remover</button>
+                  </div>
                   <label class="field" style="margin:0;">
                     <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Nome do Golpe</span>
                     <input type="text" class="input custom-input-name" value="${esc(c.nome || '')}" placeholder="Ex: Golpe Divino" style="font-size:0.75rem;padding:4px 6px;" />
@@ -596,18 +738,20 @@ function openEditAttacksModal(){
                     <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Alcance</span>
                     <input type="text" class="input custom-input-alcance" value="${esc(c.alcance || 'Corpo a corpo')}" placeholder="Corpo a corpo" style="font-size:0.75rem;padding:4px 6px;" />
                   </label>
-                  <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
-                    <button type="button" class="button small btn-delete-custom-attack" data-del-idx="${idx}" style="font-size:0.68rem;padding:4px 8px;background:rgba(220,38,38,0.2);border-color:#b91c1c;color:#fca5a5;">Remover</button>
-                  </div>
                 </div>
               `).join('')}
               ${!state.customAttacks.length ? '<p style="font-size:0.72rem;color:var(--muted);margin:0;">Nenhum ataque personalizado criado ainda.</p>' : ''}
             </div>
           </div>
         </div>
-        <footer style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--line,#4a252a);padding:12px 16px;">
-          <button type="button" class="button" id="btnCancelEditAttacks">Cancelar</button>
-          <button type="button" class="button primary" id="btnSaveEditAttacks">Salvar Ataques</button>
+        <footer style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line,#4a252a);padding:12px 16px;flex-wrap:wrap;gap:8px;">
+          <button type="button" class="button small" id="btnResetFooterAttacks" style="font-size:0.72rem;background:rgba(220,38,38,0.12);border-color:#b91c1c;color:#fca5a5;">
+            Restaurar Todos aos Valores Padrão
+          </button>
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="button" id="btnCancelEditAttacks">Cancelar</button>
+            <button type="button" class="button primary" id="btnSaveEditAttacks">Salvar Ataques</button>
+          </div>
         </footer>
       </section>
     `;
@@ -616,6 +760,7 @@ function openEditAttacksModal(){
     modal.querySelector('#btnCancelEditAttacks').onclick = () => { modal.hidden = true; };
     modal.addEventListener('click', (e: any) => { if(e.target === modal) modal.hidden = true; });
 
+    // Botão individual Restaurar Padrão
     modal.querySelectorAll('.btn-reset-attack-override').forEach((btn: any) => {
       btn.onclick = () => {
         const key = btn.dataset.resetKey;
@@ -627,6 +772,159 @@ function openEditAttacksModal(){
       };
     });
 
+    // Botão global Restaurar Todos aos Valores Padrão (ambos no topo e rodapé)
+    const handleResetAllToDefault = () => {
+      autoAttackItems.forEach((atk) => {
+        const row = modal.querySelector(`.attack-edit-row[data-attack-key="${atk.key}"]`) as HTMLElement;
+        if(row){
+          const nameInput = row.querySelector('.input-ov-name') as HTMLInputElement;
+          const atkInput = row.querySelector('.input-ov-atk') as HTMLInputElement;
+          const dmgInput = row.querySelector('.input-ov-dmg') as HTMLInputElement;
+          const critInput = row.querySelector('.input-ov-crit') as HTMLInputElement;
+          const tipoInput = row.querySelector('.input-ov-tipo') as HTMLInputElement;
+          const alcInput = row.querySelector('.input-ov-alcance') as HTMLInputElement;
+          if(nameInput) nameInput.value = atk.defaultName;
+          if(atkInput) atkInput.value = atk.defaultAtk;
+          if(dmgInput) dmgInput.value = atk.defaultDmg;
+          if(critInput) critInput.value = atk.defaultCrit;
+          if(tipoInput) tipoInput.value = atk.defaultTipo;
+          if(alcInput) alcInput.value = atk.defaultAlcance;
+        }
+        delete state.attackOverrides[atk.key];
+      });
+
+      state.attackOverrides = {};
+
+      ['#globalModLuta', '#globalModPontaria', '#globalModDamage', '#globalModSteps', '#globalModThreat', '#globalModMult'].forEach(sel => {
+        const el = modal.querySelector(sel) as HTMLInputElement;
+        if(el) el.value = '0';
+      });
+
+      persistNow();
+      updateSheetEquipmentAndDefenseContent();
+      renderModalContent();
+      if(typeof toast === 'function') toast('Todos os ataques foram restaurados aos valores padrão calculados!');
+    };
+
+    modal.querySelector('#btnResetAllAttacksDefault')?.addEventListener('click', handleResetAllToDefault);
+    modal.querySelector('#btnResetFooterAttacks')?.addEventListener('click', handleResetAllToDefault);
+
+    // Botão Aplicar Modificadores Gerais & Temporários
+    modal.querySelector('#btnApplyGlobalModifiers')?.addEventListener('click', () => {
+      const modLuta = Number((modal.querySelector('#globalModLuta') as HTMLInputElement)?.value) || 0;
+      const modPontaria = Number((modal.querySelector('#globalModPontaria') as HTMLInputElement)?.value) || 0;
+      const modDamage = Number((modal.querySelector('#globalModDamage') as HTMLInputElement)?.value) || 0;
+      const modSteps = Number((modal.querySelector('#globalModSteps') as HTMLInputElement)?.value) || 0;
+      const modThreat = Number((modal.querySelector('#globalModThreat') as HTMLInputElement)?.value) || 0;
+      const modMult = Number((modal.querySelector('#globalModMult') as HTMLInputElement)?.value) || 0;
+
+      if(modLuta === 0 && modPontaria === 0 && modDamage === 0 && modSteps === 0 && modThreat === 0 && modMult === 0){
+        if(typeof toast === 'function') toast('Informe pelo menos um valor de modificador para aplicar.', 'warning');
+        return;
+      }
+
+      const scopeRadio = modal.querySelector('input[name="globalModScope"]:checked') as HTMLInputElement;
+      const scope = scopeRadio ? scopeRadio.value : 'all';
+
+      let affectedCount = 0;
+
+      // 1. Aplicar aos Ataques de Equipamento e Naturais
+      modal.querySelectorAll('.attack-edit-row').forEach((row: HTMLElement) => {
+        const isChecked = (row.querySelector('.attack-select-chk') as HTMLInputElement)?.checked;
+        if(scope === 'selected' && !isChecked) return;
+
+        const key = row.dataset.attackKey;
+        const autoItem = autoAttackItems.find(a => a.key === key);
+        const isRanged = autoItem ? autoItem.isRanged : false;
+
+        const atkInput = row.querySelector('.input-ov-atk') as HTMLInputElement;
+        const dmgInput = row.querySelector('.input-ov-dmg') as HTMLInputElement;
+        const critInput = row.querySelector('.input-ov-crit') as HTMLInputElement;
+
+        // Bônus no Teste de Ataque
+        if(isRanged && modPontaria !== 0 && atkInput){
+          atkInput.value = adjustAttackBonus(atkInput.value, modPontaria);
+        } else if(!isRanged && modLuta !== 0 && atkInput){
+          atkInput.value = adjustAttackBonus(atkInput.value, modLuta);
+        }
+
+        // Bônus de Dano e Passos de Dano
+        if(dmgInput && dmgInput.value && dmgInput.value !== '—' && dmgInput.value !== '-'){
+          let dVal = dmgInput.value;
+          if(modSteps > 0){
+            dVal = stepUp(dVal, modSteps, { allowAltLadder: true });
+          }
+          if(modDamage !== 0){
+            dVal = addFlatDmg(dVal, modDamage);
+          }
+          dmgInput.value = dVal;
+        }
+
+        // Margem de Ameaça e Multiplicador de Crítico
+        if(critInput && (modThreat > 0 || modMult > 0)){
+          const parsed = parseAttackCritical(critInput.value);
+          const newMargin = Math.max(2, parsed.margin - modThreat);
+          const newMult = parsed.mult + modMult;
+          critInput.value = formatAttackCritical(newMargin, newMult);
+        }
+
+        affectedCount++;
+      });
+
+      // 2. Aplicar aos Ataques Personalizados
+      modal.querySelectorAll('.custom-attack-row').forEach((row: HTMLElement) => {
+        const isChecked = (row.querySelector('.attack-select-chk') as HTMLInputElement)?.checked;
+        if(scope === 'selected' && !isChecked) return;
+
+        const alcanceInput = row.querySelector('.custom-input-alcance') as HTMLInputElement;
+        const alcanceVal = alcanceInput?.value || '';
+        const isRanged = /curto|m[eé]dio|longo|\d+m/i.test(alcanceVal) && !/corpo/i.test(alcanceVal);
+
+        const atkInput = row.querySelector('.custom-input-atk') as HTMLInputElement;
+        const dmgInput = row.querySelector('.custom-input-dmg') as HTMLInputElement;
+        const critInput = row.querySelector('.custom-input-crit') as HTMLInputElement;
+
+        if(isRanged && modPontaria !== 0 && atkInput){
+          atkInput.value = adjustAttackBonus(atkInput.value, modPontaria);
+        } else if(!isRanged && modLuta !== 0 && atkInput){
+          atkInput.value = adjustAttackBonus(atkInput.value, modLuta);
+        }
+
+        if(dmgInput && dmgInput.value && dmgInput.value !== '—' && dmgInput.value !== '-'){
+          let dVal = dmgInput.value;
+          if(modSteps > 0){
+            dVal = stepUp(dVal, modSteps, { allowAltLadder: true });
+          }
+          if(modDamage !== 0){
+            dVal = addFlatDmg(dVal, modDamage);
+          }
+          dmgInput.value = dVal;
+        }
+
+        if(critInput && (modThreat > 0 || modMult > 0)){
+          const parsed = parseAttackCritical(critInput.value);
+          const newMargin = Math.max(2, parsed.margin - modThreat);
+          const newMult = parsed.mult + modMult;
+          critInput.value = formatAttackCritical(newMargin, newMult);
+        }
+
+        affectedCount++;
+      });
+
+      if(affectedCount === 0){
+        if(typeof toast === 'function') toast('Nenhum ataque foi selecionado para receber os modificadores.', 'warning');
+        return;
+      }
+
+      ['#globalModLuta', '#globalModPontaria', '#globalModDamage', '#globalModSteps', '#globalModThreat', '#globalModMult'].forEach(sel => {
+        const el = modal.querySelector(sel) as HTMLInputElement;
+        if(el) el.value = '0';
+      });
+
+      if(typeof toast === 'function') toast('Modificadores aplicados a ' + affectedCount + ' ataque(s)! Salve para persistir.');
+    });
+
+    // Adicionar Ataque Customizado
     modal.querySelector('#btnAddCustomAttack')?.addEventListener('click', () => {
       state.customAttacks.push({
         id: 'atk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -640,6 +938,7 @@ function openEditAttacksModal(){
       renderModalContent();
     });
 
+    // Excluir Ataque Customizado
     modal.querySelectorAll('.btn-delete-custom-attack').forEach((btn: any) => {
       btn.onclick = () => {
         const idx = Number(btn.dataset.delIdx);
@@ -650,6 +949,7 @@ function openEditAttacksModal(){
       };
     });
 
+    // Salvar Modificações nos Ataques
     modal.querySelector('#btnSaveEditAttacks').onclick = () => {
       modal.querySelectorAll('.attack-edit-row').forEach((row: any) => {
         const key = row.dataset.attackKey;

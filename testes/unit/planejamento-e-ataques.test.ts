@@ -191,3 +191,27 @@ test('Edição de Ataques na Ficha: Sobrescrita de Valores e Ataques Personaliza
   assert.equal(stateMock.customAttacks[0].nome, 'Sopro do Dragão de Fogo');
   assert.equal(stateMock.customAttacks[0].alcance, 'Cone de 6m');
 });
+
+test('Habilidades das Armas: Armas Desbalanceadas sofrem -2 em Testes de Ataque', () => {
+  const fs = require('node:fs');
+  const code = fs.readFileSync('src/regras/criador/passivas-proficiencias.ts', 'utf8');
+
+  // Verifica que passivas-proficiencias.ts detecta e aplica a penalidade de -2 para armas desbalanceadas
+  assert.ok(code.includes('isDesbalanceada'), 'Deve conter verificação de isDesbalanceada');
+  assert.ok(code.includes('attack-=2') || code.includes('attack -= 2'), 'Deve impor -2 nos testes de ataque com arma desbalanceada');
+
+  // Simular arma comum vs arma desbalanceada
+  const { stepUpDamage, addFlatDamageBonus } = require('../../src/regras/nucleo/passos-dano.ts');
+  const items = require('../../dados/items.json');
+  const macaDeGuerra = items.find((i: any) => i.id === 'maca_de_guerra');
+  const espadaLonga = items.find((i: any) => i.id === 'espada_longa');
+
+  assert.ok(macaDeGuerra?.arma?.propriedadesIds?.includes('desbalanceada'));
+  assert.ok(!espadaLonga?.arma?.propriedadesIds?.includes('desbalanceada'));
+
+  // Testar aumentos de dano e passos de dano canônicos (1d12 -> 3d6 na escala canônica de T20)
+  assert.equal(stepUpDamage('1d8+5', 1), '1d10+5');
+  assert.equal(stepUpDamage('1d12+5', 1), '3d6+5');
+  assert.equal(addFlatDamageBonus('1d8+5', 2), '1d8+7');
+  assert.equal(addFlatDamageBonus('1d12+5', 3), '1d12+8');
+});

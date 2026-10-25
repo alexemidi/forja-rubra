@@ -85,6 +85,7 @@ function weaponPassiveStats(item,entry){
   if(!item?.arma)return{skill:'luta',attack:0,damage:'—'};
   const arma=item.arma,isDistance=arma.combateId==='a_distancia',isCaC=!isDistance;
   const props=arma.propriedadesIds||[],isLight=arma.empunhaduraId==='leve',isAgile=props.includes('agil'),isAdaptable=props.includes('adaptavel'),isThrow=props.includes('arremesso');
+  const isDesbalanceada = props.includes('desbalanceada') || /desbalancead/i.test(item.textos?.habilidade || (item.efeitos||[]).map(e=>e.tipo).join(' ') || arma?.propriedadesIds?.join(' ') || '');
   const trained=new Set(typeof allTrainedSkills==='function'?allTrainedSkills():[]);
   const attrs=typeof finalAttrs==='function'?finalAttrs():{for:0,des:0,con:0,int:0,sab:0,car:0};
   const str=Number(attrs.for||0),dex=Number(attrs.des||0);
@@ -94,6 +95,9 @@ function weaponPassiveStats(item,entry){
 
   const skill=isDistance?'pontaria':'luta';
   let attack=typeof calculatedSkillTotal==='function'?calculatedSkillTotal(skill):0;
+  if(isDesbalanceada){
+    attack-=2;
+  }
   if(typeof activeMountContext==='function'){
     const mount=activeMountContext(false);
     if(mount){if(isDistance&&!mount.ginete)attack-=2;if(mount.guided&&isCaC&&['cavalo','ponei'].includes(mount.species)&&mount.tier!=='iniciante')attack+=2+RegrasMontarias.bonusArmaduraMontaria(mount.gear);}
