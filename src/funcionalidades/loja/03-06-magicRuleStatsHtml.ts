@@ -917,7 +917,8 @@ function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition,
   const options = normalizeItemOptions(itemId, rawOptions);
   const optionKey = itemOptionsKey(itemId, options);
   const configuredImprovements=(configuration?.improvements||[]).map(choice=>({...choice})),configuredEnchantments=[...(configuration?.enchantments||[])];
-  let instance = backpackItems.find(function(entry) {
+  const isWeapon = item.tipo === "arma" || Boolean(item.arma);
+  let instance = isWeapon ? null : backpackItems.find(function(entry) {
     return entry.itemId === itemId && JSON.stringify(entry.acquisition || {source: 'unknown'}) === JSON.stringify(acquisition || {source: 'unknown'}) && itemOptionsKey(itemId, entry.options) === optionKey && JSON.stringify(entry.improvements||[])===JSON.stringify(configuredImprovements) && JSON.stringify(entry.enchantments||[])===JSON.stringify(configuredEnchantments) && entry.quantity < 9999;
   });
   const packageSize = ammoPackageSize(item);
@@ -934,7 +935,9 @@ function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition,
     instance.preco = { valor: finalPrice, moeda: item.preco?.moeda || 'T$' };
     instance.unitValue = finalPrice;
   } else {
-    const quantity = Math.min(9999, amount);
+    const count = isWeapon ? amount : 1;
+    for (let loopIdx = 0; loopIdx < count; loopIdx++) {
+    const quantity = isWeapon ? 1 : Math.min(9999, amount);
     const newEntry = {
       instanceId: createInstanceId(), itemId: itemId, quantity: quantity,
       acquisition: acquisition || {source: 'unknown'},
@@ -951,6 +954,7 @@ function addPackagesToBackpack(itemId, packageQuantity, rawOptions, acquisition,
       newEntry.displayName = configuredItemName(newEntry, item);
     }
     backpackItems.push(newEntry);
+    }
   }
 }
 

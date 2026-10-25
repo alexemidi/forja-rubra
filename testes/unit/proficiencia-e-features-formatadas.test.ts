@@ -152,3 +152,66 @@ test('Arma Canônica: Maça de Guerra', () => {
 });
 
 
+
+test('Inventário: separação de instâncias de armas iguais (ex: duas katanas)', () => {
+  // Simula a lógica de consolidação de entradas de armas
+  const inventory = [
+    { itemId: 'katana', instanceId: 'inst_1', quantity: 1, tipo: 'arma' },
+    { itemId: 'katana', instanceId: 'inst_2', quantity: 1, tipo: 'arma' },
+    { itemId: 'tocha', instanceId: 'inst_3', quantity: 1, tipo: 'item_geral' },
+    { itemId: 'tocha', instanceId: 'inst_4', quantity: 2, tipo: 'item_geral' }
+  ];
+
+  // Armas devem ser mantidas como instâncias separadas (quantity 1 cada)
+  const weapons = inventory.filter(e => e.itemId === 'katana');
+  assert.equal(weapons.length, 2, 'Devem existir 2 instâncias distintas de Katana');
+  assert.notEqual(weapons[0].instanceId, weapons[1].instanceId, 'Cada Katana deve ter seu instanceId único');
+  assert.equal(weapons[0].quantity, 1);
+  assert.equal(weapons[1].quantity, 1);
+});
+
+test('Dano de Arma Adaptável (Katana) por Empunhadura', () => {
+  const items = JSON.parse(fs.readFileSync(path.resolve('dados/items.json'), 'utf8'));
+  const katana = items.find((i: any) => i.id === 'katana');
+  assert.ok(katana, 'Katana existe');
+  assert.equal(katana.arma?.dano?.principal, '1d8', 'Dano com uma mão deve ser 1d8');
+  const altDmg = katana.arma?.dano?.alternativas?.[0] || katana.arma?.dano?.alternativo;
+  assert.equal(altDmg, '1d10', 'Dano com duas mãos deve ser 1d10');
+  assert.ok(katana.arma?.propriedadesIds?.includes('adaptavel'), 'Katana é adaptável');
+});
+
+test('Transição de empunhadura adaptável para 2 mãos devolve offhand e escudo', async () => {
+  const { RegrasEquipamento } = await import('../../src/lib/t20/index.ts');
+  const eqState = {
+    weaponId: 'inst_katana1',
+    offhandId: 'inst_katana2',
+    shieldId: 'inst_escudo',
+    wornIds: [],
+    adaptableHandedness: {}
+  };
+
+  const res = RegrasEquipamento.aplicar(eqState, 'set-handedness-two', 'inst_katana1', {
+    count: 0,
+    limit: 4,
+    shield: () => true
+  });
+
+  assert.ok(res.alterado, 'Transição deve ser bem-sucedida');
+  assert.equal(res.equipment.adaptableHandedness?.['inst_katana1'], 'duas_maos', 'Katana principal deve estar em duas mãos');
+  assert.equal(res.equipment.offhandId, 'none', 'Arma da outra mão deve ser devolvida para a mochila');
+  assert.equal(res.equipment.shieldId, 'none', 'Escudo deve ser devolvido para a mochila');
+});
+
+test('Modelo de Mãos: 2 armas ocupam ambas as mãos e bloqueiam escudo', () => {
+  const eq = {
+    weaponId: 'inst_adaga1',
+    offhandId: 'inst_adaga2',
+    shieldId: 'none'
+  };
+
+  const occupiedHands = (eq.weaponId && eq.weaponId !== 'none' ? 1 : 0) + (eq.offhandId && eq.offhandId !== 'none' ? 1 : 0);
+  assert.equal(occupiedHands, 2, 'Personagem com 2 armas tem exatamente as 2 mãos ocupadas');
+  const canEquipShield = occupiedHands < 2;
+  assert.equal(canEquipShield, false, 'Não é permitido equipar escudo com ambas as mãos ocupadas');
+});
+

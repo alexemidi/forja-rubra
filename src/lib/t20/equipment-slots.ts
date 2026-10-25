@@ -21,6 +21,7 @@ export interface EquipmentTransitionContext {
   blocksShield?: boolean;
   handSlot?: string;
   tattoo?: boolean;
+  shield?: () => boolean;
 }
 
 export interface EquipmentTransitionResult {
@@ -158,12 +159,16 @@ export function aplicar(
     case 'set-handedness-one':
     case 'set-handedness-two':
       if (!id) return reject('');
-      if (
-        action === 'set-handedness-two' &&
-        eq.offhandId &&
-        eq.offhandId !== 'none'
-      ) {
-        return reject('Guarde o item da outra mão antes de usar duas mãos.');
+      if (action === 'set-handedness-two') {
+        if (eq.offhandId === id) {
+          eq.weaponId = id;
+          eq.offhandId = 'none';
+        } else if (eq.offhandId && eq.offhandId !== 'none') {
+          eq.offhandId = 'none';
+        }
+        if (shield()) {
+          eq.shieldId = 'none';
+        }
       }
       eq.adaptableHandedness = {
         ...eq.adaptableHandedness,
@@ -173,11 +178,6 @@ export function aplicar(
         action === 'set-handedness-one'
           ? 'Arma adaptável empunhada com uma mão.'
           : 'Arma adaptável empunhada com duas mãos.';
-      if (action === 'set-handedness-two' && shield()) {
-        eq.shieldId = 'none';
-        message =
-          'Arma adaptável empunhada com duas mãos. Escudo guardado na mochila.';
-      }
       break;
     default:
       return reject('');

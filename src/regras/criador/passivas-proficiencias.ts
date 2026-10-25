@@ -290,14 +290,21 @@ function weaponPassiveStats(item,entry){
     if (sizeSteps !== 0 && typeof stepUpDamage === 'function' && altDmg) {
       altDmg = stepUpDamage(altDmg, sizeSteps, { allowAltLadder: true });
     }
-    const bonus1m=attrDamage+extraDamage;
-    const bonus2m=attrDamage+extraDamage;
-    if(bonus1m===bonus2m){
-      const suffix=bonus1m>0?'+'+bonus1m:(bonus1m<0?String(bonus1m):'');
-      damage=baseDmg+'/'+altDmg+suffix;
-    } else {
-      damage=formatDmg(baseDmg,bonus1m)+'/'+formatDmg(altDmg,bonus2m);
+    const eq = typeof equipmentState === 'function' ? equipmentState() : {};
+    const eId = entry ? (typeof equipEntryId === 'function' ? equipEntryId(entry) : (entry.instanceId || entry.id || entry.itemId)) : null;
+    const isEquippedInWeapon = Boolean(eId && (eq.weaponId === eId || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.weaponId))));
+    const isEquippedInOffhand = Boolean(eId && (eq.offhandId === eId || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.offhandId))));
+
+    let handedness = 'uma_mao';
+    if (isEquippedInWeapon) {
+      handedness = (eq.adaptableHandedness && eq.weaponId && eq.adaptableHandedness[eq.weaponId]) || (typeof equippedWeaponHandedness === 'function' ? equippedWeaponHandedness() : 'uma_mao');
+    } else if (isEquippedInOffhand) {
+      handedness = (eq.adaptableHandedness && eq.offhandId && eq.adaptableHandedness[eq.offhandId]) || 'uma_mao';
     }
+
+    const chosenDice = (handedness === 'duas_maos') ? altDmg : baseDmg;
+    const totalBonus = attrDamage + extraDamage;
+    damage = formatDmg(chosenDice, totalBonus);
   } else {
     const totalBonus=attrDamage+extraDamage;
     damage=formatDmg(baseDmg,totalBonus);

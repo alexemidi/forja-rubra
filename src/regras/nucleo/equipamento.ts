@@ -47,10 +47,14 @@ const RegrasEquipamento=Object.freeze({
         message=action==='cover-tattoo'?'Tatuagem mística coberta com a roupa. Espaço de item vestido liberado.':'Item guardado na mochila.';break;
       case 'set-handedness-one':case 'set-handedness-two':
         if(!id)return reject('');
-        if(action==='set-handedness-two'&&eq.offhandId&&eq.offhandId!=='none')return reject('Guarde o item da outra mão antes de usar duas mãos.');
+        if(action==='set-handedness-two'){
+          if(eq.offhandId===id){eq.weaponId=id;eq.offhandId='none';}
+          else if(eq.offhandId&&eq.offhandId!=='none'){eq.offhandId='none';}
+          if(shield()){eq.shieldId='none';}
+        }
         eq.adaptableHandedness={...eq.adaptableHandedness,[id]:action==='set-handedness-one'?'uma_mao':'duas_maos'};
         message=action==='set-handedness-one'?'Arma adaptável empunhada com uma mão.':'Arma adaptável empunhada com duas mãos.';
-        if(action==='set-handedness-two'&&shield()){eq.shieldId='none';message='Arma adaptável empunhada com duas mãos. Escudo guardado na mochila.'}break;
+        break;
       default:return reject('');
     }
     return {alterado:true,equipment:eq,message};

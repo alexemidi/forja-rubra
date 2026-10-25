@@ -355,6 +355,81 @@ function characterNaturalWeaponRecords() {
   return list;
 }
 
+function characterAttackRecords(inventory, catalog) {
+  const attacks = [];
+  const eq = typeof equipmentState === 'function' ? equipmentState() : {};
+  const eqWeapon = typeof equippedWeaponRecord === 'function' ? equippedWeaponRecord() : null;
+  const offhandRec = typeof equippedOffhandRecord === 'function' ? equippedOffhandRecord() : (typeof heldItemRecords === 'function' ? heldItemRecords().find(r => r.id === eq.offhandId) : null);
+  const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
+
+  const usedEntryIds = new Set();
+
+  // 1. Arma na mão principal
+  if (eqWeapon?.item?.tipo === 'arma' || eqWeapon?.item?.arma) {
+    attacks.push({ entry: eqWeapon.entry, item: eqWeapon.item });
+    if (eq.weaponId) usedEntryIds.add(eq.weaponId);
+  }
+
+  // 2. Arma na outra mão (offhand)
+  if (offhandRec && (offhandRec.item?.tipo === 'arma' || offhandRec.item?.arma)) {
+    attacks.push({ entry: offhandRec.entry, item: offhandRec.item });
+    if (eq.offhandId) usedEntryIds.add(eq.offhandId);
+  }
+
+  // 3. Golpe com escudo (se houver escudo equipado e não estiver bloqueado)
+  if (shieldRec && !(typeof equippedWeaponBlocksShield === 'function' && equippedWeaponBlocksShield())) {
+    const sItem = shieldRec.item;
+    const isHeavy = sItem?.escudo?.categoriaId === 'pesado' || sItem?.categoriaId === 'pesado' || /pesado/i.test(sItem?.nome || '');
+    const shieldAttackItem = {
+      id: 'golpe_escudo_' + (sItem?.id || 'escudo'),
+      nome: 'Golpe com ' + (sItem?.nome || 'Escudo'),
+      tipo: 'arma',
+      arma: {
+        combateId: 'corpo_a_corpo',
+        empunhaduraId: 'uma_mao',
+        alcanceId: null,
+        dano: { principal: isHeavy ? '1d6' : '1d4' },
+        critico: { margem: 20, multiplicador: 2 },
+        tipoDanoIds: ['impacto']
+      }
+    };
+    attacks.push({
+      entry: { itemId: shieldAttackItem.id, displayName: shieldAttackItem.nome },
+      item: shieldAttackItem
+    });
+    if (eq.shieldId) usedEntryIds.add(eq.shieldId);
+  }
+
+  // 4. Armas na mochila
+  const backpackWeapons = (inventory || [])
+    .map((entry, index) => {
+      const eId = typeof equipEntryId === 'function' ? equipEntryId(entry, index) : (entry.instanceId || entry.id || entry.itemId);
+      const item = catalog.get(entry.itemId) || entry;
+      return { entry, item, eId, index };
+    })
+    .filter(record => (record.item?.tipo === 'arma' || record.item?.arma) && !usedEntryIds.has(record.eId));
+
+  backpackWeapons.sort((a, b) => {
+    const rA = typeof weaponHierarchyRank === 'function' ? weaponHierarchyRank(a.item) : 0;
+    const rB = typeof weaponHierarchyRank === 'function' ? weaponHierarchyRank(b.item) : 0;
+    if (rB !== rA) return rB - rA;
+    return a.index - b.index;
+  });
+
+  for (const bw of backpackWeapons) {
+    attacks.push({ entry: bw.entry, item: bw.item });
+  }
+
+  // 5. Armas naturais / raciais
+  const naturalWeapons = characterNaturalWeaponRecords();
+  for (const nw of naturalWeapons) {
+    attacks.push(nw);
+  }
+
+  return attacks;
+}
+
+
 function updateSheetEquipmentAndDefenseOnly(){
   return ForjaCalculo.executar(updateSheetEquipmentAndDefenseContent);
 }
@@ -403,18 +478,9 @@ function updateSheetEquipmentAndDefenseContent(){
     defTbody.innerHTML = defenseRows;
   }
 
-  const eqWeapon = typeof equippedWeaponRecord === 'function' ? equippedWeaponRecord() : null;
-  const rawWeapons = inventory.map(entry=>({entry, item: catalog.get(entry.itemId)})).filter(record=>record.item?.tipo==='arma');
-  const sortedWeapons = [];
-  if(eqWeapon?.item?.tipo==='arma') sortedWeapons.push({entry: eqWeapon.entry, item: eqWeapon.item});
-  const equippedWeaponId = eqWeapon && typeof equipmentState === 'function' ? equipmentState().weaponId : '';
-  rawWeapons.filter(w=>!eqWeapon || (typeof equipEntryId==='function'?equipEntryId(w.entry,inventory.indexOf(w.entry))!==equippedWeaponId:w.entry!==eqWeapon.entry)).sort((a,b)=>{const rA=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(a.item):0,rB=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(b.item):0;return rB-rA}).forEach(w=>{if(sortedWeapons.length<5)sortedWeapons.push(w)});
-  const naturalWeapons1 = characterNaturalWeaponRecords();
-  naturalWeapons1.forEach(nw => {
-    if(!sortedWeapons.some(w => w.entry.itemId === nw.entry.itemId || w.item.id === nw.item.id)) sortedWeapons.push(nw);
-  });
   const attacksTbody = preview.querySelector('.sheet-preview-table.attacks tbody');
   if(attacksTbody){
+    const sortedWeapons = characterAttackRecords(inventory, catalog);
     const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
     const attackRows = sortedWeapons.length ? sortedWeapons.map(({entry,item})=>{const values=typeof weaponPassiveStats==='function'?weaponPassiveStats(item,entry):{attack:0,damage:''};const rangeText=item.arma?.alcanceId?((typeof RANGE_LABELS!=='undefined'&&RANGE_LABELS[item.arma.alcanceId])||rangeLabels[item.arma.alcanceId]||item.arma.alcanceId):'—';return '<tr><td>'+esc(getSheetItemDisplayName(entry,catalog))+'</td><td>'+values.attack+'</td><td>'+esc(values.damage)+'</td><td>'+esc(typeof formatWeaponCritical==='function'?formatWeaponCritical(values.critical||item.arma?.critico):(item.arma?.critico||''))+'</td><td>'+esc((item.arma?.tipoDanoIds||[]).join('/'))+'</td><td>'+esc(rangeText)+'</td></tr>'}).join('') : '<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
     attacksTbody.innerHTML = attackRows;
@@ -2450,14 +2516,8 @@ function renderCharacterDetails(){
   const armorStats = typeof armorPassiveStats === 'function' ? armorPassiveStats(armor, armorEntry) : { defense: Number(armor?.armadura?.defesa || 0), penalty: Number(armor?.armadura?.penalidade || 0) };
   const shieldStats = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(shield, shieldEntry) : { defense: Number(shield?.escudo?.bonusDefesa || 0), penalty: Number(shield?.escudo?.penalidade || 0) };
 
-  const itemName=entry=>getSheetItemDisplayName(entry,catalog),eqWeapon=typeof equippedWeaponRecord==='function'?equippedWeaponRecord():null,rawWeapons=inventory.map(entry=>({entry,item:catalog.get(entry.itemId)})).filter(record=>record.item?.tipo==='arma'),sortedWeapons=[];
-  if(eqWeapon?.item?.tipo==='arma')sortedWeapons.push({entry:eqWeapon.entry,item:eqWeapon.item});
-  const equippedWeaponId=eqWeapon&&typeof equipmentState==='function'?equipmentState().weaponId:'';
-  rawWeapons.filter(w=>!eqWeapon||(typeof equipEntryId==='function'?equipEntryId(w.entry,inventory.indexOf(w.entry))!==equippedWeaponId:w.entry!==eqWeapon.entry)).sort((a,b)=>{const rA=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(a.item):0,rB=typeof weaponHierarchyRank==='function'?weaponHierarchyRank(b.item):0;return rB-rA}).forEach(w=>{if(sortedWeapons.length<5)sortedWeapons.push(w)});
-  const naturalWeapons2 = characterNaturalWeaponRecords();
-  naturalWeapons2.forEach(nw => {
-    if(!sortedWeapons.some(w => w.entry.itemId === nw.entry.itemId || w.item.id === nw.item.id)) sortedWeapons.push(nw);
-  });
+  const itemName=entry=>getSheetItemDisplayName(entry,catalog);
+  const sortedWeapons = characterAttackRecords(inventory, catalog);
   const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
   const attackRows=sortedWeapons.length?sortedWeapons.map(({entry,item})=>{const values=weaponPassiveStats(item,entry);const rangeText=item.arma?.alcanceId?((typeof RANGE_LABELS!=='undefined'&&RANGE_LABELS[item.arma.alcanceId])||rangeLabels[item.arma.alcanceId]||item.arma.alcanceId):'—';return '<tr><td>'+esc(itemName(entry))+'</td><td>'+values.attack+'</td><td>'+esc(values.damage)+'</td><td>'+esc(formatWeaponCritical(values.critical||item.arma?.critico))+'</td><td>'+esc((item.arma?.tipoDanoIds||[]).join('/'))+'</td><td>'+esc(rangeText)+'</td></tr>'}).join(''):'<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
   const skillRows=renderSheetSkillRows();

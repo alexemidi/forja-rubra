@@ -1,6 +1,34 @@
 
 function consolidateInventoryEntries(backpack){
-  return RegrasInventario.consolidar(backpack);
+  if (!Array.isArray(backpack) || backpack.length === 0) return backpack || [];
+  const catalog = typeof getEquipmentCatalog === 'function' ? getEquipmentCatalog() : (typeof getPdfItemsCatalog === 'function' ? getPdfItemsCatalog() : new Map());
+  const isWeaponEntry = (e) => {
+    if (!e) return false;
+    if (e.isEngenhoca || e.contraptionId) return false;
+    const it = catalog.get ? catalog.get(e.itemId) : null;
+    return e.tipo === 'arma' || it?.tipo === 'arma' || Boolean(it?.arma);
+  };
+
+  const weapons = [];
+  const otherItems = [];
+  for (const entry of backpack) {
+    if (!entry) continue;
+    if (isWeaponEntry(entry)) {
+      const qty = Math.max(1, Number(entry.quantity) || 1);
+      for (let q = 0; q < qty; q++) {
+        weapons.push({
+          ...entry,
+          instanceId: q === 0 ? (entry.instanceId || ('inst_' + (entry.id || entry.itemId) + '_0')) : ('inst_' + (entry.id || entry.itemId) + '_' + Math.random().toString(36).slice(2, 7)),
+          quantity: 1
+        });
+      }
+    } else {
+      otherItems.push(entry);
+    }
+  }
+
+  const consolidatedOther = RegrasInventario.consolidar(otherItems);
+  return [...weapons, ...consolidatedOther];
 }
 function inventoryProfile(){
   const saved=arsenalState();let profiles;

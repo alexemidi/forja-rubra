@@ -35,29 +35,50 @@ document.addEventListener('click',event=>{
     toast('Item retirado da montaria.');
     return;
   }
-  if(action==='equip-shield')blocksShield=equippedWeaponBlocksShield();
+  let equipId = id;
+  if(entry && Number(entry.quantity || 1) > 1 && ['equip-weapon','equip-shield','equip-armor','equip-trailer','equip-accessory'].includes(action)){
+    entry.quantity = Number(entry.quantity) - 1;
+    const singleEntry = {
+      ...entry,
+      quantity: 1,
+      instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)
+    };
+    inventory.push(singleEntry);
+    equipId = equipEntryId(singleEntry, inventory.indexOf(singleEntry));
+  }
+
+  if(action==='equip-shield'){
+    if(equippedWeaponBlocksShield()){
+      toast('As duas mãos estão ocupadas. Guarde um item antes de equipar o escudo.');
+      return;
+    }
+    blocksShield=equippedWeaponBlocksShield();
+  }
   if(action==='set-handedness-two'){
-    if(heldItemRecords().some(r=>r.id!==id)){toast('Guarde o item da outra mão antes de usar duas mãos.');return}
-    if(eq.offhandId===id){eq.weaponId=id;eq.offhandId='none'}
+    if(eq.offhandId===equipId){eq.weaponId=equipId;eq.offhandId='none';}
+    else if(eq.offhandId&&eq.offhandId!=='none'){eq.offhandId='none';}
+    if(eq.shieldId&&eq.shieldId!=='none'){eq.shieldId='none';}
   }
   if(action==='equip-weapon'){
     const held=heldItemRecords();
-    if(held.some(r=>r.id===id))return;
-    if(held.reduce((n,r)=>n+(r.grip==='duas_maos'?2:1),0)>=2){toast('As duas mãos estão ocupadas. Guarde um item antes.');return}
+    if(held.some(r=>r.id===equipId))return;
+    const hasShield = Boolean(eq.shieldId && eq.shieldId !== 'none');
+    const handsOccupied = held.reduce((n,r)=>n+(r.grip==='duas_maos'?2:1),0) + (hasShield ? 1 : 0);
+    if(handsOccupied>=2){toast('As duas mãos estão ocupadas. Guarde um item antes.');return}
     if(eq.weaponId&&eq.weaponId!=='none')handSlot='offhandId';
     const itemCatalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():(typeof getPdfItemsCatalog==='function'?getPdfItemsCatalog():new Map((DATA.pdfItems||[]).map(i=>[i.id,i])));
     const item=itemCatalog.get?itemCatalog.get(entry?.itemId):(DATA.pdfItems||[]).find(it=>it.id===entry?.itemId);
     const isWeapon=item?.tipo==='arma'||item?.tipo==='esoterico'||item?.categoriaId==='esoterico'||item?.tipo==='instrumento'||item?.categoriaId==='instrumento'||item?.tipo==='engenhoca'||Boolean(entry?.isEngenhoca)||entry?.formaUso==='empunhada'||/instrumento/i.test(item?.nome||'');
-    const handedness=(item?.arma?.propriedadesIds||[]).includes('adaptavel')?(eq.adaptableHandedness[id]||'uma_mao'):(item?.arma?.empunhaduraId||'uma_mao');
+    const handedness=(item?.arma?.propriedadesIds||[]).includes('adaptavel')?(eq.adaptableHandedness[equipId]||'uma_mao'):(item?.arma?.empunhaduraId||'uma_mao');
     blocksShield=!!isWeapon&&handedness==='duas_maos';
-    if(blocksShield&&held.length){toast('Guarde o outro item antes de empunhar com duas mãos.');return}
+    if(blocksShield&&(held.length || hasShield)){toast('Guarde o outro item antes de empunhar com duas mãos.');return}
   }
   if(action==='reveal-tattoo'||action==='equip-accessory'){
     const itemCatalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():(typeof getPdfItemsCatalog==='function'?getPdfItemsCatalog():new Map((DATA.pdfItems||[]).map(i=>[i.id,i])));
     const item=itemCatalog.get?itemCatalog.get(entry?.itemId):(DATA.pdfItems||[]).find(it=>it.id===entry?.itemId);
     tattoo=isTattooItem(item,entry);
   }
-  const result=RegrasEquipamento.aplicar(eq,action,id,{limit:wornItemsLimit()+(action==='equip-accessory'&&mochilaEntryIsenta(entry,getEquipmentCatalog().get(entry?.itemId))?1:0),count:wornItemsCount(),blocksShield,tattoo,handSlot,dualReady:action==='toggle-dual-attack'&&dualWeaponAttackReady()});
+  const result=RegrasEquipamento.aplicar(eq,action,equipId,{limit:wornItemsLimit()+(action==='equip-accessory'&&mochilaEntryIsenta(entry,getEquipmentCatalog().get(entry?.itemId))?1:0),count:wornItemsCount(),blocksShield,tattoo,handSlot,dualReady:action==='toggle-dual-attack'&&dualWeaponAttackReady()});
   if(result.alterado){
     Object.assign(eq,result.equipment);
     if(typeof sincronizarViolacaoArmaFundamentalista==='function'){
