@@ -71,7 +71,10 @@ document.addEventListener('click',event=>{
     const isWeapon=item?.tipo==='arma'||item?.tipo==='esoterico'||item?.categoriaId==='esoterico'||item?.tipo==='instrumento'||item?.categoriaId==='instrumento'||item?.tipo==='engenhoca'||Boolean(entry?.isEngenhoca)||entry?.formaUso==='empunhada'||/instrumento/i.test(item?.nome||'');
     const handedness=(item?.arma?.propriedadesIds||[]).includes('adaptavel')?(eq.adaptableHandedness[equipId]||'uma_mao'):(item?.arma?.empunhaduraId||'uma_mao');
     blocksShield=!!isWeapon&&handedness==='duas_maos';
-    if(blocksShield&&(held.length || hasShield)){toast('Guarde o outro item antes de empunhar com duas mãos.');return}
+    if(blocksShield){
+      if(eq.offhandId && eq.offhandId !== 'none') eq.offhandId = 'none';
+      if(eq.shieldId && eq.shieldId !== 'none') eq.shieldId = 'none';
+    }
   }
   if(action==='reveal-tattoo'||action==='equip-accessory'){
     const itemCatalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():(typeof getPdfItemsCatalog==='function'?getPdfItemsCatalog():new Map((DATA.pdfItems||[]).map(i=>[i.id,i])));

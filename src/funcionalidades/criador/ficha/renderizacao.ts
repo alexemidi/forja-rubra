@@ -429,6 +429,293 @@ function characterAttackRecords(inventory, catalog) {
   return attacks;
 }
 
+function renderSheetAttackRows(inventory: any[], catalog: any): string {
+  const sortedWeapons = typeof characterAttackRecords === 'function' ? characterAttackRecords(inventory, catalog) : [];
+  const rangeLabels: Record<string, string> = { curto: 'Curto', medio: 'Médio', longo: 'Longo', '3m': '3m', '4_5m': '4,5m', cone_de_6m: 'Cone de 6m' };
+  const overrides = (typeof state !== 'undefined' && state.attackOverrides && typeof state.attackOverrides === 'object') ? state.attackOverrides : {};
+  const customList = (typeof state !== 'undefined' && Array.isArray(state.customAttacks)) ? state.customAttacks : [];
+
+  const rows: string[] = [];
+
+  for (const { entry, item } of sortedWeapons) {
+    const key = entry?.instanceId || entry?.itemId || item?.id || entry?.displayName || item?.nome || '';
+    const ov = overrides[key] || (item?.id ? overrides[item.id] : null) || (entry?.itemId ? overrides[entry.itemId] : null);
+    const values = typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—', critical: null };
+    
+    const defaultName = typeof getSheetItemDisplayName === 'function' ? getSheetItemDisplayName(entry, catalog) : (item?.nome || entry?.displayName || 'Arma');
+    const defaultAtk = values.attack >= 0 ? '+' + values.attack : String(values.attack);
+    const defaultDmg = values.damage || '—';
+    const defaultCrit = typeof formatWeaponCritical === 'function' ? formatWeaponCritical(values.critical || item?.arma?.critico) : (item?.arma?.critico || '—');
+    const defaultTipo = (item?.arma?.tipoDanoIds || []).join('/') || '—';
+    const defaultAlcance = item?.arma?.alcanceId ? ((typeof RANGE_LABELS !== 'undefined' && RANGE_LABELS[item.arma.alcanceId]) || rangeLabels[item.arma.alcanceId] || item.arma.alcanceId) : '—';
+
+    const finalName = ov?.nome != null && ov.nome !== '' ? ov.nome : defaultName;
+    const finalAtk = ov?.ataque != null && ov.ataque !== '' ? ov.ataque : defaultAtk;
+    const finalDmg = ov?.dano != null && ov.dano !== '' ? ov.dano : defaultDmg;
+    const finalCrit = ov?.critico != null && ov.critico !== '' ? ov.critico : defaultCrit;
+    const finalTipo = ov?.tipoDano != null && ov.tipoDano !== '' ? ov.tipoDano : defaultTipo;
+    const finalAlcance = ov?.alcance != null && ov.alcance !== '' ? ov.alcance : defaultAlcance;
+
+    rows.push('<tr><td>' + esc(finalName) + '</td><td>' + esc(String(finalAtk)) + '</td><td>' + esc(finalDmg) + '</td><td>' + esc(finalCrit) + '</td><td>' + esc(finalTipo) + '</td><td>' + esc(finalAlcance) + '</td></tr>');
+  }
+
+  for (const c of customList) {
+    if (!c || !c.nome) continue;
+    rows.push('<tr><td>' + esc(c.nome) + '</td><td>' + esc(String(c.ataque || '+0')) + '</td><td>' + esc(c.dano || '—') + '</td><td>' + esc(c.critico || '20/x2') + '</td><td>' + esc(c.tipoDano || '—') + '</td><td>' + esc(c.alcance || '—') + '</td></tr>');
+  }
+
+  if (!rows.length) {
+    return '<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
+  }
+  return rows.join('');
+}
+
+function openEditAttacksModal(){
+  let modal = document.getElementById('forjaEditAttacksModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'forjaEditAttacksModal';
+    modal.className = 'modal-backdrop';
+    document.body.appendChild(modal);
+  }
+
+  const inventory = typeof characterInventory === 'function' ? characterInventory() : [];
+  const catalog = getPdfItemsCatalog();
+  const sortedWeapons = typeof characterAttackRecords === 'function' ? characterAttackRecords(inventory, catalog) : [];
+  const rangeLabels: Record<string, string> = { curto: 'Curto', medio: 'Médio', longo: 'Longo', '3m': '3m', '4_5m': '4,5m', cone_de_6m: 'Cone de 6m' };
+  
+  state.attackOverrides = (state.attackOverrides && typeof state.attackOverrides === 'object') ? state.attackOverrides : {};
+  state.customAttacks = Array.isArray(state.customAttacks) ? state.customAttacks : [];
+
+  const autoAttackItems = sortedWeapons.map(({ entry, item }) => {
+    const key = entry?.instanceId || entry?.itemId || item?.id || entry?.displayName || item?.nome || '';
+    const ov = state.attackOverrides[key] || (item?.id ? state.attackOverrides[item.id] : null) || (entry?.itemId ? state.attackOverrides[entry.itemId] : null);
+    const values = typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—', critical: null };
+    const defaultName = typeof getSheetItemDisplayName === 'function' ? getSheetItemDisplayName(entry, catalog) : (item?.nome || entry?.displayName || 'Arma');
+    const defaultAtk = values.attack >= 0 ? '+' + values.attack : String(values.attack);
+    const defaultDmg = values.damage || '—';
+    const defaultCrit = typeof formatWeaponCritical === 'function' ? formatWeaponCritical(values.critical || item?.arma?.critico) : (item?.arma?.critico || '—');
+    const defaultTipo = (item?.arma?.tipoDanoIds || []).join('/') || '—';
+    const defaultAlcance = item?.arma?.alcanceId ? ((typeof RANGE_LABELS !== 'undefined' && RANGE_LABELS[item.arma.alcanceId]) || rangeLabels[item.arma.alcanceId] || item.arma.alcanceId) : '—';
+
+    return {
+      key,
+      hasOverride: Boolean(ov),
+      defaultName,
+      defaultAtk,
+      defaultDmg,
+      defaultCrit,
+      defaultTipo,
+      defaultAlcance,
+      name: ov?.nome != null && ov.nome !== '' ? ov.nome : defaultName,
+      atk: ov?.ataque != null && ov.ataque !== '' ? ov.ataque : defaultAtk,
+      dmg: ov?.dano != null && ov.dano !== '' ? ov.dano : defaultDmg,
+      crit: ov?.critico != null && ov.critico !== '' ? ov.critico : defaultCrit,
+      tipo: ov?.tipoDano != null && ov.tipoDano !== '' ? ov.tipoDano : defaultTipo,
+      alcance: ov?.alcance != null && ov.alcance !== '' ? ov.alcance : defaultAlcance
+    };
+  });
+
+  const renderModalContent = () => {
+    modal.innerHTML = `
+      <section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:760px;width:95vw;max-height:90vh;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
+        <header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;">
+          <h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Editar e Personalizar Ataques</h3>
+          <button type="button" class="button small" id="closeEditAttacksX" style="min-width:28px;padding:2px 6px;">✕</button>
+        </header>
+        <div class="confirm-modal-body" style="overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:16px;">
+          <p style="font-size:0.75rem;color:var(--muted,#c9b2aa);margin:0;line-height:1.45;">
+            Personalize os valores de teste, dano, crítico, tipo e alcance dos ataques existentes ou cadastre novos ataques personalizados.
+          </p>
+
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Ataques do Equipamento &amp; Naturais</h4>
+            ${autoAttackItems.length ? autoAttackItems.map((atk) => `
+              <div class="attack-edit-row" data-attack-key="${esc(atk.key)}" style="background:#181114;border:1px solid var(--line,#4a252a);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-items:center;">
+                <label class="field" style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;margin:0;">
+                  <span style="font-weight:bold;color:var(--cream,#f5eee6);font-size:0.8rem;">${esc(atk.defaultName)}</span>
+                  ${atk.hasOverride ? `<button type="button" class="button small btn-reset-attack-override" data-reset-key="${esc(atk.key)}" style="font-size:0.62rem;padding:2px 6px;">Restaurar Padrão</button>` : ''}
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Nome exibido</span>
+                  <input type="text" class="input input-ov-name" value="${esc(atk.name)}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Teste de Ataque</span>
+                  <input type="text" class="input input-ov-atk" value="${esc(String(atk.atk))}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Dano</span>
+                  <input type="text" class="input input-ov-dmg" value="${esc(atk.dmg)}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Crítico</span>
+                  <input type="text" class="input input-ov-crit" value="${esc(atk.crit)}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Tipo de Dano</span>
+                  <input type="text" class="input input-ov-tipo" value="${esc(atk.tipo)}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+                <label class="field" style="margin:0;">
+                  <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Alcance</span>
+                  <input type="text" class="input input-ov-alcance" value="${esc(atk.alcance)}" style="font-size:0.75rem;padding:4px 6px;" />
+                </label>
+              </div>
+            `).join('') : '<p style="font-size:0.75rem;color:var(--muted);">Nenhum ataque automático detectado.</p>'}
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Ataques Personalizados Livres</h4>
+              <button type="button" class="button small" id="btnAddCustomAttack" style="font-size:0.7rem;padding:3px 8px;">+ Adicionar Ataque</button>
+            </div>
+            <div id="customAttacksContainer" style="display:flex;flex-direction:column;gap:10px;">
+              ${state.customAttacks.map((c: any, idx: number) => `
+                <div class="custom-attack-row" data-custom-idx="${idx}" style="background:#181114;border:1px solid #4a252a;border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-items:center;position:relative;">
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Nome do Golpe</span>
+                    <input type="text" class="input custom-input-name" value="${esc(c.nome || '')}" placeholder="Ex: Golpe Divino" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Teste</span>
+                    <input type="text" class="input custom-input-atk" value="${esc(String(c.ataque || '+0'))}" placeholder="+8" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Dano</span>
+                    <input type="text" class="input custom-input-dmg" value="${esc(c.dano || '')}" placeholder="1d8+4" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Crítico</span>
+                    <input type="text" class="input custom-input-crit" value="${esc(c.critico || '20/x2')}" placeholder="19/x2" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Tipo</span>
+                    <input type="text" class="input custom-input-tipo" value="${esc(c.tipoDano || '')}" placeholder="Impacto" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <label class="field" style="margin:0;">
+                    <span style="font-size:0.68rem;color:var(--muted,#c9b2aa);">Alcance</span>
+                    <input type="text" class="input custom-input-alcance" value="${esc(c.alcance || 'Corpo a corpo')}" placeholder="Corpo a corpo" style="font-size:0.75rem;padding:4px 6px;" />
+                  </label>
+                  <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
+                    <button type="button" class="button small btn-delete-custom-attack" data-del-idx="${idx}" style="font-size:0.68rem;padding:4px 8px;background:rgba(220,38,38,0.2);border-color:#b91c1c;color:#fca5a5;">Remover</button>
+                  </div>
+                </div>
+              `).join('')}
+              ${!state.customAttacks.length ? '<p style="font-size:0.72rem;color:var(--muted);margin:0;">Nenhum ataque personalizado criado ainda.</p>' : ''}
+            </div>
+          </div>
+        </div>
+        <footer style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--line,#4a252a);padding:12px 16px;">
+          <button type="button" class="button" id="btnCancelEditAttacks">Cancelar</button>
+          <button type="button" class="button primary" id="btnSaveEditAttacks">Salvar Ataques</button>
+        </footer>
+      </section>
+    `;
+
+    modal.querySelector('#closeEditAttacksX').onclick = () => { modal.hidden = true; };
+    modal.querySelector('#btnCancelEditAttacks').onclick = () => { modal.hidden = true; };
+    modal.addEventListener('click', (e: any) => { if(e.target === modal) modal.hidden = true; });
+
+    modal.querySelectorAll('.btn-reset-attack-override').forEach((btn: any) => {
+      btn.onclick = () => {
+        const key = btn.dataset.resetKey;
+        if(key && state.attackOverrides[key]){
+          delete state.attackOverrides[key];
+          persistNow();
+          openEditAttacksModal();
+        }
+      };
+    });
+
+    modal.querySelector('#btnAddCustomAttack')?.addEventListener('click', () => {
+      state.customAttacks.push({
+        id: 'atk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        nome: 'Novo Ataque',
+        ataque: '+0',
+        dano: '1d6',
+        critico: '20/x2',
+        tipoDano: 'Impacto',
+        alcance: 'Corpo a corpo'
+      });
+      renderModalContent();
+    });
+
+    modal.querySelectorAll('.btn-delete-custom-attack').forEach((btn: any) => {
+      btn.onclick = () => {
+        const idx = Number(btn.dataset.delIdx);
+        if(!isNaN(idx) && idx >= 0 && idx < state.customAttacks.length){
+          state.customAttacks.splice(idx, 1);
+          renderModalContent();
+        }
+      };
+    });
+
+    modal.querySelector('#btnSaveEditAttacks').onclick = () => {
+      modal.querySelectorAll('.attack-edit-row').forEach((row: any) => {
+        const key = row.dataset.attackKey;
+        if(!key) return;
+        const nameVal = (row.querySelector('.input-ov-name')?.value || '').trim();
+        const atkVal = (row.querySelector('.input-ov-atk')?.value || '').trim();
+        const dmgVal = (row.querySelector('.input-ov-dmg')?.value || '').trim();
+        const critVal = (row.querySelector('.input-ov-crit')?.value || '').trim();
+        const tipoVal = (row.querySelector('.input-ov-tipo')?.value || '').trim();
+        const alcVal = (row.querySelector('.input-ov-alcance')?.value || '').trim();
+
+        const base = autoAttackItems.find(a => a.key === key);
+        if(base){
+          const isChanged = (nameVal && nameVal !== base.defaultName) ||
+            (atkVal && atkVal !== base.defaultAtk) ||
+            (dmgVal && dmgVal !== base.defaultDmg) ||
+            (critVal && critVal !== base.defaultCrit) ||
+            (tipoVal && tipoVal !== base.defaultTipo) ||
+            (alcVal && alcVal !== base.defaultAlcance);
+
+          if(isChanged){
+            state.attackOverrides[key] = {
+              nome: nameVal,
+              ataque: atkVal,
+              dano: dmgVal,
+              critico: critVal,
+              tipoDano: tipoVal,
+              alcance: alcVal
+            };
+          } else {
+            delete state.attackOverrides[key];
+          }
+        }
+      });
+
+      const updatedCustom: any[] = [];
+      modal.querySelectorAll('.custom-attack-row').forEach((row: any) => {
+        const name = (row.querySelector('.custom-input-name')?.value || '').trim();
+        if(!name) return;
+        updatedCustom.push({
+          id: state.customAttacks[Number(row.dataset.customIdx)]?.id || ('atk_' + Date.now()),
+          nome: name,
+          ataque: (row.querySelector('.custom-input-atk')?.value || '+0').trim(),
+          dano: (row.querySelector('.custom-input-dmg')?.value || '—').trim(),
+          critico: (row.querySelector('.custom-input-crit')?.value || '20/x2').trim(),
+          tipoDano: (row.querySelector('.custom-input-tipo')?.value || '—').trim(),
+          alcance: (row.querySelector('.custom-input-alcance')?.value || '—').trim()
+        });
+      });
+      state.customAttacks = updatedCustom;
+
+      modal.hidden = true;
+      persistNow();
+      updateSheetEquipmentAndDefenseContent();
+      if(typeof toast === 'function') toast('Ataques atualizados com sucesso!');
+    };
+  };
+
+  renderModalContent();
+  modal.hidden = false;
+}
+if(typeof window !== 'undefined'){
+  (window as any).openEditAttacksModal = openEditAttacksModal;
+  (window as any).renderSheetAttackRows = renderSheetAttackRows;
+}
+
 
 function updateSheetEquipmentAndDefenseOnly(){
   return ForjaCalculo.executar(updateSheetEquipmentAndDefenseContent);
@@ -480,10 +767,7 @@ function updateSheetEquipmentAndDefenseContent(){
 
   const attacksTbody = preview.querySelector('.sheet-preview-table.attacks tbody');
   if(attacksTbody){
-    const sortedWeapons = characterAttackRecords(inventory, catalog);
-    const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
-    const attackRows = sortedWeapons.length ? sortedWeapons.map(({entry,item})=>{const values=typeof weaponPassiveStats==='function'?weaponPassiveStats(item,entry):{attack:0,damage:''};const rangeText=item.arma?.alcanceId?((typeof RANGE_LABELS!=='undefined'&&RANGE_LABELS[item.arma.alcanceId])||rangeLabels[item.arma.alcanceId]||item.arma.alcanceId):'—';return '<tr><td>'+esc(getSheetItemDisplayName(entry,catalog))+'</td><td>'+values.attack+'</td><td>'+esc(values.damage)+'</td><td>'+esc(typeof formatWeaponCritical==='function'?formatWeaponCritical(values.critical||item.arma?.critico):(item.arma?.critico||''))+'</td><td>'+esc((item.arma?.tipoDanoIds||[]).join('/'))+'</td><td>'+esc(rangeText)+'</td></tr>'}).join('') : '<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
-    attacksTbody.innerHTML = attackRows;
+    attacksTbody.innerHTML = renderSheetAttackRows(inventory, catalog);
   }
 
   const equipPanelBody = preview.querySelector('.sheet-equipment-sections')?.parentElement || preview.querySelector('.sheet-equipment-container') || preview.querySelector('.equip-backpack-card')?.closest('.panel-body');
@@ -1136,6 +1420,9 @@ function sheetVitalControls(maximum){
           ${trainingCount > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#d9a84e;color:#0b0f17;font-size:0.55rem;font-weight:800;padding:1px 4px;border-radius:999px;line-height:1;">${trainingCount}/4</span>` : ''}
         </button>
       ` : ''}
+      <button type="button" class="sheet-action-icon-btn sheet-planning-btn" data-sheet-action="open-planning" title="Planejamento de Níveis (Simulação de Progressão Futura)" aria-label="Planejamento de Níveis" style="border-color:#d9a84e66;color:#e8cb83;">
+        <svg class="forja-svg sheet-action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+      </button>
       <button type="button" class="sheet-action-icon-btn sheet-level-up-btn ${canLevelUp ? '' : 'is-disabled'}" data-sheet-action="level-up" ${canLevelUp ? '' : 'disabled'} title="${canLevelUp ? 'Subir de Nível' : 'Nível máximo atingido (20)'}">
         ${upIcon}
       </button>
@@ -2257,6 +2544,10 @@ function renderSheetActionBar(mode = 'full'){
         ${bookIcon}
         <span>Grimório</span>
       </button>
+      <button type="button" class="sheet-action-btn sheet-quick-nav-btn" data-sheet-action="open-planning" title="Planejamento de Progressão por Níveis">
+        <svg class="forja-svg sheet-action-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        <span>Planejamento</span>
+      </button>
       <button type="button" class="sheet-action-btn sheet-quick-nav-btn" data-sheet-action="shop" title="Abrir Arsenal &amp; Loja">
         ${shopIcon}
         <span>Loja</span>
@@ -2517,9 +2808,7 @@ function renderCharacterDetails(){
   const shieldStats = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(shield, shieldEntry) : { defense: Number(shield?.escudo?.bonusDefesa || 0), penalty: Number(shield?.escudo?.penalidade || 0) };
 
   const itemName=entry=>getSheetItemDisplayName(entry,catalog);
-  const sortedWeapons = characterAttackRecords(inventory, catalog);
-  const rangeLabels={curto:'Curto',medio:'Médio',longo:'Longo','3m':'3m','4_5m':'4,5m',cone_de_6m:'Cone de 6m'};
-  const attackRows=sortedWeapons.length?sortedWeapons.map(({entry,item})=>{const values=weaponPassiveStats(item,entry);const rangeText=item.arma?.alcanceId?((typeof RANGE_LABELS!=='undefined'&&RANGE_LABELS[item.arma.alcanceId])||rangeLabels[item.arma.alcanceId]||item.arma.alcanceId):'—';return '<tr><td>'+esc(itemName(entry))+'</td><td>'+values.attack+'</td><td>'+esc(values.damage)+'</td><td>'+esc(formatWeaponCritical(values.critical||item.arma?.critico))+'</td><td>'+esc((item.arma?.tipoDanoIds||[]).join('/'))+'</td><td>'+esc(rangeText)+'</td></tr>'}).join(''):'<tr><td colspan="6" class="sheet-preview-empty">Nenhum ataque cadastrado.</td></tr>';
+  const attackRows=renderSheetAttackRows(inventory, catalog);
   const skillRows=renderSheetSkillRows();
   const powers=[...(state.progression||[]).map(row=>progressionPowerById(row.powerId)),...selectedGeneralPowers(),...String(state.deity.power||'').split('|').map(name=>DATA.generalPowers.find(power=>power.nome===name))].filter(Boolean),learned=typeof allLearnedSpellIds==='function'?allLearnedSpellIds().map(id=>spellById(id)?.name).filter(Boolean):[];
   const isMestre = isModoMestreAtivo();
@@ -2529,6 +2818,21 @@ function renderCharacterDetails(){
       <a href="recompensas.html" style="color:#ffffff;text-decoration:underline;font-weight:bold;font-size:0.8rem">Voltar à Mesa de Jogo</a>
     </div>
   ` : '';
+  const isPlanning = Boolean(state.isPlanningMode);
+  const planningBanner = isPlanning ? `
+    <div class="planning-mode-banner" style="background:#221013;border:1px solid #c51f2c;border-left:4px solid #ea3948;padding:10px 16px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong style="color:#f5c879;font-size:0.86rem;letter-spacing:0.5px">MODO DE PLANEJAMENTO ATIVO</strong>
+        <div style="font-size:0.75rem;color:#f5eee6;margin-top:2px">
+          Visualizando <strong>Nível Simulado ${state.identity?.plannedLevel}</strong> (Nível Real: <strong>${state.planningBaseLevel || 1}</strong>) · Dinheiro Hipotético: <strong style="color:#e9ad59">+${state.finances?.hypotheticalPlanningFunds || 0} T$</strong>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" class="button small primary" data-action="save-planning-build" style="font-size:0.72rem;padding:4px 10px;background:#c51f2c;border-color:#ea3948">Salvar Planejamento</button>
+        <button type="button" class="button small" data-action="exit-planning-mode" style="font-size:0.72rem;padding:4px 10px">Encerrar / Voltar ao Nível Real</button>
+      </div>
+    </div>
+  ` : '';
   const distActiveIds = typeof progressionDistinctionActiveIds === 'function' ? progressionDistinctionActiveIds() : (Array.isArray(state.distinctions?.activeIds) ? state.distinctions.activeIds : []);
   const distCatalog = (typeof DATA !== 'undefined' && Array.isArray(DATA?.distinctions)) ? DATA.distinctions : [];
   const distNames = distActiveIds.map(id => distCatalog.find(d => d.id === id)?.nome).filter(Boolean);
@@ -2536,7 +2840,7 @@ function renderCharacterDetails(){
   const isEspirito = typeof hasCriacaoDosDeuses === 'function' && hasCriacaoDosDeuses();
   const raceDisplay = isEspirito ? `${race?.nome || '—'} (Espírito)` : (race?.nome || '—');
   const charName = state.identity?.characterName || 'Personagem sem nome';
-  const identity=mestreBanner+'<section class="sheet-preview-identity"><span><small>Personagem</small><strong>'+esc(charName)+'</strong></span><span><small>Jogador</small><strong>'+esc(state.identity.playerName||'Jogador não informado')+'</strong></span><span><small>Raça</small><strong>'+esc(raceDisplay)+'</strong></span><span><small>Origem</small><strong>'+esc([origin?.nome,regional?.nome].filter(Boolean).join(' / ')||'—')+'</strong></span><span><small>Classe</small><strong>'+esc(classes.join(' / ')||'—')+' · nível '+state.identity.plannedLevel+'</strong></span><span><small>Divindade</small><strong>'+esc(deity)+'</strong></span></section>';
+  const identity=planningBanner+mestreBanner+'<section class="sheet-preview-identity"><span><small>Personagem</small><strong>'+esc(charName)+'</strong></span><span><small>Jogador</small><strong>'+esc(state.identity.playerName||'Jogador não informado')+'</strong></span><span><small>Raça</small><strong>'+esc(raceDisplay)+'</strong></span><span><small>Origem</small><strong>'+esc([origin?.nome,regional?.nome].filter(Boolean).join(' / ')||'—')+'</strong></span><span><small>Classe</small><strong>'+esc(classes.join(' / ')||'—')+' · nível '+state.identity.plannedLevel+'</strong></span><span><small>Divindade</small><strong>'+esc(deity)+'</strong></span></section>';
   
   const slidersIcon = window.IconesForja ? window.IconesForja.get('sliders', 'icon-sm') : '';
   const isSteppers = Boolean(state.attrSteppersActive);
@@ -2578,7 +2882,7 @@ function renderCharacterDetails(){
   const rdHtml = rdSummary ? '<p class="sheet-defense-rd">' + renderSheetReductionText(rdSummary) + '</p>' : '';
 
   
-  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+((characterDefenseAttribute()&&characterDefenseAttribute()!=='nenhum'&&characterDefenseAttribute()!=='none')?characterDefenseAttribute().toUpperCase():'0')+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><h3 class="sheet-attacks-heading">'+sheetHeadingIcon('sword')+'Ataques</h3><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
+  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+((characterDefenseAttribute()&&characterDefenseAttribute()!=='nenhum'&&characterDefenseAttribute()!=='none')?characterDefenseAttribute().toUpperCase():'0')+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><div class="sheet-attacks-heading" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--border)"><h3 style="margin:0;display:flex;align-items:center;gap:6px">'+sheetHeadingIcon('sword')+'Ataques</h3><button type="button" class="button small" data-sheet-action="edit-attacks" title="Editar e personalizar ataques" style="font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1;cursor:pointer">Editar Ataques</button></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
   const wornEntries=[],carriedEntries=[],seenTraje=new Set();
   for(const entry of inventory){
     if(/traje_de_viaj/i.test(entry?.itemId)||/traje_de_viaj/i.test(entry?.displayName)||/traje_de_viaj/i.test(entry?.itemName)){
@@ -3280,7 +3584,7 @@ function proceedToLevelUpWithClass(classId: string){
 function ensureLevelClassModal(){
   let modal=document.getElementById('levelClassModal');if(modal)return modal;
   modal=document.createElement('div');modal.id='levelClassModal';modal.className='modal-backdrop';modal.hidden=true;
-  modal.innerHTML='<section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="levelClassTitle"><header><h3 id="levelClassTitle">Classe do novo nível</h3></header><div class="confirm-modal-body"><p>Escolha a classe que o personagem receberá neste nível. A classe anterior já vem selecionada.</p><label class="field"><span>Classe</span><select class="select" id="levelClassSelect"></select></label></div><footer><button class="button" id="levelClassCancel" type="button">Cancelar</button><button class="button primary" id="levelClassConfirm" type="button">Confirmar nível</button></footer></section>';
+  modal.innerHTML='<section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="levelClassTitle"><header><h3 id="levelClassTitle">Classe do novo nível</h3></header><div class="confirm-modal-body"><div id="levelClassPlanningContainer" hidden></div><p>Escolha a classe que o personagem receberá neste nível. A classe anterior já vem selecionada.</p><label class="field"><span>Classe</span><select class="select" id="levelClassSelect"></select></label></div><footer><button class="button" id="levelClassCancel" type="button">Cancelar</button><button class="button primary" id="levelClassConfirm" type="button">Confirmar nível</button></footer></section>';
   document.body.appendChild(modal);
   modal.querySelector('#levelClassCancel').onclick=()=>{
     modal.hidden=true;
@@ -3435,6 +3739,37 @@ function openLevelClassModal(){
   }
   const modal=ensureLevelClassModal(),select=modal.querySelector('#levelClassSelect'),suggested=state.levelTraining?.nextClassId||state.progression.at(-1)?.classId||state.identity.classId;
   select.innerHTML=DATA.classes.map(cls=>'<option value="'+cls.id+'" '+(cls.id===suggested?'selected':'')+'>'+esc(cls.nome)+'</option>').join('');
+
+  const planInfo = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentoParaProximoNivel === 'function')
+    ? ForjaPlanejamento.obterPlanejamentoParaProximoNivel(state)
+    : null;
+  const planContainer = modal.querySelector('#levelClassPlanningContainer');
+  if(planContainer){
+    if(planInfo){
+      const clsName = (typeof classById === 'function' ? classById(planInfo.nextChoice.classId)?.nome : '') || planInfo.nextChoice.classId;
+      const pwrName = planInfo.nextChoice.powerId ? ((typeof progressionPowerById === 'function' ? progressionPowerById(planInfo.nextChoice.powerId)?.nome : '') || planInfo.nextChoice.powerId) : '';
+      planContainer.innerHTML = '<div style="margin-bottom:14px;padding:10px 12px;background:rgba(217,168,78,0.1);border:1px solid #d9a84e;border-radius:8px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><strong style="color:var(--gold2,#e9ad59);font-size:0.82rem">💡 Seguir Planejamento: ' + esc(planInfo.planning.name) + '</strong><div style="font-size:0.75rem;color:var(--cream,#f5eee6);margin-top:2px">Nível ' + planInfo.nextLevel + ': <strong>' + esc(clsName) + '</strong>' + (pwrName ? ' · Poder: <strong>' + esc(pwrName) + '</strong>' : '') + '</div></div><button type="button" class="button small primary" id="applyPlanningLevelUpBtn" style="font-size:0.72rem;padding:4px 10px;white-space:nowrap">Seguir Planejamento</button></div></div>';
+      planContainer.hidden = false;
+      const followBtn = modal.querySelector('#applyPlanningLevelUpBtn');
+      if(followBtn){
+        followBtn.onclick = () => {
+          modal.hidden = true;
+          if(typeof ForjaPlanejamento.aplicarPlanejamentoProximoNivel === 'function'){
+            ForjaPlanejamento.aplicarPlanejamentoProximoNivel(state, planInfo.planning.id);
+            state.isLevelingUp = false;
+            delete state.levelUpBefore;
+            persistNow();
+            renderStage();
+            if(typeof toast === 'function') toast('Nível ' + planInfo.nextLevel + ' aplicado a partir do planejamento "' + planInfo.planning.name + '"!');
+          }
+        };
+      }
+    } else {
+      planContainer.innerHTML = '';
+      planContainer.hidden = true;
+    }
+  }
+
   modal.hidden=false;
   setTimeout(()=>select.focus(),20);
 }
@@ -3497,4 +3832,138 @@ if(typeof window !== 'undefined'){
   window.addEventListener('storage', (event) => {
     if (event.key === 'forja-heroi-t20-v1') syncExternalPartners();
   });
+}
+
+function openPlanningModal(){
+  let modal = document.getElementById('forjaPlanningModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'forjaPlanningModal';
+    modal.className = 'modal-backdrop';
+    document.body.appendChild(modal);
+  }
+
+  const plannings = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentos === 'function')
+    ? ForjaPlanejamento.obterPlanejamentos(state)
+    : (state.plannings || []);
+  const quota = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.podeCriarPlanejamento === 'function')
+    ? ForjaPlanejamento.podeCriarPlanejamento(state)
+    : { allowed: true, max: 1, current: plannings.length };
+
+  const currentLevel = Math.max(1, Number(state.identity?.plannedLevel) || 1);
+  const minTarget = Math.min(20, currentLevel + 1);
+
+  const renderContent = () => {
+    modal.innerHTML = '<section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:680px;width:95vw;max-height:90vh;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;"><header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;"><div><h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Planejamento de Progressão por Níveis</h3><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Simule o futuro do seu aventureiro e ganhe recompensas monetárias hipotéticas por nível</span></div><button type="button" class="button small" id="closePlanningX" style="min-width:28px;padding:2px 6px;">✕</button></header><div class="confirm-modal-body" style="overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:16px;"><div style="background:#181114;border:1px solid var(--line,#4a252a);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><div><strong style="color:var(--cream,#f5eee6);font-size:0.8rem;">Cota de Planejamentos Desta Ficha</strong><div style="font-size:0.72rem;color:var(--muted,#c9b2aa);margin-top:2px;">' + quota.current + ' de ' + quota.max + ' planejamentos salvos (Gratuito: 1 | Aventureiro: 3 | Campeão: 5)</div></div>' + (quota.current >= quota.max ? '<span class="tag" style="background:#4a252a;color:#fca5a5;font-size:0.68rem;">Limite atingido</span>' : '<span class="tag green" style="font-size:0.68rem;">' + (quota.max - quota.current) + ' vaga(s) disponível(is)</span>') + '</div>' + (plannings.length ? ('<div style="display:flex;flex-direction:column;gap:10px;"><h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Planejamentos Salvos</h4>' + plannings.map((plan) => '<div style="background:#181114;border:1px solid var(--line,#4a252a);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><strong style="color:var(--gold2,#e9ad59);font-size:0.85rem;">' + esc(plan.name) + '</strong><div style="font-size:0.72rem;color:var(--muted,#c9b2aa);margin-top:2px;">Projeção: Nível ' + (plan.baseLevel || 1) + ' → <strong>Nível ' + plan.targetLevel + '</strong> · Dinheiro Hipotético: <strong style="color:#e9ad59">+' + (plan.hypotheticalFunds || 0) + ' T$</strong></div></div><div style="display:flex;align-items:center;gap:6px;"><button type="button" class="button small primary btn-view-planning" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 8px;">Visualizar Ficha</button><button type="button" class="button small btn-delete-planning" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 8px;background:rgba(220,38,38,0.18);border-color:#b91c1c;color:#fca5a5;">Excluir</button></div></div>').join('') + '</div>') : '') + (currentLevel < 20 ? (quota.allowed ? ('<div style="background:#181114;border:1px solid #d9a84e44;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:12px;"><h4 style="margin:0;font-size:0.82rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Criar Novo Planejamento</h4><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nome do Planejamento</span><input type="text" id="inputNewPlanName" class="input" placeholder="Ex: Build Guerreiro Sagrado Nv 10" style="font-size:0.8rem;" /></label><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nível Alvo da Projeção</span><select id="selectNewPlanTarget" class="select" style="font-size:0.8rem;">' + Array.from({ length: 20 - currentLevel }, (_, i) => currentLevel + 1 + i).map(lvl => '<option value="' + lvl + '">Nível ' + lvl + '</option>').join('') + '</select></label><div id="planSummaryBox" style="background:#090708;border:1px solid var(--line,#4a252a);border-radius:6px;padding:8px 12px;font-size:0.75rem;line-height:1.5;"></div><button type="button" class="button primary" id="btnStartNewPlan" style="align-self:flex-start;font-size:0.78rem;padding:6px 14px;">Iniciar Planejamento de Níveis</button></div>') : '<div style="background:#221013;border:1px solid #c51f2c;border-radius:8px;padding:12px 14px;font-size:0.76rem;color:#fca5a5;line-height:1.5;"><strong>Limite de planejamentos atingido para o seu perfil.</strong><p style="margin:4px 0 0 0;font-size:0.72rem;color:var(--cream,#f5eee6);">Exclua um planejamento existente acima para liberar espaço ou apoie o projeto para obter até 5 planejamentos por ficha!</p></div>') : '<p style="font-size:0.75rem;color:var(--muted);">Este personagem já está no nível máximo (20).</p>') + '</div><footer style="display:flex;justify-content:flex-end;border-top:1px solid var(--line,#4a252a);padding:12px 16px;"><button type="button" class="button" id="btnClosePlanning">Fechar</button></footer></section>';
+
+    const targetSelect = modal.querySelector('#selectNewPlanTarget');
+    const summaryBox = modal.querySelector('#planSummaryBox');
+    const updateSummary = () => {
+      if(!targetSelect || !summaryBox) return;
+      const tLvl = Number(targetSelect.value) || minTarget;
+      const diffLevels = tLvl - currentLevel;
+      const hypothetical = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.calcularDinheiroHipoteticoAdicional === 'function')
+        ? ForjaPlanejamento.calcularDinheiroHipoteticoAdicional(currentLevel, tLvl)
+        : 0;
+      summaryBox.innerHTML = '<div>Níveis a simular: <strong>+' + diffLevels + ' nível(is)</strong> (do Nv. ' + currentLevel + ' ao Nv. ' + tLvl + ')</div><div>Dinheiro Hipotético Adicional Concedido: <strong style="color:var(--gold2,#e9ad59);">+' + hypothetical + ' T$</strong> (cumulativo das missões de cada nível planejado)</div>';
+    };
+    if(targetSelect){
+      targetSelect.onchange = updateSummary;
+      updateSummary();
+    }
+
+    modal.querySelector('#closePlanningX').onclick = () => { modal.hidden = true; };
+    modal.querySelector('#btnClosePlanning').onclick = () => { modal.hidden = true; };
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.hidden = true; });
+
+    modal.querySelectorAll('.btn-view-planning').forEach((btn) => {
+      btn.onclick = () => {
+        const id = btn.dataset.planId;
+        const plan = plannings.find((p) => p.id === id);
+        if(!plan) return;
+        modal.hidden = true;
+        if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.iniciarModoPlanejamento === 'function'){
+          ForjaPlanejamento.iniciarModoPlanejamento(state, plan.targetLevel, plan.name);
+          state.progression = JSON.parse(JSON.stringify(plan.progression || []));
+          if(plan.spellsSelections && typeof spellState === 'function'){
+            try {
+              const spState = spellState();
+              spState.selections = Object.assign({}, spState.selections, plan.spellsSelections);
+            } catch {}
+          }
+          persistNow();
+          renderStage();
+          if(typeof toast === 'function') toast('Visualizando Planejamento: "' + plan.name + '" (Nível ' + plan.targetLevel + ')');
+        }
+      };
+    });
+
+    modal.querySelectorAll('.btn-delete-planning').forEach((btn) => {
+      btn.onclick = () => {
+        const id = btn.dataset.planId;
+        if(id && typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.excluirPlanejamento === 'function'){
+          ForjaPlanejamento.excluirPlanejamento(state, id);
+          persistNow();
+          renderContent();
+          if(typeof toast === 'function') toast('Planejamento excluído.');
+        }
+      };
+    });
+
+    modal.querySelector('#btnStartNewPlan')?.addEventListener('click', () => {
+      const nameInput = modal.querySelector('#inputNewPlanName');
+      const targetLvl = Number(targetSelect?.value) || minTarget;
+      const planName = (nameInput?.value || '').trim() || ('Plano até Nível ' + targetLvl);
+
+      modal.hidden = true;
+      if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.iniciarModoPlanejamento === 'function'){
+        ForjaPlanejamento.iniciarModoPlanejamento(state, targetLvl, planName);
+        state.progression = Array.isArray(state.progression) ? state.progression : [];
+        while(state.progression.length < targetLvl){
+          const prevClass = state.progression.at(-1)?.classId || state.identity?.classId || 'guerreiro';
+          state.progression.push({ classId: prevClass });
+        }
+        state.isLevelingUp = false;
+        state.step = 10;
+        state.finished = false;
+        state.isEditingFinishedSheet = true;
+        persistNow();
+        if(typeof window !== 'undefined' && window.location?.pathname && (window.location.pathname.endsWith('/ficha.html') || window.location.pathname.endsWith('ficha.html'))){
+          window.location.href = 'criador.html';
+          return;
+        }
+        renderStage();
+        if(typeof toast === 'function') toast('Iniciando planejamento guiado até o Nível ' + targetLvl + '!');
+      }
+    });
+  };
+
+  renderContent();
+  modal.hidden = false;
+}
+
+document.addEventListener('click', (event) => {
+  if(event.target.closest?.('[data-action="save-planning-build"]')){
+    event.preventDefault();
+    if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.salvarPlanejamento === 'function'){
+      const plan = ForjaPlanejamento.salvarPlanejamento(state, state.planningName || ('Build Nv. ' + state.identity.plannedLevel));
+      persistNow();
+      if(typeof toast === 'function') toast('Planejamento "' + (plan?.name || '') + '" salvo com sucesso!');
+    }
+    return;
+  }
+  if(event.target.closest?.('[data-action="exit-planning-mode"]')){
+    event.preventDefault();
+    if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.encerrarModoPlanejamento === 'function'){
+      const restored = ForjaPlanejamento.encerrarModoPlanejamento(state);
+      persistNow();
+      renderStage();
+      if(typeof toast === 'function') toast('Modo de planejamento encerrado. Ficha restaurada para o Nível ' + (restored?.identity?.plannedLevel || 1) + '.');
+    }
+    return;
+  }
+});
+
+if(typeof window !== 'undefined'){
+  window.openPlanningModal = openPlanningModal;
 }

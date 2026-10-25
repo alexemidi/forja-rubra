@@ -19,6 +19,14 @@ document.addEventListener('click',async event=>{
       openLevelClassModal();
       return;
     }
+    if(action==='open-planning'){
+      if(typeof openPlanningModal==='function') openPlanningModal();
+      return;
+    }
+    if(action==='edit-attacks'){
+      if(typeof openEditAttacksModal==='function') openEditAttacksModal();
+      return;
+    }
     if(action==='sheet'){
       state.isRewardShopMode = false;
       if (typeof window !== 'undefined' && window.location?.search && window.history?.replaceState) {
