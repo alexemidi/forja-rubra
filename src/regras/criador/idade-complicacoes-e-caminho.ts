@@ -639,7 +639,7 @@ const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterF
       if(power.id === 'idade_ja_vi_coisas'){
         const chosenPwr = agePwrId ? powerById(agePwrId) : null;
         const chosenName = chosenPwr ? chosenPwr.nome : '';
-        const title = chosenName ? ('Idade/' + power.nome + '(' + chosenName + ')') : ('Idade/' + power.nome);
+        const title = chosenName ? ('Idade/' + power.nome + '(' + chosenName + ')') : power.nome;
         const desc = chosenPwr ? (power.descricao + '\n\n• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : power.descricao;
         const effects = [...(power.efeitos || []), ...(chosenPwr?.efeitos || [])];
         features.push({
@@ -654,7 +654,7 @@ const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterF
       } else {
         features.push({
           ...power,
-          nome: 'Idade/' + power.nome,
+          nome: power.nome,
           source: 'age'
         });
       }

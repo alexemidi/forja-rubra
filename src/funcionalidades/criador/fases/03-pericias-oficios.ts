@@ -216,7 +216,7 @@ function renderPowerRows(entries,status){
 
       const tagHtml = isChosenElsewhere
         ? '<span class="tag gold" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Já adquirido</span>'
-        : (isCurrentSlotSelected ? '<span class="tag green" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Selecionado</span>' : '');
+        : '';
 
       return '<button type="button" class="'+rowClass+'" data-action="power-preview" data-power-id="'+entry.power.id+'" data-search="'+esc(slug(entry.power.nome+' '+entry.power.preRequisitosTexto))+'"><span style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:6px"><strong>'+esc(entry.power.nome)+'</strong>'+tagHtml+'</span></button>';
     }).join('')+'</section>';
@@ -246,9 +246,21 @@ function generalPowerSlotSourceText(index){
     const compIdx = index - (baseCount + agePowers);
     if(compIdx >= 0 && compIdx < state.generalComplications.length){
       const compId = state.generalComplications[compIdx];
+      const COMP_NAME_MAP: Record<string, string> = {
+        amaldicoado: 'Amaldiçoado', apetitoso: 'Apetitoso', assombrado: 'Assombrado',
+        cabeca_quente: 'Cabeça Quente', caolho: 'Caolho', chato: 'Chato',
+        combalido: 'Combalido', covarde: 'Covarde', cria_de_nimb: 'Cria de Nimb',
+        criado_na_cidade: 'Criado na Cidade', crise_de_fe: 'Crise de Fé', desprotegido: 'Desprotegido',
+        distraido: 'Distraído', emotivo: 'Emotivo', expurgo_de_wynna: 'Expurgo de Wynna',
+        fracote: 'Fracote', hedonista: 'Hedonista', hesitante: 'Hesitante',
+        ignorante: 'Ignorante', inimigo_do_panteao: 'Inimigo do Panteão', ingenuo: 'Ingênuo',
+        insolente: 'Insolente', maneta: 'Maneta', miope: 'Míope',
+        pauperrimo: 'Paupérrimo', pesado: 'Pesado', solitario: 'Solitário',
+        tolo: 'Tolo', vagaroso: 'Vagaroso'
+      };
       const compList = typeof GENERAL_COMPLICATIONS !== 'undefined' ? GENERAL_COMPLICATIONS : (typeof window !== 'undefined' ? (window as any).GENERAL_COMPLICATIONS : []);
       const compItem = Array.isArray(compList) ? compList.find((c: any) => c[0] === compId) : null;
-      const compName = compItem ? compItem[1] : (compId || 'Complicação');
+      const compName = compItem ? compItem[1] : (COMP_NAME_MAP[compId] || (compId ? compId.replace(/_/g, ' ') : 'Complicação'));
       return 'Complicação (' + compName + ')';
     }
   }
@@ -299,13 +311,13 @@ function renderGeneralPowerBrowser(slots){
   const filters='<div class="power-filterbar"><button type="button" class="filter-chip '+(category==='all'?'active':'')+'" data-action="power-filter-category" data-value="all">Todos</button>'+POWER_CATEGORY_ORDER.map(id=>'<button type="button" class="filter-chip '+(category===id?'active':'')+'" data-action="power-filter-category" data-value="'+id+'">'+esc(POWER_CATEGORY_LABEL[id].replace('Poderes de ','').replace('Poderes da ',''))+'</button>').join('')+'</div><div class="power-filterbar"><button type="button" class="filter-chip '+(status==='available'?'active':'')+'" data-action="power-filter-status" data-value="available">Disponíveis</button><button type="button" class="filter-chip '+(status==='locked'?'active':'')+'" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button><button type="button" class="filter-chip '+(status==='all'?'active':'')+'" data-action="power-filter-status" data-value="all">Ver tudo</button></div>';
   const availableRows=(status==='locked')?'':renderPowerRows(visible,'available');
   const lockedRows=(status==='available')?'':renderPowerRows(visible,'locked');
-  const list='<div><input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…"><div class="power-list">'+(availableRows?'<div class="power-status" style="margin-bottom:8px">Disponíveis</div>'+availableRows:'')+(lockedRows?'<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>'+lockedRows:'')+(!availableRows&&!lockedRows?'<div class="empty">Nenhum poder corresponde aos filtros.</div>':'')+'</div></div>';
+  const list='<div><input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…"><div class="power-list">'+(availableRows?availableRows:'')+(lockedRows?'<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>'+lockedRows:'')+(!availableRows&&!lockedRows?'<div class="empty">Nenhum poder corresponde aos filtros.</div>':'')+'</div></div>';
   let actions='';
   if(preview&&previewEntry){
     if(previewEntry.verdict.ok){
       actions=state.powers.general[currentSlot]===preview.id
-        ?'<div class="power-status" style="margin-top:8px;font-size:0.75rem;"><strong>Poder selecionado para este slot.</strong></div>'
-        :'<p><strong>Clique em Próxima ou Avançar para confirmar este poder.</strong></p>';
+        ?''
+        :'<p style="margin-top:10px;font-size:0.8rem;color:var(--gold2)">Clique em Próximo poder ou Avançar para confirmar este poder.</p>';
     }
   }
   let proficiencyChoiceHtml='';

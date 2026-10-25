@@ -73,20 +73,28 @@
     .repeat-spell-dialog .repeat-btn.confirm:hover{background:#ea3948}
     @media(min-width:960px){.search-row+.filter-row{column-gap:4px}.school-mode-btn{font-size:10px}.search-row+.filter-row .filter-chip{padding-inline:7px}}
     @media(min-width:601px) and (max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){.filters-bar{padding:10px 12px}.main{padding:12px}.grid{grid-template-columns:1fr}.filter-sep{display:none}.filter-chip,.tipo-btn{min-height:30px}.circ-btn{width:30px;height:30px;flex-basis:30px}.result-count{font-size:11px}}
     @media(max-width:600px){
-      .filters-bar{padding:7px 8px}.main{padding:9px 8px}.filter-row{gap:5px}.filter-row+.filter-row{margin-top:6px}
-      .filters-bar:not(.filters-expanded) .search-row{display:none}
-      .filters-bar:not(.filters-expanded) .tradition-circle-row>:not(.compact-school-modes){display:none}
-      #defineSchoolsBtn,#schoolPickCount{display:none!important}
-      .compact-school-modes{display:flex;order:-1;width:100%;gap:5px;align-items:center}
-      .compact-school-modes .filter-chip{font-size:10px;padding:5px 7px;white-space:nowrap}
-      #learnedFilterBtn{margin-left:auto}
-      .compact-school-row .escola-chip:not(.current-school-filter){display:none}
-      .compact-school-row>.filter-label{font-size:9px}
-      .compact-filter-button{display:inline-grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid #4a252a;border-radius:50%;background:#181114;color:#e9ad59;font-size:27px;line-height:1;cursor:pointer}
-      #compactOtherFilters{margin-left:auto;font-size:19px}
-      .compact-school-row .current-school-filter{max-width:calc(100% - 143px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+      .filters-bar{padding:8px 10px;background:#110d0f;border-bottom:1px solid #4a252a}
+      .main{padding:10px 8px}
+      .grid{grid-template-columns:1fr;gap:10px}
+      .search-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+      .search-box{flex:1;min-width:0;padding:6px 10px;font-size:13px;height:34px;background:#090708;border:1px solid #4a252a;border-radius:6px;color:#f5eee6}
+      .search-mode-button{display:none}
+      .search-row .view-tabs{display:none!important}
+      .result-count{font-size:10px;color:#c9b2aa;white-space:nowrap}
+      .filter-row{display:flex!important;gap:5px;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
+      .filter-row::-webkit-scrollbar{display:none}
+      .filter-label{font-size:10px;color:#e9ad59;font-weight:700;text-transform:uppercase;margin-right:2px;flex:0 0 auto}
+      .filter-sep{display:none}
+      .tipo-btn{min-height:28px;padding:3px 8px;font-size:11px;flex:0 0 auto;border-radius:4px}
+      .circ-btn{width:28px;height:28px;flex:0 0 28px;font-size:12px;border-radius:50%}
+      .circ-btn[data-circ="0"]{width:auto!important;min-width:44px!important;padding:0 8px!important;border-radius:14px!important}
+      .filter-chip{min-height:28px;padding:3px 8px;font-size:11px;flex:0 0 auto;white-space:nowrap;border-radius:4px}
+      #learnedFilterBtn{margin-left:auto;flex:0 0 auto}
+      .card{max-height:none!important;padding-bottom:12px!important;border-radius:8px!important}
+      .card-title-row{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:8px!important;padding-right:0!important}
+      .card-title-row h3{font-size:0.95rem!important;line-height:1.25!important}
+      .learn-btn{position:static!important;margin-top:2px!important;min-height:32px!important;padding:4px 10px!important;font-size:11px!important;flex:0 0 auto!important}
     }
   `;
   document.head.appendChild(style);
@@ -118,7 +126,7 @@
     });
     dialog.hidden=false;dialog.querySelector('button')?.focus();
   }
-  installCompactFilters();
+  // installCompactFilters bypassed for unified responsive clean layout
   let pendingRepeatConfirm = null;
   function installRepeatSpellDialog(){
     const dialog=document.createElement('div');dialog.id='repeatSpellDialog';dialog.className='repeat-spell-dialog';dialog.hidden=true;dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','repeatSpellTitle');

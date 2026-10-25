@@ -135,3 +135,20 @@ test('Benefício de Origem Proficiência (ex: Seguidor)', () => {
   assert.equal(mockState.origin.proficiencyChoice, 'armas_marciais', 'Proficiência escolhida deve ser armas_marciais');
 });
 
+test('Arma Canônica: Maça de Guerra', () => {
+  const items = JSON.parse(fs.readFileSync(path.resolve('dados/items.json'), 'utf8'));
+  const macaDeGuerra = items.find((i: any) => i.id === 'maca_de_guerra');
+
+  assert.ok(macaDeGuerra, 'Maça de Guerra deve existir no catálogo de itens');
+  assert.equal(macaDeGuerra.nome, 'Maça de Guerra');
+  assert.equal(macaDeGuerra.categoriaId, 'exotica', 'Deve ser arma exótica');
+  assert.equal(macaDeGuerra.arma?.empunhaduraId, 'uma_mao', 'Deve ser de uma mão');
+  assert.equal(macaDeGuerra.preco?.valor, 25, 'Preço deve ser T$ 25');
+  assert.equal(macaDeGuerra.arma?.dano?.principal, '1d12', 'Dano deve ser 1d12');
+  assert.equal(macaDeGuerra.arma?.critico?.multiplicador, 3, 'Crítico deve ser x3');
+  assert.equal(macaDeGuerra.espacos, 1, 'Deve ocupar 1 espaço');
+  assert.ok(macaDeGuerra.arma?.tipoDanoIds?.includes('impacto'), 'Tipo de dano deve ser impacto');
+  assert.ok(macaDeGuerra.arma?.propriedadesIds?.includes('desbalanceada'), 'Deve ter propriedade desbalanceada');
+});
+
+

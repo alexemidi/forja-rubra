@@ -376,7 +376,7 @@ function renderCosmopolitaPowerBrowser(totalStages = 1, currentStageIndex = 0){
   const listHtml = '<div>' +
     '<input class="input search" id="cosmopolitaSearch" placeholder="Pesquisar nome ou pré-requisito…" value="' + esc(state.powers.cosmopolitaSearchQuery || '') + '">' +
     '<div class="power-list">' +
-      (status !== 'locked' && availHtml ? '<div class="power-status" style="margin-bottom:8px">Disponíveis</div>' + availHtml : '') +
+      (status !== 'locked' && availHtml ? availHtml : '') +
       (status !== 'available' && lockedHtml ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedHtml : '') +
       (!availHtml && !lockedHtml ? '<div class="empty">Nenhum poder corresponde aos filtros.</div>' : '') +
     '</div>' +
