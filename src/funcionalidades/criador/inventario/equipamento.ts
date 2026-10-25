@@ -8,20 +8,25 @@ function mochilasVestidas(){const eq=equipmentState(),catalog=getEquipmentCatalo
  */
 function matchEquipmentEntry(entry, index, targetId) {
   if (!entry || !targetId || targetId === 'none') return false;
-  if (typeof equipEntryId === 'function' && equipEntryId(entry, index) === targetId) return true;
   if (entry.instanceId && entry.instanceId === targetId) return true;
   if (entry.uid && entry.uid === targetId) return true;
   if (entry.id && entry.id === targetId) return true;
   if (entry.contraptionId && entry.contraptionId === targetId) return true;
+  if (typeof equipEntryId === 'function' && equipEntryId(entry, index) === targetId) return true;
+
+  const isWep = entry.tipo === 'arma' || Boolean(entry.arma);
+
   if (typeof targetId === 'string') {
     if (targetId.includes(':')) {
       const [targetItemBase, targetIdxStr] = targetId.split(':');
       if (index >= 0 && targetIdxStr !== undefined) {
         return (entry.itemId === targetItemBase || entry.id === targetItemBase) && Number(targetIdxStr) === index;
       }
+      if (isWep) return false;
       return (entry.itemId === targetItemBase || entry.id === targetItemBase);
     }
     if (!entry.instanceId) {
+      if (isWep) return false;
       if (entry.itemId && entry.itemId === targetId) return true;
       if (targetId.startsWith('inst_')) {
         const stripped = targetId.slice(5);

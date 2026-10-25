@@ -874,15 +874,16 @@
 
   function handleSheetUpgradeClick(id, kind = 'improvements') {
     const inventory = characterInventory();
-    const entry = inventory.find((it, i) => entryId(it, i) === id);
+    const entry = inventory.find((it, i) => (it.instanceId && it.instanceId === id) || (it.uid && it.uid === id) || entryId(it, i) === id || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(it, i, id)));
     if (!entry) return;
     const item = catalog().get(entry.itemId);
     if (!item) return;
 
+    const resolvedId = entry.instanceId || entryId(entry, inventory.indexOf(entry)) || id;
     if (isCharacterInventor()) {
-      openInventorUpgradeChoiceModal(entry, item, kind, id);
+      openInventorUpgradeChoiceModal(entry, item, kind, resolvedId);
     } else {
-      openSheetUpgradeModal(id, { mode: 'purchase', kind });
+      openSheetUpgradeModal(resolvedId, { mode: 'purchase', kind });
     }
   }
 
@@ -1202,14 +1203,16 @@
 
   function openSheetUpgradeModal(id, options = {}){
     const inventory = characterInventory();
-    const entry = inventory.find((it, i) => entryId(it, i) === id);
+    const entry = inventory.find((it, i) => (it.instanceId && it.instanceId === id) || (it.uid && it.uid === id) || entryId(it, i) === id || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(it, i, id)));
     if (!entry) return;
     const item = catalog().get(entry.itemId);
     if (!item) return;
 
+    const resolvedId = entry.instanceId || entryId(entry, inventory.indexOf(entry)) || id;
+
     sheetUpgradeDraft = {
       itemId: item.id,
-      entryId: id,
+      entryId: resolvedId,
       mode: options.mode || 'purchase',
       kind: options.kind || 'improvements',
       improvements: (entry.improvements || []).map(imp => ({ ...imp })),
@@ -1641,7 +1644,7 @@
         if (sheetUpgradeDraft.enchantments.length < 3 && !sheetUpgradeDraft.enchantments.some(x => (x.id || x) === encId)) {
           sheetUpgradeDraft.enchantments.push({ id: enc.id, nome: enc.nome });
           const inv = characterInventory();
-          const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+          const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
           const item = catalog().get(sheetUpgradeDraft.itemId);
           if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         }
@@ -1655,7 +1658,7 @@
         sheetUpgradeDraft.enchantments = sheetUpgradeDraft.enchantments || [];
         sheetUpgradeDraft.enchantments.splice(idx, 1);
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         return;
@@ -1667,7 +1670,7 @@
         const encId = removeEncIdBtn.dataset.sheetEnchantRemoveId;
         sheetUpgradeDraft.enchantments = (sheetUpgradeDraft.enchantments || []).filter(x => (x.id || x) !== encId);
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         return;
@@ -1679,7 +1682,7 @@
         event.preventDefault();
         const impId = addImpBtn.dataset.sheetUpgradeAddId;
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         const available = getAvailableImprovementsForCategory(item?.tipo || 'arma');
         const imp = available.find(x => x.id === impId) || { id: impId, nome: impId };
@@ -1696,7 +1699,7 @@
         const idx = Number(removeIdxBtn.dataset.sheetUpgradeRemove);
         sheetUpgradeDraft.improvements.splice(idx, 1);
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         return;
@@ -1708,7 +1711,7 @@
         const impId = removeIdBtn.dataset.sheetUpgradeRemoveId;
         sheetUpgradeDraft.improvements = sheetUpgradeDraft.improvements.filter(x => x.id !== impId);
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         return;
@@ -1729,7 +1732,7 @@
           sheetUpgradeDraft.improvements.push({ id: 'material_especial', materialId: matId });
         }
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (entry && item) modal.innerHTML = renderSheetUpgradeModalContent(entry, item);
         return;
@@ -1741,7 +1744,7 @@
         event.preventDefault();
         if (confirmBtn.disabled || confirmBtn.getAttribute('disabled') !== null) return;
         const inv = characterInventory();
-        const entry = inv.find((it, i) => entryId(it, i) === sheetUpgradeDraft.entryId);
+        const entry = inv.find((it, i) => (it.instanceId && it.instanceId === sheetUpgradeDraft.entryId) || (it.uid && it.uid === sheetUpgradeDraft.entryId) || (it.id && it.id === sheetUpgradeDraft.entryId) || entryId(it, i) === sheetUpgradeDraft.entryId);
         const item = catalog().get(sheetUpgradeDraft.itemId);
         if (!entry || !item) return;
 
@@ -1800,7 +1803,7 @@
                       }
                       saveInventory(backpack => {
                         const draftId = sheetUpgradeDraft.entryId;
-                        const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) || (sheetUpgradeDraft.itemId ? backpack.find(it => it.itemId === sheetUpgradeDraft.itemId) : null);
+                        const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) ;
                         if (target) {
                           const itObj = catalog().get(target.itemId) || item;
                           const newPrice = Number(target.customPrice || itObj?.preco?.valor || 0) + custoMercado;
@@ -1873,7 +1876,7 @@
             }
             saveInventory(backpack => {
               const draftId = sheetUpgradeDraft.entryId;
-              const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) || (sheetUpgradeDraft.itemId ? backpack.find(it => it.itemId === sheetUpgradeDraft.itemId) : null);
+              const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) ;
               if (target) {
                 const itObj = catalog().get(target.itemId) || item;
                 const newPrice = Number(target.customPrice || itObj?.preco?.valor || 0) + custoMercado;
@@ -1982,7 +1985,7 @@
                     }
                     saveInventory(backpack => {
                       const draftId = sheetUpgradeDraft.entryId;
-                      const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) || (sheetUpgradeDraft.itemId ? backpack.find(it => it.itemId === sheetUpgradeDraft.itemId) : null);
+                      const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) ;
                       if (target) {
                         const itObj = catalog().get(target.itemId) || item;
                         const eff = typeof effectiveItemForOptions === 'function' ? effectiveItemForOptions(itObj, target) : itObj;
@@ -2076,7 +2079,7 @@
           }
           saveInventory(backpack => {
             const draftId = sheetUpgradeDraft.entryId;
-            const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) || (sheetUpgradeDraft.itemId ? backpack.find(it => it.itemId === sheetUpgradeDraft.itemId) : null);
+            const target = backpack.find((it, i) => (it.instanceId && it.instanceId === draftId) || (it.uid && it.uid === draftId) || (it.id && it.id === draftId) || entryId(it, i) === draftId) ;
             if (target) {
               const itObj = catalog().get(target.itemId) || item;
               const eff = typeof effectiveItemForOptions === 'function' ? effectiveItemForOptions(itObj, target) : itObj;

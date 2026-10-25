@@ -11,14 +11,20 @@ function consolidateInventoryEntries(backpack){
 
   const weapons = [];
   const otherItems = [];
+  const usedWeaponIds = new Set();
   for (const entry of backpack) {
     if (!entry) continue;
     if (isWeaponEntry(entry)) {
       const qty = Math.max(1, Number(entry.quantity) || 1);
       for (let q = 0; q < qty; q++) {
+        let instId = (q === 0 && entry.instanceId && !usedWeaponIds.has(entry.instanceId)) ? entry.instanceId : null;
+        if (!instId) {
+          instId = 'inst_wep_' + (entry.itemId || 'weapon') + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+        }
+        usedWeaponIds.add(instId);
         weapons.push({
           ...entry,
-          instanceId: q === 0 ? (entry.instanceId || ('inst_' + (entry.id || entry.itemId) + '_0')) : ('inst_' + (entry.id || entry.itemId) + '_' + Math.random().toString(36).slice(2, 7)),
+          instanceId: instId,
           quantity: 1
         });
       }
@@ -45,10 +51,12 @@ function inventoryProfile(){
       }
     });
   }
-  const beforeCount=(profile.backpack||[]).length,seenGrants=new Set();
+  const beforeJson = JSON.stringify(profile.backpack || []);
+  const seenGrants=new Set();
   profile.backpack=(profile.backpack||[]).filter(item=>{const grant=item.acquisition?.grantId;if(!grant)return true;if(seenGrants.has(grant))return false;seenGrants.add(grant);for(const extra of item.acquisition?.additionalGrantIds||[])seenGrants.add(extra);return true});
   profile.backpack=consolidateInventoryEntries(profile.backpack);
-  if((profile.backpack.length!==beforeCount)&&profiles.profiles){const index=profiles.profiles.findIndex(item=>item.id===profile.id);if(index>=0)profiles.profiles[index]=profile;saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles)}
+  const afterJson = JSON.stringify(profile.backpack || []);
+  if(beforeJson !== afterJson && profiles.profiles){const index=profiles.profiles.findIndex(item=>item.id===profile.id);if(index>=0)profiles.profiles[index]=profile;saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles)}
   const eq=typeof equipmentState==='function'?equipmentState():{},catalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():new Map();
   const wornTypes=(profile.backpack||[]).flatMap((e,i)=>(eq.wornIds||[]).some(id=>matchEquipmentEntry(e,i,id))?[RegrasMochilas.tipoMochila(e.itemId,catalog.get(e.itemId)?.nome||e.itemName||'')]:[]);
   const backpackBenefits=RegrasMochilas.beneficiosMochilas(wornTypes,typeof poderesCarga==='function'?poderesCarga():[],finalAttrs());
