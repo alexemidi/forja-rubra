@@ -128,15 +128,16 @@
             <select id="routeTransportSelect" class="route-setting-select">
               <option value="pe" selected>A pé (marcha própria) · T$ 0</option>
               <option value="cavalo">Montaria / Cavalo · 72 km/dia · T$ 0,2/km</option>
+              <option value="carroca">Carroça · 36 km/dia · T$ 0,3/km</option>
               <option value="carruagem">Carruagem / Diligência · 36 km/dia · T$ 0,5/km</option>
             </select>
           </div>
 
-          <!-- Velocidade A Pé (se a pé estiver selecionado) -->
+          <!-- Velocidade Terrestre (A pé, Carroça ou Carruagem) -->
           <div class="route-setting-row" id="routeSpeedRow">
             <label for="routeSpeedSelect" class="route-setting-label">
               Deslocamento
-              <span class="info-tip" title="Velocidade de marcha diária a pé baseada no deslocamento">ℹ</span>
+              <span class="info-tip" title="Velocidade diária baseada no deslocamento (aumentos de +3m por 1 PM de magia)">ℹ</span>
             </label>
             <select id="routeSpeedSelect" class="route-setting-select">
               <option value="4.5">4,5m · 18 km/dia</option>
@@ -144,8 +145,8 @@
               <option value="7.5">7,5m · 30 km/dia</option>
               <option value="9" selected>9m · 36 km/dia</option>
               <option value="12">12m · 48 km/dia</option>
-              <option value="15">15m · 54 km/dia</option>
-              <option value="18">18m · 60 km/dia</option>
+              <option value="15">15m · 60 km/dia</option>
+              <option value="18">18m · 72 km/dia</option>
             </select>
           </div>
 

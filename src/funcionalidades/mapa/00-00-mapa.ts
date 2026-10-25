@@ -1790,7 +1790,7 @@ interface RoadGraph {
       crossesUivantes?: boolean;
     }
 
-    type RouteTransportType = 'pe' | 'cavalo' | 'carruagem' | 'balao';
+    type RouteTransportType = 'pe' | 'cavalo' | 'carroca' | 'carruagem' | 'balao';
     type RouteBoatType = 'veleiro' | 'barco' | 'gale' | 'barcaca' | 'jangada';
 
     interface CustomDifficultStretch {
@@ -2215,6 +2215,56 @@ interface RoadGraph {
 
     let lastTransportSelectMode: 'land' | 'sea' | 'air' | '' = '';
 
+        function getHeroAvailablePm(): number {
+      try {
+        const rawH = localStorage.getItem('forja-heroi-t20-v1');
+        if (rawH) {
+          const hero = JSON.parse(rawH);
+          const val = Number(hero.vitals?.pmMax ?? hero.vitals?.pm ?? hero.pmMax ?? hero.pm);
+          if (Number.isFinite(val) && val > 0) return Math.floor(val);
+        }
+      } catch {}
+      return 10;
+    }
+
+    function syncSpeedSelectOptions(transportType: RouteTransportType) {
+      if (!routeSpeedSelect) return;
+      const currentVal = routeSpeedSelect.value || '9';
+      const maxPm = getHeroAvailablePm();
+      const optionsHtml: string[] = [];
+
+      if (transportType === 'carroca' || transportType === 'carruagem') {
+        // Veículos terrestres com tração animal: base canônica 9m (36 km/dia)
+        optionsHtml.push('<option value="9">9m · 36 km/dia (Base)</option>');
+        for (let pm = 1; pm <= maxPm; pm++) {
+          const m = 9 + pm * 3;
+          const kmPerDay = m * 4;
+          optionsHtml.push(`<option value="${m}">${m}m · ${kmPerDay} km/dia (+${pm * 3}m · ${pm} PM)</option>`);
+        }
+      } else {
+        // Marcha a pé: opções reduzidas para raças/condições + base 9m + aumentos de +3m por PM
+        optionsHtml.push('<option value="4.5">4,5m · 18 km/dia</option>');
+        optionsHtml.push('<option value="6">6m · 24 km/dia</option>');
+        optionsHtml.push('<option value="7.5">7,5m · 30 km/dia</option>');
+        optionsHtml.push('<option value="9">9m · 36 km/dia (Base)</option>');
+        for (let pm = 1; pm <= maxPm; pm++) {
+          const m = 9 + pm * 3;
+          const kmPerDay = m * 4;
+          optionsHtml.push(`<option value="${m}">${m}m · ${kmPerDay} km/dia (+${pm * 3}m · ${pm} PM)</option>`);
+        }
+      }
+
+      routeSpeedSelect.innerHTML = optionsHtml.join('');
+
+      const hasPrev = Array.from(routeSpeedSelect.options).some(o => o.value === currentVal);
+      if (hasPrev) {
+        routeSpeedSelect.value = currentVal;
+      } else {
+        routeSpeedSelect.value = '9';
+      }
+      routeState.speedLandKmPerDay = Number(routeSpeedSelect.value) * 4;
+    }
+
     function syncTransportSelectOptions(mode: 'land' | 'sea' | 'air') {
       if (!routeTransportSelect) return;
       if (lastTransportSelectMode === mode) return;
@@ -2232,10 +2282,12 @@ interface RoadGraph {
         routeTransportSelect.innerHTML = `
           <option value="pe"${cur === 'pe' ? ' selected' : ''}>A pé (marcha própria) · T$ 0</option>
           <option value="cavalo"${cur === 'cavalo' ? ' selected' : ''}>Montaria / Cavalo · 72 km/dia · T$ 0,2/km</option>
+          <option value="carroca"${cur === 'carroca' ? ' selected' : ''}>Carroça · 36 km/dia · T$ 0,3/km</option>
           <option value="carruagem"${cur === 'carruagem' ? ' selected' : ''}>Carruagem / Diligência · 36 km/dia · T$ 0,5/km</option>
         `;
         routeState.transportType = cur;
         routeTransportSelect.value = cur;
+        syncSpeedSelectOptions(cur);
       }
     }
 
@@ -2272,12 +2324,10 @@ interface RoadGraph {
       }
 
       let speedLand = 36;
-      if (routeState.transportType === 'pe') {
+      if (routeState.transportType === 'pe' || routeState.transportType === 'carroca' || routeState.transportType === 'carruagem') {
         speedLand = routeState.speedLandKmPerDay || 36;
       } else if (routeState.transportType === 'cavalo') {
         speedLand = 72;
-      } else if (routeState.transportType === 'carruagem') {
-        speedLand = 36;
       }
 
       let speedSea = 48;
@@ -2634,7 +2684,8 @@ interface RoadGraph {
         }
       }
       if (routeSpeedRow) {
-        routeSpeedRow.style.display = (hasLandStretch && routeState.transportType === 'pe') ? 'flex' : 'none';
+        const supportsCustomSpeed = routeState.transportType === 'pe' || routeState.transportType === 'carroca' || routeState.transportType === 'carruagem';
+        routeSpeedRow.style.display = (hasLandStretch && supportsCustomSpeed) ? 'flex' : 'none';
       }
       if (routeAvoidDifficultRow) {
         routeAvoidDifficultRow.style.display = (hasLandStretch && routeState.transportType === 'pe') ? 'flex' : 'none';
@@ -2679,6 +2730,10 @@ interface RoadGraph {
           landRate = 0.2;
           landCost = Math.round(landKm * landRate * 10) / 10;
           landLabel = 'Montaria / Cavalo';
+        } else if (routeState.transportType === 'carroca') {
+          landRate = 0.3;
+          landCost = Math.round(landKm * landRate * 10) / 10;
+          landLabel = 'Carroça';
         } else if (routeState.transportType === 'carruagem') {
           landRate = 0.5;
           landCost = Math.round(landKm * landRate * 10) / 10;
@@ -3078,9 +3133,11 @@ interface RoadGraph {
       const val = (routeTransportSelect.value || 'pe') as RouteTransportType;
       const prevWasPe = routeState.transportType === 'pe';
       routeState.transportType = val;
+      syncSpeedSelectOptions(val);
       if (routeSpeedRow) {
         const hasLand = routeState.selectedMode !== 'air';
-        routeSpeedRow.style.display = (hasLand && val === 'pe') ? 'flex' : 'none';
+        const supportsCustomSpeed = val === 'pe' || val === 'carroca' || val === 'carruagem';
+        routeSpeedRow.style.display = (hasLand && supportsCustomSpeed) ? 'flex' : 'none';
       }
       if (routeState.avoidDifficult && prevWasPe !== (val === 'pe')) {
         calculateAndRenderRoutes(true);
@@ -3094,6 +3151,9 @@ interface RoadGraph {
       routeState.speedLandKmPerDay = val * 4;
       renderRouteDetails({ skipFitBounds: true });
     });
+
+    // Inicializa as opções de velocidade terrestre limitadas pelos PM do usuário
+    syncSpeedSelectOptions(routeState.transportType);
 
     routeBoatSelect?.addEventListener('change', () => {
       const val = (routeBoatSelect.value || 'veleiro') as RouteBoatType;
@@ -3388,9 +3448,15 @@ interface RoadGraph {
         let landLabel = 'A pé';
         if (routeState.transportType === 'cavalo') {
           landRate = 0.2;
+          landCost = Math.round(landKm * landRate * 10) / 10;
           landLabel = 'Montaria / Cavalo';
+        } else if (routeState.transportType === 'carroca') {
+          landRate = 0.3;
+          landCost = Math.round(landKm * landRate * 10) / 10;
+          landLabel = 'Carroça';
         } else if (routeState.transportType === 'carruagem') {
           landRate = 0.5;
+          landCost = Math.round(landKm * landRate * 10) / 10;
           landLabel = 'Carruagem / Diligência';
         }
 
@@ -3412,7 +3478,9 @@ interface RoadGraph {
           hireState.km = Math.max(1, Math.round(activeCalc.seaKm));
         } else {
           hireState.title = 'CONTRATAR CONDUÇÃO TERRESTRE';
-          hireState.desc = 'Transporte por terra em carruagem ou diligência comercial entre cidades de Arton.';
+          hireState.desc = routeState.transportType === 'carroca'
+            ? 'Transporte por terra em carroça de tração entre regiões e cidades de Arton.'
+            : 'Transporte por terra em carruagem ou diligência comercial entre cidades de Arton.';
           hireState.unitPrice = landRate;
           hireState.transportName = landLabel;
           hireState.km = Math.max(1, Math.round(landKm));
