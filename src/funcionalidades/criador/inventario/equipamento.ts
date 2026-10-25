@@ -346,7 +346,9 @@ function equippedWeaponItem(){return equippedWeaponRecord()?.item||null}
 function equippedOffhandRecord(){
   const eq=equipmentState(),catalog=getEquipmentCatalog(),inventory=characterInventory();
   if(!eq.offhandId||eq.offhandId==='none')return null;
-  const entry=inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.offhandId));
+  const wepEntry = eq.weaponId && eq.weaponId !== 'none' ? inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.weaponId)) : null;
+  const wepEntryId = wepEntry ? equipEntryId(wepEntry, inventory.indexOf(wepEntry)) : null;
+  const entry=inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.offhandId) && (!wepEntryId || equipEntryId(e, i) !== wepEntryId));
   if(!entry)return null;
   let item=catalog.get(entry.itemId);
   const att = entry.attachedItem || entry.engenhocaInfo?.attachedItem;
@@ -454,16 +456,43 @@ function renderEquipmentPanel(){
     return String(entry.itemId||'').replace(/_/g,' ');
   };
 
-  const isEntryEquipped = (entry, i) => {
+  const assignedSlotIndices = new Set<number>();
+  const findEntryForSlot = (targetId: string | null | undefined): number => {
+    if (!targetId || targetId === 'none') return -1;
+    let idx = inventory.findIndex((e: any, i: number) => !assignedSlotIndices.has(i) && (e.instanceId === targetId || equipEntryId(e, i) === targetId));
+    if (idx < 0) {
+      idx = inventory.findIndex((e: any, i: number) => !assignedSlotIndices.has(i) && matchEquipmentEntry(e, i, targetId));
+    }
+    return idx;
+  };
+
+  const weaponIdx = findEntryForSlot(eq.weaponId);
+  if (weaponIdx >= 0) assignedSlotIndices.add(weaponIdx);
+
+  const offhandIdx = (eq.offhandId && eq.offhandId !== 'none') ? findEntryForSlot(eq.offhandId) : -1;
+  if (offhandIdx >= 0) assignedSlotIndices.add(offhandIdx);
+
+  const shieldIdx = (eq.shieldId && eq.shieldId !== 'none') ? findEntryForSlot(eq.shieldId) : -1;
+  if (shieldIdx >= 0) assignedSlotIndices.add(shieldIdx);
+
+  const armorIdx = (eq.armorId && eq.armorId !== 'none') ? findEntryForSlot(eq.armorId) : -1;
+  if (armorIdx >= 0) assignedSlotIndices.add(armorIdx);
+
+  const trailerIdx = (eq.trailerId && eq.trailerId !== 'none') ? findEntryForSlot(eq.trailerId) : -1;
+  if (trailerIdx >= 0) assignedSlotIndices.add(trailerIdx);
+
+  if (Array.isArray(eq.wornIds)) {
+    for (const wId of eq.wornIds) {
+      if (!wId || wId === 'none') continue;
+      const wIdx = findEntryForSlot(wId);
+      if (wIdx >= 0) assignedSlotIndices.add(wIdx);
+    }
+  }
+
+  const isEntryEquipped = (entry: any, i: number) => {
     if (!entry) return false;
-    if(typeof mountAssignmentActive==='function'&&mountAssignmentActive(entry))return true;
-    if (eq.armorId && matchEquipmentEntry(entry, i, eq.armorId)) return true;
-    if (eq.shieldId && matchEquipmentEntry(entry, i, eq.shieldId)) return true;
-    if (eq.weaponId && matchEquipmentEntry(entry, i, eq.weaponId)) return true;
-    if (eq.offhandId && matchEquipmentEntry(entry, i, eq.offhandId)) return true;
-    if (eq.trailerId && matchEquipmentEntry(entry, i, eq.trailerId)) return true;
-    if (Array.isArray(eq.wornIds) && eq.wornIds.some(wId => matchEquipmentEntry(entry, i, wId))) return true;
-    return false;
+    if (typeof mountAssignmentActive === 'function' && mountAssignmentActive(entry)) return true;
+    return assignedSlotIndices.has(i);
   };
 
   const groupedMap = new Map(), seenTraje = new Set();

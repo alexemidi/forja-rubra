@@ -44,7 +44,14 @@ document.addEventListener('click',event=>{
       instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)
     };
     inventory.push(singleEntry);
-    equipId = equipEntryId(singleEntry, inventory.indexOf(singleEntry));
+    equipId = singleEntry.instanceId;
+    const saved = typeof arsenalState === 'function' ? arsenalState() : null;
+    const profKey = typeof ARSENAL_PROFILES_KEY !== 'undefined' ? ARSENAL_PROFILES_KEY : 'arsenal-arton-character-profiles-v1';
+    if(saved?.storage?.[profKey] && typeof RegrasInventario?.atualizarPerfis === 'function'){
+      saved.storage[profKey] = RegrasInventario.atualizarPerfis(saved.storage[profKey], (bp: any[]) => {
+        bp.splice(0, bp.length, ...inventory);
+      });
+    }
   }
 
   if(action==='equip-shield'){

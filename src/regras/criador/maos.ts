@@ -1,8 +1,14 @@
 function heldItemRecords(){
   const eq=equipmentState(),inventory=characterInventory();
   const catalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():(typeof getPdfItemsCatalog==='function'?getPdfItemsCatalog():new Map((DATA.pdfItems||[]).map(item=>[item.id,item])));
+  const usedIndices = new Set();
   return [eq.weaponId,eq.offhandId,eq.shieldId].filter(id=>id&&id!=='none').map(id=>{
-    const entry=inventory.find((e,i)=>(typeof matchEquipmentEntry==='function'?matchEquipmentEntry(e,i,id):equipEntryId(e,i)===id));
+    let entryIndex = inventory.findIndex((e,i)=>!usedIndices.has(i) && (e.instanceId === id || equipEntryId(e,i) === id));
+    if (entryIndex < 0) {
+      entryIndex = inventory.findIndex((e,i)=>!usedIndices.has(i) && (typeof matchEquipmentEntry==='function'?matchEquipmentEntry(e,i,id):equipEntryId(e,i)===id));
+    }
+    if (entryIndex >= 0) usedIndices.add(entryIndex);
+    const entry = entryIndex >= 0 ? inventory[entryIndex] : null;
     let item=catalog.get?catalog.get(entry?.itemId):null;
     const att = entry?.attachedItem || entry?.engenhocaInfo?.attachedItem;
     if(!item && entry && (entry.tipo==='arma'||entry.tipo==='engenhoca'||entry.isEngenhoca||entry.formaUso==='empunhada'||att?.tipo==='arma'||/espada|machado|maca|arco|besta|adaga/i.test(entry.displayName||entry.itemName||att?.nome||''))){

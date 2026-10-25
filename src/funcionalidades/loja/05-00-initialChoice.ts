@@ -2659,8 +2659,9 @@ addPackagesToBackpack = function(itemId, packageQuantity, rawOptions, acquisitio
   const optionKey = typeof itemOptionsKey === 'function' ? itemOptionsKey(itemId, options) : JSON.stringify(options);
   const configuredImprovements = (configuration?.improvements || []).map(choice => ({ ...choice }));
   const configuredEnchantments = [...(configuration?.enchantments || [])];
+  const isWeapon = item.tipo === "arma" || Boolean(item.arma);
   
-  let instance = backpackItems.find(function(entry) {
+  let instance = isWeapon ? null : backpackItems.find(function(entry) {
     const entryOpts = typeof normalizeItemOptions === 'function' ? normalizeItemOptions(entry.itemId, entry.options) : (entry.options || {});
     const entryOptKey = typeof itemOptionsKey === 'function' ? itemOptionsKey(entry.itemId, entryOpts) : JSON.stringify(entryOpts);
     return entry.itemId === itemId &&
@@ -2692,27 +2693,30 @@ addPackagesToBackpack = function(itemId, packageQuantity, rawOptions, acquisitio
       instance.preco = { valor: finalPrice, moeda: item?.preco?.moeda || 'T$' };
     }
   } else {
-    const quantity = Math.min(9999, amount);
-    const newEntry = {
-      instanceId: createInstanceId(),
-      itemId: itemId,
-      quantity: quantity,
-      acquisition: acquisition || { source: 'unknown' },
-      displayName: configuredItemName({ options, improvements: configuredImprovements, enchantments: configuredEnchantments }, item),
-      options: options,
-      ammoRemaining: packageSize ? quantity * packageSize : undefined,
-      improvements: configuredImprovements,
-      enchantments: configuredEnchantments
-    };
-    if (Number.isFinite(finalPrice) && finalPrice > 0) {
-      newEntry.unitValue = finalPrice;
-      newEntry.customPrice = finalPrice;
-      newEntry.price = finalPrice;
-      newEntry.preco = { valor: finalPrice, moeda: item?.preco?.moeda || 'T$' };
-    } else if (Number.isFinite(Number(configuration?.unitValue))) {
-      newEntry.unitValue = Number(configuration.unitValue);
+    const count = isWeapon ? amount : 1;
+    for (let loopIdx = 0; loopIdx < count; loopIdx++) {
+      const quantity = isWeapon ? 1 : Math.min(9999, amount);
+      const newEntry: any = {
+        instanceId: createInstanceId(),
+        itemId: itemId,
+        quantity: quantity,
+        acquisition: acquisition || { source: 'unknown' },
+        displayName: configuredItemName({ options, improvements: configuredImprovements, enchantments: configuredEnchantments }, item),
+        options: options,
+        ammoRemaining: packageSize ? quantity * packageSize : undefined,
+        improvements: configuredImprovements,
+        enchantments: configuredEnchantments
+      };
+      if (Number.isFinite(finalPrice) && finalPrice > 0) {
+        newEntry.unitValue = finalPrice;
+        newEntry.customPrice = finalPrice;
+        newEntry.price = finalPrice;
+        newEntry.preco = { valor: finalPrice, moeda: item?.preco?.moeda || 'T$' };
+      } else if (Number.isFinite(Number(configuration?.unitValue))) {
+        newEntry.unitValue = Number(configuration.unitValue);
+      }
+      backpackItems.push(newEntry);
     }
-    backpackItems.push(newEntry);
   }
   consolidateBackpackList();
 };

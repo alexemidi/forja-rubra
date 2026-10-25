@@ -19,7 +19,7 @@ function consolidateInventoryEntries(backpack){
       for (let q = 0; q < qty; q++) {
         let instId = (q === 0 && entry.instanceId && !usedWeaponIds.has(entry.instanceId)) ? entry.instanceId : null;
         if (!instId) {
-          instId = 'inst_wep_' + (entry.itemId || 'weapon') + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+          instId = (entry.instanceId ? `${entry.instanceId}_sub_${q}` : null) || ('inst_wep_' + (entry.itemId || 'weapon') + '_' + (entry.acquisition?.operationId || entry.acquisition?.grantId || 'base') + '_' + q);
         }
         usedWeaponIds.add(instId);
         weapons.push({
@@ -53,7 +53,15 @@ function inventoryProfile(){
   }
   const beforeJson = JSON.stringify(profile.backpack || []);
   const seenGrants=new Set();
-  profile.backpack=(profile.backpack||[]).filter(item=>{const grant=item.acquisition?.grantId;if(!grant)return true;if(seenGrants.has(grant))return false;seenGrants.add(grant);for(const extra of item.acquisition?.additionalGrantIds||[])seenGrants.add(extra);return true});
+  profile.backpack=(profile.backpack||[]).filter(item=>{
+    const grant=item.acquisition?.grantId;
+    if(!grant)return true;
+    if(item.acquisition?.source !== 'initial')return true;
+    if(seenGrants.has(grant))return false;
+    seenGrants.add(grant);
+    for(const extra of item.acquisition?.additionalGrantIds||[])seenGrants.add(extra);
+    return true;
+  });
   profile.backpack=consolidateInventoryEntries(profile.backpack);
   const afterJson = JSON.stringify(profile.backpack || []);
   if(beforeJson !== afterJson && profiles.profiles){const index=profiles.profiles.findIndex(item=>item.id===profile.id);if(index>=0)profiles.profiles[index]=profile;saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles)}

@@ -138,3 +138,112 @@ test('Duas Armas Iguais: podem receber aprimoramentos diferentes individualmente
   assert.equal(backpack[1].improvements[1].materialId, 'mitral');
   assert.equal(backpack[1].customPrice, 4315);
 });
+
+test('Compra de arma idêntica na loja com uma já equipada na mão: nova arma deve ir para a mochila', () => {
+  // Cenário: Herói já tem uma Katana equipada na mão principal
+  const inventory = [
+    { itemId: 'katana', instanceId: 'inst_katana_equipada', displayName: 'Katana', tipo: 'arma', quantity: 1, improvements: [], enchantments: [] }
+  ];
+
+  const eq = {
+    weaponId: 'inst_katana_equipada',
+    offhandId: 'none',
+    shieldId: 'none',
+    armorId: 'none',
+    trailerId: 'none',
+    wornIds: []
+  };
+
+  // Simula a compra de uma segunda Katana idêntica na loja
+  const novaKatanaComprada = {
+    itemId: 'katana',
+    instanceId: 'inst_katana_comprada_loja',
+    displayName: 'Katana',
+    tipo: 'arma',
+    quantity: 1,
+    improvements: [],
+    enchantments: []
+  };
+  inventory.push(novaKatanaComprada);
+
+  // Mapeamento 1-a-1 de slots para o inventário
+  const assignedSlotIndices = new Set<number>();
+  const findEntryForSlot = (targetId: string | null | undefined): number => {
+    if (!targetId || targetId === 'none') return -1;
+    let idx = inventory.findIndex((e: any, i: number) => !assignedSlotIndices.has(i) && (e.instanceId === targetId));
+    return idx;
+  };
+
+  const weaponIdx = findEntryForSlot(eq.weaponId);
+  if (weaponIdx >= 0) assignedSlotIndices.add(weaponIdx);
+
+  // A primeira katana foi atribuída ao slot
+  assert.equal(weaponIdx, 0, 'Katana 0 deve estar atribuída ao slot weaponId');
+  assert.ok(assignedSlotIndices.has(0));
+
+  // A segunda katana (recém comprada) NÃO deve estar atribuída a nenhum slot
+  assert.ok(!assignedSlotIndices.has(1), 'Katana recém-comprada NÃO deve ser consumida pelo slot weaponId');
+
+  // Na renderização da mochila: itens não consumidos são agrupados
+  const groupedMap = new Map();
+  inventory.forEach((entry, i) => {
+    if (assignedSlotIndices.has(i)) return; // Ignora o que está equipado em slots
+
+    const key = `${entry.displayName}|${entry.itemId}|${JSON.stringify(entry.improvements)}|${JSON.stringify(entry.enchantments)}`;
+    if (groupedMap.has(key)) {
+      const grp = groupedMap.get(key);
+      grp.totalQuantity += entry.quantity;
+      grp.entries.push(entry);
+    } else {
+      groupedMap.set(key, {
+        entry,
+        totalQuantity: entry.quantity,
+        entries: [entry]
+      });
+    }
+  });
+
+  // A mochila deve conter exatamente 1 card de Katana com QTD. 1
+  const backpackCards = Array.from(groupedMap.values());
+  assert.equal(backpackCards.length, 1, 'Deve existir 1 card na mochila para a Katana não equipada');
+  assert.equal(backpackCards[0].totalQuantity, 1, 'Quantidade na mochila deve ser 1');
+  assert.equal(backpackCards[0].entry.instanceId, 'inst_katana_comprada_loja');
+
+  // Agora equipa a segunda Katana na outra mão (offhand)
+  const resEquipOffhand = RegrasEquipamento.aplicar(eq, 'equip-weapon', novaKatanaComprada.instanceId, { handSlot: 'offhandId' });
+  assert.equal(resEquipOffhand.alterado, true);
+  const updatedEq = resEquipOffhand.equipment;
+  assert.equal(updatedEq.weaponId, 'inst_katana_equipada');
+  assert.equal(updatedEq.offhandId, 'inst_katana_comprada_loja');
+
+  // Agora ambas as mãos estão ocupadas
+  const assignedAfterBoth = new Set<number>();
+  const w1 = inventory.findIndex((e, i) => !assignedAfterBoth.has(i) && e.instanceId === updatedEq.weaponId);
+  if (w1 >= 0) assignedAfterBoth.add(w1);
+  const w2 = inventory.findIndex((e, i) => !assignedAfterBoth.has(i) && e.instanceId === updatedEq.offhandId);
+  if (w2 >= 0) assignedAfterBoth.add(w2);
+
+  assert.equal(assignedAfterBoth.size, 2, 'Ambas as katanas devem estar ocupando os slots equipados');
+
+  // Ao guardar uma das katanas, ela volta para a mochila e re-empilha
+  const resStore = RegrasEquipamento.aplicar(updatedEq, 'store-offhand', novaKatanaComprada.instanceId, {});
+  assert.equal(resStore.alterado, true);
+  assert.equal(resStore.equipment.offhandId, 'none');
+  assert.equal(resStore.equipment.weaponId, 'inst_katana_equipada');
+});
+
+test('Arma adaptável (Katana): dano de 1 mão (1d8) vs 2 mãos (1d10) e devolução de item ao trocar empunhadura', () => {
+  let eq = {
+    weaponId: 'inst_katana_1',
+    offhandId: 'inst_adaga_2',
+    shieldId: 'none',
+    adaptableHandedness: {} as Record<string, 'uma_mao' | 'duas_maos'>
+  };
+
+  // Alterna katana para duas mãos: deve guardar o item da outra mão
+  const resGrip = RegrasEquipamento.aplicar(eq, 'set-handedness-two', 'inst_katana_1', {});
+  assert.equal(resGrip.alterado, true);
+  eq = resGrip.equipment;
+  assert.equal(eq.adaptableHandedness['inst_katana_1'], 'duas_maos');
+  assert.equal(eq.offhandId, 'none', 'Item da outra mão deve ser devolvido para a mochila');
+});

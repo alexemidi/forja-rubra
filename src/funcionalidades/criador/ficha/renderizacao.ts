@@ -440,7 +440,24 @@ function renderSheetAttackRows(inventory: any[], catalog: any): string {
   for (const { entry, item } of sortedWeapons) {
     const key = entry?.instanceId || entry?.itemId || item?.id || entry?.displayName || item?.nome || '';
     const ov = overrides[key] || (item?.id ? overrides[item.id] : null) || (entry?.itemId ? overrides[entry.itemId] : null);
-    const values = typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—', critical: null };
+    const isWep = item?.tipo === 'arma' || Boolean(item?.arma);
+    const isAdaptable = (item?.arma?.propriedadesIds || []).includes('adaptavel');
+    let weaponGrip = item?.arma?.empunhaduraId || 'uma_mao';
+    if (isAdaptable) {
+      const eq = typeof equipmentState === 'function' ? equipmentState() : null;
+      const isEqMain = eq && eq.weaponId && typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.weaponId);
+      const isEqOff = eq && eq.offhandId && typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.offhandId);
+      if (isEqMain) {
+        weaponGrip = (typeof equippedWeaponHandedness === 'function' ? equippedWeaponHandedness() : (eq?.adaptableHandedness?.[eq.weaponId] || 'uma_mao'));
+      } else if (isEqOff) {
+        weaponGrip = eq?.adaptableHandedness?.[eq.offhandId] || 'uma_mao';
+      } else {
+        weaponGrip = 'uma_mao';
+      }
+    }
+    const values = isWep && typeof effectiveWeaponStats === 'function'
+      ? effectiveWeaponStats(item, weaponGrip, entry)
+      : (typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—', critical: null });
     
     const defaultName = typeof getSheetItemDisplayName === 'function' ? getSheetItemDisplayName(entry, catalog) : (item?.nome || entry?.displayName || 'Arma');
     const defaultAtk = values.attack >= 0 ? '+' + values.attack : String(values.attack);
