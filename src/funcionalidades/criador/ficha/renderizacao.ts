@@ -3647,6 +3647,15 @@ function cancelLevelUp(){
 }
 function cancelEditCharacter(){
   if(state.isEditingFinishedSheet || state.editingCharacter){
+    if(state.isPlanningMode && typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.encerrarModoPlanejamento === 'function'){
+      ForjaPlanejamento.encerrarModoPlanejamento(state);
+      persistNow();
+      if(typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forja_planning_from_ficha') === 'true'){
+        sessionStorage.removeItem('forja_planning_from_ficha');
+        window.location.href = 'ficha.html';
+        return;
+      }
+    }
     const checkpoint = state.editingCharacter?.snapshot || state.editBackup;
     if(checkpoint){
       state = checkpoint;
@@ -3927,8 +3936,13 @@ function openPlanningModal(){
         state.step = 10;
         state.finished = false;
         state.isEditingFinishedSheet = true;
+        const nextLevelIndex = Math.min(targetLvl - 1, currentLevel);
+        state.progressionActiveIndex = nextLevelIndex;
+        if(state.identity) state.identity.editingLevel = nextLevelIndex + 1;
+        state.progressionCollapsedIndex = -1;
         persistNow();
         if(typeof window !== 'undefined' && window.location?.pathname && (window.location.pathname.endsWith('/ficha.html') || window.location.pathname.endsWith('ficha.html'))){
+          try { sessionStorage.setItem('forja_planning_from_ficha', 'true'); } catch {}
           window.location.href = 'criador.html';
           return;
         }
@@ -3957,6 +3971,11 @@ document.addEventListener('click', (event) => {
     if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.encerrarModoPlanejamento === 'function'){
       const restored = ForjaPlanejamento.encerrarModoPlanejamento(state);
       persistNow();
+      if(typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forja_planning_from_ficha') === 'true'){
+        sessionStorage.removeItem('forja_planning_from_ficha');
+        window.location.href = 'ficha.html';
+        return;
+      }
       renderStage();
       if(typeof toast === 'function') toast('Modo de planejamento encerrado. Ficha restaurada para o Nível ' + (restored?.identity?.plannedLevel || 1) + '.');
     }

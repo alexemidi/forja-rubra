@@ -365,6 +365,8 @@ document.addEventListener('click',event=>{
   else{
     if(!state.completed.includes(10))state.completed.push(10);
     state.finished=true;
+    state.isEditingFinishedSheet=false;
+    state.editingCharacter=null;
     state.sheetView='sheet';
     persistNow();
     if(typeof saveFinishedCharacter==='function')saveFinishedCharacter();
