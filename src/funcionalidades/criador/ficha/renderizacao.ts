@@ -987,21 +987,65 @@ function openEditAttacksModal(){
         const key = btn.dataset.resetKey;
         if(key && state.attackOverrides[key]){
           delete state.attackOverrides[key];
-          persistNow();
+          syncSheetAttacksNow();
           renderModalContent();
+          if(typeof requestAnimationFrame === 'function'){
+            requestAnimationFrame(() => { persistNow(); });
+          } else {
+            setTimeout(persistNow, 0);
+          }
         }
       };
     });
+
+    const syncSheetAttacksNow = () => {
+      try {
+        const inv = typeof characterInventory === 'function' ? characterInventory() : [];
+        const cat = getPdfItemsCatalog();
+        const newRowsHtml = renderSheetAttackRows(inv, cat);
+
+        // 1. Atualização cirúrgica ultra-rápida de todas as tabelas de ataques no DOM
+        const tbodies = document.querySelectorAll('.sheet-preview-table.attacks tbody, table.attacks tbody, .attacks-table tbody');
+        if(tbodies && tbodies.length > 0){
+          tbodies.forEach((tb: any) => {
+            tb.innerHTML = newRowsHtml;
+          });
+        }
+
+        // 2. Atualizar equipamentos e defesas no container da ficha
+        if(typeof updateSheetEquipmentAndDefenseContent === 'function'){
+          updateSheetEquipmentAndDefenseContent();
+        }
+
+        // 3. Forçar invalidação do cache de revisão da ficha para renderStage
+        if(typeof window !== 'undefined'){
+          try {
+            (window as any).sheetRenderedRevision = -1;
+            // @ts-ignore
+            if(typeof sheetRenderedRevision !== 'undefined') sheetRenderedRevision = -1;
+          } catch {}
+        }
+        if(typeof renderStage === 'function'){
+          renderStage({ navigationOnly: false });
+        }
+      } catch(err) {
+        console.warn('Aviso na atualização instantânea dos ataques:', err);
+      }
+    };
 
     // Botão Restaurar Valores: volta todos os bônus e ataques aos valores padrão iniciais calculados
     const handleResetAllToDefault = () => {
       Object.keys(globalMods).forEach(k => { globalMods[k] = 0; });
       state.temporaryAttackMods = { luta: 0, pontaria: 0, damage: 0, steps: 0, threat: 0, mult: 0, scope: 'all' };
       state.attackOverrides = {};
-      persistNow();
-      updateSheetEquipmentAndDefenseContent();
+      syncSheetAttacksNow();
       renderModalContent();
       if(typeof toast === 'function') toast('Valores restaurados aos padrões iniciais!');
+      if(typeof requestAnimationFrame === 'function'){
+        requestAnimationFrame(() => { persistNow(); });
+      } else {
+        setTimeout(persistNow, 0);
+      }
     };
 
     modal.querySelector('#btnResetAllAttacksDefault')?.addEventListener('click', handleResetAllToDefault);
@@ -1094,10 +1138,21 @@ function openEditAttacksModal(){
       });
       state.customAttacks = updatedCustom;
 
+      // 1. Fechar o modal imediatamente para zero engasgo visual (0ms)
       closeModal();
-      persistNow();
-      updateSheetEquipmentAndDefenseContent();
+
+      // 2. Sincronizar o DOM da ficha instantaneamente sem precisar de F5
+      syncSheetAttacksNow();
+
+      // 3. Feedback visual imediato ao jogador
       if(typeof toast === 'function') toast('Bônus aplicados com sucesso!');
+
+      // 4. Salvar estado assincronamente em segundo plano para velocidade ultrarrápida
+      if(typeof requestAnimationFrame === 'function'){
+        requestAnimationFrame(() => { persistNow(); });
+      } else {
+        setTimeout(persistNow, 0);
+      }
     };
   };
 
@@ -1157,9 +1212,10 @@ function updateSheetEquipmentAndDefenseContent(){
     defTbody.innerHTML = defenseRows;
   }
 
-  const attacksTbody = preview.querySelector('.sheet-preview-table.attacks tbody');
-  if(attacksTbody){
-    attacksTbody.innerHTML = renderSheetAttackRows(inventory, catalog);
+  const allAttacksTbodies = preview ? preview.querySelectorAll('.sheet-preview-table.attacks tbody, table.attacks tbody') : document.querySelectorAll('.sheet-preview-table.attacks tbody, table.attacks tbody');
+  if(allAttacksTbodies && allAttacksTbodies.length > 0){
+    const renderedRows = renderSheetAttackRows(inventory, catalog);
+    allAttacksTbodies.forEach((tb: any) => { tb.innerHTML = renderedRows; });
   }
 
   const equipPanelBody = preview.querySelector('.sheet-equipment-sections')?.parentElement || preview.querySelector('.sheet-equipment-container') || preview.querySelector('.equip-backpack-card')?.closest('.panel-body');
@@ -3078,24 +3134,49 @@ function renderSimplifiedSheet(isSummary = false){
   const equippedWeaponId = eqWeapon && typeof equipmentState === 'function' ? equipmentState().weaponId : '';
   rawWeapons.filter(w => !eqWeapon || (typeof equipEntryId === 'function' ? equipEntryId(w.entry, inventory.indexOf(w.entry)) !== equippedWeaponId : w.entry !== eqWeapon.entry)).forEach(w => { if(sortedWeapons.length < 5) sortedWeapons.push(w); });
 
-  const rangeLabels = { curto: 'Curto', medio: 'Médio', longo: 'Longo', '3m': '3m', '4_5m': '4,5m', cone_de_6m: 'Cone de 6m' };
+  const rangeLabels: Record<string, string> = { curto: 'Curto', medio: 'Médio', longo: 'Longo', '3m': '3m', '4_5m': '4,5m', cone_de_6m: 'Cone de 6m' };
+  const overrides = (typeof state !== 'undefined' && state.attackOverrides && typeof state.attackOverrides === 'object') ? state.attackOverrides : {};
+  const customList = (typeof state !== 'undefined' && Array.isArray(state.customAttacks)) ? state.customAttacks : [];
   const meleeAttacks = [];
   const rangedAttacks = [];
 
   sortedWeapons.forEach(({ entry, item }) => {
+    const key = entry?.instanceId || entry?.itemId || item?.id || entry?.displayName || item?.nome || '';
+    const ov = overrides[key] || (item?.id ? overrides[item.id] : null) || (entry?.itemId ? overrides[entry.itemId] : null);
     const values = weaponPassiveStats(item, entry);
-    const atk = values.attack >= 0 ? '+' + values.attack : String(values.attack);
-    const dmg = esc(values.damage);
-    const crit = esc(formatWeaponCritical(values.critical || item.arma?.critico));
-    const types = esc((item.arma?.tipoDanoIds || []).join('/'));
-    const rangeText = item.arma?.alcanceId ? ((typeof RANGE_LABELS !== 'undefined' && RANGE_LABELS[item.arma.alcanceId]) || rangeLabels[item.arma.alcanceId] || item.arma.alcanceId) : '';
-    const rangePart = rangeText && rangeText !== '—' ? ', ' + esc(rangeText) : '';
-    const formatted = `${esc(itemName(entry))} ${atk} (${dmg}, ${crit}${types ? ', ' + types : ''}${rangePart})`;
-    if(item.arma?.alcanceId && item.arma.alcanceId !== 'corpo_a_corpo'){
+    const defaultAtk = values.attack >= 0 ? '+' + values.attack : String(values.attack);
+    const defaultDmg = values.damage || '—';
+    const defaultCrit = typeof formatWeaponCritical === 'function' ? formatWeaponCritical(values.critical || item.arma?.critico) : (item.arma?.critico || '—');
+    const defaultTipo = (item.arma?.tipoDanoIds || []).join('/') || '—';
+    const defaultRangeText = item.arma?.alcanceId ? ((typeof RANGE_LABELS !== 'undefined' && RANGE_LABELS[item.arma.alcanceId]) || rangeLabels[item.arma.alcanceId] || item.arma.alcanceId) : '';
+
+    const finalName = ov?.nome != null && ov.nome !== '' ? ov.nome : itemName(entry);
+    const finalAtk = ov?.ataque != null && ov.ataque !== '' ? ov.ataque : defaultAtk;
+    const finalDmg = ov?.dano != null && ov.dano !== '' ? ov.dano : defaultDmg;
+    const finalCrit = ov?.critico != null && ov.critico !== '' ? ov.critico : defaultCrit;
+    const finalTipo = ov?.tipoDano != null && ov.tipoDano !== '' ? ov.tipoDano : defaultTipo;
+    const finalAlcance = ov?.alcance != null && ov.alcance !== '' ? ov.alcance : defaultRangeText;
+
+    const rangePart = finalAlcance && finalAlcance !== '—' && finalAlcance !== '-' ? ', ' + esc(finalAlcance) : '';
+    const tipoPart = finalTipo && finalTipo !== '—' && finalTipo !== '-' ? ', ' + esc(finalTipo) : '';
+    const formatted = `${esc(finalName)} ${esc(String(finalAtk))} (${esc(finalDmg)}, ${esc(finalCrit)}${tipoPart}${rangePart})`;
+
+    const isDist = (finalAlcance && finalAlcance !== '—' && finalAlcance !== '-' && !/corpo/i.test(finalAlcance)) || (item.arma?.alcanceId && item.arma.alcanceId !== 'corpo_a_corpo');
+    if(isDist){
       rangedAttacks.push(formatted);
     } else {
       meleeAttacks.push(formatted);
     }
+  });
+
+  customList.forEach(c => {
+    if(!c || !c.nome) return;
+    const isDist = c.alcance && c.alcance !== '—' && c.alcance !== '-' && !/corpo/i.test(c.alcance);
+    const rangePart = c.alcance && c.alcance !== '—' && c.alcance !== '-' ? ', ' + esc(c.alcance) : '';
+    const tipoPart = c.tipoDano && c.tipoDano !== '—' && c.tipoDano !== '-' ? ', ' + esc(c.tipoDano) : '';
+    const formatted = `${esc(c.nome)} ${esc(String(c.ataque || '+0'))} (${esc(c.dano || '—')}, ${esc(c.critico || '20/x2')}${tipoPart}${rangePart})`;
+    if(isDist) rangedAttacks.push(formatted);
+    else meleeAttacks.push(formatted);
   });
 
   const attackLines = [];
@@ -4316,8 +4397,10 @@ function openLevelClassModal(){
 }
 (()=>{const style=document.createElement('style');style.textContent='.progression-level-row{transition:opacity .24s,transform .24s,border-color .2s,background .2s}.progression-level-row.active{border-color:#d9a84e77;background:#d9a84e05}.progression-level-row.is-leaving{opacity:0;transform:translateY(-14px) scale(.985)}.progression-level-row.is-arriving{animation:progressionArrive .32s ease-out}@keyframes progressionArrive{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}.progression-level-summary{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}.progression-level-summary>strong{padding:3px 7px;border-radius:5px;background:#d9a84e10;color:#e8cb83;font-size:.64rem}.progression-expand{margin-left:auto;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#151c28;color:var(--muted);font-size:.62rem;cursor:pointer}.progression-ability-details{margin-top:8px;border-top:1px solid var(--border);padding-top:7px}.progression-ability-details summary{color:var(--muted);font-size:.64rem;cursor:pointer}.progression-ability-details .ability-list{margin-top:8px}.progression-source-filters{margin-top:12px}.progression-attribute-calculator{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:10px;margin-top:11px}.progression-attribute-column{display:grid;gap:7px;align-content:start}.progression-attribute-head,.progression-attribute-row{display:grid;grid-template-columns:minmax(110px,1fr) 120px;gap:8px;align-items:center}.progression-attribute-head{padding:0 10px;color:var(--dim);font-size:.55rem;font-weight:800;text-align:center;text-transform:uppercase}.progression-attribute-row{min-height:55px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#0d121a}.progression-attribute-row>strong{text-align:center;color:var(--gold2);font:700 .72rem Cinzel}.progression-attribute-row.active{border-color:#d9a84e;box-shadow:inset 3px 0 var(--gold)}.progression-total-control{display:grid;grid-template-columns:32px 52px 32px;justify-content:center}.progression-total-control button{border:1px solid var(--border);background:#171e2a;color:var(--text);font-size:1rem;cursor:pointer}.progression-total-control button:first-child{border-radius:6px 0 0 6px}.progression-total-control button:last-child{border-radius:0 6px 6px 0}.progression-total-control button:disabled{opacity:.25;cursor:default}.progression-total-control output{display:grid;place-items:center;min-height:42px;border-block:1px solid var(--border);font-size:1rem;font-weight:800}.racial-power-heading{margin-top:12px;color:#9fd4f2!important}.racial-power-list .power-row{border-left-color:#5ba9d8}.progression-special-grant-box{margin-top:9px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#141b26}.progression-special-grant-box.is-complete{border-color:#45c58b66;background:#45c58b0f}.progression-special-grant-box.is-pending{border-color:#d9a84e66;background:#d9a84e0f}@media(max-width:700px){.progression-attribute-calculator{grid-template-columns:1fr}.progression-attribute-head,.progression-attribute-row{grid-template-columns:minmax(90px,1fr) 116px}.progression-expand{width:100%;margin-left:0}}';document.head?.appendChild(style)})();
 (()=>{const style=document.createElement('style');style.textContent='.sheet-preview-alignment-age{display:grid;grid-template-columns:1.75fr 1fr;gap:12px;align-items:center}.sheet-preview{display:grid;gap:12px}.sheet-preview-identity{display:grid;grid-template-columns:1.3fr 1.1fr repeat(4,1fr);gap:1px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--border);width:100%;box-sizing:border-box;margin-bottom:2px}.sheet-preview-identity>*{min-width:0;padding:12px 16px;background:#111824;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sheet-preview-identity strong{color:var(--gold2);font-family:Cinzel,serif;font-size:1rem;display:block;margin-top:3px}.sheet-preview-identity small{color:#94a3b8;font-size:0.72rem;letter-spacing:0.6px;text-transform:uppercase;display:block}.sheet-preview-identity span{color:var(--muted);font-size:0.72rem;letter-spacing:0.5px}.sheet-attributes-block{position:relative;margin-top:10px;margin-bottom:12px}.sheet-attr-top-bar,.sheet-attr-bottom-bar{display:flex;align-items:center;justify-content:flex-start;margin-top:8px;padding-left:2px}.sheet-attr-edit-toggle-btn{background:#111824;border:1px solid #334155;color:#94a3b8;font-size:0.65rem;padding:3px 8px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;line-height:1}.sheet-attr-edit-toggle-btn:hover{background:#1e293b;color:#f8fafc;border-color:#d9a84e}.sheet-attr-edit-toggle-btn.active{background:rgba(217,168,78,0.15);color:#e8cb83;border-color:#d9a84e}.sheet-preview-attributes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px;padding:0;width:100%;box-sizing:border-box}.sheet-preview-attributes .sheet-attr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--border);border-radius:8px;background:#111824;position:relative;padding:6px 4px;box-sizing:border-box;transition:min-height 0.2s ease,border-color 0.15s ease}.sheet-attr-main-content{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}.sheet-attr-main-content small{color:var(--dim,#94a3b8);font-size:0.58rem;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}.sheet-attr-main-content strong{color:var(--gold2,#f59e0b);font-size:1.25rem;line-height:1.2}.sheet-attr-stepper-btn{display:none;align-items:center;justify-content:center;width:100%;max-width:54px;height:20px;border-radius:4px;border:1px solid rgba(217,168,78,0.35);background:rgba(217,168,78,0.12);color:#e8cb83;font-size:0.85rem;font-weight:700;cursor:pointer;line-height:1;padding:0;margin:0;transition:all 0.15s ease;user-select:none}.sheet-attr-stepper-btn:hover{background:#d9a84e;color:#0b0f17;border-color:#d9a84e}.sheet-attr-stepper-btn.btn-attr-down{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.12);color:#fca5a5}.sheet-attr-stepper-btn.btn-attr-down:hover{background:#dc2626;color:#ffffff;border-color:#ef4444}.steppers-active .sheet-attr-stepper-btn{display:flex}.steppers-active .sheet-attr-card{min-height:98px;justify-content:space-between;border-color:rgba(217,168,78,0.4)}.sheet-vitals-conditions-wrap{margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.sheet-vitals-conditions-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.sheet-vitals-actions-row{display:flex;align-items:center;gap:8px;margin-left:auto}.sheet-action-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;border-radius:6px;background:#151c28;border:1px solid #28364b;color:#94a3b8;cursor:pointer;transition:all 0.2s ease;padding:0;line-height:1}.sheet-action-icon-btn:hover{background:#1e2a3c;border-color:#60a5fa;color:#f8fafc;transform:translateY(-1px)}.sheet-action-icon-btn.sheet-level-up-btn{background:rgba(220,38,38,0.18);border-color:#ef4444;color:#fca5a5}.sheet-action-icon-btn.sheet-level-up-btn:hover{background:rgba(220,38,38,0.38);border-color:#f87171;color:#ffffff}.sheet-action-icon-btn.sheet-distinction-btn{background:rgba(217,168,78,0.18);border-color:#d9a84e;color:#e8cb83;text-decoration:none}.sheet-action-icon-btn.sheet-distinction-btn:hover{background:rgba(217,168,78,0.38);border-color:#f5d78e;color:#ffffff}.sheet-action-icon-btn.is-disabled,.sheet-action-icon-btn:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}.sheet-action-icon-btn svg,.sheet-action-icon-btn .forja-svg{width:16px;height:16px}.sheet-vitals-conditions-wrap .sheet-conditions-line{background:transparent;border:none;padding:0}.sheet-preview-middle{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(330px,.75fr);gap:12px;align-items:start}.sheet-preview-main,.sheet-preview-lower{display:grid;gap:12px}.sheet-preview-lower{grid-template-columns:minmax(280px,1.15fr) 0.85fr}.sheet-preview-box{border:1px solid var(--border);border-radius:9px;background:#0d121a;overflow:hidden}.sheet-preview-box>h3{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--gold2);font:700 .72rem Cinzel;text-transform:uppercase}.sheet-preview-box>p,.sheet-preview-box>.tag-row{margin:10px}.sheet-preview-table-wrap{overflow:auto}.sheet-preview-table{width:100%;border-collapse:collapse;font-size:.63rem}.sheet-preview-table th,.sheet-preview-table td{padding:7px 8px;border-bottom:1px solid #293446;text-align:left;white-space:nowrap}.sheet-preview-table td{color:var(--muted)}.sheet-preview-table tr.trained td{color:var(--text);background:transparent}.sheet-preview-table tr.attr-band-a td{background:rgba(255,255,255,0.018)}.sheet-preview-table tr.attr-band-b td{background:rgba(0,0,0,0.22)}.sheet-preview-table .skill-total{color:var(--gold2);font-weight:800;text-align:center}.sheet-preview-table.defense-equipment td strong{color:var(--gold2)}.sheet-preview-table.defense-equipment td{padding:6px 8px;font-size:.62rem}.sheet-preview-skills{position:sticky;top:118px;margin-top:0}.sheet-preview-skills .sheet-preview-table-wrap{max-height:670px}.sheet-preview-skills .sheet-preview-table,.sheet-preview-skills .sheet-preview-table th,.sheet-preview-skills .sheet-preview-table td,.sheet-preview-skills .sheet-preview-table tr td,.sheet-preview-skills .sheet-preview-table tr.trained td,.sheet-preview-skills .sheet-preview-table .skill-total,.sheet-preview-skills .sheet-preview-table .skill-name,.sheet-preview-skills .sheet-preview-table .skill-attr,.sheet-preview-skills .sheet-preview-table .skill-train,.sheet-preview-skills .sheet-preview-table .skill-bonus{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif!important;font-variant-numeric:tabular-nums lining-nums;color:#ffffff!important}.sheet-preview-skills .sheet-preview-table th{color:#ffffff!important;font-size:.72rem!important;font-weight:700!important;letter-spacing:.4px;border-bottom:1px solid #334155!important}.sheet-preview-skills .sheet-preview-table td{color:#ffffff!important;font-size:.72rem!important;border-bottom:1px solid #1f2937!important}.sheet-preview-skills .sheet-preview-table .skill-total{color:#ffffff!important;font-weight:700!important;font-size:.8rem!important;text-align:center!important}.sheet-preview-skills .sheet-preview-table tr.trained td{color:#ffffff!important;font-weight:600!important}.sheet-preview-skills .skill-untrained-x{font-family:\"Comic Sans MS\",\"Comic Sans\",cursive,sans-serif!important;font-weight:700!important;font-size:.95rem!important;color:#ffffff!important;line-height:1!important;display:inline-block!important;text-align:center!important}.sheet-preview-skills .skill-star-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;line-height:1!important;color:#ffffff!important}.sheet-preview-skills .skill-star-icon .skill-star-svg{width:14px!important;height:14px!important;display:block!important}.sheet-preview-skills .skill-star-icon.filled{color:#ffffff!important;opacity:1!important}.sheet-preview-skills .skill-star-icon.unfilled{color:#ffffff!important;opacity:.55!important}.sheet-preview-empty{text-align:center!important;color:var(--dim)!important}.sheet-defense-value{display:flex;align-items:center;gap:10px;padding:12px}.sheet-defense-value strong{font-size:2.2rem;color:var(--gold2)}.sheet-defense-value span{color:var(--muted);font-size:.62rem}.sheet-preview-equipment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--border)}.sheet-preview-equipment>div{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;background:#111824}.sheet-preview-equipment strong{font-size:.66rem;color:var(--text)}.sheet-preview-equipment span{color:var(--dim);font-size:.58rem}.sheet-preview-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.sheet-preview-extras h4{margin-bottom:8px;color:var(--gold2);font:700 .68rem Cinzel}@media(max-width:920px){.sheet-preview-identity{grid-template-columns:repeat(3,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important}.sheet-preview-middle{grid-template-columns:1fr}.sheet-preview-skills{position:static;margin-top:12px}.sheet-preview-lower{grid-template-columns:1fr}.sheet-preview-extras{grid-template-columns:1fr}}@media(max-width:760px){.sheet-preview-alignment-age{grid-template-columns:1fr}.sheet-preview-alignment-age>div{flex:1 1 auto!important;max-width:none!important}}@media(max-width:560px){.sheet-preview-identity{grid-template-columns:repeat(2,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px}.sheet-preview-attributes .sheet-attr-card{min-height:56px;padding:4px 2px}.sheet-preview-equipment{grid-template-columns:1fr}}';document.head?.appendChild(style)})();
-const phaseCompleteBeforeProgression=phaseIsComplete,missingBeforeProgression=missingChoices,validationBeforeProgression=validationMessage;
-const progressionMissingChoicesBeforeSpecialGrants=progressionMissingChoices;
+const phaseCompleteBeforeProgression = typeof phaseIsComplete !== 'undefined' ? phaseIsComplete : (() => true);
+const missingBeforeProgression = typeof missingChoices !== 'undefined' ? missingChoices : (() => []);
+const validationBeforeProgression = typeof validationMessage !== 'undefined' ? validationMessage : (() => '');
+const progressionMissingChoicesBeforeSpecialGrants = typeof progressionMissingChoices !== 'undefined' ? progressionMissingChoices : (() => []);
 progressionMissingChoices=function(){
   ensureProgression();
   const missing=progressionMissingChoicesBeforeSpecialGrants();

@@ -424,3 +424,119 @@ test('Planejamento de Níveis: Compatibilidade e Detecção de Divergências ao 
   assert.equal(evalC.compativel, false);
   assert.match(evalC.divergencia || '', /já foi adquirido/);
 });
+
+test('Ataques da Ficha: Aplicação Imediata de Bônus e Restauração aos Valores Padrão', () => {
+  const { JSDOM } = require('jsdom');
+  const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div class="sheet-preview"><table class="sheet-preview-table attacks"><tbody></tbody></table></div></body></html>');
+  const globalObj = globalThis as any;
+  globalObj.window = dom.window;
+  globalObj.document = dom.window.document;
+  globalObj.HTMLElement = dom.window.HTMLElement;
+  globalObj.HTMLInputElement = dom.window.HTMLInputElement;
+
+  const dummyState: any = {
+    identity: { characterName: 'Herói Teste', plannedLevel: 1 },
+    attackOverrides: {},
+    temporaryAttackMods: { luta: 0, pontaria: 0, damage: 0, steps: 0, threat: 0, mult: 0, scope: 'all' },
+    customAttacks: []
+  };
+  globalObj.state = dummyState;
+
+  // Mock de weaponPassiveStats e helpers
+  globalObj.characterAttackRecords = () => [
+    {
+      entry: { itemId: 'espada_longa', instanceId: 'esp_1', displayName: 'Espada Longa' },
+      item: {
+        id: 'espada_longa',
+        nome: 'Espada Longa',
+        tipo: 'arma',
+        arma: { combateId: 'corpo_a_corpo', alcanceId: null, critico: { margem: 19, multiplicador: 2 }, tipoDanoIds: ['corte'] }
+      }
+    }
+  ];
+  globalObj.weaponPassiveStats = () => ({ attack: 5, damage: '1d8+3', critical: { margem: 19, multiplicador: 2 } });
+  globalObj.formatWeaponCritical = (c: any) => c ? `${c.margem || 20}/x${c.multiplicador || 2}` : '20/x2';
+  globalObj.getSheetItemDisplayName = (e: any) => e.displayName || 'Item';
+  globalObj.esc = (s: string) => s;
+
+  require('../../src/funcionalidades/criador/ficha/renderizacao.ts');
+  const renderSheetAttackRows = globalObj.window.renderSheetAttackRows;
+  assert.equal(typeof renderSheetAttackRows, 'function');
+
+  const inventory = [{ itemId: 'espada_longa', instanceId: 'esp_1', displayName: 'Espada Longa', equipped: true }];
+  const catalog = new Map([
+    ['espada_longa', {
+      id: 'espada_longa',
+      nome: 'Espada Longa',
+      tipo: 'arma',
+      arma: { combateId: 'corpo_a_corpo', alcanceId: null, critico: { margem: 19, multiplicador: 2 }, tipoDanoIds: ['corte'] }
+    }]
+  ]);
+  globalObj.characterInventory = () => inventory;
+  globalObj.getPdfItemsCatalog = () => catalog;
+  globalObj.equipmentState = () => ({ weaponId: 'esp_1' });
+  globalObj.equippedWeaponRecord = () => ({ entry: inventory[0], item: catalog.get('espada_longa') });
+
+  // 1. Valores naturais padrão iniciais
+  const defaultHtml = renderSheetAttackRows(inventory, catalog);
+  assert.match(defaultHtml, /Espada Longa/);
+  assert.match(defaultHtml, /\+5/);
+  assert.match(defaultHtml, /1d8\+3/);
+  assert.match(defaultHtml, /19\/x2/);
+
+  // 2. Aplicação imediata de bônus (sem precisar de F5)
+  dummyState.attackOverrides['esp_1'] = {
+    nome: 'Espada Longa Flamejante',
+    ataque: '+7',
+    dano: '1d8+5',
+    critico: '18/x3',
+    tipoDano: 'Corte/Fogo',
+    alcance: '—'
+  };
+  dummyState.temporaryAttackMods = { luta: 2, pontaria: 0, damage: 2, steps: 0, threat: 1, mult: 1, scope: 'all' };
+
+  const updatedHtml = renderSheetAttackRows(inventory, catalog);
+  assert.match(updatedHtml, /Espada Longa Flamejante/);
+  assert.match(updatedHtml, /\+7/);
+  assert.match(updatedHtml, /1d8\+5/);
+  assert.match(updatedHtml, /18\/x3/);
+  assert.match(updatedHtml, /Corte\/Fogo/);
+
+  // 3. Atualização no DOM imediata
+  const tbody = dom.window.document.querySelector('.sheet-preview-table.attacks tbody');
+  assert.ok(tbody);
+  tbody.innerHTML = updatedHtml;
+  assert.match(tbody.innerHTML, /Espada Longa Flamejante/);
+
+  // 4. Restauração imediata de valores aos padrões (sem precisar de F5)
+  dummyState.attackOverrides = {};
+  dummyState.temporaryAttackMods = { luta: 0, pontaria: 0, damage: 0, steps: 0, threat: 0, mult: 0, scope: 'all' };
+
+  const restoredHtml = renderSheetAttackRows(inventory, catalog);
+  assert.match(restoredHtml, /Espada Longa/);
+  assert.match(restoredHtml, /\+5/);
+  assert.match(restoredHtml, /1d8\+3/);
+  assert.match(restoredHtml, /19\/x2/);
+  assert.doesNotMatch(restoredHtml, /Espada Longa Flamejante/);
+  assert.doesNotMatch(restoredHtml, /\+7/);
+
+  tbody.innerHTML = restoredHtml;
+  assert.doesNotMatch(tbody.innerHTML, /Flamejante/);
+
+  // 5. Ataque customizado adicionado e refletido
+  dummyState.customAttacks = [{
+    id: 'custom_1',
+    nome: 'Mordida Sombria',
+    ataque: '+6',
+    dano: '2d6',
+    critico: '20/x2',
+    tipoDano: 'Trevas',
+    alcance: '—'
+  }];
+
+  const customHtml = renderSheetAttackRows(inventory, catalog);
+  assert.match(customHtml, /Mordida Sombria/);
+  assert.match(customHtml, /\+6/);
+  assert.match(customHtml, /2d6/);
+  assert.match(customHtml, /Trevas/);
+});
