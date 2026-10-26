@@ -215,3 +215,71 @@ test('Habilidades das Armas: Armas Desbalanceadas sofrem -2 em Testes de Ataque'
   assert.equal(addFlatDamageBonus('1d8+5', 2), '1d8+7');
   assert.equal(addFlatDamageBonus('1d12+5', 3), '1d12+8');
 });
+
+test('Bônus Temporários nos Ataques: Persistência, Aplicação sobre Valores Naturais e Restaurar Valores', () => {
+  const { stepUpDamage, addFlatDamageBonus } = require('../../src/regras/nucleo/passos-dano.ts');
+
+  // Estado com modificadores temporários ativos
+  const stateMock: any = {
+    temporaryAttackMods: {
+      luta: 2,
+      pontaria: 1,
+      damage: 3,
+      steps: 1,
+      threat: 1,
+      mult: 1,
+      scope: 'all'
+    },
+    attackOverrides: {}
+  };
+
+  // Valores naturais da arma calculados canonicamente (ex: Maça de Guerra)
+  const defaultWeapon = {
+    key: 'maca_de_guerra',
+    defaultAtk: '+7',
+    defaultDmg: '1d12+4',
+    defaultCrit: 'x3',
+    defaultTipo: 'impacto',
+    defaultAlcance: '—',
+    isRanged: false
+  };
+
+  // 1. Aplicação dos bônus temporários sobre os valores naturais da arma
+  const baselineAtkNum = parseInt(defaultWeapon.defaultAtk, 10);
+  const modifiedAtkNum = baselineAtkNum + stateMock.temporaryAttackMods.luta;
+  const modifiedAtk = modifiedAtkNum >= 0 ? `+${modifiedAtkNum}` : String(modifiedAtkNum);
+
+  let modifiedDmg = stepUpDamage(defaultWeapon.defaultDmg, stateMock.temporaryAttackMods.steps, { allowAltLadder: true });
+  modifiedDmg = addFlatDamageBonus(modifiedDmg, stateMock.temporaryAttackMods.damage);
+
+  // 1d12 subindo 1 passo vai para 3d6, com +4 natural e +3 bônus temporário fica 3d6+7
+  assert.equal(modifiedAtk, '+9');
+  assert.equal(modifiedDmg, '3d6+7');
+
+  // 2. Ação de Restaurar Valores: reseta bônus temporários e overrides aos padrões naturais
+  const resetToDefault = () => {
+    stateMock.temporaryAttackMods = { luta: 0, pontaria: 0, damage: 0, steps: 0, threat: 0, mult: 0, scope: 'all' };
+    stateMock.attackOverrides = {};
+  };
+
+  resetToDefault();
+
+  assert.equal(stateMock.temporaryAttackMods.luta, 0);
+  assert.equal(stateMock.temporaryAttackMods.damage, 0);
+  assert.equal(stateMock.temporaryAttackMods.steps, 0);
+  assert.deepEqual(stateMock.attackOverrides, {});
+
+  // Ao recalcular sem bônus temporários, volta exatamente aos valores naturais da arma
+  const restoredAtkNum = parseInt(defaultWeapon.defaultAtk, 10) + stateMock.temporaryAttackMods.luta;
+  const restoredAtk = restoredAtkNum >= 0 ? `+${restoredAtkNum}` : String(restoredAtkNum);
+  let restoredDmg = defaultWeapon.defaultDmg;
+  if (stateMock.temporaryAttackMods.steps > 0) {
+    restoredDmg = stepUpDamage(restoredDmg, stateMock.temporaryAttackMods.steps);
+  }
+  if (stateMock.temporaryAttackMods.damage !== 0) {
+    restoredDmg = addFlatDamageBonus(restoredDmg, stateMock.temporaryAttackMods.damage);
+  }
+
+  assert.equal(restoredAtk, defaultWeapon.defaultAtk);
+  assert.equal(restoredDmg, defaultWeapon.defaultDmg);
+});
