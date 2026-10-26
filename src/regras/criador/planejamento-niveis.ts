@@ -46,19 +46,17 @@ interface CharacterPlanning {
 }
 
 /**
- * Calcula o dinheiro hipotético ganho somando cumulativamente o adicional de cada nível planejado.
- * Regra canônica solicitada:
- * A cada nível planejado ganha o valor em dinheiro do nível como adicional cumulativo somado ao que já tinha.
- * Ex: Do nível 1 para o 2 = +300; para o 3 = +300 + 600 = +900; para o 4 = +300 + 600 + 1000 = +1900.
+ * Calcula o dinheiro hipotético ganho pelo nível planejado.
+ * Regra solicitada:
+ * Planejar um personagem para determinado nível concede a ele exatamente os tibares
+ * correspondentes àquele nível da tabela, sem somar com os valores dos níveis anteriores.
+ * Ex: Nível 2 = 300 T$, Nível 3 = 600 T$, Nível 4 = 1000 T$, Nível 5 = 2000 T$, Nível 10 = 13000 T$.
  */
 function calcularDinheiroHipoteticoAdicional(nivelAtual: number, nivelAlvo: number): number {
   const atual = Math.max(1, Number(nivelAtual) || 1);
   const alvo = Math.min(20, Math.max(atual, Number(nivelAlvo) || atual));
-  let totalAdicional = 0;
-  for (let lvl = atual + 1; lvl <= alvo; lvl++) {
-    totalAdicional += (STARTING_FUNDS_TABLE[lvl] || 0);
-  }
-  return totalAdicional;
+  if (alvo <= atual) return 0;
+  return STARTING_FUNDS_TABLE[alvo] || 0;
 }
 
 /**
@@ -174,29 +172,39 @@ function iniciarModoPlanejamento(characterState: any, nivelAlvo: number, nomePla
   const nivelAtual = Math.max(1, Number(characterState.identity?.plannedLevel) || 1);
   const target = Math.min(20, Math.max(nivelAtual + 1, Number(nivelAlvo) || (nivelAtual + 1)));
 
-  if (!characterState.isPlanningMode) {
+  let existingBackupRaw: string | null = null;
+  try {
+    existingBackupRaw = (typeof localStorage !== 'undefined' ? localStorage.getItem('forja_planning_real_hero_backup') : null)
+      || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('forja_planning_snapshot') : null);
+  } catch {}
+
+  if (!characterState.isPlanningMode && !existingBackupRaw) {
     const snapshot = JSON.parse(JSON.stringify(characterState));
     characterState.planningSnapshot = snapshot;
     try {
-      sessionStorage.setItem('forja_planning_snapshot', JSON.stringify(snapshot));
+      if (typeof localStorage !== 'undefined') localStorage.setItem('forja_planning_real_hero_backup', JSON.stringify(snapshot));
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('forja_planning_snapshot', JSON.stringify(snapshot));
+    } catch {}
+  } else if (existingBackupRaw && !characterState.planningSnapshot) {
+    try {
+      characterState.planningSnapshot = JSON.parse(existingBackupRaw);
     } catch {}
   }
 
+  const realBaseLevel = Number(characterState.planningSnapshot?.identity?.plannedLevel || characterState.planningBaseLevel || nivelAtual);
   characterState.isPlanningMode = true;
-  if (!characterState.planningBaseLevel) {
-    characterState.planningBaseLevel = nivelAtual;
-  }
+  characterState.planningBaseLevel = realBaseLevel;
   characterState.planningTargetLevel = target;
   characterState.planningName = (nomePlanejamento || '').trim() || (characterState.planningName || `Plano até Nível ${target}`);
   if (planningId) {
     characterState.currentPlanningId = planningId;
   }
 
-  const baseLvl = Number(characterState.planningBaseLevel) || nivelAtual;
-  const bonus = calcularDinheiroHipoteticoAdicional(baseLvl, target);
+  const bonus = calcularDinheiroHipoteticoAdicional(realBaseLevel, target);
   characterState.finances = characterState.finances || {};
   characterState.finances.hypotheticalPlanningFunds = bonus;
-  characterState.finances.rewardFunds = (Number(characterState.finances.rewardFunds) || 0) + bonus;
+  const originalRewardFunds = Number(characterState.planningSnapshot?.finances?.rewardFunds || 0);
+  characterState.finances.rewardFunds = originalRewardFunds + bonus;
 
   characterState.identity = characterState.identity || {};
   characterState.identity.plannedLevel = target;
@@ -208,12 +216,14 @@ function iniciarModoPlanejamento(characterState: any, nivelAlvo: number, nomePla
  * Encerra o Modo de Planejamento e restaura a ficha original exatamente no nível real que tinha.
  */
 function encerrarModoPlanejamento(characterState: any): any {
-  if (!characterState || !characterState.isPlanningMode) return characterState;
+  if (!characterState) return characterState;
 
   let original = characterState.planningSnapshot;
   if (!original) {
     try {
-      const raw = sessionStorage.getItem('forja_planning_snapshot');
+      const rawLocal = typeof localStorage !== 'undefined' ? localStorage.getItem('forja_planning_real_hero_backup') : null;
+      const rawSession = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('forja_planning_snapshot') : null;
+      const raw = rawLocal || rawSession;
       if (raw) original = JSON.parse(raw);
     } catch {}
   }
@@ -231,20 +241,95 @@ function encerrarModoPlanejamento(characterState: any): any {
     delete characterState.planningTargetLevel;
     delete characterState.planningName;
     delete characterState.currentPlanningId;
+    delete characterState.levelUpBefore;
+    delete characterState.editingCharacter;
     if (characterState.finances) {
       delete characterState.finances.hypotheticalPlanningFunds;
     }
+    characterState.finished = true;
+    characterState.isLevelingUp = false;
+    characterState.isEditingFinishedSheet = false;
+    characterState.step = 10;
+    characterState.sheetView = 'sheet';
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(characterState));
+        localStorage.removeItem('forja_planning_real_hero_backup');
+      }
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('forja_planning_snapshot');
+      }
+    } catch {}
   } else {
     delete characterState.isPlanningMode;
     delete characterState.planningSnapshot;
     delete characterState.currentPlanningId;
+    delete characterState.planningBaseLevel;
+    delete characterState.planningTargetLevel;
+    delete characterState.planningName;
   }
 
-  try {
-    sessionStorage.removeItem('forja_planning_snapshot');
-  } catch {}
-
   return characterState;
+}
+
+/**
+ * Avalia se um planejamento salvo é compatível com a evolução real do personagem até o nível especificado.
+ * Detecta duplicidade de poderes já escolhidos ou inconsistência de pré-requisitos.
+ */
+function avaliarCompatibilidadePlanejamento(characterState: any, planning: CharacterPlanning, targetLevel: number): { compativel: boolean; divergencia?: string; choice?: ProgressionRowChoice } {
+  if (!characterState || !planning || !Array.isArray(planning.progression)) {
+    return { compativel: false, divergencia: 'Planejamento inválido ou incompleto.' };
+  }
+  const choice = planning.progression[targetLevel - 1];
+  if (!choice || !choice.classId) {
+    return { compativel: false, divergencia: 'Planejamento não possui escolhas para o Nível ' + targetLevel + '.' };
+  }
+
+  if (choice.powerId) {
+    // 1. Checa se o poder já foi adquirido pelo herói em níveis anteriores
+    const acquiredPowers = new Set<string>();
+    (characterState.progression || []).slice(0, targetLevel - 1).forEach((row: any) => {
+      if (row.powerId) acquiredPowers.add(row.powerId);
+    });
+    (characterState.powers?.general || []).forEach((p: any) => {
+      const id = typeof p === 'string' ? p : p?.id || p?.nome;
+      if (id) acquiredPowers.add(id);
+    });
+
+    if (acquiredPowers.has(choice.powerId)) {
+      let pwrName = choice.powerId;
+      try {
+        if (typeof (window as any).progressionPowerById === 'function') {
+          pwrName = (window as any).progressionPowerById(choice.powerId)?.nome || choice.powerId;
+        }
+      } catch {}
+      return {
+        compativel: false,
+        divergencia: 'O poder "' + pwrName + '" já foi adquirido anteriormente.',
+        choice
+      };
+    }
+
+    // 2. Checa pré-requisitos do poder no contexto do herói atual
+    try {
+      if (typeof (window as any).progressionPowerById === 'function') {
+        const pwrObj = (window as any).progressionPowerById(choice.powerId);
+        if (pwrObj && typeof (window as any).progressionPowerVerdict === 'function') {
+          const verdict = (window as any).progressionPowerVerdict(pwrObj, targetLevel - 1);
+          if (verdict && verdict.ok === false && Array.isArray(verdict.reasons) && verdict.reasons.length > 0) {
+            return {
+              compativel: false,
+              divergencia: 'Pré-requisitos não cumpridos: ' + verdict.reasons.join(', ') + '.',
+              choice
+            };
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return { compativel: true, choice };
 }
 
 /**
@@ -327,7 +412,8 @@ const ForjaPlanejamentoExports = {
   iniciarModoPlanejamento,
   encerrarModoPlanejamento,
   obterPlanejamentoParaProximoNivel,
-  aplicarPlanejamentoProximoNivel
+  aplicarPlanejamentoProximoNivel,
+  avaliarCompatibilidadePlanejamento
 };
 
 if (typeof window !== 'undefined') {

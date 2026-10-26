@@ -13,27 +13,32 @@ const {
   iniciarModoPlanejamento,
   encerrarModoPlanejamento,
   obterPlanejamentoParaProximoNivel,
-  aplicarPlanejamentoProximoNivel
+  aplicarPlanejamentoProximoNivel,
+  avaliarCompatibilidadePlanejamento
 } = require('../../src/regras/criador/planejamento-niveis.ts');
 
-test('Planejamento de Níveis: Dinheiro Hipotético Adicional Cumulativo por Nível', () => {
-  // Nível 2 ganha +300
+test('Planejamento de Níveis: Dinheiro Hipotético do Nível Alvo (Não Cumulativo com Anteriores)', () => {
+  // Planejar para o Nível 2 ganha 300 T$
   assert.equal(calcularDinheiroHipoteticoAdicional(1, 2), 300);
 
-  // Nível 3 ganha +600 adicional (do 1 ao 3: 300 + 600 = 900)
-  assert.equal(calcularDinheiroHipoteticoAdicional(1, 3), 900);
+  // Planejar para o Nível 3 ganha exatamente os 600 T$ do Nível 3 (sem somar com o nível 2)
+  assert.equal(calcularDinheiroHipoteticoAdicional(1, 3), 600);
   assert.equal(calcularDinheiroHipoteticoAdicional(2, 3), 600);
 
-  // Nível 4 ganha +1000 adicional (do 1 ao 4: 300 + 600 + 1000 = 1900)
-  assert.equal(calcularDinheiroHipoteticoAdicional(1, 4), 1900);
-  assert.equal(calcularDinheiroHipoteticoAdicional(2, 4), 1600);
+  // Planejar para o Nível 4 ganha exatamente os 1000 T$ do Nível 4
+  assert.equal(calcularDinheiroHipoteticoAdicional(1, 4), 1000);
+  assert.equal(calcularDinheiroHipoteticoAdicional(2, 4), 1000);
   assert.equal(calcularDinheiroHipoteticoAdicional(3, 4), 1000);
 
-  // Nível 5 ganha +2000 adicional
+  // Planejar para o Nível 5 ganha os 2000 T$ do Nível 5
   assert.equal(calcularDinheiroHipoteticoAdicional(4, 5), 2000);
-  assert.equal(calcularDinheiroHipoteticoAdicional(1, 5), 3900);
+  assert.equal(calcularDinheiroHipoteticoAdicional(1, 5), 2000);
 
-  // Mesmo nível não gera ganho adicional
+  // Planejar para o Nível 10 ganha exatamente os 13000 T$ do Nível 10
+  assert.equal(calcularDinheiroHipoteticoAdicional(1, 10), 13000);
+  assert.equal(calcularDinheiroHipoteticoAdicional(9, 10), 13000);
+
+  // Mesmo nível ou menor não gera ganho adicional
   assert.equal(calcularDinheiroHipoteticoAdicional(5, 5), 0);
   assert.equal(calcularDinheiroHipoteticoAdicional(4, 2), 0);
 });
@@ -90,9 +95,9 @@ test('Planejamento de Níveis: Iniciar Modo Planejamento e Restaurar Estado Orig
   assert.equal(character.planningBaseLevel, 2);
   assert.equal(character.identity.plannedLevel, 4);
 
-  // Ganho de fundos hipotéticos do nível 2 até 4: +600 (nv3) + 1000 (nv4) = 1600 T$
-  assert.equal(character.finances.hypotheticalPlanningFunds, 1600);
-  assert.equal(character.finances.rewardFunds, 1700); // 100 anterior + 1600
+  // Ganho de fundos hipotéticos para o nível 4: exatamente os 1000 T$ do Nível 4 (não somado ao anterior)
+  assert.equal(character.finances.hypotheticalPlanningFunds, 1000);
+  assert.equal(character.finances.rewardFunds, 1100); // 100 anterior + 1000
 
   // Salvar o planejamento criado enquanto está em modo de planejamento
   const plan = salvarPlanejamento(character, 'Plano Tanque Nv 4');
@@ -306,8 +311,8 @@ test('Planejamento de Níveis: Edição, Adicionar Níveis e Cancelar Planejamen
   iniciarModoPlanejamento(hero, 5, 'Plano Inicial');
   assert.equal(hero.isPlanningMode, true);
   assert.equal(hero.identity.plannedLevel, 5);
-  // Dinheiro hipotético do nv 2 ao 5: 600 (nv3) + 1000 (nv4) + 2000 (nv5) = 3600
-  assert.equal(hero.finances.hypotheticalPlanningFunds, 3600);
+  // Dinheiro hipotético do Nível 5: exatamente 2000 T$
+  assert.equal(hero.finances.hypotheticalPlanningFunds, 2000);
 
   const plan1 = salvarPlanejamento(hero, 'Plano Inicial');
   assert.ok(plan1);
@@ -325,15 +330,15 @@ test('Planejamento de Níveis: Edição, Adicionar Níveis e Cancelar Planejamen
   assert.equal(hero.isPlanningMode, true);
   assert.equal(hero.currentPlanningId, planId);
   assert.equal(hero.identity.plannedLevel, 8);
-  // Dinheiro hipotético do nv 2 ao 8: 600 + 1000 + 2000 + 3000 (nv6) + 5000 (nv7) + 7000 (nv8) = 18600
-  assert.equal(hero.finances.hypotheticalPlanningFunds, 18600);
+  // Dinheiro hipotético do Nível 8: exatamente 7000 T$
+  assert.equal(hero.finances.hypotheticalPlanningFunds, 7000);
 
   // Salvar a edição do plano existente não duplica (atualiza in-place para cota 1)
   const updatedPlan = salvarPlanejamento(hero, 'Plano Estendido', planId);
   assert.equal(hero.plannings.length, 1); // Continua 1 planejamento
   assert.equal(hero.plannings[0].id, planId); // Mesmo id mantido
   assert.equal(hero.plannings[0].targetLevel, 8); // Nível atualizado
-  assert.equal(hero.plannings[0].hypotheticalFunds, 18600);
+  assert.equal(hero.plannings[0].hypotheticalFunds, 7000);
 
   // 4. Teste de Cancelar Planejamento enquanto estiver no meio do planejamento
   iniciarModoPlanejamento(hero, 10, 'Plano Temporário Descartado');
@@ -352,4 +357,70 @@ test('Planejamento de Níveis: Edição, Adicionar Níveis e Cancelar Planejamen
   assert.equal(hero.isPlanningMode, undefined);
   assert.equal(hero.planningName, undefined);
   assert.equal(hero.identity.plannedLevel, 2); // Retornado ao nível real
+});
+
+test('Planejamento de Níveis: Compatibilidade e Detecção de Divergências ao Subir de Nível', () => {
+  const hero: any = {
+    identity: {
+      plannedLevel: 2
+    },
+    progression: [
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro', powerId: 'ataque_poderoso' }
+    ],
+    powers: {
+      general: ['vitalidade']
+    }
+  };
+
+  // Plano A: Nível 3 escolhe 'golpe_de_raspao' (compatível)
+  const planA: any = {
+    id: 'plan_A',
+    name: 'Caminho Ofensivo',
+    baseLevel: 1,
+    targetLevel: 5,
+    progression: [
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro', powerId: 'ataque_poderoso' },
+      { classId: 'guerreiro', powerId: 'golpe_de_raspao' }
+    ]
+  };
+
+  const evalA = avaliarCompatibilidadePlanejamento(hero, planA, 3);
+  assert.equal(evalA.compativel, true);
+  assert.equal(evalA.choice?.powerId, 'golpe_de_raspao');
+
+  // Plano B: Nível 3 escolhe 'ataque_poderoso' que já foi adquirido no nível 2 (divergência!)
+  const planB: any = {
+    id: 'plan_B',
+    name: 'Caminho Duplicado',
+    baseLevel: 1,
+    targetLevel: 5,
+    progression: [
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro', powerId: 'outro_poder' },
+      { classId: 'guerreiro', powerId: 'ataque_poderoso' }
+    ]
+  };
+
+  const evalB = avaliarCompatibilidadePlanejamento(hero, planB, 3);
+  assert.equal(evalB.compativel, false);
+  assert.match(evalB.divergencia || '', /já foi adquirido/);
+
+  // Plano C: Nível 3 escolhe poder geral já existente em powers.general
+  const planC: any = {
+    id: 'plan_C',
+    name: 'Caminho Vital',
+    baseLevel: 1,
+    targetLevel: 5,
+    progression: [
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro', powerId: 'vitalidade' }
+    ]
+  };
+
+  const evalC = avaliarCompatibilidadePlanejamento(hero, planC, 3);
+  assert.equal(evalC.compativel, false);
+  assert.match(evalC.divergencia || '', /já foi adquirido/);
 });

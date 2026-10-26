@@ -4197,6 +4197,36 @@ function cancelTrainingPower(){
   }
 }
 if(typeof window!=='undefined')window.cancelTrainingPower=cancelTrainingPower;
+function openViewPlanModal(plan: any){
+  if(!plan) return;
+  let modal = document.getElementById('forjaViewPlanModal');
+  if(modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'forjaViewPlanModal';
+  modal.className = 'modal-backdrop';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:110000;display:flex;align-items:center;justify-content:center;padding:75px 16px 20px;box-sizing:border-box;background:rgba(5,7,11,0.92);backdrop-filter:blur(5px);overflow-y:auto;';
+
+  const closeView = () => modal?.remove();
+
+  const progressionList = Array.isArray(plan.progression) ? plan.progression : [];
+  let rowsHtml = '';
+  for(let lvl = 2; lvl <= plan.targetLevel; lvl++){
+    const row = progressionList[lvl - 1];
+    const clsName = (typeof classById === 'function' ? classById(row?.classId)?.nome : '') || row?.classId || '—';
+    const pwrObj = row?.powerId && typeof progressionPowerById === 'function' ? progressionPowerById(row.powerId) : null;
+    const pwrName = pwrObj?.nome || row?.powerId || 'Habilidade de classe';
+    rowsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.75rem;"><span style="font-weight:700;color:var(--gold2,#e9ad59);min-width:55px;">Nv. ' + lvl + '</span><span style="color:var(--cream,#f5eee6);flex:1;">Classe: <strong>' + esc(clsName) + '</strong></span><span style="color:var(--muted,#c9b2aa);text-align:right;">' + esc(pwrName) + '</span></div>';
+  }
+
+  modal.innerHTML = '<section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:560px;width:92vw;max-height:calc(100vh - 100px);margin:auto;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.8);"><header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;"><div><h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.92rem;font-family:Cinzel,serif;">Visualizar Trilha: ' + esc(plan.name) + '</h3><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Projeção do Nível ' + (plan.baseLevel || 1) + ' até o Nível ' + plan.targetLevel + ' · Dinheiro do Nível: +' + (plan.hypotheticalFunds || 0) + ' T$</span></div><button type="button" class="button small" id="closeViewPlanX" style="min-width:28px;padding:2px 6px;">✕</button></header><div class="confirm-modal-body" style="overflow-y:auto;padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:4px;">' + (rowsHtml || '<p style="font-size:0.75rem;color:var(--muted);">Nenhum nível configurado neste planejamento.</p>') + '</div><footer style="display:flex;justify-content:flex-end;border-top:1px solid var(--line,#4a252a);padding:10px 16px;"><button type="button" class="button" id="btnCloseViewPlan">Fechar</button></footer></section>';
+
+  document.body.appendChild(modal);
+  modal.querySelector('#closeViewPlanX')!.onclick = closeView;
+  modal.querySelector('#btnCloseViewPlan')!.onclick = closeView;
+  modal.onclick = (e) => { if(e.target === modal) closeView(); };
+}
+
 function openLevelClassModal(){
   const t = getLevelTrainingState();
   const completedCount = [t.pv, t.pm, t.skills, t.power].filter(Boolean).length;
@@ -4208,30 +4238,73 @@ function openLevelClassModal(){
   const modal=ensureLevelClassModal(),select=modal.querySelector('#levelClassSelect'),suggested=state.levelTraining?.nextClassId||state.progression.at(-1)?.classId||state.identity.classId;
   select.innerHTML=DATA.classes.map(cls=>'<option value="'+cls.id+'" '+(cls.id===suggested?'selected':'')+'>'+esc(cls.nome)+'</option>').join('');
 
-  const planInfo = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentoParaProximoNivel === 'function')
-    ? ForjaPlanejamento.obterPlanejamentoParaProximoNivel(state)
-    : null;
+  const currentLevel = Number(state.identity?.plannedLevel) || (state.progression?.length || 1);
+  const nextLevel = currentLevel + 1;
+
+  const plannings: any[] = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentos === 'function')
+    ? ForjaPlanejamento.obterPlanejamentos(state)
+    : (state.plannings || []);
+
+  const candidatePlans = plannings.filter((p: any) => p.targetLevel >= nextLevel && Array.isArray(p.progression) && p.progression[nextLevel - 1]?.classId);
   const planContainer = modal.querySelector('#levelClassPlanningContainer');
+
   if(planContainer){
-    if(planInfo){
-      const clsName = (typeof classById === 'function' ? classById(planInfo.nextChoice.classId)?.nome : '') || planInfo.nextChoice.classId;
-      const pwrName = planInfo.nextChoice.powerId ? ((typeof progressionPowerById === 'function' ? progressionPowerById(planInfo.nextChoice.powerId)?.nome : '') || planInfo.nextChoice.powerId) : '';
-      planContainer.innerHTML = '<div style="margin-bottom:14px;padding:10px 12px;background:rgba(217,168,78,0.1);border:1px solid #d9a84e;border-radius:8px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><strong style="color:var(--gold2,#e9ad59);font-size:0.82rem">💡 Seguir Planejamento: ' + esc(planInfo.planning.name) + '</strong><div style="font-size:0.75rem;color:var(--cream,#f5eee6);margin-top:2px">Nível ' + planInfo.nextLevel + ': <strong>' + esc(clsName) + '</strong>' + (pwrName ? ' · Poder: <strong>' + esc(pwrName) + '</strong>' : '') + '</div></div><button type="button" class="button small primary" id="applyPlanningLevelUpBtn" style="font-size:0.72rem;padding:4px 10px;white-space:nowrap">Seguir Planejamento</button></div></div>';
+    if(candidatePlans.length > 0){
+      let cardsHtml = '';
+      candidatePlans.forEach((plan: any) => {
+        const evalResult = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.avaliarCompatibilidadePlanejamento === 'function')
+          ? ForjaPlanejamento.avaliarCompatibilidadePlanejamento(state, plan, nextLevel)
+          : { compativel: true, choice: plan.progression[nextLevel - 1] };
+
+        const choice = evalResult.choice || plan.progression[nextLevel - 1];
+        const clsName = (typeof classById === 'function' ? classById(choice.classId)?.nome : '') || choice.classId;
+        const pwrObj = choice.powerId && typeof progressionPowerById === 'function' ? progressionPowerById(choice.powerId) : null;
+        const pwrName = pwrObj?.nome || choice.powerId || '';
+
+        cardsHtml += '<div class="level-plan-card" style="margin-bottom:10px;padding:10px 12px;background:#181114;border:1px solid ' + (evalResult.compativel ? '#d9a84e' : '#c51f2c') + ';border-radius:8px;"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;"><div><strong style="color:var(--gold2,#e9ad59);font-size:0.84rem;">Caminho: ' + esc(plan.name) + '</strong><div style="font-size:0.75rem;color:var(--cream,#f5eee6);margin-top:2px;">Nível ' + nextLevel + ': <strong>' + esc(clsName) + '</strong>' + (pwrName ? ' · Poder: <strong>' + esc(pwrName) + '</strong>' : '') + '</div>' + (!evalResult.compativel ? '<div style="font-size:0.7rem;color:#fca5a5;margin-top:3px;">⚠️ Divergência: ' + esc(evalResult.divergencia || '') + '</div>' : '') + '</div><div style="display:flex;align-items:center;gap:6px;"><button type="button" class="button small btn-view-plan" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 8px;">Ver plano</button>' + (evalResult.compativel ? '<button type="button" class="button small primary btn-follow-plan" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 10px;background:#c51f2c;border-color:#ea3948;white-space:nowrap;">Seguir planejamento</button>' : '<button type="button" class="button small btn-review-plan" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 10px;border-color:#d9a84e;color:#f5c879;white-space:nowrap;">Revisar e seguir</button>') + '</div></div></div>';
+      });
+
+      cardsHtml += '<div style="text-align:center;font-size:0.72rem;color:var(--muted,#c9b2aa);margin:10px 0 12px 0;">— ou escolha a classe manualmente para um novo caminho —</div>';
+      planContainer.innerHTML = cardsHtml;
       planContainer.hidden = false;
-      const followBtn = modal.querySelector('#applyPlanningLevelUpBtn');
-      if(followBtn){
-        followBtn.onclick = () => {
+
+      planContainer.querySelectorAll('.btn-view-plan').forEach((btn: any) => {
+        btn.onclick = () => {
+          const id = btn.dataset.planId;
+          const plan = candidatePlans.find((p: any) => p.id === id);
+          if(plan) openViewPlanModal(plan);
+        };
+      });
+
+      planContainer.querySelectorAll('.btn-follow-plan').forEach((btn: any) => {
+        btn.onclick = () => {
+          const id = btn.dataset.planId;
           modal.hidden = true;
-          if(typeof ForjaPlanejamento.aplicarPlanejamentoProximoNivel === 'function'){
-            ForjaPlanejamento.aplicarPlanejamentoProximoNivel(state, planInfo.planning.id);
+          if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.aplicarPlanejamentoProximoNivel === 'function'){
+            ForjaPlanejamento.aplicarPlanejamentoProximoNivel(state, id);
             state.isLevelingUp = false;
             delete state.levelUpBefore;
             persistNow();
+            if(typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
             renderStage();
-            if(typeof toast === 'function') toast('Nível ' + planInfo.nextLevel + ' aplicado a partir do planejamento "' + planInfo.planning.name + '"!');
+            const plan = candidatePlans.find((p: any) => p.id === id);
+            if(typeof toast === 'function') toast('Nível ' + nextLevel + ' aplicado seguindo "' + (plan?.name || '') + '"!');
           }
         };
-      }
+      });
+
+      planContainer.querySelectorAll('.btn-review-plan').forEach((btn: any) => {
+        btn.onclick = () => {
+          const id = btn.dataset.planId;
+          const plan = candidatePlans.find((p: any) => p.id === id);
+          const choice = plan?.progression?.[nextLevel - 1];
+          modal.hidden = true;
+          if(choice?.classId){
+            proceedToLevelUpWithClass(choice.classId);
+            if(typeof toast === 'function') toast('Classe do planejamento aplicada. Revise e escolha um poder válido para este nível.', 'info');
+          }
+        };
+      });
     } else {
       planContainer.innerHTML = '';
       planContainer.hidden = true;

@@ -979,6 +979,7 @@ let rosterSaveTimer=null;
 function scheduleSaveFinishedCharacter(delay=350){clearTimeout(rosterSaveTimer);rosterSaveTimer=setTimeout(()=>{saveFinishedCharacter()},delay)}
 function saveFinishedCharacter(){
   if(!state.finished)return;
+  if(state.isPlanningMode)return; // Proteção contra sobrescrita de herói real durante o modo planejamento!
   const id=characterIdentifier(),roster=characterRoster(),snapshot=JSON.parse(JSON.stringify(state));
   snapshot.sheetView='sheet';
   const entry={id,name:state.identity.characterName||'Personagem',updatedAt:Date.now(),snapshot},index=roster.findIndex(item=>item.id===id);
