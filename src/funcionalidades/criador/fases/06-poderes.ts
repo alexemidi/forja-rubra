@@ -398,7 +398,8 @@ document.addEventListener('click',event=>{
   }
   if(action==='power-filter-category'){state.powers.categoryFilter=button.dataset.value;renderStage();return}
   if(action==='power-filter-status'){state.powers.statusFilter=button.dataset.value;renderStage();return}
-  if(action==='toggle-power-filters'){state.powers.sidebarCollapsed=!state.powers.sidebarCollapsed;renderStage();return}
+  if(action==='power-filter-toggle-all'){state.powers.statusFilter=state.powers.statusFilter==='all'?'available':'all';renderStage();return}
+  if(action==='toggle-power-filters'){state.powers.drawerOpen=!state.powers.drawerOpen;state.powers.sidebarCollapsed=!state.powers.drawerOpen;renderStage();return}
   if(action==='power-remove'){const idx=Number(button.dataset.index);state.powers.general[idx]='';state.powers.activeSlot=idx;renderStage();if(typeof syncNextButtonState==='function')syncNextButtonState();return}
   if(action==='deity-filter-god'){
     const targetGod=button.dataset.deity||'';
@@ -471,6 +472,16 @@ document.addEventListener('change',event=>{
   if(event.target.dataset.field==='class-required')state.skills={class:[],race:[],int:state.skills.int||[]};
   if(event.target.dataset.action==='skill'&&event.target.dataset.group==='class'){state.skills.race=[]}
 },true);
+document.addEventListener('click', event => {
+  if (state.step === 6 && state.powers?.drawerOpen) {
+    const isTrigger = (event.target as HTMLElement)?.closest?.('[data-action="toggle-power-filters"]');
+    const isDrawer = (event.target as HTMLElement)?.closest?.('.power-filters-drawer');
+    if (!isTrigger && !isDrawer) {
+      state.powers.drawerOpen = false;
+      renderStage();
+    }
+  }
+});
 // Character-bound spell choices. Rules come from the local class/race/power data;
 // explicit adapters below cover grants whose source only has prose, not effects.
 const SPELL_SCHOOLS = {abjuracao:'Abjuração',adivinhacao:'Adivinhação',convocacao:'Convocação',encantamento:'Encantamento',evocacao:'Evocação',ilusao:'Ilusão',necromancia:'Necromancia',transmutacao:'Transmutação'};
