@@ -48,7 +48,7 @@ document.addEventListener('click',event=>{
     const saved = typeof arsenalState === 'function' ? arsenalState() : null;
     const profKey = typeof ARSENAL_PROFILES_KEY !== 'undefined' ? ARSENAL_PROFILES_KEY : 'arsenal-arton-character-profiles-v1';
     if(saved?.storage?.[profKey] && typeof RegrasInventario?.atualizarPerfis === 'function'){
-      saved.storage[profKey] = RegrasInventario.atualizarPerfis(saved.storage[profKey], (bp: any[]) => {
+      saved.storage[profKey] = RegrasInventario.atualizarPerfis(saved.storage[profKey], bp => {
         bp.splice(0, bp.length, ...inventory);
       });
     }
