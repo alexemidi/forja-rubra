@@ -453,6 +453,7 @@ document.addEventListener('keydown',event=>{
       event.stopImmediatePropagation();
       const targetId=target.dataset.powerId;
       const isDown=event.key==='ArrowDown';
+      state.powers.keyboardDirection = isDown ? 'down' : 'up';
       target.click();
       const scrollFn = () => {
         const newlyRendered = document.querySelector('[data-action="power-preview"][data-power-id="' + targetId + '"]') as HTMLElement;
@@ -461,19 +462,15 @@ document.addEventListener('keydown',event=>{
           if(list){
             const elRect = newlyRendered.getBoundingClientRect();
             const listRect = list.getBoundingClientRect();
-            const margin = 42;
+            const extraMargin = 85;
             if(isDown){
-              if(elRect.bottom + margin > listRect.bottom){
-                list.scrollTop += (elRect.bottom + margin - listRect.bottom);
-              }else if(elRect.top < listRect.top){
-                list.scrollTop -= (listRect.top - elRect.top);
-              }
+              const overflow = (elRect.bottom + extraMargin) - listRect.bottom;
+              if (overflow > 0) list.scrollTop += overflow;
+              else if (elRect.top < listRect.top) list.scrollTop -= (listRect.top - elRect.top);
             }else{
-              if(elRect.top - margin < listRect.top){
-                list.scrollTop -= (listRect.top - (elRect.top - margin));
-              }else if(elRect.bottom > listRect.bottom){
-                list.scrollTop += (elRect.bottom - listRect.bottom);
-              }
+              const overflow = (listRect.top + extraMargin) - elRect.top;
+              if (overflow > 0) list.scrollTop -= overflow;
+              else if (elRect.bottom > listRect.bottom) list.scrollTop += (elRect.bottom - listRect.bottom);
             }
           }else{
             newlyRendered.scrollIntoView?.({behavior:'smooth',block:'nearest'});
@@ -504,19 +501,15 @@ document.addEventListener('keydown',event=>{
           if(listEl){
             const elRect = newlyRendered.getBoundingClientRect();
             const listRect = listEl.getBoundingClientRect();
-            const margin = 42;
+            const extraMargin = 85;
             if(isDown){
-              if(elRect.bottom + margin > listRect.bottom){
-                listEl.scrollTop += (elRect.bottom + margin - listRect.bottom);
-              }else if(elRect.top < listRect.top){
-                listEl.scrollTop -= (listRect.top - elRect.top);
-              }
+              const overflow = (elRect.bottom + extraMargin) - listRect.bottom;
+              if (overflow > 0) listEl.scrollTop += overflow;
+              else if (elRect.top < listRect.top) listEl.scrollTop -= (listRect.top - elRect.top);
             }else{
-              if(elRect.top - margin < listRect.top){
-                listEl.scrollTop -= (listRect.top - (elRect.top - margin));
-              }else if(elRect.bottom > listRect.bottom){
-                listEl.scrollTop += (elRect.bottom - listRect.bottom);
-              }
+              const overflow = (listRect.top + extraMargin) - elRect.top;
+              if (overflow > 0) listEl.scrollTop -= overflow;
+              else if (elRect.bottom > listRect.bottom) listEl.scrollTop += (elRect.bottom - listRect.bottom);
             }
           }
         }

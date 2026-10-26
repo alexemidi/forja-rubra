@@ -366,9 +366,32 @@ document.addEventListener('click',event=>{
     const listContainer = button.closest('.power-list');
     const savedListScroll = listContainer ? listContainer.scrollTop : 0;
     const savedWinScroll = typeof window !== 'undefined' ? window.scrollY : 0;
+    const keyDir = state.powers.keyboardDirection;
+    delete state.powers.keyboardDirection;
+
     renderStage();
-    const restoredList = document.querySelector('.power-list');
-    if (restoredList && savedListScroll > 0) restoredList.scrollTop = savedListScroll;
+
+    const restoredList = document.querySelector('.power-list') as HTMLElement;
+    if (restoredList) {
+      if (savedListScroll > 0) restoredList.scrollTop = savedListScroll;
+      if (keyDir) {
+        const newlyRendered = restoredList.querySelector('[data-action="power-preview"][data-power-id="' + id + '"]') as HTMLElement;
+        if (newlyRendered) {
+          const elRect = newlyRendered.getBoundingClientRect();
+          const listRect = restoredList.getBoundingClientRect();
+          const extraMargin = 85;
+          if (keyDir === 'down') {
+            const overflow = (elRect.bottom + extraMargin) - listRect.bottom;
+            if (overflow > 0) restoredList.scrollTop += overflow;
+            else if (elRect.top < listRect.top) restoredList.scrollTop -= (listRect.top - elRect.top);
+          } else if (keyDir === 'up') {
+            const overflow = (listRect.top + extraMargin) - elRect.top;
+            if (overflow > 0) restoredList.scrollTop -= overflow;
+            else if (elRect.bottom > listRect.bottom) restoredList.scrollTop += (elRect.bottom - listRect.bottom);
+          }
+        }
+      }
+    }
     if (typeof window !== 'undefined') window.scrollTo({ top: savedWinScroll, behavior: 'instant' as any });
     if(typeof syncNextButtonState==='function')syncNextButtonState();
     return;

@@ -1379,15 +1379,18 @@ button[data-item-spend] {
   display: none !important;
 }
 
-/* Barra de etapas: fase ativa com destaque expandido, fases inativas como círculos numerados */
+/* Barra de etapas: fase ativa com destaque expandido, fases inativas como círculos numerados perfeitos */
 .phase-nav {
   display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
   flex-wrap: nowrap !important;
-  gap: 6px !important;
+  gap: 12px !important;
   overflow-x: auto !important;
-  padding: 8px 12px !important;
+  padding: 8px 14px !important;
   scrollbar-width: thin !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .phase-nav-title {
@@ -1406,25 +1409,36 @@ button[data-item-spend] {
   text-decoration: none !important;
   background: transparent !important;
   border: 1px solid #3d1b22 !important;
+  box-sizing: border-box !important;
 }
 
-.phase-button.collapsed-phase {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
+/* Círculos perfeitos para as fases inativas: NUNCA OVAIS! */
+.phase-button.collapsed-phase,
+.phase-button:not(.active) {
+  width: 34px !important;
+  max-width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  max-height: 34px !important;
+  min-height: 34px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex: 0 0 34px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   background: #110d0f !important;
   border: 1px solid #4a252a !important;
+  box-sizing: border-box !important;
 }
 
 .phase-button.collapsed-phase .phase-label,
-.phase-button.collapsed-phase .phase-state {
+.phase-button:not(.active) .phase-label,
+.phase-button.collapsed-phase .phase-state,
+.phase-button:not(.active) .phase-state {
   display: none !important;
 }
 
-.phase-button.collapsed-phase .phase-number {
+.phase-button.collapsed-phase .phase-number,
+.phase-button:not(.active) .phase-number {
   border: none !important;
   width: 100% !important;
   height: 100% !important;
@@ -1436,33 +1450,41 @@ button[data-item-spend] {
   color: var(--muted) !important;
 }
 
-.phase-button.collapsed-phase:hover {
+.phase-button.collapsed-phase:hover,
+.phase-button:not(.active):hover {
   border-color: var(--gold) !important;
   background: #1c1316 !important;
 }
 
-.phase-button.collapsed-phase:hover .phase-number {
+.phase-button.collapsed-phase:hover .phase-number,
+.phase-button:not(.active):hover .phase-number {
   color: var(--gold) !important;
 }
 
-.phase-button.collapsed-phase.done {
+.phase-button.collapsed-phase.done,
+.phase-button:not(.active).done {
   border-color: #6d333b !important;
   background: #140d10 !important;
 }
 
-.phase-button.collapsed-phase.done .phase-number {
+.phase-button.collapsed-phase.done .phase-number,
+.phase-button:not(.active).done .phase-number {
   color: var(--gold2) !important;
 }
 
+/* Fase ativa: quadro maior retangular com destaque evidente */
 .phase-button.active {
-  padding: 6px 16px !important;
+  padding: 6px 18px !important;
   border-radius: 8px !important;
   background: linear-gradient(135deg, #74131d 0%, #3d1419 100%) !important;
   border: 1px solid var(--gold) !important;
   box-shadow: 0 0 14px rgba(233, 173, 89, 0.25) !important;
   color: #fff !important;
-  height: 34px !important;
-  min-height: 34px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  flex: 0 0 auto !important;
+  gap: 8px !important;
 }
 
 .phase-button.active .phase-number {
@@ -1489,21 +1511,86 @@ button[data-item-spend] {
   color: var(--cream) !important;
   letter-spacing: 0.4px !important;
   white-space: nowrap !important;
+  text-transform: uppercase !important;
 }
 
-/* Layout com Sidebar Retrátil na Fase de Poderes */
+/* Layout com Sidebar Retrátil na Fase de Poderes e tela completa sem scroll da janela */
+body:has(.power-stage-wrapper),
+body.stage-powers-active {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body:has(.power-stage-wrapper) .shell,
+body.stage-powers-active .shell {
+  height: calc(100vh - 56px) !important;
+  max-height: calc(100vh - 56px) !important;
+  padding: 8px 16px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(.power-stage-wrapper) .workspace,
+body.stage-powers-active .workspace {
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+body:has(.power-stage-wrapper) .stage-root,
+body.stage-powers-active .stage-root {
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+}
+
+body:has(.power-stage-wrapper) .panel,
+body.stage-powers-active .panel {
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+}
+
+body:has(.power-stage-wrapper) .panel-body,
+body.stage-powers-active .panel-body {
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 10px 14px !important;
+}
+
 .power-stage-wrapper {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
+  overflow: hidden;
 }
 
 .power-layout-split {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
+  gap: 12px;
+  align-items: stretch;
+  overflow: hidden;
   transition: grid-template-columns 0.25s ease;
 }
 
@@ -1519,9 +1606,63 @@ button[data-item-spend] {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  position: sticky;
-  top: 70px;
-  transition: all 0.25s ease;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
+
+.power-main-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.power-browser {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+  gap: 12px;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.power-browser > div:first-child {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.power-list {
+  flex: 1 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-right: 6px !important;
+  scrollbar-width: thin !important;
+}
+
+.power-detail-panel {
+  position: static !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin !important;
+  box-sizing: border-box !important;
+}
+
+body:has(.power-stage-wrapper) .stage-footer,
+body.stage-powers-active .stage-footer {
+  margin-top: 6px !important;
+  padding: 8px 12px !important;
+  flex-shrink: 0 !important;
 }
 
 .power-filters-sidebar.collapsed {
