@@ -398,13 +398,24 @@ document.addEventListener('click',event=>{
   }
   if(action==='power-filter-category'){
     const val = button.dataset.value || 'all';
-    state.powers.categoryFilter = val;
-    document.querySelectorAll('.drawer-filter-chip[data-action="power-filter-category"]').forEach(chip=>{
-      chip.classList.toggle('active', (chip as HTMLElement).dataset.value === val);
+    if(val === 'ver_tudo'){
+      state.powers.categoryFilter = 'all';
+      state.powers.statusFilter = 'all';
+    } else {
+      state.powers.categoryFilter = val;
+      state.powers.statusFilter = 'available';
+    }
+    document.querySelectorAll('.power-cat-btn').forEach(btn=>{
+      const btnVal = (btn as HTMLElement).dataset.value;
+      if(val === 'ver_tudo'){
+        btn.classList.toggle('active', btnVal === 'ver_tudo');
+      } else {
+        btn.classList.toggle('active', btnVal === val);
+      }
     });
     const triggerBtn = document.querySelector('.power-filter-trigger-btn');
     if(triggerBtn){
-      const hasFilter = val !== 'all' || state.powers.statusFilter === 'all';
+      const hasFilter = val !== 'all';
       const span = triggerBtn.querySelector('span');
       if(span) span.textContent = 'Filtros' + (hasFilter ? ' •' : '');
     }

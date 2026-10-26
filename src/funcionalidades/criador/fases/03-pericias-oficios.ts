@@ -319,32 +319,39 @@ function renderGeneralPowerBrowser(slots){
     ? '<div style="font-size:0.8rem;color:var(--gold2);font-weight:700;margin-bottom:8px">Poder ' + (currentSlot + 1) + ' de ' + slots + ' <span style="font-weight:400;color:var(--muted)">(Fonte: ' + esc(sourceText) + ')</span></div>'
     : '';
 
+  const POWER_CATEGORIES_LIST = [
+    { id: 'all', label: 'Todos' },
+    { id: 'combate', label: 'Combate' },
+    { id: 'destino', label: 'Destino' },
+    { id: 'magia', label: 'Magia' },
+    { id: 'concedido', label: 'Poderes Concedidos' },
+    { id: 'tormenta', label: 'Tormenta' },
+    { id: 'raca', label: 'Raça' },
+    { id: 'grupo', label: 'Grupo' },
+    { id: 'escolhido_dos_deuses', label: 'Escolhido dos Deuses' },
+    { id: 'ver_tudo', label: 'Ver tudo' }
+  ];
+
   const isDrawerOpen = Boolean(state.powers.drawerOpen);
 
   const drawerHtml = '<aside class="power-filters-drawer ' + (isDrawerOpen ? 'open' : '') + '">' +
     '<div class="power-drawer-header">' +
-      '<div class="power-drawer-title-wrap">' +
-        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>' +
-        '<span class="power-drawer-title">Filtros de Poderes</span>' +
-      '</div>' +
+      '<span class="power-drawer-title">CATEGORIAS</span>' +
       '<button type="button" class="power-drawer-close-btn" data-action="toggle-power-filters" title="Fechar menu de filtros" aria-label="Fechar">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
       '</button>' +
     '</div>' +
     '<div class="power-drawer-body">' +
-      '<div class="power-drawer-section-label">Exibição de Poderes</div>' +
-      '<div class="drawer-options-group">' +
-        '<button type="button" class="drawer-filter-chip ' + (status !== 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="available">' +
-          '<span class="drawer-chip-bullet"></span>' +
-          '<span class="drawer-chip-text">Disponíveis</span>' +
-        '</button>' +
-        '<button type="button" class="drawer-filter-chip ver-tudo-btn ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="all">' +
-          '<span class="drawer-chip-bullet"></span>' +
-          '<span class="drawer-chip-text">Ver tudo (com requisitos)</span>' +
-        '</button>' +
-      '</div>' +
-      '<div class="drawer-status-hint">' +
-        (status === 'all' ? 'Exibindo todos os poderes, inclusive aqueles com pré-requisitos pendentes.' : 'Padrão: apenas poderes cujos pré-requisitos já foram atendidos.') +
+      '<div class="power-cat-list">' +
+        POWER_CATEGORIES_LIST.map(cat => {
+          const isVerTudo = cat.id === 'ver_tudo';
+          const isActive = isVerTudo
+            ? (status === 'all')
+            : (status !== 'all' && category === cat.id);
+          return '<button type="button" class="power-cat-btn ' + (isActive ? 'active' : '') + '" data-action="power-filter-category" data-value="' + cat.id + '">' +
+            esc(cat.label) +
+          '</button>';
+        }).join('') +
       '</div>' +
     '</div>' +
     /* Elementos ocultos para compatibilidade com testes que procuram seletores legados */
@@ -379,7 +386,7 @@ function renderGeneralPowerBrowser(slots){
     if(previewEntry.verdict.ok){
       actions=state.powers.general[currentSlot]===preview.id
         ?''
-        :'<p style="margin-top:10px;font-size:0.8rem;color:var(--gold2)">Clique em Avançar para confirmar este poder.</p>';
+        :'<p class="power-confirm-hint">Clique em Avançar para confirmar este poder.</p>';
     }
   }
   let proficiencyChoiceHtml='';
@@ -388,7 +395,7 @@ function renderGeneralPowerBrowser(slots){
     const profOptions=typeof getAvailableProficiencyOptions==='function'
       ? getAvailableProficiencyOptions(state.identity?.classId, curChoice)
       : [];
-    proficiencyChoiceHtml='<div class="field" style="margin-top:12px;background:rgba(24,17,20,0.6);border:1px solid #4a252a;border-radius:6px;padding:10px;">'
+    proficiencyChoiceHtml='<div class="field" style="margin-top:8px;background:rgba(24,17,20,0.6);border:1px solid #4a252a;border-radius:6px;padding:10px;">'
       + '<label style="display:block;font-size:0.78rem;font-weight:700;color:var(--gold2);margin-bottom:6px;text-transform:uppercase;">Escolha a Proficiência</label>'
       + '<select class="select" data-action="general-proficiency-choice" data-slot="'+currentSlot+'" style="width:100%;min-height:36px;background:#090708;border:1px solid #4a252a;color:var(--cream);">'
       + '<option value="">Selecione uma proficiência...</option>'
@@ -397,7 +404,34 @@ function renderGeneralPowerBrowser(slots){
       + '</div>';
   }
   const masterNotice=previewEntry?.verdict?.masterPermissionNotice?'<div class="warning-box gold" style="margin-top:8px;font-size:0.75rem;"><strong>Aviso de Requisito:</strong> '+esc(previewEntry.verdict.masterPermissionNotice)+'</div>':'';
-  const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+proficiencyChoiceHtml+(!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
+
+  const POWER_CATEGORY_SINGULAR: Record<string, string> = {
+    combate: 'Poder de Combate',
+    destino: 'Poder de Destino',
+    magia: 'Poder de Magia',
+    concedido: 'Poder Concedido',
+    tormenta: 'Poder da Tormenta',
+    raca: 'Poder de Raça',
+    grupo: 'Poder de Grupo',
+    escolhido_dos_deuses: 'Escolhido dos Deuses'
+  };
+
+  const catSingular = preview ? (POWER_CATEGORY_SINGULAR[preview.categoria] || preview.categoria) : '';
+  const bookName = preview ? ((typeof BOOKS !== 'undefined' && BOOKS[preview.livroOrigemId]) || preview.livroOrigemId || 'Livro Básico') : '';
+
+  const detail=preview?'<aside class="power-detail-panel">' +
+    '<div class="power-detail-meta">' +
+      '<span class="power-meta-cat">'+esc(catSingular)+'</span>' +
+      '<span class="power-meta-book">'+esc(bookName)+'</span>' +
+    '</div>' +
+    '<h4>'+esc(preview.nome)+'</h4>' +
+    '<p class="power-detail-desc">'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>' +
+    '<p class="power-detail-prereq"><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p>' +
+    proficiencyChoiceHtml +
+    (!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked" style="display:block;">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'') +
+    masterNotice +
+    (actions ? '<div class="power-detail-footer">' + actions + '</div>' : '') +
+  '</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
 
   return hiddenNavBar + drawerHtml + '<div class="power-stage-wrapper">' +
     slotIndicator +
