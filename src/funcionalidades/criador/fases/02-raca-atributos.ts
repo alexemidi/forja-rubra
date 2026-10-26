@@ -867,7 +867,9 @@ renderNav=function(){
     const visualNum=visualIdx>=0?visualIdx+1:number;
     const isLocked=typeof isPhaseLockedInLevelUp==='function'?isPhaseLockedInLevelUp(number):Boolean(state.isLevelingUp&&number<=6);
     const done=number===7?phaseIsComplete(7)&&(state.completed.includes(number)||number===state.step):state.completed.includes(number)||(number===state.step&&phaseIsComplete(number));
-    return '<button class="phase-button '+(number===state.step?'active ':'')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span><span class="phase-label">'+esc(phase[0])+'</span><span class="phase-state"></span></button>';
+    const isActive=number===state.step;
+    const labelHtml=isActive?'<span class="phase-label">'+esc(phase[0])+'</span>':'';
+    return '<button class="phase-button '+(isActive?'active ':'collapsed-phase ')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'title="'+esc(phase[0])+'"')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span>'+labelHtml+'<span class="phase-state"></span></button>';
   }).join('');
   const activeBtn=nav.querySelector('.phase-button.active');
   if(activeBtn&&typeof activeBtn.scrollIntoView==='function'){

@@ -197,29 +197,36 @@ function generalPowerEligibility(power, exceptId=''){
   }
   return{ok:reasons.length===0,reasons,masterPermissionNotice};
 }
-function renderPowerRows(entries,status){
+function renderPowerRows(entries, status, isAllCategory = false){
   const currentSlotId = state.powers.general[Number(state.powers.activeSlot||0)] || '';
+  const renderSingleRow = (entry: any) => {
+    const isChosenElsewhere = entry.status === 'chosen';
+    const isCurrentSlotSelected = entry.power.id === currentSlotId;
+    const isChosen = isChosenElsewhere || isCurrentSlotSelected;
+    const isCurrentPreview = entry.power.id === state.powers.previewId;
+    const isLocked = entry.status === 'locked';
+
+    let rowClass = 'power-row';
+    if (isCurrentPreview) rowClass += ' selected';
+    if (isChosen) rowClass += ' chosen';
+    if (isLocked) rowClass += ' locked';
+
+    const tagHtml = isChosenElsewhere
+      ? '<span class="tag gold" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Já adquirido</span>'
+      : '';
+
+    return '<button type="button" class="'+rowClass+'" data-action="power-preview" data-power-id="'+entry.power.id+'" data-search="'+esc(slug(entry.power.nome+' '+entry.power.preRequisitosTexto))+'"><span style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:6px"><strong>'+esc(entry.power.nome)+'</strong>'+tagHtml+'</span></button>';
+  };
+
+  if (isAllCategory) {
+    const rows = entries.filter((entry: any) => status === 'all' || entry.status === status).sort((a: any, b: any) => a.power.nome.localeCompare(b.power.nome, 'pt-BR'));
+    return rows.map(renderSingleRow).join('');
+  }
+
   return POWER_CATEGORY_ORDER.map(category=>{
-    const rows=entries.filter(entry=>entry.power.categoria===category&&(status==='all'||entry.status===status)).sort((a,b)=>a.power.nome.localeCompare(b.power.nome,'pt-BR'));
+    const rows=entries.filter((entry: any)=>entry.power.categoria===category&&(status==='all'||entry.status===status)).sort((a: any,b: any)=>a.power.nome.localeCompare(b.power.nome,'pt-BR'));
     if(!rows.length)return '';
-    return '<section class="power-category"><h4>'+esc(POWER_CATEGORY_LABEL[category])+'</h4>'+rows.map(entry=>{
-      const isChosenElsewhere = entry.status === 'chosen';
-      const isCurrentSlotSelected = entry.power.id === currentSlotId;
-      const isChosen = isChosenElsewhere || isCurrentSlotSelected;
-      const isCurrentPreview=entry.power.id===state.powers.previewId;
-      const isLocked = entry.status === 'locked';
-
-      let rowClass = 'power-row';
-      if (isCurrentPreview) rowClass += ' selected';
-      if (isChosen) rowClass += ' chosen';
-      if (isLocked) rowClass += ' locked';
-
-      const tagHtml = isChosenElsewhere
-        ? '<span class="tag gold" style="font-size:0.58rem;padding:1px 5px;margin-left:auto;">Já adquirido</span>'
-        : '';
-
-      return '<button type="button" class="'+rowClass+'" data-action="power-preview" data-power-id="'+entry.power.id+'" data-search="'+esc(slug(entry.power.nome+' '+entry.power.preRequisitosTexto))+'"><span style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:6px"><strong>'+esc(entry.power.nome)+'</strong>'+tagHtml+'</span></button>';
-    }).join('')+'</section>';
+    return '<section class="power-category"><h4>'+esc(POWER_CATEGORY_LABEL[category])+'</h4>'+rows.map(renderSingleRow).join('')+'</section>';
   }).join('');
 }
 function generalPowerSlotSourceText(index){
@@ -307,17 +314,56 @@ function renderGeneralPowerBrowser(slots){
   const sourceText=generalPowerSlotSourceText(currentSlot);
   const hasPrev=currentSlot>0;
   const hasNext=Boolean(state.powers.general[currentSlot])&&currentSlot<slots-1;
-  const navBar='<div class="sequential-power-nav" style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px"><button type="button" class="button small" data-action="general-power-prev" '+(hasPrev?'':'disabled')+'>← Poder anterior</button><span style="font-weight:700;color:var(--gold2);text-align:center">Poder '+(currentSlot+1)+' de '+slots+'<br><small style="font-weight:400;color:var(--muted)">Fonte: '+esc(sourceText)+'</small></span><button type="button" class="button small" data-action="general-power-next" '+(hasNext?'':'disabled')+'>Próximo poder →</button></div>';
-  const filters='<div class="power-filterbar"><button type="button" class="filter-chip '+(category==='all'?'active':'')+'" data-action="power-filter-category" data-value="all">Todos</button>'+POWER_CATEGORY_ORDER.map(id=>'<button type="button" class="filter-chip '+(category===id?'active':'')+'" data-action="power-filter-category" data-value="'+id+'">'+esc(POWER_CATEGORY_LABEL[id].replace('Poderes de ','').replace('Poderes da ',''))+'</button>').join('')+'</div><div class="power-filterbar"><button type="button" class="filter-chip '+(status==='available'?'active':'')+'" data-action="power-filter-status" data-value="available">Disponíveis</button><button type="button" class="filter-chip '+(status==='locked'?'active':'')+'" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button><button type="button" class="filter-chip '+(status==='all'?'active':'')+'" data-action="power-filter-status" data-value="all">Ver tudo</button></div>';
-  const availableRows=(status==='locked')?'':renderPowerRows(visible,'available');
-  const lockedRows=(status==='available')?'':renderPowerRows(visible,'locked');
-  const list='<div><input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…"><div class="power-list">'+(availableRows?availableRows:'')+(lockedRows?'<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>'+lockedRows:'')+(!availableRows&&!lockedRows?'<div class="empty">Nenhum poder corresponde aos filtros.</div>':'')+'</div></div>';
+  const hiddenNavBar='<div class="sequential-power-nav" style="display:none"><button type="button" data-action="general-power-prev" '+(hasPrev?'':'disabled')+'>Anterior</button>Fonte: '+esc(sourceText)+'<button type="button" data-action="general-power-next" '+(hasNext?'':'disabled')+'>Próximo</button></div>';
+  const slotIndicator = slots > 1
+    ? '<div style="font-size:0.8rem;color:var(--gold2);font-weight:700;margin-bottom:8px">Poder ' + (currentSlot + 1) + ' de ' + slots + ' <span style="font-weight:400;color:var(--muted)">(Fonte: ' + esc(sourceText) + ')</span></div>'
+    : '';
+
+  const isCollapsed = Boolean(state.powers.sidebarCollapsed);
+  const toggleIcon = isCollapsed ? '▶' : '◀';
+
+  const sidebarHtml = '<aside class="power-filters-sidebar ' + (isCollapsed ? 'collapsed' : '') + '">' +
+    '<div class="sidebar-header">' +
+      (!isCollapsed ? '<span class="sidebar-title">Filtros</span>' : '') +
+      '<button type="button" class="sidebar-toggle-btn" data-action="toggle-power-filters" title="' + (isCollapsed ? 'Expandir filtros' : 'Recolher filtros') + '">' + toggleIcon + '</button>' +
+    '</div>' +
+    (!isCollapsed ? (
+      '<div class="filter-group">' +
+        '<span class="filter-group-label">Status</span>' +
+        '<div class="filter-chips-col">' +
+          '<button type="button" class="filter-chip ' + (status === 'available' ? 'active' : '') + '" data-action="power-filter-status" data-value="available">Disponíveis</button>' +
+          '<button type="button" class="filter-chip ' + (status === 'locked' ? 'active' : '') + '" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button>' +
+          '<button type="button" class="filter-chip ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="all">Ver tudo</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="filter-group">' +
+        '<span class="filter-group-label">Categorias</span>' +
+        '<div class="filter-chips-col">' +
+          '<button type="button" class="filter-chip ' + (category === 'all' ? 'active' : '') + '" data-action="power-filter-category" data-value="all">Todos</button>' +
+          POWER_CATEGORY_ORDER.map(id => '<button type="button" class="filter-chip ' + (category === id ? 'active' : '') + '" data-action="power-filter-category" data-value="' + id + '">' + esc(POWER_CATEGORY_LABEL[id].replace('Poderes de ', '').replace('Poderes da ', '')) + '</button>').join('') +
+        '</div>' +
+      '</div>'
+    ) : '') +
+  '</aside>';
+
+  const isAllCat = category === 'all';
+  const availableRows = (status === 'locked') ? '' : renderPowerRows(visible, 'available', isAllCat);
+  const lockedRows = (status === 'available') ? '' : renderPowerRows(visible, 'locked', isAllCat);
+  const list = '<div>' +
+    '<input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…">' +
+    '<div class="power-list">' +
+      (availableRows ? availableRows : '') +
+      (lockedRows ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedRows : '') +
+      (!availableRows && !lockedRows ? '<div class="empty">Nenhum poder corresponde aos filtros.</div>' : '') +
+    '</div>' +
+  '</div>';
+
   let actions='';
   if(preview&&previewEntry){
     if(previewEntry.verdict.ok){
       actions=state.powers.general[currentSlot]===preview.id
         ?''
-        :'<p style="margin-top:10px;font-size:0.8rem;color:var(--gold2)">Clique em Próximo poder ou Avançar para confirmar este poder.</p>';
+        :'<p style="margin-top:10px;font-size:0.8rem;color:var(--gold2)">Clique em Avançar para confirmar este poder.</p>';
     }
   }
   let proficiencyChoiceHtml='';
@@ -336,12 +382,19 @@ function renderGeneralPowerBrowser(slots){
   }
   const masterNotice=previewEntry?.verdict?.masterPermissionNotice?'<div class="warning-box gold" style="margin-top:8px;font-size:0.75rem;"><strong>Aviso de Requisito:</strong> '+esc(previewEntry.verdict.masterPermissionNotice)+'</div>':'';
   const detail=preview?'<aside class="power-detail-panel"><div class="tag-row"><span class="tag gold">'+esc(POWER_CATEGORY_LABEL[preview.categoria]||preview.categoria)+'</span>'+bookTag(preview.livroOrigemId)+'</div><h4>'+esc(preview.nome)+'</h4><p><strong>Pré-requisitos:</strong> '+esc(preview.preRequisitosTexto||'Nenhum')+'</p><p>'+esc(preview.descricao||'Descrição não cadastrada.')+'</p>'+proficiencyChoiceHtml+(!previewEntry?.verdict.ok&&previewEntry?.status!=='chosen'?'<div class="power-status locked">'+esc(previewEntry?.verdict.reasons.join(' '))+'</div>':'')+masterNotice+actions+'</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
-  return navBar+filters+'<div class="power-browser">'+list+detail+'</div>';
+
+  return hiddenNavBar + '<div class="power-stage-wrapper">' +
+    slotIndicator +
+    '<div class="power-layout-split ' + (isCollapsed ? 'sidebar-collapsed' : '') + '">' +
+      sidebarHtml +
+      '<div class="power-main-content"><div class="power-browser">' + list + detail + '</div></div>' +
+    '</div>' +
+  '</div>';
 }
 renderPowers=function(){
   const groups=racePowerGroups(),slots=generalPowerSlots();let html='';
   groups.forEach(group=>{const selected=state.powers.raceGroups[group.id]||[];html+=panel(group.name,'<p class="help" style="margin-bottom:9px">'+esc(group.description||'Escolha os poderes raciais exigidos.')+'</p><div class="choice-cards">'+group.options.map(option=>{const id=choiceId(option),active=selected.includes(id);return '<label class="choice-card '+(active?'selected':'')+'"><input type="checkbox" data-action="race-power" data-group="'+esc(group.id)+'" value="'+esc(id)+'" '+(active?'checked':'')+'><strong>'+esc(choiceName(option))+'</strong><p>'+esc(option.descricao||'')+'</p></label>'}).join('')+'</div>','Selecionados: '+selected.length+'/'+group.quantity)});
-  if(slots)html+=panel('Poderes gerais da raça e origem',renderGeneralPowerBrowser(slots),'Selecionados: '+state.powers.general.filter(Boolean).length+'/'+slots);
+  if(slots)html+=panel('',renderGeneralPowerBrowser(slots),'');
   if(!html)html=panel('Nenhuma escolha pendente','<div class="info-box">Sua raça e origem não exigem escolhas adicionais de poderes nesta fase.</div>');
   return html;
 };

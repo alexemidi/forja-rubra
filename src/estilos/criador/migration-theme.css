@@ -1374,4 +1374,241 @@ button[data-item-spend] {
   line-height: 1.2 !important;
 }
 
+/* Ocultar cabeçalhos repetidos de fase em todas as etapas */
+.stage-heading {
+  display: none !important;
+}
+
+/* Barra de etapas: fase ativa com destaque expandido, fases inativas como círculos numerados */
+.phase-nav {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  overflow-x: auto !important;
+  padding: 8px 12px !important;
+  scrollbar-width: thin !important;
+}
+
+.phase-nav-title {
+  display: none !important;
+}
+
+.phase-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border-radius: 6px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: 1px solid #3d1b22 !important;
+}
+
+.phase-button.collapsed-phase {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: #110d0f !important;
+  border: 1px solid #4a252a !important;
+}
+
+.phase-button.collapsed-phase .phase-label,
+.phase-button.collapsed-phase .phase-state {
+  display: none !important;
+}
+
+.phase-button.collapsed-phase .phase-number {
+  border: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  color: var(--muted) !important;
+}
+
+.phase-button.collapsed-phase:hover {
+  border-color: var(--gold) !important;
+  background: #1c1316 !important;
+}
+
+.phase-button.collapsed-phase:hover .phase-number {
+  color: var(--gold) !important;
+}
+
+.phase-button.collapsed-phase.done {
+  border-color: #6d333b !important;
+  background: #140d10 !important;
+}
+
+.phase-button.collapsed-phase.done .phase-number {
+  color: var(--gold2) !important;
+}
+
+.phase-button.active {
+  padding: 6px 16px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #74131d 0%, #3d1419 100%) !important;
+  border: 1px solid var(--gold) !important;
+  box-shadow: 0 0 14px rgba(233, 173, 89, 0.25) !important;
+  color: #fff !important;
+  height: 34px !important;
+  min-height: 34px !important;
+}
+
+.phase-button.active .phase-number {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--gold) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  color: var(--gold) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.phase-button.active .phase-label {
+  display: inline-block !important;
+  font-family: 'Tormenta', 'Cinzel', serif !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  color: var(--cream) !important;
+  letter-spacing: 0.4px !important;
+  white-space: nowrap !important;
+}
+
+/* Layout com Sidebar Retrátil na Fase de Poderes */
+.power-stage-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.power-layout-split {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  transition: grid-template-columns 0.25s ease;
+}
+
+.power-layout-split.sidebar-collapsed {
+  grid-template-columns: 42px minmax(0, 1fr);
+}
+
+.power-filters-sidebar {
+  background: #110d0f;
+  border: 1px solid #4a252a;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 70px;
+  transition: all 0.25s ease;
+}
+
+.power-filters-sidebar.collapsed {
+  padding: 6px;
+  align-items: center;
+}
+
+.power-filters-sidebar .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #3d1b22;
+  padding-bottom: 6px;
+}
+
+.power-filters-sidebar.collapsed .sidebar-header {
+  border-bottom: 0;
+  padding-bottom: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+.power-filters-sidebar .sidebar-title {
+  font-family: 'Tormenta', 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.sidebar-toggle-btn {
+  background: #181114;
+  border: 1px solid #4a252a;
+  color: var(--gold);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #74131d;
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.power-filters-sidebar .filter-group-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.power-filters-sidebar .filter-chips-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.power-filters-sidebar .filter-chips-col .filter-chip {
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  border-radius: 4px;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+@media (max-width: 768px) {
+  .power-layout-split {
+    grid-template-columns: 1fr;
+  }
+  .power-filters-sidebar {
+    position: static;
+  }
+}
+
+
 

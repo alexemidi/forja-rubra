@@ -158,7 +158,7 @@ function triggerFilterPulse(){
   if(state.step===9){
     chips=document.querySelectorAll('[data-action="progression-source"][data-value="class"], [data-action="progression-source"][data-value="general"]');
   }else{
-    chips=document.querySelectorAll('.power-filterbar .filter-chip');
+    chips=document.querySelectorAll('.power-filterbar .filter-chip, .power-filters-sidebar .filter-chip');
   }
   chips.forEach(chip=>{
     chip.classList.remove('filter-pulse');
@@ -443,21 +443,87 @@ document.addEventListener('click',event=>{
   }
 },true);
 document.addEventListener('keydown',event=>{
-  if(!['ArrowUp','ArrowDown'].includes(event.key)||/INPUT|TEXTAREA|SELECT/.test(event.target.tagName))return;
+  if(!['ArrowUp','ArrowDown'].includes(event.key)||/INPUT|TEXTAREA|SELECT/.test((event.target as HTMLElement)?.tagName))return;
   if(state.step===6){
-    const buttons=[...document.querySelectorAll('[data-action="power-preview"]')].filter(b=>!b.hidden&&b.style.display!=='none');
+    const buttons=[...document.querySelectorAll('[data-action="power-preview"]')].filter((b: any)=>!b.hidden&&b.style.display!=='none') as HTMLElement[];
     const at=buttons.findIndex(b=>b.dataset.powerId===state.powers.previewId),next=at+(event.key==='ArrowDown'?1:-1);
     const target=buttons[at<0?0:Math.max(0,Math.min(buttons.length-1,next))];
-    if(target){event.preventDefault();event.stopImmediatePropagation();target.click()}
+    if(target){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const targetId=target.dataset.powerId;
+      const isDown=event.key==='ArrowDown';
+      target.click();
+      const scrollFn = () => {
+        const newlyRendered = document.querySelector('[data-action="power-preview"][data-power-id="' + targetId + '"]') as HTMLElement;
+        if(newlyRendered){
+          const list = newlyRendered.closest('.power-list') as HTMLElement;
+          if(list){
+            const elRect = newlyRendered.getBoundingClientRect();
+            const listRect = list.getBoundingClientRect();
+            const margin = 42;
+            if(isDown){
+              if(elRect.bottom + margin > listRect.bottom){
+                list.scrollTop += (elRect.bottom + margin - listRect.bottom);
+              }else if(elRect.top < listRect.top){
+                list.scrollTop -= (listRect.top - elRect.top);
+              }
+            }else{
+              if(elRect.top - margin < listRect.top){
+                list.scrollTop -= (listRect.top - (elRect.top - margin));
+              }else if(elRect.bottom > listRect.bottom){
+                list.scrollTop += (elRect.bottom - listRect.bottom);
+              }
+            }
+          }else{
+            newlyRendered.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+          }
+        }
+      };
+      if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollFn);
+      else setTimeout(scrollFn,16);
+    }
   }else if(state.step===9){
     const activeIndex=progressionActivePowerIndex();
-    const list=document.querySelector('[data-progression-power-list="'+activeIndex+'"]');
+    const list=document.querySelector('[data-progression-power-list="'+activeIndex+'"]') as HTMLElement;
     if(!list)return;
-    const buttons=[...list.querySelectorAll('[data-action="class-power-preview"]')].filter(b=>!b.hidden&&b.style.display!=='none');
+    const buttons=[...list.querySelectorAll('[data-action="class-power-preview"]')].filter((b: any)=>!b.hidden&&b.style.display!=='none') as HTMLElement[];
     const row=state.progression[activeIndex];
     const at=buttons.findIndex(b=>b.dataset.powerId===(row?.previewPowerId||row?.powerId)),next=at+(event.key==='ArrowDown'?1:-1);
     const target=buttons[at<0?0:Math.max(0,Math.min(buttons.length-1,next))];
-    if(target){event.preventDefault();event.stopImmediatePropagation();target.click()}
+    if(target){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const targetId=target.dataset.powerId;
+      const isDown=event.key==='ArrowDown';
+      target.click();
+      const scrollFn = () => {
+        const newlyRendered = document.querySelector('[data-action="class-power-preview"][data-power-id="' + targetId + '"]') as HTMLElement;
+        if(newlyRendered){
+          const listEl = newlyRendered.closest('.power-list') as HTMLElement;
+          if(listEl){
+            const elRect = newlyRendered.getBoundingClientRect();
+            const listRect = listEl.getBoundingClientRect();
+            const margin = 42;
+            if(isDown){
+              if(elRect.bottom + margin > listRect.bottom){
+                listEl.scrollTop += (elRect.bottom + margin - listRect.bottom);
+              }else if(elRect.top < listRect.top){
+                listEl.scrollTop -= (listRect.top - elRect.top);
+              }
+            }else{
+              if(elRect.top - margin < listRect.top){
+                listEl.scrollTop -= (listRect.top - (elRect.top - margin));
+              }else if(elRect.bottom > listRect.bottom){
+                listEl.scrollTop += (elRect.bottom - listRect.bottom);
+              }
+            }
+          }
+        }
+      };
+      if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollFn);
+      else setTimeout(scrollFn,16);
+    }
   }
 },true);
 

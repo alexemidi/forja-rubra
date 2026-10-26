@@ -745,6 +745,17 @@
     filterLearned = false;
     userSelectedSchool = null;
     filterEscola = 'todas';
+    if (context) {
+      if (context.mode === 'consult') context.mode = 'available';
+      if (context.group === 'general-consultation' && context.previousGroup) {
+        context.group = context.previousGroup;
+      }
+    }
+    const consultBtn = document.getElementById('consultModeBtn');
+    if (consultBtn) {
+      consultBtn.classList.remove('active');
+      consultBtn.setAttribute('aria-pressed', 'false');
+    }
     syncSelectedSchoolsUI();
     apply();
     checkOverflow();
@@ -792,6 +803,13 @@
       const cb=pendingRepeatConfirm;
       closeRepeatSpellDialog();
       if(typeof cb==='function')cb();
+      return;
+    }
+    const consultDeactivateBtn = event.target.closest('.consult-deactivate-btn') || (event.target.closest('button')?.textContent?.trim() === 'Desativar Consulta' ? event.target.closest('button') : null);
+    if (consultDeactivateBtn) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      deactivateConsultMode();
       return;
     }
     const button = event.target.closest('.learn-btn');

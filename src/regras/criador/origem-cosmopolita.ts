@@ -466,7 +466,7 @@ renderPowers = function(){
   if (currentStage.type === 'general') {
     const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 0;
     state.powers.activeSlot = currentStage.slot;
-    return panel('Poderes gerais da raça e origem', renderGeneralPowerBrowser(slots), 'Selecionados: ' + state.powers.general.filter(Boolean).length + '/' + slots);
+    return panel('', renderGeneralPowerBrowser(slots), '');
   }
 
   if (currentStage.type === 'origin_general') {

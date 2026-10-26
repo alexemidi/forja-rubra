@@ -121,7 +121,7 @@ if(Number(state.layoutVersion||0)<3){
 }
 state.identity.classRequiredOffices??={};
 state.origin.officeSpecialties??={};
-state.powers=Object.assign({general:[],raceGroups:{},categoryFilter:'all',statusFilter:'all',previewId:'',activeSlot:0},state.powers||{});
+state.powers=Object.assign({general:[],raceGroups:{},categoryFilter:'all',statusFilter:'available',sidebarCollapsed:false,previewId:'',activeSlot:0},state.powers||{});
 state.deity=Object.assign({mode:'',name:'',power:'',previewPower:'',previewDeity:'',activePowerIndex:0},state.deity||{});
 
 function readableRaceChoiceOption(option){

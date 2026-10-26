@@ -375,6 +375,7 @@ document.addEventListener('click',event=>{
   }
   if(action==='power-filter-category'){state.powers.categoryFilter=button.dataset.value;renderStage();return}
   if(action==='power-filter-status'){state.powers.statusFilter=button.dataset.value;renderStage();return}
+  if(action==='toggle-power-filters'){state.powers.sidebarCollapsed=!state.powers.sidebarCollapsed;renderStage();return}
   if(action==='power-remove'){const idx=Number(button.dataset.index);state.powers.general[idx]='';state.powers.activeSlot=idx;renderStage();if(typeof syncNextButtonState==='function')syncNextButtonState();return}
   if(action==='deity-filter-god'){
     const targetGod=button.dataset.deity||'';

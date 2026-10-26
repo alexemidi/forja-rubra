@@ -575,7 +575,7 @@ function finalAttrs(includeTemp = true){
 }
 function pointSpent(){return RegrasCriacao.pontos(ATTRS.map(([id])=>id),state.identity.baseAttrs,ATTR_COST)}
 function bookTag(id){return '<span class="book-tag">'+esc(BOOKS[id]||id||'Sem livro')+'</span>'}
-function panel(title,body,note=''){return '<section class="panel"><header class="panel-header"><h3 class="panel-title">'+esc(title)+'</h3>'+(note?'<span class="panel-note">'+esc(note)+'</span>':'')+'</header><div class="panel-body">'+body+'</div></section>'}
+function panel(title,body,note=''){const header=(title||note)?'<header class="panel-header">'+(title?'<h3 class="panel-title">'+esc(title)+'</h3>':'')+(note?'<span class="panel-note">'+esc(note)+'</span>':'')+'</header>':'';return '<section class="panel">'+header+'<div class="panel-body">'+body+'</div></section>'}
 function abilityHtml(h){
   return '<div class="ability"><strong>'+esc(h.nome)+'</strong><p>'+esc(h.descricao||'Descrição ainda não estruturada.')+'</p></div>';
 }

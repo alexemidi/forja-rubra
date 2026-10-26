@@ -276,6 +276,12 @@ window.addEventListener('message',async event=>{
     refreshSpellStage();
     return;
   }
+  if(message.type==='view-change'){
+    const saved=spellState();
+    saved.view=message.view||'available';
+    refreshSpellStage();
+    return;
+  }
   if(handleSchoolBridgeMessage(message)){syncGrimoire();return}
   if(message.type==='school'){
     const group=spellPlan().groups.find(group=>group.id===message.group);
