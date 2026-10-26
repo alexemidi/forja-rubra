@@ -297,6 +297,18 @@ body {
   letter-spacing: 0.04em;
 }
 
+.hero-badge-draft {
+  display: inline-flex;
+  padding: 2px 8px;
+  background: #2a1a20;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
 .hero-badge-deity {
   color: var(--gold);
   font-size: 0.75rem;
@@ -391,6 +403,28 @@ body {
 .hero-action-btn.edit:hover {
   border-color: var(--gold);
   color: #fff;
+}
+
+.hero-action-btn.resume {
+  background: linear-gradient(135deg, #74131d, #4a252a);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  width: 100%;
+}
+
+.hero-action-btn.resume:hover {
+  background: linear-gradient(135deg, #8f1724, #5c2e34);
+  color: #fff;
+  border-color: var(--gold);
+  filter: brightness(1.15);
+}
+
+.hero-card-draft {
+  border-color: #5a2e34;
+}
+
+.hero-card-draft:hover {
+  border-color: var(--gold);
 }
 
 /* Estado Vazio */

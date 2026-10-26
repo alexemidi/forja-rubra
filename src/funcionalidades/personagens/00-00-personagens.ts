@@ -23,7 +23,16 @@
     try {
       const raw = localStorage.getItem(ROSTER_KEY) || localStorage.getItem(ROSTER_FALLBACK_KEY);
       const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
+      if (!Array.isArray(list)) return [];
+      // Regra obrigatória: colocar o nome do personagem é obrigatório sem isso não salva e pode apagar
+      const valid = list.filter(item => {
+        const name = String(item?.name || item?.snapshot?.identity?.characterName || '').trim();
+        return name.length > 0;
+      });
+      if (valid.length !== list.length) {
+        saveRoster(valid);
+      }
+      return valid;
     } catch {
       return [];
     }
@@ -38,6 +47,100 @@
       console.error('Erro ao salvar lista de heróis:', e);
     }
   }
+
+  const RACE_CANONICAL_NAMES = {
+    humano: 'Humano',
+    anao: 'Anão',
+    dahllan: 'Dahllan',
+    elfo: 'Elfo',
+    goblin: 'Goblin',
+    lefou: 'Lefou',
+    minotauro: 'Minotauro',
+    qareen: 'Qareen',
+    golem: 'Golem',
+    golem_desperto: 'Golem Desperto',
+    hynne: 'Hynne',
+    kliren: 'Kliren',
+    meduza: 'Meduza',
+    medusa: 'Meduza',
+    osteon: 'Osteon',
+    sereia_tritao: 'Sereia / Tritão',
+    sereia: 'Sereia / Tritão',
+    tritao: 'Sereia / Tritão',
+    silfide: 'Sílfide',
+    suraggel: 'Suraggel',
+    suraggel_aggelus: 'Suraggel (Aggelus)',
+    suraggel_sulfure: 'Suraggel (Sulfure)',
+    trog: 'Trog',
+    trog_anao: 'Trog Anão',
+    duende: 'Duende',
+    eiradaan: 'Eiradaan',
+    galokk: 'Galokk',
+    meio_elfo: 'Meio-Elfo',
+    satiro: 'Sátiro',
+    meio_orc: 'Meio-Orc',
+    orc: 'Orc',
+    ogro: 'Ogro',
+    tabrachi: 'Tabrachi',
+    bugbear: 'Bugbear',
+    centauro: 'Centauro',
+    ceratops: 'Ceratops',
+    pteros: 'Pteros',
+    velocis: 'Velocis',
+    voracis: 'Voracis',
+    elfo_do_mar: 'Elfo-do-Mar',
+    gnoll: 'Gnoll',
+    tengu: 'Tengu',
+    finntroll: 'Finntroll',
+    harpia: 'Harpia',
+    hobgoblin: 'Hobgoblin',
+    kaijin: 'Kaijin',
+    kallyanach: 'Kallyanach',
+    kappa: 'Kappa',
+    kobold: 'Kobolds',
+    minauro: 'Minauro',
+    moreau: 'Moreau',
+    nagah: 'Nagah',
+    nezumi: 'Nezumi',
+    soterrado: 'Soterrado',
+    yidishan: 'Yidishan'
+  };
+
+  const CLASS_CANONICAL_NAMES = {
+    alquimista: 'Alquimista',
+    arcanista: 'Arcanista',
+    atleta: 'Atleta',
+    barbaro: 'Bárbaro',
+    bardo: 'Bardo',
+    bucaneiro: 'Bucaneiro',
+    burgues: 'Burguês',
+    cacador: 'Caçador',
+    cavaleiro: 'Cavaleiro',
+    clerigo: 'Clérigo',
+    druida: 'Druida',
+    duelista: 'Duelista',
+    ermitao: 'Ermitão',
+    frade: 'Frade',
+    guerreiro: 'Guerreiro',
+    inovador: 'Inovador',
+    inventor: 'Inventor',
+    ladino: 'Ladino',
+    lutador: 'Lutador',
+    machado_de_pedra: 'Machado de Pedra',
+    magimarcialista: 'Magimarcialista',
+    miragem: 'Miragem',
+    mistico: 'Místico',
+    necromante: 'Necromante',
+    nobre: 'Nobre',
+    paladino: 'Paladino',
+    samurai: 'Samurai',
+    santo: 'Santo',
+    seteiro: 'Seteiro',
+    treinador: 'Treinador',
+    usurpador: 'Usurpador',
+    vassalo: 'Vassalo',
+    ventanista: 'Ventanista'
+  };
 
   const CLASS_ICON_NAMES = {
     arcanista: 'book',
@@ -56,6 +159,104 @@
     paladino: 'shield',
     samurai: 'sword'
   };
+
+  const STEP_LABELS = {
+    1: 'Identidade',
+    2: 'Atributos',
+    3: 'Origem',
+    4: 'Perícias',
+    5: 'Divindade',
+    6: 'Poderes',
+    7: 'Magias',
+    8: 'Arsenal',
+    9: 'Parceiros',
+    10: 'Revisão'
+  };
+
+  function resolveRaceName(snap, isFinished) {
+    const raceId = snap.identity?.raceId || snap.raceId || snap.race || '';
+    if (!raceId) {
+      return isFinished ? 'Humano' : 'Raça a definir';
+    }
+    const key = String(raceId).toLowerCase().trim();
+    if (RACE_CANONICAL_NAMES[key]) return RACE_CANONICAL_NAMES[key];
+    if (typeof window !== 'undefined' && window.DATA?.races) {
+      const found = window.DATA.races.find(r => r.id === key || r.nome?.toLowerCase() === key);
+      if (found?.nome) return found.nome;
+    }
+    return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  function resolveClassName(snap, isFinished) {
+    if (Array.isArray(snap.progression) && snap.progression.length > 0) {
+      const classIds = [...new Set(snap.progression.map(r => r.classId).filter(Boolean))];
+      if (classIds.length > 0) {
+        const names = classIds.map(cid => {
+          const key = String(cid).toLowerCase().trim();
+          if (CLASS_CANONICAL_NAMES[key]) return CLASS_CANONICAL_NAMES[key];
+          if (typeof window !== 'undefined' && window.DATA?.classes) {
+            const found = window.DATA.classes.find(c => c.id === key || c.nome?.toLowerCase() === key);
+            if (found?.nome) return found.nome;
+          }
+          return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        });
+        return names.join(' / ');
+      }
+    }
+
+    const classId = snap.identity?.classId || snap.classId || '';
+    if (!classId) {
+      return isFinished ? 'Aventureiro' : 'Classe a definir';
+    }
+    const key = String(classId).toLowerCase().trim();
+    if (CLASS_CANONICAL_NAMES[key]) return CLASS_CANONICAL_NAMES[key];
+    if (typeof window !== 'undefined' && window.DATA?.classes) {
+      const found = window.DATA.classes.find(c => c.id === key || c.nome?.toLowerCase() === key);
+      if (found?.nome) return found.nome;
+    }
+    return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  function resolveDeity(snap) {
+    if (snap.deity?.mode === 'devout' && snap.deity?.name) {
+      return `Devoto de ${snap.deity.name}`;
+    }
+    if (snap.deity?.mode === 'pantheon') {
+      return 'Devoto do Panteão';
+    }
+    if (snap.deityId) {
+      return `Devoto de ${snap.deityId}`;
+    }
+    return '';
+  }
+
+  function resolveOrigin(snap) {
+    if (snap.origin?.name) return snap.origin.name;
+    const std = snap.origin?.standard;
+    const reg = snap.origin?.regional;
+    const parts = [std, reg].filter(Boolean);
+    if (parts.length > 0) {
+      return parts.map(p => String(p).replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(' / ');
+    }
+    return '';
+  }
+
+  function getPendingCreationStep(snap) {
+    const completed = Array.isArray(snap.completed) ? snap.completed.map(Number) : [];
+    const currentStep = Number(snap.step);
+
+    if (currentStep >= 1 && currentStep <= 9) {
+      if (!completed.includes(currentStep)) {
+        return currentStep;
+      }
+    }
+
+    for (let s = 1; s <= 9; s++) {
+      if (!completed.includes(s)) return s;
+    }
+
+    return (currentStep >= 1 && currentStep <= 9) ? currentStep : 1;
+  }
 
   function getClassIconHtml(classId) {
     const key = String(classId || '').toLowerCase().trim();
@@ -94,27 +295,39 @@
       const snap = item.snapshot || {};
       const id = item.id || `char-${index}`;
       const name = item.name || snap.identity?.characterName || 'Aventureiro Sem Nome';
-      const race = snap.raceId || 'Raça Indefinida';
-      const cls = snap.classId || 'Classe Indefinida';
+      const isFinished = Boolean(item.finished || snap.finished);
+      const isDraft = !isFinished;
+      const race = resolveRaceName(snap, isFinished);
+      const cls = resolveClassName(snap, isFinished);
       const lvl = snap.identity?.plannedLevel || snap.progression?.length || snap.level || 1;
-      const deity = snap.deityId ? `Devoto de ${snap.deityId}` : '';
-      const icon = getClassIconHtml(snap.classId);
+      const deity = resolveDeity(snap);
+      const origin = resolveOrigin(snap);
+      const firstClassId = snap.progression?.[0]?.classId || snap.identity?.classId || snap.classId;
+      const icon = getClassIconHtml(firstClassId);
+      const pendingStep = isDraft ? getPendingCreationStep(snap) : 1;
+      const pendingStepLabel = STEP_LABELS[pendingStep] || `Fase ${pendingStep}`;
 
       const attrSummary = snap.attributes
         ? Object.entries(snap.attributes)
-            .map(([k, v]) => `${k.toUpperCase().slice(0, 3)}: <strong>${v >= 0 ? '+' + v : v}</strong>`)
+            .map(([k, v]) => `${k.toUpperCase().slice(0, 3)}: <strong>${Number(v) >= 0 ? '+' + v : v}</strong>`)
             .join(' · ')
-        : '';
+        : (snap.identity?.baseAttrs
+            ? Object.entries(snap.identity.baseAttrs)
+                .map(([k, v]) => `${k.toUpperCase().slice(0, 3)}: <strong>${Number(v) >= 0 ? '+' + v : v}</strong>`)
+                .join(' · ')
+            : '');
 
       return `
-        <article class="hero-card" data-hero-id="${esc(id)}">
+        <article class="hero-card${isDraft ? ' hero-card-draft' : ''}" data-hero-id="${esc(id)}" data-is-draft="${isDraft ? 'true' : 'false'}">
           <header class="hero-card-header">
             <div class="hero-card-identity">
               <div class="hero-avatar" aria-hidden="true">${icon}</div>
               <div class="hero-card-title-wrap">
                 <h2 class="hero-name">${esc(name)}</h2>
                 <div class="hero-meta">
-                  <span class="hero-badge-level">Nvl ${lvl}</span>
+                  ${isDraft
+                    ? `<span class="hero-badge-draft">Em Criação · Fase ${pendingStep}: ${esc(pendingStepLabel)}</span>`
+                    : `<span class="hero-badge-level">Nvl ${lvl}</span>`}
                   <span>${esc(race)} · ${esc(cls)}</span>
                   ${deity ? `<span class="hero-badge-deity">${esc(deity)}</span>` : ''}
                 </div>
@@ -127,21 +340,28 @@
 
           <div class="hero-card-body">
             <div class="hero-summary-pills">
-              ${snap.origin?.name ? `<span class="hero-pill">Origem: <strong>${esc(snap.origin.name)}</strong></span>` : ''}
+              ${origin ? `<span class="hero-pill">Origem: <strong>${esc(origin)}</strong></span>` : ''}
               ${snap.identity?.alignment ? `<span class="hero-pill">Tendência: <strong>${esc(snap.identity.alignment)}</strong></span>` : ''}
               ${attrSummary ? `<span class="hero-pill">${attrSummary}</span>` : ''}
             </div>
           </div>
 
           <footer class="hero-card-actions">
-            <button class="hero-action-btn open" type="button" data-action="open" data-id="${esc(id)}">
-              ${getIcon('scroll', 'icon-sm')}
-              <span>Abrir Ficha</span>
-            </button>
-            <button class="hero-action-btn edit" type="button" data-action="edit" data-id="${esc(id)}">
-              ${getIcon('edit', 'icon-sm')}
-              <span>Editar</span>
-            </button>
+            ${isDraft ? `
+              <button class="hero-action-btn resume" type="button" data-action="resume" data-id="${esc(id)}" data-step="${pendingStep}">
+                ${getIcon('edit', 'icon-sm')}
+                <span>Continuar Criação (Fase ${pendingStep}: ${esc(pendingStepLabel)})</span>
+              </button>
+            ` : `
+              <button class="hero-action-btn open" type="button" data-action="open" data-id="${esc(id)}">
+                ${getIcon('scroll', 'icon-sm')}
+                <span>Abrir Ficha</span>
+              </button>
+              <button class="hero-action-btn edit" type="button" data-action="edit" data-id="${esc(id)}">
+                ${getIcon('edit', 'icon-sm')}
+                <span>Editar</span>
+              </button>
+            `}
           </footer>
         </article>
       `;
@@ -159,12 +379,51 @@
       }
     }
 
+    // Ação: Continuar Criação de ficha incompleta na etapa em que parou
+    const resumeBtn = event.target.closest('[data-action="resume"]');
+    if (resumeBtn) {
+      const heroId = resumeBtn.dataset.id;
+      const targetStep = Number(resumeBtn.dataset.step) || 1;
+      const roster = getRoster();
+      const hero = roster.find(h => h.id === heroId);
+      if (hero && hero.snapshot) {
+        try {
+          const snapshot = JSON.parse(JSON.stringify(hero.snapshot));
+          snapshot.finished = false;
+          snapshot.isEditingFinishedSheet = false;
+          snapshot.sheetView = 'creator';
+          snapshot.step = targetStep;
+          snapshot.completed = (snapshot.completed || []).filter(s => s < targetStep);
+          localStorage.setItem(ACTIVE_KEY, JSON.stringify(snapshot));
+        } catch (e) {
+          console.warn('Erro ao carregar rascunho de herói:', e);
+        }
+      }
+      window.location.href = 'criador.html';
+      return;
+    }
+
     const openBtn = event.target.closest('[data-action="open"]');
     if (openBtn) {
       const heroId = openBtn.dataset.id;
       const roster = getRoster();
       const hero = roster.find(h => h.id === heroId);
       if (hero && hero.snapshot) {
+        const isFinished = Boolean(hero.finished || hero.snapshot.finished);
+        if (!isFinished) {
+          // Se for rascunho incompleto, NUNCA abre a ficha incompleta, redireciona para criador.html na fase pendente
+          const pendingStep = getPendingCreationStep(hero.snapshot);
+          const snapshot = JSON.parse(JSON.stringify(hero.snapshot));
+          snapshot.finished = false;
+          snapshot.isEditingFinishedSheet = false;
+          snapshot.sheetView = 'creator';
+          snapshot.step = pendingStep;
+          snapshot.completed = (snapshot.completed || []).filter(s => s < pendingStep);
+          localStorage.setItem(ACTIVE_KEY, JSON.stringify(snapshot));
+          window.location.href = 'criador.html';
+          return;
+        }
+
         try {
           const snapshot = JSON.parse(JSON.stringify(hero.snapshot));
           snapshot.finished = true;
@@ -205,6 +464,25 @@
       const heroName = delBtn.dataset.name || 'este aventureiro';
       openDeleteModal(heroId, heroName);
       return;
+    }
+
+    // Clique direto no card de rascunho direciona para a criação na fase pendente
+    const draftCard = event.target.closest('.hero-card[data-is-draft="true"]');
+    if (draftCard && !event.target.closest('button, a')) {
+      const heroId = draftCard.dataset.heroId;
+      const roster = getRoster();
+      const hero = roster.find(h => h.id === heroId);
+      if (hero && hero.snapshot) {
+        const pendingStep = getPendingCreationStep(hero.snapshot);
+        const snapshot = JSON.parse(JSON.stringify(hero.snapshot));
+        snapshot.finished = false;
+        snapshot.isEditingFinishedSheet = false;
+        snapshot.sheetView = 'creator';
+        snapshot.step = pendingStep;
+        snapshot.completed = (snapshot.completed || []).filter(s => s < pendingStep);
+        localStorage.setItem(ACTIVE_KEY, JSON.stringify(snapshot));
+        window.location.href = 'criador.html';
+      }
     }
   });
 

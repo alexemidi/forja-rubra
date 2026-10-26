@@ -54,7 +54,15 @@
     try {
       const raw = localStorage.getItem('forja-heroi-t20-personagens-v1') || localStorage.getItem('forja-roster-t20-v1');
       const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
+      if (!Array.isArray(list)) return [];
+      const valid = list.filter((item: any) => {
+        const name = String(item?.name || item?.snapshot?.identity?.characterName || '').trim();
+        return name.length > 0;
+      });
+      if (valid.length !== list.length) {
+        saveRoster(valid);
+      }
+      return valid;
     } catch {
       return [];
     }
@@ -68,6 +76,161 @@
     } catch (e) {
       console.error('Erro ao atualizar lista de heróis:', e);
     }
+  }
+
+  const RACE_CANONICAL_NAMES: Record<string, string> = {
+    humano: 'Humano',
+    anao: 'Anão',
+    dahllan: 'Dahllan',
+    elfo: 'Elfo',
+    goblin: 'Goblin',
+    lefou: 'Lefou',
+    minotauro: 'Minotauro',
+    qareen: 'Qareen',
+    golem: 'Golem',
+    golem_desperto: 'Golem Desperto',
+    hynne: 'Hynne',
+    kliren: 'Kliren',
+    meduza: 'Meduza',
+    medusa: 'Meduza',
+    osteon: 'Osteon',
+    sereia_tritao: 'Sereia / Tritão',
+    sereia: 'Sereia / Tritão',
+    tritao: 'Sereia / Tritão',
+    silfide: 'Sílfide',
+    suraggel: 'Suraggel',
+    suraggel_aggelus: 'Suraggel (Aggelus)',
+    suraggel_sulfure: 'Suraggel (Sulfure)',
+    trog: 'Trog',
+    trog_anao: 'Trog Anão',
+    duende: 'Duende',
+    eiradaan: 'Eiradaan',
+    galokk: 'Galokk',
+    meio_elfo: 'Meio-Elfo',
+    satiro: 'Sátiro',
+    meio_orc: 'Meio-Orc',
+    orc: 'Orc',
+    ogro: 'Ogro',
+    tabrachi: 'Tabrachi',
+    bugbear: 'Bugbear',
+    centauro: 'Centauro',
+    ceratops: 'Ceratops',
+    pteros: 'Pteros',
+    velocis: 'Velocis',
+    voracis: 'Voracis',
+    elfo_do_mar: 'Elfo-do-Mar',
+    gnoll: 'Gnoll',
+    tengu: 'Tengu',
+    finntroll: 'Finntroll',
+    harpia: 'Harpia',
+    hobgoblin: 'Hobgoblin',
+    kaijin: 'Kaijin',
+    kallyanach: 'Kallyanach',
+    kappa: 'Kappa',
+    kobold: 'Kobolds',
+    minauro: 'Minauro',
+    moreau: 'Moreau',
+    nagah: 'Nagah',
+    nezumi: 'Nezumi',
+    soterrado: 'Soterrado',
+    yidishan: 'Yidishan'
+  };
+
+  const CLASS_CANONICAL_NAMES: Record<string, string> = {
+    alquimista: 'Alquimista',
+    arcanista: 'Arcanista',
+    atleta: 'Atleta',
+    barbaro: 'Bárbaro',
+    bardo: 'Bardo',
+    bucaneiro: 'Bucaneiro',
+    burgues: 'Burguês',
+    cacador: 'Caçador',
+    cavaleiro: 'Cavaleiro',
+    clerigo: 'Clérigo',
+    druida: 'Druida',
+    duelista: 'Duelista',
+    ermitao: 'Ermitão',
+    frade: 'Frade',
+    guerreiro: 'Guerreiro',
+    inovador: 'Inovador',
+    inventor: 'Inventor',
+    ladino: 'Ladino',
+    lutador: 'Lutador',
+    machado_de_pedra: 'Machado de Pedra',
+    magimarcialista: 'Magimarcialista',
+    miragem: 'Miragem',
+    mistico: 'Místico',
+    necromante: 'Necromante',
+    nobre: 'Nobre',
+    paladino: 'Paladino',
+    samurai: 'Samurai',
+    santo: 'Santo',
+    seteiro: 'Seteiro',
+    treinador: 'Treinador',
+    usurpador: 'Usurpador',
+    vassalo: 'Vassalo',
+    ventanista: 'Ventanista'
+  };
+
+  function resolveRaceName(snap: any, isFinished?: boolean): string {
+    const raceId = snap?.identity?.raceId || snap?.raceId || snap?.race || '';
+    if (!raceId) {
+      return isFinished ? 'Humano' : 'Raça a definir';
+    }
+    const key = String(raceId).toLowerCase().trim();
+    if (RACE_CANONICAL_NAMES[key]) return RACE_CANONICAL_NAMES[key];
+    if (typeof window !== 'undefined' && (window as any).DATA?.races) {
+      const found = (window as any).DATA.races.find((r: any) => r.id === key || r.nome?.toLowerCase() === key);
+      if (found?.nome) return found.nome;
+    }
+    return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  function resolveClassName(snap: any, isFinished?: boolean): string {
+    if (Array.isArray(snap?.progression) && snap.progression.length > 0) {
+      const classIds = [...new Set(snap.progression.map((r: any) => r.classId).filter(Boolean))];
+      if (classIds.length > 0) {
+        const names = classIds.map((cid: any) => {
+          const key = String(cid).toLowerCase().trim();
+          if (CLASS_CANONICAL_NAMES[key]) return CLASS_CANONICAL_NAMES[key];
+          if (typeof window !== 'undefined' && (window as any).DATA?.classes) {
+            const found = (window as any).DATA.classes.find((c: any) => c.id === key || c.nome?.toLowerCase() === key);
+            if (found?.nome) return found.nome;
+          }
+          return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        });
+        return names.join(' / ');
+      }
+    }
+
+    const classId = snap?.identity?.classId || snap?.classId || '';
+    if (!classId) {
+      return isFinished ? 'Aventureiro' : 'Classe a definir';
+    }
+    const key = String(classId).toLowerCase().trim();
+    if (CLASS_CANONICAL_NAMES[key]) return CLASS_CANONICAL_NAMES[key];
+    if (typeof window !== 'undefined' && (window as any).DATA?.classes) {
+      const found = (window as any).DATA.classes.find((c: any) => c.id === key || c.nome?.toLowerCase() === key);
+      if (found?.nome) return found.nome;
+    }
+    return key.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  function getPendingCreationStep(snap: any): number {
+    const completed = Array.isArray(snap?.completed) ? snap.completed.map(Number) : [];
+    const currentStep = Number(snap?.step);
+
+    if (currentStep >= 1 && currentStep <= 9) {
+      if (!completed.includes(currentStep)) {
+        return currentStep;
+      }
+    }
+
+    for (let s = 1; s <= 9; s++) {
+      if (!completed.includes(s)) return s;
+    }
+
+    return (currentStep >= 1 && currentStep <= 9) ? currentStep : 1;
   }
 
   const CLASS_ICONS = {
@@ -108,17 +271,18 @@
     // Atualiza card Continuar Herói
     const heroSummaryEl = document.getElementById('landingHeroSummary');
     const continueCard = document.getElementById('landingActionContinue');
-    if (hero && (hero.identity?.characterName || hero.raceId || hero.classId)) {
+    if (hero && (hero.identity?.characterName || hero.identity?.raceId || hero.identity?.classId || hero.raceId || hero.classId)) {
       const name = hero.identity?.characterName || 'Aventureiro em edição';
       const lvl = hero.identity?.plannedLevel || hero.progression?.length || hero.level || 1;
-      const race = hero.raceId || '';
-      const cls = hero.classId || '';
+      const isFinished = Boolean(hero.finished);
+      const race = resolveRaceName(hero, isFinished);
+      const cls = resolveClassName(hero, isFinished);
       const details = [race, cls].filter(Boolean).join(' · ');
       if (heroSummaryEl) {
         heroSummaryEl.textContent = `${name}${details ? ' (' + details + ')' : ''} · Nvl ${lvl}`;
       }
       if (continueCard) {
-        continueCard.href = hero?.finished ? 'ficha.html' : 'criador.html';
+        continueCard.href = isFinished ? 'ficha.html' : 'criador.html';
         continueCard.onclick = () => {
           try {
             const raw = localStorage.getItem('forja-heroi-t20-v1');
@@ -126,8 +290,12 @@
               const snap = JSON.parse(raw);
               if (snap.finished) {
                 snap.sheetView = 'sheet';
-                localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(snap));
+              } else {
+                const pending = getPendingCreationStep(snap);
+                snap.step = pending;
+                snap.sheetView = 'creator';
               }
+              localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(snap));
             }
           } catch (_) {}
         };
@@ -145,21 +313,26 @@
     const recentRow = document.getElementById('landingRecentRow');
     if (recentRow) {
       let html = '';
-      roster.slice(0, 4).forEach((item, index) => {
+      roster.slice(0, 4).forEach((item: any, index: number) => {
         const snap = item.snapshot || {};
         const id = item.id || `char-${index}`;
         const name = item.name || snap.identity?.characterName || 'Herói';
-        const cls = snap.classId || 'Aventureiro';
+        const isFinished = Boolean(item.finished || snap.finished);
+        const cls = resolveClassName(snap, isFinished);
         const lvl = snap.identity?.plannedLevel || snap.progression?.length || snap.level || 1;
-        const icon = getClassIcon(snap.classId);
+        const firstClassId = snap.progression?.[0]?.classId || snap.identity?.classId || snap.classId;
+        const icon = getClassIcon(firstClassId);
+        const pendingStep = isFinished ? 1 : getPendingCreationStep(snap);
 
         html += `
-          <div class="recent-hero-card" data-action="load-hero" data-hero-id="${esc(id)}" role="button" tabindex="0" title="Continuar jogando com ${esc(name)}">
+          <div class="recent-hero-card" data-action="load-hero" data-hero-id="${esc(id)}" role="button" tabindex="0" title="Continuar com ${esc(name)}">
             <div class="recent-hero-avatar" aria-hidden="true">${icon}</div>
             <div class="recent-hero-info">
               <span class="recent-hero-name">${esc(name)}</span>
               <div class="recent-hero-meta">
-                <span class="recent-hero-badge">Nvl ${lvl}</span>
+                ${isFinished
+                  ? `<span class="recent-hero-badge">Nvl ${lvl}</span>`
+                  : `<span class="recent-hero-badge" style="background:#2a1a20;border:1px solid #e9ad59;color:#e9ad59;">Fase ${pendingStep}</span>`}
                 <span>${esc(cls)}</span>
               </div>
             </div>
@@ -214,20 +387,24 @@
       return;
     }
 
-    rosterList.innerHTML = roster.map((item, index) => {
+    rosterList.innerHTML = roster.map((item: any, index: number) => {
       const snap = item.snapshot || {};
       const name = item.name || snap.identity?.characterName || 'Herói Sem Nome';
-      const race = snap.raceId || 'Raça Indefinida';
-      const cls = snap.classId || 'Classe Indefinida';
-      const lvl = snap.progression?.level || snap.level || 1;
+      const isFinished = Boolean(item.finished || snap.finished);
+      const race = resolveRaceName(snap, isFinished);
+      const cls = resolveClassName(snap, isFinished);
+      const lvl = snap.identity?.plannedLevel || snap.progression?.length || snap.level || 1;
       const itemId = item.id || `char-${index}`;
+      const pendingStep = isFinished ? 1 : getPendingCreationStep(snap);
 
       return `
         <div class="roster-card" data-hero-id="${esc(itemId)}">
           <div class="roster-card-main" data-action="load-hero" data-hero-id="${esc(itemId)}">
             <span class="roster-hero-name">${esc(name)}</span>
             <div class="roster-hero-meta">
-              <span class="roster-badge-level">Nvl ${lvl}</span>
+              ${isFinished
+                ? `<span class="roster-badge-level">Nvl ${lvl}</span>`
+                : `<span class="roster-badge-level" style="background:#2a1a20;border:1px solid #e9ad59;color:#e9ad59;">Fase ${pendingStep}</span>`}
               <span>${esc(race)} · ${esc(cls)}</span>
             </div>
           </div>
@@ -276,17 +453,31 @@
     if (loadTrigger) {
       const heroId = loadTrigger.dataset.heroId;
       const roster = getRoster();
-      const hero = roster.find(h => h.id === heroId);
+      const hero = roster.find((h: any) => h.id === heroId);
       if (hero && hero.snapshot) {
+        const isFinished = Boolean(hero.finished || hero.snapshot.finished);
         try {
           const snap = JSON.parse(JSON.stringify(hero.snapshot));
-          snap.finished = true;
-          snap.sheetView = 'sheet';
-          localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(snap));
+          if (isFinished) {
+            snap.finished = true;
+            snap.sheetView = 'sheet';
+            localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(snap));
+            location.href = 'ficha.html';
+            return;
+          } else {
+            const pendingStep = getPendingCreationStep(hero.snapshot);
+            snap.finished = false;
+            snap.isEditingFinishedSheet = false;
+            snap.sheetView = 'creator';
+            snap.step = pendingStep;
+            snap.completed = (snap.completed || []).filter((s: number) => s < pendingStep);
+            localStorage.setItem('forja-heroi-t20-v1', JSON.stringify(snap));
+            location.href = 'criador.html';
+            return;
+          }
         } catch (e) {
           console.warn('Não foi possível persistir snapshot ativo:', e);
         }
-        location.href = 'ficha.html';
       }
       return;
     }

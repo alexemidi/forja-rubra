@@ -158,6 +158,66 @@ function persistNow(){
   characterDataRevision++;
   return typeof ForjaCalculo!=='undefined'?ForjaCalculo.executar(()=>persistCharacterNow(true)):persistCharacterNow(true);
 }
+function syncCharacterDraftToRoster(st: any) {
+  if (!st || st.isPlanningMode) return;
+  try {
+    const rawName = String(st.identity?.characterName || '').trim();
+    const ROSTER_KEY = 'forja-heroi-t20-personagens-v1';
+    const FALLBACK_KEY = 'forja-roster-t20-v1';
+    const raw = localStorage.getItem(ROSTER_KEY) || localStorage.getItem(FALLBACK_KEY);
+    let roster = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(roster)) roster = [];
+
+    if (!rawName) {
+      if (!st.finished && st.identity?.characterId) {
+        const prevLen = roster.length;
+        roster = roster.filter((h: any) => h.id !== st.identity.characterId);
+        if (roster.length !== prevLen) {
+          const serialized = JSON.stringify(roster);
+          localStorage.setItem(ROSTER_KEY, serialized);
+          localStorage.setItem(FALLBACK_KEY, serialized);
+        }
+      }
+      return;
+    }
+
+    if (!st.identity.characterId) {
+      st.identity.characterId = 'heroi-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+    }
+    const id = st.identity.characterId;
+    const isFinished = Boolean(st.finished);
+    const snap = JSON.parse(JSON.stringify(st));
+    if (isFinished) {
+      snap.sheetView = 'sheet';
+    }
+
+    const entry = {
+      id,
+      name: rawName,
+      finished: isFinished,
+      step: Number(st.step) || 1,
+      updatedAt: Date.now(),
+      snapshot: snap
+    };
+
+    const idx = roster.findIndex((h: any) => h.id === id);
+    if (idx >= 0) {
+      roster[idx] = entry;
+    } else {
+      if (typeof window !== 'undefined' && (window as any).ForjaLimites && !(window as any).ForjaLimites.podeCriarNovoPersonagem()) {
+        return;
+      }
+      roster.push(entry);
+    }
+
+    const serialized = JSON.stringify(roster);
+    localStorage.setItem(ROSTER_KEY, serialized);
+    localStorage.setItem(FALLBACK_KEY, serialized);
+  } catch (err) {
+    console.warn('Erro ao sincronizar rascunho com o roster:', err);
+  }
+}
+
 function persistNavigationNow(){return persistCharacterNow(false);}
 function persistCharacterNow(recalculate){
   clearTimeout(saveTimer);
@@ -189,6 +249,7 @@ function persistCharacterNow(recalculate){
       } catch {}
     }
     characterStorage.salvar(STORAGE_KEY,state);
+    syncCharacterDraftToRoster(state);
     if(typeof remainingFunds==='function'){
       const cid = state.identity?.characterId || 'ficha-ativa';
       localStorage.setItem('forja-saldo-personagem-ativo-v1',JSON.stringify({id:cid,funds:remainingFunds(),timestamp:Date.now()}));
