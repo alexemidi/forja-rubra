@@ -335,20 +335,32 @@ function renderGeneralPowerBrowser(slots){
 
   const drawerHtml = '<aside class="power-filters-drawer ' + (isDrawerOpen ? 'open' : '') + '">' +
     '<div class="power-drawer-header">' +
-      '<span style="font-family:\'Tormenta\',Cinzel,serif;font-weight:700;font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;">CATEGORIAS</span>' +
-      '<button type="button" class="power-drawer-close-btn" data-action="toggle-power-filters" title="Fechar menu lateral">✕</button>' +
+      '<div class="power-drawer-title-wrap">' +
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>' +
+        '<span class="power-drawer-title">Filtros de Poderes</span>' +
+      '</div>' +
+      '<button type="button" class="power-drawer-close-btn" data-action="toggle-power-filters" title="Fechar menu de filtros" aria-label="Fechar">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+      '</button>' +
     '</div>' +
+    '<div class="power-drawer-section-label">Categorias Canônicas</div>' +
     '<div class="drawer-chips-list">' +
       ALL_POWER_CATEGORIES.map(cat => (
         '<button type="button" class="drawer-filter-chip ' + (category === cat.id ? 'active' : '') + '" data-action="power-filter-category" data-value="' + cat.id + '">' +
-          esc(cat.label) +
+          '<span class="drawer-chip-bullet"></span>' +
+          '<span class="drawer-chip-text">' + esc(cat.label) + '</span>' +
         '</button>'
       )).join('') +
     '</div>' +
-    '<div class="drawer-status-footer" style="margin-top:auto;padding-top:14px;border-top:1px solid #3d1b22;">' +
+    '<div class="drawer-status-footer">' +
+      '<div class="power-drawer-section-label" style="padding-left:0;padding-right:0;padding-top:0;">Exibição de Requisitos</div>' +
       '<button type="button" class="drawer-filter-chip ver-tudo-btn ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-toggle-all">' +
-        (status === 'all' ? 'Ver tudo (com requisitos)' : 'Ver tudo') +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' +
+        '<span>' + (status === 'all' ? 'Ver tudo (com pendentes)' : 'Ver tudo') + '</span>' +
       '</button>' +
+      '<div class="drawer-status-hint">' +
+        (status === 'all' ? 'Exibindo poderes com requisitos pendentes.' : 'Padrão: apenas poderes disponíveis para escolha.') +
+      '</div>' +
     '</div>' +
     /* Elementos ocultos para compatibilidade com testes que procuram seletores legados */
     '<div style="display:none;" class="power-filterbar">' +
@@ -408,6 +420,58 @@ function renderGeneralPowerBrowser(slots){
     '</div>' +
   '</div>';
 }
+
+function fastUpdatePowerList(){
+  const listContainer = document.querySelector('.power-list');
+  if(!listContainer) {
+    if(typeof renderStage === 'function') renderStage();
+    return;
+  }
+  const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 1;
+  const currentSlot = Math.max(0, Math.min(slots - 1, Number(state.powers.activeSlot || 0)));
+  const slotReq = typeof originPowerSlotRequirement === 'function' ? originPowerSlotRequirement(currentSlot) : null;
+  const initialCategory = slotReq?.category ? (slotReq.category === 'combate_ou_tormenta' ? 'combate' : slotReq.category) : 'all';
+  const category = state.powers.categoryFilter || initialCategory, status = state.powers.statusFilter || 'available';
+  const otherChosenIds = (state.powers.general || []).filter((id, i) => i !== currentSlot && Boolean(id));
+  const currentSlotPowerId = state.powers.general[currentSlot] || '';
+  const currentSlotPower = currentSlotPowerId ? powerById(currentSlotPowerId) : null;
+  const currentSlotPowerNameSlug = currentSlotPower ? slug(currentSlotPower.nome) : '';
+  const owned = ownedPowerNames(currentSlotPowerId);
+
+  const entries = DATA.generalPowers.filter(power => {
+    if (otherChosenIds.includes(power.id)) return false;
+    const isCurrent = power.id === currentSlotPowerId || (currentSlotPowerNameSlug && slug(power.nome) === currentSlotPowerNameSlug);
+    if (!isCurrent && (owned.has(slug(power.nome)) || owned.has(power.id))) return false;
+    return category === 'all' || power.categoria === category;
+  }).map(power => {
+    const verdict = generalPowerEligibility(power, currentSlotPowerId);
+    return { power, verdict, status: verdict.ok ? 'available' : 'locked' };
+  });
+
+  const visible = entries.filter(entry => {
+    if (status === 'available') return entry.status === 'available';
+    if (status === 'locked') return entry.status === 'locked';
+    return true;
+  });
+
+  const isAllCat = category === 'all';
+  const availableRows = (status === 'locked') ? '' : renderPowerRows(visible, 'available', isAllCat);
+  const lockedRows = (status === 'available') ? '' : renderPowerRows(visible, 'locked', isAllCat);
+
+  listContainer.innerHTML = (availableRows ? availableRows : '') +
+    (lockedRows ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedRows : '') +
+    (!availableRows && !lockedRows ? '<div class="empty">Nenhum poder corresponde aos filtros.</div>' : '');
+
+  const searchInput = document.getElementById('generalPowerSearch') as HTMLInputElement | null;
+  const query = searchInput ? slug(searchInput.value) : '';
+  if (query) {
+    listContainer.querySelectorAll('.power-row').forEach((row: any) => {
+      row.classList.toggle('hidden', Boolean(query && !row.dataset.search?.includes(query)));
+    });
+  }
+}
+(globalThis as any).fastUpdatePowerList = fastUpdatePowerList;
+
 renderPowers=function(){
   const groups=racePowerGroups(),slots=generalPowerSlots();let html='';
   groups.forEach(group=>{const selected=state.powers.raceGroups[group.id]||[];html+=panel(group.name,'<p class="help" style="margin-bottom:9px">'+esc(group.description||'Escolha os poderes raciais exigidos.')+'</p><div class="choice-cards">'+group.options.map(option=>{const id=choiceId(option),active=selected.includes(id);return '<label class="choice-card '+(active?'selected':'')+'"><input type="checkbox" data-action="race-power" data-group="'+esc(group.id)+'" value="'+esc(id)+'" '+(active?'checked':'')+'><strong>'+esc(choiceName(option))+'</strong><p>'+esc(option.descricao||'')+'</p></label>'}).join('')+'</div>','Selecionados: '+selected.length+'/'+group.quantity)});
