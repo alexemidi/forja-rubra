@@ -100,8 +100,16 @@ function initEquipmentState(){
       const wepItem=wepEntry?catalog.get(wepEntry.itemId):null;
       if(wepItem?.arma?.empunhaduraId==='duas_maos'){
         isTwoHanded=true;
-      }else if((wepItem?.arma?.propriedadesIds||[]).includes('adaptavel')&&eq.adaptableHandedness[eq.weaponId]==='duas_maos'){
-        isTwoHanded=true;
+      }else if((wepItem?.arma?.propriedadesIds||[]).includes('adaptavel')){
+        if(eq.adaptableHandedness[eq.weaponId]==='duas_maos'){
+          isTwoHanded=true;
+        }else if(!eq.adaptableHandedness[eq.weaponId]){
+          const hasShieldOrOffhand = (eq.offhandId && eq.offhandId !== 'none') || (eq.shieldId && eq.shieldId !== 'none');
+          if(!hasShieldOrOffhand && !hasOneHandStyle){
+            eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
+            isTwoHanded = true;
+          }
+        }
       }
     }
 
@@ -381,7 +389,9 @@ function equippedWeaponHandedness(){
   const isAdaptable=(item?.arma?.propriedadesIds||[]).includes('adaptavel');
   if(isAdaptable){
     const entryId=eq.weaponId;
-    return eq.adaptableHandedness[entryId]||'uma_mao';
+    if(eq.adaptableHandedness[entryId]) return eq.adaptableHandedness[entryId];
+    const hasOther = (eq.offhandId && eq.offhandId !== 'none') || (eq.shieldId && eq.shieldId !== 'none');
+    return hasOther ? 'uma_mao' : 'duas_maos';
   }
   return base;
 }
@@ -630,11 +640,7 @@ function renderEquipmentPanel(){
             }
           } else {
             if(isAttachedShield){
-              if(equippedWeaponBlocksShield()){
-                actionButtons += `<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
-              } else {
-                actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
-              }
+              actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
             } else {
               actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar engenhoca">${getIcon('sword')}</button>`;
             }
@@ -645,11 +651,7 @@ function renderEquipmentPanel(){
         if(eq.armorId&&eq.armorId!=='none') actionButtons += `<button class="square-action-btn" type="button" data-equip-action="swap-armor" data-entry-id="${esc(id)}" title="Trocar com a armadura vestida">${getIcon('sync')}</button>`;
         else actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-armor" data-entry-id="${esc(id)}" title="Vestir armadura">${getIcon('shield')}</button>`;
       }else if(isEscudo){
-        if(equippedWeaponBlocksShield()){
-          actionButtons += `<span class="tag dim" style="font-size:0.56rem" title="Arma de duas mãos impede equipar escudo">Bloqueado</span>`;
-        }else{
-          actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
-        }
+        actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-shield" data-entry-id="${esc(id)}" title="Equipar escudo">${getIcon('shield')}</button>`;
       }else if(isArma||isEsoterico||isInstrumento){
         actionButtons += `<button class="square-action-btn" type="button" data-equip-action="equip-weapon" data-entry-id="${esc(id)}" title="Empunhar ${esc(itemName(entry))}">${getIcon('sword')}</button>`;
       }else if(isTatuagem){
@@ -725,21 +727,21 @@ function renderEquipmentPanel(){
       handControls=`<button class="square-action-btn" type="button" disabled title="Empunhadura: 1 mão" aria-label="Arma de uma mão">${getIcon('one-hand')}</button>`;
     }
     equippedSlots.push(`<div class="equip-worn-item">
-      <div class="equip-item-label">Arma na mão</div>
+      <div class="equip-item-label">Mão 1</div>
       <div class="equip-item-row">
         <strong class="equip-item-name" role="button" tabindex="0" data-item-details="${esc(eq.weaponId)}">${esc(itemName(entry))}</strong>
         <span class="equip-item-stats">${values?`Ataque ${values.attack} · Dano ${esc(values.damage)} · Crítico ${esc(formatWeaponCritical(values.critical||item?.arma?.critico))}`:'Item esotérico empunhado'}</span>
         <div class="equip-item-controls" style="display:flex;gap:4px;align-items:center;">
           ${handControls}
-          <button class="square-action-btn" type="button" data-equip-action="store-weapon" title="Guardar arma na mochila">${getIcon('archive')}</button>
+          <button class="square-action-btn" type="button" data-equip-action="store-weapon" title="Guardar item da Mão 1 na mochila">${getIcon('archive')}</button>
         </div>
       </div>
     </div>`);
   }else{
     equippedSlots.push(`<div class="equip-worn-item equip-empty-slot">
-      <div class="equip-item-label">Arma na mão</div>
+      <div class="equip-item-label">Mão 1</div>
       <div class="equip-item-row">
-        <span class="equip-empty-text">Nenhuma arma empunhada</span>
+        <span class="equip-empty-text">Mão livre (vazia)</span>
       </div>
     </div>`);
   }
@@ -750,7 +752,7 @@ function renderEquipmentPanel(){
 
   if (isPrimaryTwoHanded) {
     equippedSlots.push(`<div class="equip-worn-item equip-empty-slot">
-      <div class="equip-item-label">Outra mão</div>
+      <div class="equip-item-label">Mão 2</div>
       <div class="equip-item-row">
         <span class="equip-empty-text">Ocupada com a arma de duas mãos</span>
       </div>
@@ -768,13 +770,13 @@ function renderEquipmentPanel(){
     const isContraption = Boolean(entry?.isEngenhoca || entry?.contraptionId || item?.tipo === 'engenhoca' || entry?.formaUso === 'empunhada');
     const statsText = values ? `Ataque ${values.attack} · Dano ${esc(values.damage)}${values.critical ? ` · Crítico ${esc(formatWeaponCritical(values.critical))}` : ''}` : (isContraption ? 'Engenhoca empunhada' : 'Item empunhado');
     equippedSlots.push(`<div class="equip-worn-item">
-      <div class="equip-item-label">Outra mão</div>
+      <div class="equip-item-label">Mão 2</div>
       <div class="equip-item-row">
         <strong class="equip-item-name" role="button" tabindex="0" data-item-details="${esc(id)}">${esc(itemName(entry))}</strong>
         <span class="equip-item-stats">${statsText}</span>
         <div class="equip-item-controls" style="display:flex;gap:4px;align-items:center;">
           ${offhandHandControls}
-          <button class="square-action-btn" type="button" data-equip-action="store-offhand" data-entry-id="${esc(id)}" title="Guardar item da outra mão na mochila">${getIcon('archive')}</button>
+          <button class="square-action-btn" type="button" data-equip-action="store-offhand" data-entry-id="${esc(id)}" title="Guardar item da Mão 2 na mochila">${getIcon('archive')}</button>
         </div>
       </div>
     </div>`);
@@ -782,12 +784,12 @@ function renderEquipmentPanel(){
     const rawEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.offhandId));
     const name = rawEntry ? itemName(rawEntry) : 'Item empunhado';
     equippedSlots.push(`<div class="equip-worn-item">
-      <div class="equip-item-label">Outra mão</div>
+      <div class="equip-item-label">Mão 2</div>
       <div class="equip-item-row">
         <strong class="equip-item-name" role="button" tabindex="0" data-item-details="${esc(eq.offhandId)}">${esc(name)}</strong>
-        <span class="equip-item-stats">Item empunhado na outra mão</span>
+        <span class="equip-item-stats">Item empunhado na Mão 2</span>
         <div class="equip-item-controls">
-          <button class="square-action-btn" type="button" data-equip-action="store-offhand" data-entry-id="${esc(eq.offhandId)}" title="Guardar item da outra mão na mochila">${getIcon('archive')}</button>
+          <button class="square-action-btn" type="button" data-equip-action="store-offhand" data-entry-id="${esc(eq.offhandId)}" title="Guardar item da Mão 2 na mochila">${getIcon('archive')}</button>
         </div>
       </div>
     </div>`);
@@ -795,7 +797,7 @@ function renderEquipmentPanel(){
     const { entry, item } = shieldRec;
     const def = Number(item?.escudo?.bonusDefesa || 0), pen = item?.escudo?.penalidade || 0;
     equippedSlots.push(`<div class="equip-worn-item">
-      <div class="equip-item-label">Outra mão (Escudo)</div>
+      <div class="equip-item-label">Mão 2 (Escudo)</div>
       <div class="equip-item-row">
         <strong class="equip-item-name" role="button" tabindex="0" data-item-details="${esc(eq.shieldId)}">${esc(itemName(entry))}</strong>
         <span class="equip-item-stats">Def +${def} · Pen ${pen} · ${Number(item?.espacos || 0)} esp.</span>
@@ -806,7 +808,7 @@ function renderEquipmentPanel(){
     </div>`);
   } else {
     equippedSlots.push(`<div class="equip-worn-item equip-empty-slot">
-      <div class="equip-item-label">Outra mão</div>
+      <div class="equip-item-label">Mão 2</div>
       <div class="equip-item-row">
         <span class="equip-empty-text">Mão livre (vazia)</span>
       </div>

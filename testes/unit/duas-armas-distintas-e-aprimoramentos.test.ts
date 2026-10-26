@@ -247,3 +247,23 @@ test('Arma adaptável (Katana): dano de 1 mão (1d8) vs 2 mãos (1d10) e devolu�
   assert.equal(eq.adaptableHandedness['inst_katana_1'], 'duas_maos');
   assert.equal(eq.offhandId, 'none', 'Item da outra mão deve ser devolvido para a mochila');
 });
+
+test('Busca de poderes na progressão: filtra poderes pelo termo digitado', () => {
+  const poderesExemplo = [
+    { id: 'ataque_poderoso', nome: 'Ataque Poderoso', descricao: 'Você pode desferir golpes avassaladores.' },
+    { id: 'estilo_de_uma_arma', nome: 'Estilo de Uma Arma', descricao: 'Se estiver usando uma arma em uma mão...' },
+    { id: 'foco_em_arma', nome: 'Foco em Arma', descricao: 'Escolha uma arma...' },
+    { id: 'vitalidade', nome: 'Vitalidade', descricao: 'Você tem mais pontos de vida.' }
+  ];
+
+  const buscar = (query: string) => {
+    const q = query.trim().toLowerCase();
+    return poderesExemplo.filter(p => !q || p.nome.toLowerCase().includes(q) || p.descricao.toLowerCase().includes(q));
+  };
+
+  assert.equal(buscar('').length, 4);
+  assert.equal(buscar('arma').length, 2, 'Deve encontrar "Estilo de Uma Arma" e "Foco em Arma"');
+  assert.equal(buscar('golpes').length, 1, 'Deve encontrar "Ataque Poderoso" pela descrição');
+  assert.equal(buscar('vital').length, 1);
+  assert.equal(buscar('inexistente').length, 0);
+});

@@ -55,11 +55,24 @@ document.addEventListener('click',event=>{
   }
 
   if(action==='equip-shield'){
-    if(equippedWeaponBlocksShield()){
-      toast('As duas mãos estão ocupadas. Guarde um item antes de equipar o escudo.');
-      return;
+    // Se a Mão 1 tem arma adaptável em duas mãos, adapta para 1 mão para liberar a Mão 2 para o escudo
+    if(eq.weaponId && eq.weaponId !== 'none'){
+      const wepEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
+      const itemCatalog = typeof getEquipmentCatalog === 'function' ? getEquipmentCatalog() : null;
+      const wepItem = itemCatalog?.get ? itemCatalog.get(wepEntry?.itemId) : (DATA.pdfItems || []).find(it => it.id === wepEntry?.itemId);
+      const isAdaptable = Boolean(wepItem?.arma?.propriedadesIds?.includes('adaptavel') || wepItem?.arma?.empunhaduraId === 'adaptavel');
+      const isStrictTwoHanded = !isAdaptable && (wepItem?.arma?.empunhaduraId === 'duas_maos' || (wepItem?.arma?.propriedadesIds || []).includes('duas_maos'));
+      if(isAdaptable){
+        eq.adaptableHandedness = { ...eq.adaptableHandedness, [eq.weaponId]: 'uma_mao' };
+      }else if(isStrictTwoHanded){
+        eq.weaponId = 'none';
+      }
     }
-    blocksShield=equippedWeaponBlocksShield();
+    // Se a Mão 2 já tem um item empunhado, guarda na mochila para equipar o escudo
+    if(eq.offhandId && eq.offhandId !== 'none'){
+      eq.offhandId = 'none';
+    }
+    blocksShield = false;
   }
   if(action==='set-handedness-two'){
     if(eq.offhandId===equipId){eq.weaponId=equipId;eq.offhandId='none';}
@@ -67,20 +80,79 @@ document.addEventListener('click',event=>{
     if(eq.shieldId&&eq.shieldId!=='none'){eq.shieldId='none';}
   }
   if(action==='equip-weapon'){
-    const held=heldItemRecords();
-    if(held.some(r=>r.id===equipId))return;
-    const hasShield = Boolean(eq.shieldId && eq.shieldId !== 'none');
-    const handsOccupied = held.reduce((n,r)=>n+(r.grip==='duas_maos'?2:1),0) + (hasShield ? 1 : 0);
-    if(handsOccupied>=2){toast('As duas mãos estão ocupadas. Guarde um item antes.');return}
-    if(eq.weaponId&&eq.weaponId!=='none')handSlot='offhandId';
+    if(eq.weaponId === equipId || eq.offhandId === equipId) return;
+
     const itemCatalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():(typeof getPdfItemsCatalog==='function'?getPdfItemsCatalog():new Map((DATA.pdfItems||[]).map(i=>[i.id,i])));
     const item=itemCatalog.get?itemCatalog.get(entry?.itemId):(DATA.pdfItems||[]).find(it=>it.id===entry?.itemId);
-    const isWeapon=item?.tipo==='arma'||item?.tipo==='esoterico'||item?.categoriaId==='esoterico'||item?.tipo==='instrumento'||item?.categoriaId==='instrumento'||item?.tipo==='engenhoca'||Boolean(entry?.isEngenhoca)||entry?.formaUso==='empunhada'||/instrumento/i.test(item?.nome||'');
-    const handedness=(item?.arma?.propriedadesIds||[]).includes('adaptavel')?(eq.adaptableHandedness[equipId]||'uma_mao'):(item?.arma?.empunhaduraId||'uma_mao');
-    blocksShield=!!isWeapon&&handedness==='duas_maos';
-    if(blocksShield){
+    const isAdaptable = Boolean(item?.arma?.propriedadesIds?.includes('adaptavel') || item?.arma?.empunhaduraId === 'adaptavel');
+    const isStrictTwoHanded = !isAdaptable && (item?.arma?.empunhaduraId === 'duas_maos' || (item?.arma?.propriedadesIds || []).includes('duas_maos'));
+
+    const hasHand1 = Boolean(eq.weaponId && eq.weaponId !== 'none');
+    const hasShield = Boolean(eq.shieldId && eq.shieldId !== 'none');
+    const hasOffhand = Boolean(eq.offhandId && eq.offhandId !== 'none');
+    const hasHand2 = hasShield || hasOffhand;
+
+    if (isStrictTwoHanded) {
       if(eq.offhandId && eq.offhandId !== 'none') eq.offhandId = 'none';
       if(eq.shieldId && eq.shieldId !== 'none') eq.shieldId = 'none';
+      handSlot = 'weaponId';
+      blocksShield = true;
+    } else if (isAdaptable) {
+      if (!hasHand1 && !hasHand2) {
+        eq.adaptableHandedness = { ...eq.adaptableHandedness, [equipId]: 'duas_maos' };
+        handSlot = 'weaponId';
+        blocksShield = false;
+      } else if (!hasHand1 && hasHand2) {
+        eq.adaptableHandedness = { ...eq.adaptableHandedness, [equipId]: 'uma_mao' };
+        handSlot = 'weaponId';
+        blocksShield = false;
+      } else if (hasHand1 && !hasHand2) {
+        const hand1Entry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
+        const hand1Item = itemCatalog.get ? itemCatalog.get(hand1Entry?.itemId) : (DATA.pdfItems || []).find(it => it.id === hand1Entry?.itemId);
+        const hand1Adaptable = Boolean(hand1Item?.arma?.propriedadesIds?.includes('adaptavel') || hand1Item?.arma?.empunhaduraId === 'adaptavel');
+        if (hand1Adaptable) {
+          eq.adaptableHandedness = { ...eq.adaptableHandedness, [eq.weaponId]: 'uma_mao', [equipId]: 'uma_mao' };
+          handSlot = 'offhandId';
+        } else {
+          const hand1TwoHanded = hand1Item?.arma?.empunhaduraId === 'duas_maos' || (hand1Item?.arma?.propriedadesIds || []).includes('duas_maos');
+          if (hand1TwoHanded) {
+            eq.weaponId = 'none';
+            eq.adaptableHandedness = { ...eq.adaptableHandedness, [equipId]: 'duas_maos' };
+            handSlot = 'weaponId';
+          } else {
+            eq.adaptableHandedness = { ...eq.adaptableHandedness, [equipId]: 'uma_mao' };
+            handSlot = 'offhandId';
+          }
+        }
+        blocksShield = false;
+      } else {
+        eq.adaptableHandedness = { ...eq.adaptableHandedness, [equipId]: 'uma_mao' };
+        handSlot = 'weaponId';
+        blocksShield = false;
+      }
+    } else {
+      if (!hasHand1) {
+        handSlot = 'weaponId';
+      } else if (!hasHand2) {
+        const hand1Entry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
+        const hand1Item = itemCatalog.get ? itemCatalog.get(hand1Entry?.itemId) : (DATA.pdfItems || []).find(it => it.id === hand1Entry?.itemId);
+        const hand1Adaptable = Boolean(hand1Item?.arma?.propriedadesIds?.includes('adaptavel') || hand1Item?.arma?.empunhaduraId === 'adaptavel');
+        if (hand1Adaptable && eq.adaptableHandedness[eq.weaponId] === 'duas_maos') {
+          eq.adaptableHandedness = { ...eq.adaptableHandedness, [eq.weaponId]: 'uma_mao' };
+          handSlot = 'offhandId';
+        } else {
+          const hand1TwoHanded = hand1Item?.arma?.empunhaduraId === 'duas_maos' || (hand1Item?.arma?.propriedadesIds || []).includes('duas_maos');
+          if (hand1TwoHanded) {
+            eq.weaponId = 'none';
+            handSlot = 'weaponId';
+          } else {
+            handSlot = 'offhandId';
+          }
+        }
+      } else {
+        handSlot = 'weaponId';
+      }
+      blocksShield = false;
     }
   }
   if(action==='reveal-tattoo'||action==='equip-accessory'){

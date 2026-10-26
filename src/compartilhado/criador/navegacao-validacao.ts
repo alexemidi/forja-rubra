@@ -52,6 +52,58 @@ if(typeof window !== 'undefined'){
 }
 
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-action]');if(!button)return;const index=Number(button.dataset.index),row=state.progression[index];if(!row)return;if(button.dataset.action==='progression-open-level'){const closing=progressionActivePowerIndex()===index&&Number(state.progressionCollapsedIndex)!==index;setProgressionEditingIndex(index);state.progressionCollapsedIndex=closing?index:-1;renderStage();setTimeout(()=>document.querySelectorAll('.progression-level-row')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),30)}else if(button.dataset.action==='progression-source'){row.powerSourceFilter=button.dataset.value;row.previewPowerId='';row.previewPowerChoice='';renderStage()}else if(button.dataset.action==='progression-category'){row.powerCategoryFilter=button.dataset.value;row.previewPowerId='';renderStage()}else if(button.dataset.action==='progression-status'){row.powerStatusFilter=button.dataset.value;row.previewPowerId='';renderStage()}else if(button.dataset.action==='class-power-preview'){event.preventDefault();previewProgressionPower(index,button.dataset.powerId,{pageScroll:window.scrollY,listScroll:button.closest?.('.power-list')?.scrollTop})}else if(button.dataset.action==='class-power-attribute'){row.previewPowerChoice=Number(button.dataset.dir)<0?'':button.dataset.attr;renderStage();syncProgressionFooter()}else if(button.dataset.action==='class-power-remove'){if(state.isLevelingUp&&index<state.progression.length-1){toast('Durante a subida de nível, apenas as escolhas do novo nível podem ser alteradas.','warning');return;}row.powerId='';row.powerChoice='';row.previewPowerChoice='';invalidateDependentProgressionPowers(index);setProgressionEditingIndex(index);state.progressionCollapsedIndex=-1;renderStage();syncProgressionFooter()}},true);
+document.addEventListener('input',event=>{
+  const input=(event.target as HTMLElement)?.closest?.('[data-action="progression-power-search"]') as HTMLInputElement;
+  if(!input)return;
+  const index=Number(input.dataset.index),row=state?.progression?.[index];
+  if(!row)return;
+  row.powerSearchQuery=input.value;
+  const q=input.value.trim().toLowerCase();
+  const list=document.querySelector(`[data-progression-power-list="${index}"]`);
+  if(!list)return;
+  const buttons=list.querySelectorAll<HTMLElement>('.power-row');
+  let visibleCount=0;
+  buttons.forEach(btn=>{
+    const name=(btn.dataset.powerName||btn.textContent||'').toLowerCase();
+    const match=!q||name.includes(q);
+    btn.style.display=match?'':'none';
+    if(match)visibleCount++;
+  });
+  let emptyMsg=list.querySelector('.progression-power-empty-msg') as HTMLElement;
+  if(!emptyMsg){
+    emptyMsg=document.createElement('div');
+    emptyMsg.className='empty progression-power-empty-msg';
+    emptyMsg.textContent='Nenhum poder corresponde aos filtros ou à busca.';
+    list.appendChild(emptyMsg);
+  }
+  emptyMsg.style.display=(visibleCount===0&&buttons.length>0)?'':'none';
+});
+document.addEventListener('search',event=>{
+  const input=(event.target as HTMLElement)?.closest?.('[data-action="progression-power-search"]') as HTMLInputElement;
+  if(!input)return;
+  const index=Number(input.dataset.index),row=state?.progression?.[index];
+  if(!row)return;
+  row.powerSearchQuery=input.value;
+  const q=input.value.trim().toLowerCase();
+  const list=document.querySelector(`[data-progression-power-list="${index}"]`);
+  if(!list)return;
+  const buttons=list.querySelectorAll<HTMLElement>('.power-row');
+  let visibleCount=0;
+  buttons.forEach(btn=>{
+    const name=(btn.dataset.powerName||btn.textContent||'').toLowerCase();
+    const match=!q||name.includes(q);
+    btn.style.display=match?'':'none';
+    if(match)visibleCount++;
+  });
+  let emptyMsg=list.querySelector('.progression-power-empty-msg') as HTMLElement;
+  if(!emptyMsg){
+    emptyMsg=document.createElement('div');
+    emptyMsg.className='empty progression-power-empty-msg';
+    emptyMsg.textContent='Nenhum poder corresponde aos filtros ou à busca.';
+    list.appendChild(emptyMsg);
+  }
+  emptyMsg.style.display=(visibleCount===0&&buttons.length>0)?'':'none';
+});
 document.addEventListener('keydown',event=>{
   if(!['ArrowDown','ArrowUp'].includes(event.key))return;
   const current=event.target.closest?.('[data-action="class-power-preview"]');
