@@ -319,18 +319,6 @@ function renderGeneralPowerBrowser(slots){
     ? '<div style="font-size:0.8rem;color:var(--gold2);font-weight:700;margin-bottom:8px">Poder ' + (currentSlot + 1) + ' de ' + slots + ' <span style="font-weight:400;color:var(--muted)">(Fonte: ' + esc(sourceText) + ')</span></div>'
     : '';
 
-  const ALL_POWER_CATEGORIES = [
-    { id: 'all', label: 'Todos' },
-    { id: 'combate', label: 'Combate' },
-    { id: 'destino', label: 'Destino' },
-    { id: 'magia', label: 'Magia' },
-    { id: 'concedido', label: 'Poderes Concedidos' },
-    { id: 'tormenta', label: 'Tormenta' },
-    { id: 'raca', label: 'Raça' },
-    { id: 'grupo', label: 'Grupo' },
-    { id: 'escolhido_dos_deuses', label: 'Escolhido dos Deuses' }
-  ];
-
   const isDrawerOpen = Boolean(state.powers.drawerOpen);
 
   const drawerHtml = '<aside class="power-filters-drawer ' + (isDrawerOpen ? 'open' : '') + '">' +
@@ -343,23 +331,20 @@ function renderGeneralPowerBrowser(slots){
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
       '</button>' +
     '</div>' +
-    '<div class="power-drawer-section-label">Categorias Canônicas</div>' +
-    '<div class="drawer-chips-list">' +
-      ALL_POWER_CATEGORIES.map(cat => (
-        '<button type="button" class="drawer-filter-chip ' + (category === cat.id ? 'active' : '') + '" data-action="power-filter-category" data-value="' + cat.id + '">' +
+    '<div class="power-drawer-body">' +
+      '<div class="power-drawer-section-label">Exibição de Poderes</div>' +
+      '<div class="drawer-options-group">' +
+        '<button type="button" class="drawer-filter-chip ' + (status !== 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="available">' +
           '<span class="drawer-chip-bullet"></span>' +
-          '<span class="drawer-chip-text">' + esc(cat.label) + '</span>' +
-        '</button>'
-      )).join('') +
-    '</div>' +
-    '<div class="drawer-status-footer">' +
-      '<div class="power-drawer-section-label" style="padding-left:0;padding-right:0;padding-top:0;">Exibição de Requisitos</div>' +
-      '<button type="button" class="drawer-filter-chip ver-tudo-btn ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-toggle-all">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' +
-        '<span>' + (status === 'all' ? 'Ver tudo (com pendentes)' : 'Ver tudo') + '</span>' +
-      '</button>' +
+          '<span class="drawer-chip-text">Disponíveis</span>' +
+        '</button>' +
+        '<button type="button" class="drawer-filter-chip ver-tudo-btn ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="all">' +
+          '<span class="drawer-chip-bullet"></span>' +
+          '<span class="drawer-chip-text">Ver tudo (com requisitos)</span>' +
+        '</button>' +
+      '</div>' +
       '<div class="drawer-status-hint">' +
-        (status === 'all' ? 'Exibindo poderes com requisitos pendentes.' : 'Padrão: apenas poderes disponíveis para escolha.') +
+        (status === 'all' ? 'Exibindo todos os poderes, inclusive aqueles com pré-requisitos pendentes.' : 'Padrão: apenas poderes cujos pré-requisitos já foram atendidos.') +
       '</div>' +
     '</div>' +
     /* Elementos ocultos para compatibilidade com testes que procuram seletores legados */
@@ -367,6 +352,7 @@ function renderGeneralPowerBrowser(slots){
       '<button type="button" class="filter-chip ' + (status === 'available' ? 'active' : '') + '" data-action="power-filter-status" data-value="available">Disponíveis</button>' +
       '<button type="button" class="filter-chip ' + (status === 'locked' ? 'active' : '') + '" data-action="power-filter-status" data-value="locked">Pré-requisito pendente</button>' +
       '<button type="button" class="filter-chip ' + (status === 'all' ? 'active' : '') + '" data-action="power-filter-status" data-value="all">Ver tudo</button>' +
+      '<button type="button" data-action="power-filter-toggle-all"></button>' +
     '</div>' +
   '</aside>';
 

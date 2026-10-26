@@ -1391,25 +1391,34 @@ button[data-item-spend] {
   box-sizing: border-box !important;
 }
 
-/* Barra de etapas: horizontal no topo da tela, centralizada */
+/* Barra de etapas: horizontal no topo da tela, centralizada, sem barra de rolagem */
 .phase-nav {
   position: static !important;
   top: auto !important;
   width: 100% !important;
+  max-width: 100% !important;
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
   flex-wrap: nowrap !important;
-  gap: 10px !important;
-  padding: 8px 14px !important;
+  gap: 8px !important;
+  padding: 6px 12px !important;
   background: #110d0f !important;
   border: 1px solid #4a252a !important;
   border-radius: 8px !important;
   margin: 0 0 12px 0 !important;
   box-sizing: border-box !important;
-  overflow-x: auto !important;
-  scrollbar-width: thin !important;
+  overflow: hidden !important; /* Sem barra de rolagem */
+  overflow-x: hidden !important; /* Sem barra de rolagem */
+  scrollbar-width: none !important;
   flex-shrink: 0 !important;
+}
+
+.phase-nav::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .phase-nav-title {
@@ -1420,33 +1429,39 @@ button[data-item-spend] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 8px !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   flex-shrink: 0 !important;
   cursor: pointer !important;
   text-decoration: none !important;
   background: transparent !important;
   box-sizing: border-box !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
 }
 
 /* Círculos perfeitos para as fases inativas: BOLINHAS */
 .phase-button.collapsed-phase,
 .phase-button:not(.active) {
-  width: 34px !important;
-  max-width: 34px !important;
-  min-width: 34px !important;
-  height: 34px !important;
-  max-height: 34px !important;
-  min-height: 34px !important;
+  width: 32px !important;
+  max-width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  max-height: 32px !important;
+  min-height: 32px !important;
   aspect-ratio: 1 / 1 !important;
-  flex: 0 0 34px !important;
+  flex: 0 0 32px !important;
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 50% !important; /* CÍRCULO PERFEITO */
   background: #140d10 !important;
   border: 1.5px solid #4a252a !important;
   box-sizing: border-box !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
@@ -1471,6 +1486,8 @@ button[data-item-spend] {
   font-weight: 700 !important;
   color: var(--muted) !important;
   line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .phase-button.collapsed-phase:hover,
@@ -1496,24 +1513,28 @@ button[data-item-spend] {
   color: var(--gold2) !important;
 }
 
-/* Fase ativa: quadro maior em destaque com a bolinha + nome da fase */
+/* Fase ativa: quadro que se molda estritamente ao tamanho do conteúdo */
 .phase-button.active {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 5px 18px !important;
-  border-radius: 20px !important;
+  gap: 8px !important;
+  width: auto !important;
+  min-width: auto !important;
+  max-width: fit-content !important;
+  flex: 0 0 auto !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 14px 0 6px !important;
+  border-radius: 16px !important;
   background: linear-gradient(135deg, #74131d 0%, #3d1419 100%) !important;
   border: 1.5px solid var(--gold) !important;
-  box-shadow: 0 0 16px rgba(233, 173, 89, 0.35) !important;
+  box-shadow: 0 0 12px rgba(233, 173, 89, 0.3) !important;
   color: #fff !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  flex: 0 0 auto !important;
-  gap: 9px !important;
   cursor: default !important;
   box-sizing: border-box !important;
+  margin: 0 !important;
 }
 
 .phase-button.active .phase-number {
@@ -1521,27 +1542,39 @@ button[data-item-spend] {
   height: 22px !important;
   min-width: 22px !important;
   min-height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
   border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
   border: 1px solid var(--gold) !important;
   background: rgba(0, 0, 0, 0.55) !important;
   color: var(--gold) !important;
-  font-size: 0.75rem !important;
+  font-size: 0.72rem !important;
   font-weight: 800 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   line-height: 1 !important;
+  flex: 0 0 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .phase-button.active .phase-label {
   display: inline-block !important;
   font-family: 'Tormenta', 'Cinzel', serif !important;
   font-weight: 700 !important;
-  font-size: 0.85rem !important;
+  font-size: 0.78rem !important;
   color: var(--cream) !important;
-  letter-spacing: 0.6px !important;
+  letter-spacing: 0.5px !important;
   white-space: nowrap !important;
   text-transform: uppercase !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.phase-button.active .phase-state {
+  display: none !important;
 }
 
 @media (max-width: 1050px) {
@@ -1552,20 +1585,33 @@ button[data-item-spend] {
   }
   .phase-nav {
     display: flex !important;
-    justify-content: flex-start !important;
-    padding: 6px 10px !important;
+    justify-content: center !important;
+    padding: 6px 8px !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    gap: 6px !important;
   }
   .phase-button.collapsed-phase,
   .phase-button:not(.active) {
-    width: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
     aspect-ratio: 1 / 1 !important;
     border-radius: 50% !important;
-    flex: 0 0 34px !important;
+    flex: 0 0 30px !important;
+  }
+  .phase-button.active {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 10px 0 5px !important;
+    gap: 6px !important;
+  }
+  .phase-button.active .phase-label {
+    font-size: 0.72rem !important;
   }
 }
 
@@ -1703,7 +1749,7 @@ body.stage-powers-active .panel-body {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 14px 16px !important;
+  padding: 16px 18px !important;
   background: #160e11 !important;
   border-bottom: 1px solid #3d1b22 !important;
   flex-shrink: 0 !important;
@@ -1745,8 +1791,19 @@ body.stage-powers-active .panel-body {
   background: #25161b !important;
 }
 
+.power-drawer-body {
+  padding: 18px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  box-sizing: border-box !important;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+}
+
 .power-drawer-section-label {
-  padding: 12px 16px 6px !important;
+  padding: 0 0 4px 0 !important;
   font-size: 0.65rem !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
@@ -1755,40 +1812,38 @@ body.stage-powers-active .panel-body {
   flex-shrink: 0 !important;
 }
 
-.drawer-chips-list {
+.drawer-options-group {
   display: flex !important;
   flex-direction: column !important;
-  gap: 4px !important;
-  padding: 4px 14px 14px !important;
-  overflow-y: auto !important;
-  scrollbar-width: thin !important;
-  flex: 1 !important;
+  gap: 8px !important;
+  width: 100% !important;
   box-sizing: border-box !important;
 }
 
 .drawer-filter-chip {
   width: 100% !important;
   text-align: left !important;
-  padding: 9px 12px !important;
-  font-size: 0.82rem !important;
+  padding: 11px 14px !important;
+  font-size: 0.84rem !important;
   font-weight: 600 !important;
   border-radius: 6px !important;
-  border: 1px solid #2d161a !important;
+  border: 1px solid #3d1b22 !important;
   background: #181114 !important;
   color: var(--cream) !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
-  gap: 9px !important;
+  gap: 10px !important;
   transition: all 0.15s ease !important;
   box-sizing: border-box !important;
 }
 
 .drawer-chip-bullet {
-  width: 6px !important;
-  height: 6px !important;
+  width: 8px !important;
+  height: 8px !important;
   border-radius: 50% !important;
   background: #4a252a !important;
+  border: 1px solid #6d333b !important;
   flex-shrink: 0 !important;
   transition: all 0.15s ease !important;
 }
@@ -1804,7 +1859,8 @@ body.stage-powers-active .panel-body {
 }
 
 .drawer-filter-chip:hover .drawer-chip-bullet {
-  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+  background: var(--gold2) !important;
 }
 
 .drawer-filter-chip.active {
@@ -1817,41 +1873,16 @@ body.stage-powers-active .panel-body {
 
 .drawer-filter-chip.active .drawer-chip-bullet {
   background: var(--gold) !important;
+  border-color: var(--gold2) !important;
   box-shadow: 0 0 6px var(--gold) !important;
 }
 
-.drawer-status-footer {
-  margin-top: auto !important;
-  padding: 12px 14px 14px !important;
-  border-top: 1px solid #3d1b22 !important;
-  background: #140d10 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  flex-shrink: 0 !important;
-  box-sizing: border-box !important;
+.drawer-status-hint {
+  font-size: 0.73rem !important;
+  color: var(--muted) !important;
+  line-height: 1.45 !important;
+  padding: 4px 2px !important;
 }
-
-.drawer-filter-chip.ver-tudo-btn {
-  justify-content: center !important;
-  text-align: center !important;
-  font-weight: 700 !important;
-  border-color: #6d333b !important;
-  color: var(--gold2) !important;
-  background: #1c1215 !important;
-  gap: 8px !important;
-  padding: 10px 12px !important;
-}
-
-.drawer-filter-chip.ver-tudo-btn:hover {
-  border-color: var(--gold) !important;
-  background: #2b161c !important;
-}
-
-.drawer-filter-chip.ver-tudo-btn.active {
-  background: linear-gradient(135deg, #74131d 0%, #4a151b 100%) !important;
-  border-color: var(--gold) !important;
-  color: #fff !important;
   box-shadow: 0 0 10px rgba(116, 19, 29, 0.5) !important;
 }
 

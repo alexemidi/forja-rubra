@@ -417,7 +417,22 @@ document.addEventListener('click',event=>{
     return;
   }
   if(action==='power-filter-status'){
-    state.powers.statusFilter = button.dataset.value;
+    const val = button.dataset.value || 'available';
+    state.powers.statusFilter = val;
+    document.querySelectorAll('.drawer-filter-chip[data-action="power-filter-status"]').forEach(chip=>{
+      chip.classList.toggle('active', (chip as HTMLElement).dataset.value === val);
+    });
+    const hintEl = document.querySelector('.drawer-status-hint');
+    if(hintEl){
+      hintEl.textContent = val === 'all'
+        ? 'Exibindo todos os poderes, inclusive aqueles com pré-requisitos pendentes.'
+        : 'Padrão: apenas poderes cujos pré-requisitos já foram atendidos.';
+    }
+    const triggerBtn = document.querySelector('.power-filter-trigger-btn');
+    if(triggerBtn){
+      const span = triggerBtn.querySelector('span');
+      if(span) span.textContent = 'Filtros' + (val === 'all' ? ' •' : '');
+    }
     const fn = (globalThis as any).fastUpdatePowerList;
     if(typeof fn === 'function'){
       fn();
@@ -427,23 +442,21 @@ document.addEventListener('click',event=>{
     return;
   }
   if(action==='power-filter-toggle-all'){
-    state.powers.statusFilter = state.powers.statusFilter === 'all' ? 'available' : 'all';
-    const isAll = state.powers.statusFilter === 'all';
-    const verTudoBtn = document.querySelector('[data-action="power-filter-toggle-all"]');
-    if(verTudoBtn){
-      verTudoBtn.classList.toggle('active', isAll);
-      const span = verTudoBtn.querySelector('span');
-      if(span) span.textContent = isAll ? 'Ver tudo (com pendentes)' : 'Ver tudo';
-    }
+    const nextVal = state.powers.statusFilter === 'all' ? 'available' : 'all';
+    state.powers.statusFilter = nextVal;
+    document.querySelectorAll('.drawer-filter-chip[data-action="power-filter-status"]').forEach(chip=>{
+      chip.classList.toggle('active', (chip as HTMLElement).dataset.value === nextVal);
+    });
     const hintEl = document.querySelector('.drawer-status-hint');
     if(hintEl){
-      hintEl.textContent = isAll ? 'Exibindo poderes com requisitos pendentes.' : 'Padrão: apenas poderes disponíveis para escolha.';
+      hintEl.textContent = nextVal === 'all'
+        ? 'Exibindo todos os poderes, inclusive aqueles com pré-requisitos pendentes.'
+        : 'Padrão: apenas poderes cujos pré-requisitos já foram atendidos.';
     }
     const triggerBtn = document.querySelector('.power-filter-trigger-btn');
     if(triggerBtn){
-      const hasFilter = (state.powers.categoryFilter && state.powers.categoryFilter !== 'all') || isAll;
       const span = triggerBtn.querySelector('span');
-      if(span) span.textContent = 'Filtros' + (hasFilter ? ' •' : '');
+      if(span) span.textContent = 'Filtros' + (nextVal === 'all' ? ' •' : '');
     }
     const fn = (globalThis as any).fastUpdatePowerList;
     if(typeof fn === 'function'){
@@ -544,7 +557,10 @@ document.addEventListener('click', event => {
     const isDrawer = (event.target as HTMLElement)?.closest?.('.power-filters-drawer');
     if (!isTrigger && !isDrawer) {
       state.powers.drawerOpen = false;
-      renderStage();
+      const drawer = document.querySelector('.power-filters-drawer');
+      const trigger = document.querySelector('.power-filter-trigger-btn');
+      if (drawer) drawer.classList.remove('open');
+      if (trigger) trigger.classList.remove('active');
     }
   }
 });
