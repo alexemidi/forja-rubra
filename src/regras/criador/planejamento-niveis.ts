@@ -98,7 +98,7 @@ function podeCriarPlanejamento(characterState: any): { allowed: boolean; max: nu
   };
 }
 
-function salvarPlanejamento(characterState: any, nome: string): CharacterPlanning | null {
+function salvarPlanejamento(characterState: any, nome: string, planningId?: string): CharacterPlanning | null {
   if (!characterState) return null;
   const plannings = obterPlanejamentos(characterState);
   const max = obterLimiteMaximoPlanejamentos();
@@ -115,22 +115,29 @@ function salvarPlanejamento(characterState: any, nome: string): CharacterPlannin
     }
   } catch {}
 
+  const targetId = planningId || characterState.currentPlanningId || (max === 1 && plannings.length > 0 ? plannings[0].id : null);
+  const existingIndex = targetId ? plannings.findIndex((p: CharacterPlanning) => p.id === targetId) : -1;
+
   const planning: CharacterPlanning = {
-    id: 'plan_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-    name: (nome || '').trim() || `Plano até Nível ${targetLevel}`,
+    id: existingIndex >= 0 ? plannings[existingIndex].id : ('plan_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)),
+    name: (nome || '').trim() || (existingIndex >= 0 ? plannings[existingIndex].name : `Plano até Nível ${targetLevel}`),
     baseLevel,
     targetLevel,
     progression: progressionCopy,
     spellsSelections: spellsCopy,
     hypotheticalFunds,
-    createdAt: new Date().toISOString()
+    createdAt: existingIndex >= 0 ? plannings[existingIndex].createdAt : new Date().toISOString()
   };
 
-  if (plannings.length >= max) {
+  if (existingIndex >= 0) {
+    plannings[existingIndex] = planning;
+  } else if (plannings.length >= max) {
     plannings[plannings.length - 1] = planning;
   } else {
     plannings.push(planning);
   }
+
+  characterState.currentPlanningId = planning.id;
 
   if (characterState.planningSnapshot) {
     characterState.planningSnapshot.plannings = JSON.parse(JSON.stringify(plannings));
@@ -162,23 +169,31 @@ function excluirPlanejamento(characterState: any, planningId: string): boolean {
  * Inicia o Modo de Planejamento (Simulação de Progressão).
  * Guarda o snapshot original do herói e projeta o estado futuro com o dinheiro hipotético.
  */
-function iniciarModoPlanejamento(characterState: any, nivelAlvo: number, nomePlanejamento: string = ''): boolean {
+function iniciarModoPlanejamento(characterState: any, nivelAlvo: number, nomePlanejamento: string = '', planningId?: string): boolean {
   if (!characterState) return false;
   const nivelAtual = Math.max(1, Number(characterState.identity?.plannedLevel) || 1);
   const target = Math.min(20, Math.max(nivelAtual + 1, Number(nivelAlvo) || (nivelAtual + 1)));
 
-  const snapshot = JSON.parse(JSON.stringify(characterState));
-  characterState.planningSnapshot = snapshot;
-  try {
-    sessionStorage.setItem('forja_planning_snapshot', JSON.stringify(snapshot));
-  } catch {}
+  if (!characterState.isPlanningMode) {
+    const snapshot = JSON.parse(JSON.stringify(characterState));
+    characterState.planningSnapshot = snapshot;
+    try {
+      sessionStorage.setItem('forja_planning_snapshot', JSON.stringify(snapshot));
+    } catch {}
+  }
 
   characterState.isPlanningMode = true;
-  characterState.planningBaseLevel = nivelAtual;
+  if (!characterState.planningBaseLevel) {
+    characterState.planningBaseLevel = nivelAtual;
+  }
   characterState.planningTargetLevel = target;
-  characterState.planningName = (nomePlanejamento || '').trim() || `Plano até Nível ${target}`;
+  characterState.planningName = (nomePlanejamento || '').trim() || (characterState.planningName || `Plano até Nível ${target}`);
+  if (planningId) {
+    characterState.currentPlanningId = planningId;
+  }
 
-  const bonus = calcularDinheiroHipoteticoAdicional(nivelAtual, target);
+  const baseLvl = Number(characterState.planningBaseLevel) || nivelAtual;
+  const bonus = calcularDinheiroHipoteticoAdicional(baseLvl, target);
   characterState.finances = characterState.finances || {};
   characterState.finances.hypotheticalPlanningFunds = bonus;
   characterState.finances.rewardFunds = (Number(characterState.finances.rewardFunds) || 0) + bonus;
@@ -215,12 +230,14 @@ function encerrarModoPlanejamento(characterState: any): any {
     delete characterState.planningBaseLevel;
     delete characterState.planningTargetLevel;
     delete characterState.planningName;
+    delete characterState.currentPlanningId;
     if (characterState.finances) {
       delete characterState.finances.hypotheticalPlanningFunds;
     }
   } else {
     delete characterState.isPlanningMode;
     delete characterState.planningSnapshot;
+    delete characterState.currentPlanningId;
   }
 
   try {

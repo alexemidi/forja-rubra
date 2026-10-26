@@ -179,7 +179,14 @@ function syncProgressionFooter(){
     }
   }
   const cancelBtn=document.getElementById('cancelLevelUpButton');
-  if(cancelBtn)cancelBtn.hidden=!state.isLevelingUp;
+  if(cancelBtn){
+    cancelBtn.hidden=!state.isLevelingUp;
+    if(state.isPlanningMode){
+      cancelBtn.textContent='Cancelar planejamento';
+    }else{
+      cancelBtn.textContent='Cancelar subida de nível';
+    }
+  }
   const cancelEditBtn=document.getElementById('cancelEditCharacterButton');
   if(cancelEditBtn)cancelEditBtn.hidden=!Boolean(state.isEditingFinishedSheet || state.editingCharacter);
   if(review)review.hidden=state.step!==10||missing.length>0||Boolean(row?.previewPowerId);
@@ -325,8 +332,9 @@ function renderProgressionPhase(){
   const prevPowerIndex=[...powerLevelIndices].reverse().find(i=>i<activeIndex);
   const nextPowerIndex=powerLevelIndices.find(i=>i>activeIndex);
   const displayLevel=Math.max(1,activeIndex+1);
+  const cancelActionText = state.isPlanningMode ? 'Cancelar planejamento' : 'Cancelar subida de nível';
   const cancelActionHtml = state.isLevelingUp
-    ? '<button type="button" class="button danger small" data-action="cancel-level-up" style="font-size:0.72rem;padding:4px 10px;margin-left:auto;">Cancelar subida de nível</button>'
+    ? '<button type="button" class="button danger small" data-action="cancel-level-up" style="font-size:0.72rem;padding:4px 10px;margin-left:auto;">' + cancelActionText + '</button>'
     : (state.isTrainingPowerProgression
       ? '<button type="button" class="button danger small" data-action="cancel-training-power" style="font-size:0.72rem;padding:4px 10px;margin-left:auto;">Cancelar treino de poder</button>'
       : '');

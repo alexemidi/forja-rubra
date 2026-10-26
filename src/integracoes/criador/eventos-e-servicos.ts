@@ -10,6 +10,10 @@ document.addEventListener('click',async event=>{
       return;
     }
     if(action==='level-up'){
+      if(state.isPlanningMode){
+        toast('Subida de nível indisponível durante o Modo de Planejamento. Utilize o botão [Editar Planos] acima.', 'info');
+        return;
+      }
       if(Number(state.identity?.plannedLevel||1) >= 20){
         toast('Seu herói já atingiu o nível máximo (20).', 'info');
         return;
@@ -223,6 +227,10 @@ document.addEventListener('click',async event=>{
       }
     }
     else if(action==='edit'){
+      if(state.isPlanningMode){
+        toast('Edição da ficha indisponível durante o Modo de Planejamento. Utilize o botão [Editar Planos] acima.', 'info');
+        return;
+      }
       saveFinishedCharacter();
       const snapshot = JSON.parse(JSON.stringify(state));
       state.editingCharacter={

@@ -283,3 +283,73 @@ test('Bônus Temporários nos Ataques: Persistência, Aplicação sobre Valores 
   assert.equal(restoredAtk, defaultWeapon.defaultAtk);
   assert.equal(restoredDmg, defaultWeapon.defaultDmg);
 });
+
+test('Planejamento de Níveis: Edição, Adicionar Níveis e Cancelar Planejamento Limpando Dados', () => {
+  const hero: any = {
+    identity: {
+      characterName: 'Aventureiro Teste',
+      plannedLevel: 2,
+      initialLevel: 1
+    },
+    finances: {
+      rewardFunds: 200,
+      spent: 50
+    },
+    progression: [
+      { classId: 'guerreiro' },
+      { classId: 'guerreiro', powerId: 'ataque_poderoso' }
+    ],
+    plannings: []
+  };
+
+  // 1. Iniciar e salvar primeiro planejamento até o Nível 5 (sugestão inicial padrão para nível < 5)
+  iniciarModoPlanejamento(hero, 5, 'Plano Inicial');
+  assert.equal(hero.isPlanningMode, true);
+  assert.equal(hero.identity.plannedLevel, 5);
+  // Dinheiro hipotético do nv 2 ao 5: 600 (nv3) + 1000 (nv4) + 2000 (nv5) = 3600
+  assert.equal(hero.finances.hypotheticalPlanningFunds, 3600);
+
+  const plan1 = salvarPlanejamento(hero, 'Plano Inicial');
+  assert.ok(plan1);
+  assert.equal(hero.plannings.length, 1);
+  assert.equal(hero.plannings[0].targetLevel, 5);
+  const planId = plan1.id;
+
+  // 2. Encerrar
+  encerrarModoPlanejamento(hero);
+  assert.equal(hero.isPlanningMode, undefined);
+  assert.equal(hero.identity.plannedLevel, 2);
+
+  // 3. Reabrir o planejamento existente para EDIÇÃO e ADICIONAR NÍVEIS (estender até Nível 8)
+  iniciarModoPlanejamento(hero, 8, 'Plano Estendido', planId);
+  assert.equal(hero.isPlanningMode, true);
+  assert.equal(hero.currentPlanningId, planId);
+  assert.equal(hero.identity.plannedLevel, 8);
+  // Dinheiro hipotético do nv 2 ao 8: 600 + 1000 + 2000 + 3000 (nv6) + 5000 (nv7) + 7000 (nv8) = 18600
+  assert.equal(hero.finances.hypotheticalPlanningFunds, 18600);
+
+  // Salvar a edição do plano existente não duplica (atualiza in-place para cota 1)
+  const updatedPlan = salvarPlanejamento(hero, 'Plano Estendido', planId);
+  assert.equal(hero.plannings.length, 1); // Continua 1 planejamento
+  assert.equal(hero.plannings[0].id, planId); // Mesmo id mantido
+  assert.equal(hero.plannings[0].targetLevel, 8); // Nível atualizado
+  assert.equal(hero.plannings[0].hypotheticalFunds, 18600);
+
+  // 4. Teste de Cancelar Planejamento enquanto estiver no meio do planejamento
+  iniciarModoPlanejamento(hero, 10, 'Plano Temporário Descartado');
+  hero.planningName = 'Plano Temporário Descartado';
+  assert.equal(hero.isPlanningMode, true);
+
+  // Simulando a ação do botão "Cancelar planejamento"
+  encerrarModoPlanejamento(hero);
+  delete hero.planningName;
+  delete hero.isPlanningMode;
+  delete hero.planningBaseLevel;
+  delete hero.planningTargetLevel;
+  delete hero.planningSnapshot;
+  delete hero.currentPlanningId;
+
+  assert.equal(hero.isPlanningMode, undefined);
+  assert.equal(hero.planningName, undefined);
+  assert.equal(hero.identity.plannedLevel, 2); // Retornado ao nível real
+});

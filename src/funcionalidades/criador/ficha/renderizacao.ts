@@ -1793,11 +1793,40 @@ function sheetVitalControls(maximum){
   const compassIcon = window.IconesForja ? window.IconesForja.get('compass', 'sheet-action-icon-svg') : '◈';
 
   const currentLevel = Number(state?.identity?.plannedLevel) || 1;
-  const canLevelUp = currentLevel < 20;
+  const isPlanningModeActive = Boolean(state?.isPlanningMode);
+  const canLevelUp = currentLevel < 20 && !isPlanningModeActive;
   const canHaveDistinction = currentLevel >= 5;
   const distinctionIcon = window.IconesForja ? window.IconesForja.get('award', 'sheet-action-icon-svg') : '';
   const trainingIcon = '<svg class="forja-svg sheet-action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>';
   const trainingCount = [state?.levelTraining?.pv, state?.levelTraining?.pm, state?.levelTraining?.skills, state?.levelTraining?.power].filter(Boolean).length;
+
+  const trainingDisabled = (currentLevel < 20 && !isPlanningModeActive) ? '' : 'disabled';
+  const trainingStyle = isPlanningModeActive
+    ? 'position:relative;border-color:#28364b;color:#64748b;opacity:0.35;cursor:not-allowed;pointer-events:none;'
+    : `position:relative;border-color:${trainingCount > 0 ? '#d9a84e' : '#28364b'};color:${trainingCount > 0 ? '#f0d28c' : '#94a3b8'};`;
+  const trainingTitle = isPlanningModeActive
+    ? 'Treinamento indisponível durante o Planejamento'
+    : `Treinamento (Adiantar ganhos do Nível ${currentLevel + 1}: ${trainingCount}/4 concluídos)`;
+
+  const levelUpDisabled = (currentLevel < 20 && !isPlanningModeActive) ? '' : 'disabled';
+  const levelUpStyle = isPlanningModeActive ? 'opacity:0.35;cursor:not-allowed;pointer-events:none;' : '';
+  const levelUpTitle = isPlanningModeActive
+    ? 'Subida de nível indisponível durante o Planejamento'
+    : (currentLevel < 20 ? 'Subir de Nível' : 'Nível máximo atingido (20)');
+
+  const revertLevelDisabled = isPlanningModeActive ? 'disabled' : '';
+  const revertLevelStyle = isPlanningModeActive
+    ? 'background:rgba(220,38,38,0.06);border-color:#4a252a;color:#7f1d1d;opacity:0.35;cursor:not-allowed;pointer-events:none;'
+    : 'background:rgba(220,38,38,0.14);border-color:#b91c1c;color:#fca5a5;';
+  const revertLevelTitle = isPlanningModeActive
+    ? 'Redução de nível indisponível durante o Planejamento'
+    : `Reverter Nível (Retornar para o Nível ${currentLevel - 1})`;
+
+  const editDisabled = isPlanningModeActive ? 'disabled' : '';
+  const editStyle = isPlanningModeActive ? 'opacity:0.35;cursor:not-allowed;pointer-events:none;' : '';
+  const editTitle = isPlanningModeActive
+    ? 'Edição indisponível durante o Planejamento. Use o botão [Editar Planos] acima.'
+    : 'Editar Ficha';
 
   const vitalsActionsHtml = `
     <div class="sheet-vitals-actions-row">
@@ -1806,8 +1835,8 @@ function sheetVitalControls(maximum){
           ${distinctionIcon}
         </a>
       ` : ''}
-      ${canLevelUp ? `
-        <button type="button" class="sheet-action-icon-btn sheet-training-btn" data-vital-action="open-level-training" title="Treinamento (Adiantar ganhos do Nível ${currentLevel + 1}: ${trainingCount}/4 concluídos)" aria-label="Treinamento de Nível" style="position:relative;border-color:${trainingCount > 0 ? '#d9a84e' : '#28364b'};color:${trainingCount > 0 ? '#f0d28c' : '#94a3b8'};">
+      ${currentLevel < 20 ? `
+        <button type="button" class="sheet-action-icon-btn sheet-training-btn ${trainingDisabled ? 'is-disabled' : ''}" data-vital-action="open-level-training" ${trainingDisabled} title="${trainingTitle}" aria-label="Treinamento de Nível" style="${trainingStyle}">
           ${trainingIcon}
           ${trainingCount > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#d9a84e;color:#0b0f17;font-size:0.55rem;font-weight:800;padding:1px 4px;border-radius:999px;line-height:1;">${trainingCount}/4</span>` : ''}
         </button>
@@ -1815,15 +1844,15 @@ function sheetVitalControls(maximum){
       <button type="button" class="sheet-action-icon-btn sheet-planning-btn" data-sheet-action="open-planning" title="Planejamento de Níveis (Simulação de Progressão Futura)" aria-label="Planejamento de Níveis" style="border-color:#d9a84e66;color:#e8cb83;">
         <svg class="forja-svg sheet-action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
       </button>
-      <button type="button" class="sheet-action-icon-btn sheet-level-up-btn ${canLevelUp ? '' : 'is-disabled'}" data-sheet-action="level-up" ${canLevelUp ? '' : 'disabled'} title="${canLevelUp ? 'Subir de Nível' : 'Nível máximo atingido (20)'}">
+      <button type="button" class="sheet-action-icon-btn sheet-level-up-btn ${levelUpDisabled ? 'is-disabled' : ''}" data-sheet-action="level-up" ${levelUpDisabled} title="${levelUpTitle}" style="${levelUpStyle}">
         ${upIcon}
       </button>
       ${currentLevel > 1 ? `
-        <button type="button" class="sheet-action-icon-btn sheet-revert-level-btn" data-vital-action="open-revert-level" title="Reverter Nível (Retornar para o Nível ${currentLevel - 1})" aria-label="Reverter Nível" style="background:rgba(220,38,38,0.14);border-color:#b91c1c;color:#fca5a5;">
+        <button type="button" class="sheet-action-icon-btn sheet-revert-level-btn ${revertLevelDisabled ? 'is-disabled' : ''}" data-vital-action="open-revert-level" ${revertLevelDisabled} title="${revertLevelTitle}" aria-label="Reverter Nível" style="${revertLevelStyle}">
           ${downIcon}
         </button>
       ` : ''}
-      <button type="button" class="sheet-action-icon-btn sheet-edit-btn" data-sheet-action="edit" title="Editar Ficha">
+      <button type="button" class="sheet-action-icon-btn sheet-edit-btn ${editDisabled ? 'is-disabled' : ''}" data-sheet-action="edit" ${editDisabled} title="${editTitle}" style="${editStyle}">
         ${pencilIcon}
       </button>
       <button type="button" class="sheet-action-icon-btn sheet-toggle-simplified-btn" data-sheet-action="toggle-simplified" title="Alternar Modo de Ficha (Completa / Simplificada / Resumida)">
@@ -3220,8 +3249,9 @@ function renderCharacterDetails(){
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button type="button" class="button small primary" data-action="save-planning-build" style="font-size:0.72rem;padding:4px 10px;background:#c51f2c;border-color:#ea3948">Salvar Planejamento</button>
-        <button type="button" class="button small" data-action="exit-planning-mode" style="font-size:0.72rem;padding:4px 10px">Encerrar / Voltar ao Nível Real</button>
+        <button type="button" class="button small" data-action="edit-planning-build" style="font-size:0.72rem;padding:4px 10px;background:#181114;border:1px solid #d9a84e;color:#f5c879">Editar Planos</button>
+        <button type="button" class="button small primary" data-action="save-planning-build" style="font-size:0.72rem;padding:4px 10px;background:#c51f2c;border-color:#ea3948">Salvar Planos</button>
+        <button type="button" class="button small" data-action="exit-planning-mode" style="font-size:0.72rem;padding:4px 10px">Encerrar</button>
       </div>
     </div>
   ` : '';
@@ -3752,6 +3782,10 @@ document.addEventListener('click', event => {
   const action = btn?.dataset?.vitalAction;
   if(!action) return;
   if(action === 'open-revert-level'){
+    if(state.isPlanningMode){
+      if(typeof toast === 'function') toast('Redução de nível indisponível durante o planejamento.');
+      return;
+    }
     const m = document.getElementById('sheetRevertLevelModal');
     if(m) m.style.display = 'flex';
     return;
@@ -3819,6 +3853,10 @@ document.addEventListener('click', event => {
     return;
   }
   if(action === 'open-level-training'){
+    if(state.isPlanningMode){
+      if(typeof toast === 'function') toast('Treinamento indisponível durante o planejamento.');
+      return;
+    }
     const m = document.getElementById('sheetLevelTrainingModal');
     if(m) m.style.display = 'flex';
     return;
@@ -4000,6 +4038,35 @@ function ensureLevelClassModal(){
   return modal;
 }
 function cancelLevelUp(){
+  if(state.isPlanningMode){
+    if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.encerrarModoPlanejamento === 'function'){
+      ForjaPlanejamento.encerrarModoPlanejamento(state);
+    }
+    delete state.planningName;
+    delete state.isPlanningMode;
+    delete state.planningBaseLevel;
+    delete state.planningTargetLevel;
+    delete state.planningSnapshot;
+    delete state.currentPlanningId;
+    state.isLevelingUp = false;
+    delete state.levelUpBefore;
+    delete state.editingCharacter;
+    state.finished = true;
+    state.isEditingFinishedSheet = false;
+    state.sheetView = 'sheet';
+    state.step = 10;
+    persistNow();
+    if(typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
+    const fromFicha = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forja_planning_from_ficha') === 'true';
+    if(fromFicha || (typeof window !== 'undefined' && (window.location?.pathname?.endsWith('/criador.html') || window.location?.pathname?.endsWith('criador.html')))){
+      try { sessionStorage.removeItem('forja_planning_from_ficha'); } catch {}
+      window.location.href = 'ficha.html';
+      return;
+    }
+    if(typeof renderStage === 'function') renderStage();
+    if(typeof toast === 'function') toast('Planejamento cancelado. Retornado à ficha original.');
+    return;
+  }
   if(state.isLevelingUp){
     const checkpoint=state.levelUpBefore;
     if(checkpoint){state=checkpoint;normalizeState()}else{
@@ -4236,124 +4303,235 @@ if(typeof window !== 'undefined'){
 }
 
 function openPlanningModal(){
-  let modal = document.getElementById('forjaPlanningModal');
-  if(!modal){
-    modal = document.createElement('div');
-    modal.id = 'forjaPlanningModal';
-    modal.className = 'modal-backdrop';
-    document.body.appendChild(modal);
-  }
+  let existingModal = document.getElementById('forjaPlanningModal');
+  if(existingModal) existingModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'forjaPlanningModal';
+  modal.className = 'modal-backdrop';
+  document.body.appendChild(modal);
+
   modal.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:75px 16px 20px;box-sizing:border-box;background:rgba(5,7,11,0.88);backdrop-filter:blur(5px);overflow-y:auto;';
 
-  const plannings = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentos === 'function')
+  const closeModal = () => {
+    window.removeEventListener('keydown', onKeyDown);
+    modal.remove();
+  };
+
+  const onKeyDown = (e: KeyboardEvent) => {
+    if(e.key === 'Escape') closeModal();
+  };
+  window.addEventListener('keydown', onKeyDown);
+
+  const isCurrentlyPlanning = Boolean(state.isPlanningMode);
+  const realBaseLevel = Math.max(1, Number(isCurrentlyPlanning ? state.planningBaseLevel : state.identity?.plannedLevel) || 1);
+
+  const plannings: any[] = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.obterPlanejamentos === 'function')
     ? ForjaPlanejamento.obterPlanejamentos(state)
     : (state.plannings || []);
   const quota = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.podeCriarPlanejamento === 'function')
     ? ForjaPlanejamento.podeCriarPlanejamento(state)
     : { allowed: true, max: 1, current: plannings.length };
 
-  const currentLevel = Math.max(1, Number(state.identity?.plannedLevel) || 1);
-  const minTarget = Math.min(20, currentLevel + 1);
+  let selectedPlanId: string | null = state.currentPlanningId || (plannings.length > 0 ? plannings[0].id : null);
+  let isCreatingNew = !selectedPlanId;
 
   const renderContent = () => {
-    modal.innerHTML = '<section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:680px;width:95vw;max-height:calc(100vh - 100px);margin:auto;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.8);"><header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;"><div><h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Planejamento de Progressão por Níveis</h3><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Simule o futuro do seu aventureiro e ganhe recompensas monetárias hipotéticas por nível</span></div><button type="button" class="button small" id="closePlanningX" style="min-width:28px;padding:2px 6px;">✕</button></header><div class="confirm-modal-body" style="overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:16px;">' + (!quota.allowed ? '<div style="background:#181114;border:1px solid #c51f2c;border-radius:8px;padding:10px 14px;color:#fca5a5;font-size:0.75rem;">Limite de planejamentos atingido para esta ficha. Exclua um planejamento salvo abaixo para criar outro.</div>' : '') + (plannings.length ? ('<div style="display:flex;flex-direction:column;gap:10px;"><h4 style="margin:0;font-size:0.8rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Planejamentos Salvos</h4>' + plannings.map((plan) => '<div style="background:#181114;border:1px solid var(--line,#4a252a);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><strong style="color:var(--gold2,#e9ad59);font-size:0.85rem;">' + esc(plan.name) + '</strong><div style="font-size:0.72rem;color:var(--muted,#c9b2aa);margin-top:2px;">Projeção: Nível ' + (plan.baseLevel || 1) + ' → <strong>Nível ' + plan.targetLevel + '</strong> · Dinheiro Hipotético: <strong style="color:#e9ad59">+' + (plan.hypotheticalFunds || 0) + ' T$</strong></div></div><div style="display:flex;align-items:center;gap:6px;"><button type="button" class="button small primary btn-view-planning" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 8px;">Visualizar Ficha</button><button type="button" class="button small btn-delete-planning" data-plan-id="' + esc(plan.id) + '" style="font-size:0.7rem;padding:4px 8px;background:rgba(220,38,38,0.18);border-color:#b91c1c;color:#fca5a5;">Excluir</button></div></div>').join('') + '</div>') : '') + (currentLevel < 20 ? (quota.allowed ? ('<div style="background:#181114;border:1px solid #d9a84e44;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:12px;"><h4 style="margin:0;font-size:0.82rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Criar Novo Planejamento</h4><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nome do Planejamento</span><input type="text" id="inputNewPlanName" class="input" placeholder="Ex: Build Guerreiro Sagrado Nv 10" style="font-size:0.8rem;" /></label><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nível Alvo da Projeção</span><select id="selectNewPlanTarget" class="select" style="font-size:0.8rem;">' + Array.from({ length: 20 - currentLevel }, (_, i) => currentLevel + 1 + i).map(lvl => '<option value="' + lvl + '">Nível ' + lvl + '</option>').join('') + '</select></label><div id="planSummaryBox" style="background:#090708;border:1px solid var(--line,#4a252a);border-radius:6px;padding:8px 12px;font-size:0.75rem;line-height:1.5;"></div><button type="button" class="button primary" id="btnStartNewPlan" style="align-self:flex-start;font-size:0.78rem;padding:6px 14px;">Iniciar Planejamento de Níveis</button></div>') : '<div style="background:#221013;border:1px solid #c51f2c;border-radius:8px;padding:12px 14px;font-size:0.76rem;color:#fca5a5;line-height:1.5;"><strong>Limite de planejamentos atingido para o seu perfil.</strong><p style="margin:4px 0 0 0;font-size:0.72rem;color:var(--cream,#f5eee6);">Exclua um planejamento existente acima para liberar espaço ou apoie o projeto para obter até 5 planejamentos por ficha!</p></div>') : '<p style="font-size:0.75rem;color:var(--muted);">Este personagem já está no nível máximo (20).</p>') + '</div><footer style="display:flex;justify-content:flex-end;border-top:1px solid var(--line,#4a252a);padding:12px 16px;"><button type="button" class="button" id="btnClosePlanning">Fechar</button></footer></section>';
+    const activePlan = selectedPlanId ? plannings.find((p: any) => p.id === selectedPlanId) : null;
+    const defaultSuggestedTarget = realBaseLevel < 5 ? 5 : Math.min(20, realBaseLevel + 1);
+    const targetLvlDefault = activePlan ? Math.max(activePlan.targetLevel, realBaseLevel + 1) : defaultSuggestedTarget;
 
-    const targetSelect = modal.querySelector('#selectNewPlanTarget');
+    let html = '<section class="confirm-modal" role="dialog" aria-modal="true" style="max-width:680px;width:95vw;max-height:calc(100vh - 100px);margin:auto;display:flex;flex-direction:column;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.8);"><header style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line,#4a252a);padding:12px 16px;"><div><h3 style="margin:0;color:var(--gold2,#e9ad59);font-size:0.95rem;font-family:Cinzel,serif;">Planejamento de Progressão por Níveis</h3><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Simule o futuro do seu aventureiro e ganhe recompensas monetárias hipotéticas por nível</span></div><button type="button" class="button small" id="closePlanningX" style="min-width:28px;padding:2px 6px;">✕</button></header><div class="confirm-modal-body" style="overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:16px;">';
+
+    if(plannings.length > 1){
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;"><label class="field" style="margin:0;flex:1;min-width:220px;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Selecione o Planejamento</span><select id="selectActivePlanningTab" class="select" style="font-size:0.8rem;">' + plannings.map((p: any) => '<option value="' + esc(p.id) + '" ' + (p.id === selectedPlanId && !isCreatingNew ? 'selected' : '') + '>' + esc(p.name) + ' (Nv. ' + p.targetLevel + ')</option>').join('') + (quota.allowed ? '<option value="__new__" ' + (isCreatingNew ? 'selected' : '') + '>+ Criar Novo Planejamento</option>' : '') + '</select></label></div>';
+    }
+
+    if(activePlan && !isCreatingNew){
+      html += '<div style="background:#181114;border:1px solid #d9a84e44;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:12px;"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><h4 style="margin:0;font-size:0.82rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Editar Planejamento</h4>' + (quota.allowed && quota.max > 1 ? '<button type="button" class="button small" id="btnSwitchToNewPlan" style="font-size:0.7rem;padding:3px 8px;border-color:#d9a84e;color:#f5c879;">+ Novo Planejamento</button>' : '') + '</div><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nome do Planejamento</span><input type="text" id="inputPlanName" class="input" value="' + esc(activePlan.name) + '" style="font-size:0.8rem;" /></label><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Escolha o Nível de projeção</span><select id="selectPlanTarget" class="select" style="font-size:0.8rem;">' + Array.from({ length: 20 - realBaseLevel }, (_, i) => realBaseLevel + 1 + i).map(lvl => '<option value="' + lvl + '" ' + (lvl === targetLvlDefault ? 'selected' : '') + '>Nível ' + lvl + (lvl > activePlan.targetLevel ? ' (+ adicionar níveis)' : '') + '</option>').join('') + '</select></label><div id="planSummaryBox" style="background:#090708;border:1px solid var(--line,#4a252a);border-radius:6px;padding:8px 12px;font-size:0.75rem;line-height:1.5;"></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;"><button type="button" class="button primary" id="btnEditAndProgression" style="font-size:0.78rem;padding:6px 14px;">Editar Planejamento</button><button type="button" class="button" id="btnViewSheetDirect" style="font-size:0.78rem;padding:6px 14px;background:#271214;border-color:#ea3948;color:#fecaca;">Visualizar Ficha</button><button type="button" class="button small" id="btnDeleteCurrentPlan" style="font-size:0.72rem;padding:5px 10px;margin-left:auto;background:rgba(220,38,38,0.18);border-color:#b91c1c;color:#fca5a5;">Excluir</button></div></div>';
+    } else {
+      if(realBaseLevel >= 20){
+        html += '<p style="font-size:0.75rem;color:var(--muted);">Este personagem já está no nível máximo (20).</p>';
+      } else if(!quota.allowed){
+        html += '<div style="background:#221013;border:1px solid #c51f2c;border-radius:8px;padding:12px 14px;font-size:0.76rem;color:#fca5a5;line-height:1.5;"><strong>Limite de 1 planejamento atingido para esta ficha.</strong><p style="margin:4px 0 0 0;font-size:0.72rem;color:var(--cream,#f5eee6);">Como usuário gratuito você pode editar seu planejamento existente acima (adicionando níveis ou alterando escolhas), ou excluí-lo para criar um novo do zero. Apoie o projeto como membro para ter 3 ou 5 planejamentos simultâneos!</p></div>';
+      } else {
+        html += '<div style="background:#181114;border:1px solid #d9a84e44;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:12px;"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><h4 style="margin:0;font-size:0.82rem;color:var(--gold2,#e9ad59);text-transform:uppercase;letter-spacing:0.5px;">Criar Novo Planejamento</h4>' + (plannings.length > 0 ? '<button type="button" class="button small" id="btnCancelNewPlan" style="font-size:0.7rem;padding:3px 8px;">Voltar ao Planejamento Existente</button>' : '') + '</div><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Nome do Planejamento</span><input type="text" id="inputPlanName" class="input" placeholder="Ex: Build Guerreiro Nv ' + defaultSuggestedTarget + '" style="font-size:0.8rem;" /></label><label class="field" style="margin:0;"><span style="font-size:0.72rem;color:var(--muted,#c9b2aa);">Escolha o Nível de projeção</span><select id="selectPlanTarget" class="select" style="font-size:0.8rem;">' + Array.from({ length: 20 - realBaseLevel }, (_, i) => realBaseLevel + 1 + i).map(lvl => '<option value="' + lvl + '" ' + (lvl === defaultSuggestedTarget ? 'selected' : '') + '>Nível ' + lvl + '</option>').join('') + '</select></label><div id="planSummaryBox" style="background:#090708;border:1px solid var(--line,#4a252a);border-radius:6px;padding:8px 12px;font-size:0.75rem;line-height:1.5;"></div><button type="button" class="button primary" id="btnStartNewPlan" style="align-self:flex-start;font-size:0.78rem;padding:6px 14px;">Iniciar Planejamento de Níveis</button></div>';
+      }
+    }
+
+    html += '</div><footer style="display:flex;justify-content:flex-end;border-top:1px solid var(--line,#4a252a);padding:12px 16px;"><button type="button" class="button" id="btnClosePlanning">Fechar</button></footer></section>';
+
+    modal.innerHTML = html;
+
+    const targetSelect = modal.querySelector('#selectPlanTarget') as HTMLSelectElement | null;
     const summaryBox = modal.querySelector('#planSummaryBox');
     const updateSummary = () => {
       if(!targetSelect || !summaryBox) return;
-      const tLvl = Number(targetSelect.value) || minTarget;
-      const diffLevels = tLvl - currentLevel;
+      const tLvl = Number(targetSelect.value) || defaultSuggestedTarget;
+      const diffLevels = tLvl - realBaseLevel;
       const hypothetical = (typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.calcularDinheiroHipoteticoAdicional === 'function')
-        ? ForjaPlanejamento.calcularDinheiroHipoteticoAdicional(currentLevel, tLvl)
+        ? ForjaPlanejamento.calcularDinheiroHipoteticoAdicional(realBaseLevel, tLvl)
         : 0;
-      summaryBox.innerHTML = '<div>Níveis a simular: <strong>+' + diffLevels + ' nível(is)</strong> (do Nv. ' + currentLevel + ' ao Nv. ' + tLvl + ')</div><div>Dinheiro Hipotético Adicional Concedido: <strong style="color:var(--gold2,#e9ad59);">+' + hypothetical + ' T$</strong> (cumulativo das missões de cada nível planejado)</div>';
+      summaryBox.innerHTML = '<div>Níveis a simular: <strong>+' + diffLevels + ' nível(is)</strong> (do Nv. ' + realBaseLevel + ' ao Nv. ' + tLvl + ')</div><div>Dinheiro Hipotético Adicional Concedido: <strong style="color:var(--gold2,#e9ad59);">+' + hypothetical + ' T$</strong> (cumulativo das missões de cada nível planejado)</div>';
     };
     if(targetSelect){
       targetSelect.onchange = updateSummary;
       updateSummary();
     }
 
-    modal.querySelector('#closePlanningX').onclick = () => { modal.hidden = true; };
-    modal.querySelector('#btnClosePlanning').onclick = () => { modal.hidden = true; };
-    modal.addEventListener('click', (e) => { if(e.target === modal) modal.hidden = true; });
+    modal.querySelector('#closePlanningX')!.onclick = closeModal;
+    modal.querySelector('#btnClosePlanning')!.onclick = closeModal;
+    modal.onclick = (e) => { if(e.target === modal) closeModal(); };
 
-    modal.querySelectorAll('.btn-view-planning').forEach((btn) => {
-      btn.onclick = () => {
-        const id = btn.dataset.planId;
-        const plan = plannings.find((p) => p.id === id);
-        if(!plan) return;
-        modal.hidden = true;
-        if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.iniciarModoPlanejamento === 'function'){
-          ForjaPlanejamento.iniciarModoPlanejamento(state, plan.targetLevel, plan.name);
-          state.progression = JSON.parse(JSON.stringify(plan.progression || []));
-          if(plan.spellsSelections && typeof spellState === 'function'){
-            try {
-              const spState = spellState();
-              spState.selections = Object.assign({}, spState.selections, plan.spellsSelections);
-            } catch {}
-          }
-          persistNow();
-          renderStage();
-          if(typeof toast === 'function') toast('Visualizando Planejamento: "' + plan.name + '" (Nível ' + plan.targetLevel + ')');
-        }
-      };
+    modal.querySelector('#selectActivePlanningTab')?.addEventListener('change', (e: any) => {
+      const val = e.target.value;
+      if(val === '__new__'){
+        isCreatingNew = true;
+      } else {
+        selectedPlanId = val;
+        isCreatingNew = false;
+      }
+      renderContent();
     });
 
-    modal.querySelectorAll('.btn-delete-planning').forEach((btn) => {
-      btn.onclick = () => {
-        const id = btn.dataset.planId;
-        if(id && typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.excluirPlanejamento === 'function'){
-          ForjaPlanejamento.excluirPlanejamento(state, id);
-          persistNow();
-          renderContent();
-          if(typeof toast === 'function') toast('Planejamento excluído.');
-        }
-      };
+    modal.querySelector('#btnSwitchToNewPlan')?.addEventListener('click', () => {
+      isCreatingNew = true;
+      renderContent();
     });
 
-    modal.querySelector('#btnStartNewPlan')?.addEventListener('click', () => {
-      const nameInput = modal.querySelector('#inputNewPlanName');
-      const targetLvl = Number(targetSelect?.value) || minTarget;
-      const planName = (nameInput?.value || '').trim() || ('Plano até Nível ' + targetLvl);
+    modal.querySelector('#btnCancelNewPlan')?.addEventListener('click', () => {
+      isCreatingNew = false;
+      selectedPlanId = plannings[0]?.id || null;
+      renderContent();
+    });
 
-      modal.hidden = true;
+    modal.querySelector('#btnDeleteCurrentPlan')?.addEventListener('click', () => {
+      if(activePlan && typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.excluirPlanejamento === 'function'){
+        ForjaPlanejamento.excluirPlanejamento(state, activePlan.id);
+        persistNow();
+        selectedPlanId = plannings.length > 0 ? plannings[0].id : null;
+        isCreatingNew = !selectedPlanId;
+        renderContent();
+        if(typeof toast === 'function') toast('Planejamento excluído.');
+      }
+    });
+
+    modal.querySelector('#btnViewSheetDirect')?.addEventListener('click', () => {
+      if(!activePlan) return;
+      const nameInput = modal.querySelector('#inputPlanName') as HTMLInputElement | null;
+      const targetLvl = Number(targetSelect?.value) || activePlan.targetLevel;
+      const planName = (nameInput?.value || '').trim() || activePlan.name;
+      closeModal();
       if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.iniciarModoPlanejamento === 'function'){
-        ForjaPlanejamento.iniciarModoPlanejamento(state, targetLvl, planName);
-        state.progression = Array.isArray(state.progression) ? state.progression : [];
+        ForjaPlanejamento.iniciarModoPlanejamento(state, targetLvl, planName, activePlan.id);
+        state.progression = JSON.parse(JSON.stringify(activePlan.progression || []));
         while(state.progression.length < targetLvl){
           const prevClass = state.progression.at(-1)?.classId || state.identity?.classId || 'guerreiro';
           state.progression.push({ classId: prevClass });
         }
+        if(state.progression.length > targetLvl){
+          state.progression = state.progression.slice(0, targetLvl);
+        }
+        if(activePlan.spellsSelections && typeof spellState === 'function'){
+          try {
+            const spState = spellState();
+            spState.selections = Object.assign({}, spState.selections, activePlan.spellsSelections);
+          } catch {}
+        }
+        state.isLevelingUp = false;
+        state.isEditingFinishedSheet = false;
+        state.finished = true;
+        state.sheetView = 'sheet';
+        state.step = 10;
+        persistNow();
+        renderStage();
+        if(typeof toast === 'function') toast('Visualizando Ficha do Planejamento: "' + planName + '" (Nível ' + targetLvl + ')');
+      }
+    });
+
+    const startOrEditAction = (isNew: boolean) => {
+      const nameInput = modal.querySelector('#inputPlanName') as HTMLInputElement | null;
+      const targetLvl = Number(targetSelect?.value) || defaultSuggestedTarget;
+      const planName = (nameInput?.value || '').trim() || (isNew ? ('Plano até Nível ' + targetLvl) : (activePlan?.name || 'Plano até Nível ' + targetLvl));
+
+      closeModal();
+      if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.iniciarModoPlanejamento === 'function'){
+        const planId = isNew ? undefined : activePlan?.id;
+        ForjaPlanejamento.iniciarModoPlanejamento(state, targetLvl, planName, planId);
+
+        if(!isNew && activePlan && Array.isArray(activePlan.progression)){
+          state.progression = JSON.parse(JSON.stringify(activePlan.progression));
+        } else {
+          state.progression = Array.isArray(state.progression) ? state.progression : [];
+        }
+
+        while(state.progression.length < targetLvl){
+          const prevClass = state.progression.at(-1)?.classId || state.identity?.classId || 'guerreiro';
+          state.progression.push({ classId: prevClass });
+        }
+        if(state.progression.length > targetLvl){
+          state.progression = state.progression.slice(0, targetLvl);
+        }
+
+        if(!isNew && activePlan?.spellsSelections && typeof spellState === 'function'){
+          try {
+            const spState = spellState();
+            spState.selections = Object.assign({}, spState.selections, activePlan.spellsSelections);
+          } catch {}
+        }
+
         state.isLevelingUp = true;
         state.isEditingFinishedSheet = false;
         state.step = 10;
         state.finished = false;
-        const nextLevelIndex = Math.min(targetLvl - 1, currentLevel);
+        const nextLevelIndex = Math.min(targetLvl - 1, realBaseLevel);
         state.progressionActiveIndex = nextLevelIndex;
         if(state.identity) state.identity.editingLevel = nextLevelIndex + 1;
         state.progressionCollapsedIndex = -1;
         persistNow();
+
         if(typeof window !== 'undefined' && window.location?.pathname && (window.location.pathname.endsWith('/ficha.html') || window.location.pathname.endsWith('ficha.html'))){
           try { sessionStorage.setItem('forja_planning_from_ficha', 'true'); } catch {}
           window.location.href = 'criador.html';
           return;
         }
         renderStage();
-        if(typeof toast === 'function') toast('Iniciando planejamento guiado até o Nível ' + targetLvl + '!');
+        if(typeof toast === 'function') toast('Planejamento guiado até o Nível ' + targetLvl + ' iniciado!');
       }
-    });
+    };
+
+    modal.querySelector('#btnEditAndProgression')?.addEventListener('click', () => startOrEditAction(false));
+    modal.querySelector('#btnStartNewPlan')?.addEventListener('click', () => startOrEditAction(true));
   };
 
   renderContent();
-  modal.hidden = false;
 }
 
 document.addEventListener('click', (event) => {
+  if(event.target.closest?.('[data-action="edit-planning-build"]')){
+    event.preventDefault();
+    state.isLevelingUp = true;
+    state.isEditingFinishedSheet = false;
+    state.step = 10;
+    state.finished = false;
+    const baseLvl = Number(state.planningBaseLevel || 1);
+    const targetLvl = Number(state.identity?.plannedLevel || 5);
+    state.progressionActiveIndex = Math.min(targetLvl - 1, baseLvl);
+    if(state.identity) state.identity.editingLevel = state.progressionActiveIndex + 1;
+    state.progressionCollapsedIndex = -1;
+    persistNow();
+    if(typeof window !== 'undefined' && (window.location?.pathname?.endsWith('/ficha.html') || window.location?.pathname?.endsWith('ficha.html'))){
+      try { sessionStorage.setItem('forja_planning_from_ficha', 'true'); } catch {}
+      window.location.href = 'criador.html';
+      return;
+    }
+    renderStage();
+    return;
+  }
   if(event.target.closest?.('[data-action="save-planning-build"]')){
     event.preventDefault();
     if(typeof ForjaPlanejamento !== 'undefined' && typeof ForjaPlanejamento.salvarPlanejamento === 'function'){
-      const plan = ForjaPlanejamento.salvarPlanejamento(state, state.planningName || ('Build Nv. ' + state.identity.plannedLevel));
+      const plan = ForjaPlanejamento.salvarPlanejamento(state, state.planningName || ('Build Nv. ' + state.identity.plannedLevel), state.currentPlanningId);
       persistNow();
       if(typeof toast === 'function') toast('Planejamento "' + (plan?.name || '') + '" salvo com sucesso!');
     }
@@ -4370,7 +4548,7 @@ document.addEventListener('click', (event) => {
         return;
       }
       renderStage();
-      if(typeof toast === 'function') toast('Modo de planejamento encerrado. Ficha restaurada para o Nível ' + (restored?.identity?.plannedLevel || 1) + '.');
+      if(typeof toast === 'function') toast('Planejamento encerrado. Ficha restaurada para o Nível ' + (restored?.identity?.plannedLevel || 1) + '.');
     }
     return;
   }
