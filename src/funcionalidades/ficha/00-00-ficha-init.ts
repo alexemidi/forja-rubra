@@ -51,6 +51,6 @@ window.prepararFicha=function(){
         return;
       }
     }
-    state.sheetView=['shop','tavern','grimoire','sheet'].includes(view)?view:'sheet';
+    state.sheetView=['shop','tavern','grimoire','sheet','base-attributes'].includes(view)?view:'sheet';
   }
 };

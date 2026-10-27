@@ -857,7 +857,8 @@ renderNav=function(){
   if(!nav)return;
   const isLevelUp = Boolean(state.isLevelingUp);
   const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)));
-  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+PHASES.map((phase,index)=>{
+  const heroSummary=typeof renderNavHeroSummaryHtml==='function'?renderNavHeroSummaryHtml():'';
+  const stepsHtml=PHASES.map((phase,index)=>{
     const number=index+1;
     if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(number))return '';
     const visualIdx=visibleSteps.indexOf(number);
@@ -868,6 +869,7 @@ renderNav=function(){
     const labelHtml=isActive?'<span class="phase-label">'+esc(phase[0])+'</span>':'';
     return '<button class="phase-button '+(isActive?'active ':'collapsed-phase ')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'title="'+esc(phase[0])+'"')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span>'+labelHtml+'<span class="phase-state"></span></button>';
   }).join('');
+  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+heroSummary+'<div class="phase-nav-steps">'+stepsHtml+'</div>';
   const activeBtn=nav.querySelector('.phase-button.active');
   if(activeBtn&&typeof activeBtn.scrollIntoView==='function'){
     activeBtn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});

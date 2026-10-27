@@ -84,20 +84,24 @@ document.addEventListener('click',event=>{
     renderStage();
     setTimeout(()=>document.querySelectorAll('.progression-level-row')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),30);
   }else if(button.dataset.action==='progression-filter'){
-    const f=button.dataset.filter;
+    const f=String(button.dataset.filter||'');
     if(f==='all'){
       row.powerSourceFilter='all';
       row.powerCategoryFilter='all';
       row.powerStatusFilter='available';
-    }else if(f==='class'){
-      row.powerSourceFilter='class';
+    }else if(f==='ver_tudo'){
+      row.powerSourceFilter='all';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='all';
+    }else if(f==='class'||f.startsWith('class:')){
+      row.powerSourceFilter=f;
       row.powerCategoryFilter='all';
       row.powerStatusFilter='available';
     }else if(f==='general'){
       row.powerSourceFilter='general';
       row.powerCategoryFilter='all';
       row.powerStatusFilter='available';
-    }else if(f==='combate'||f==='destino'||f==='magia'||f==='tormenta'){
+    }else if(['combate','destino','magia','concedido','tormenta','raca','grupo','escolhido_dos_deuses'].includes(f)){
       row.powerSourceFilter='general';
       row.powerCategoryFilter=f;
       row.powerStatusFilter='available';
@@ -164,9 +168,11 @@ document.addEventListener('input',event=>{
   row.powerSearchQuery=input.value;
   const q=input.value.trim().toLowerCase();
 
-  // Quando o usuário usar o campo de busca, desliga o padrão de classe e liga 'all' (todos os poderes)
-  if(q && row.powerSourceFilter !== 'all'){
+  // Quando o usuário usar o campo de busca, desliga o filtro de classe/categoria e busca em todos os poderes
+  if(q && (row.powerSourceFilter !== 'all' || row.powerCategoryFilter !== 'all' || row.powerStatusFilter !== 'all')){
     row.powerSourceFilter = 'all';
+    row.powerCategoryFilter = 'all';
+    row.powerStatusFilter = 'all';
     const cursorPos = input.selectionStart ?? q.length;
     renderStage();
     const refreshed = document.querySelector('[data-action="progression-power-search"][data-index="' + index + '"]');
@@ -1927,6 +1933,10 @@ function calculatePassiveCharacterEffects(){
       result.defenseAttribute = 'nenhum';
     }
   }
+  (result as any).defaultDefenseAttribute = result.defenseAttribute;
+  if (state?.customBaseAttributes?.defense && ['for','des','con','int','sab','car','nenhum'].includes(state.customBaseAttributes.defense)) {
+    result.defenseAttribute = state.customBaseAttributes.defense;
+  }
   return result;
 }
 function characterRaceBody(){
@@ -1960,7 +1970,20 @@ function characterRaceBody(){
   }
   return {tamanhoId,deslocamentoBase};
 }
+function defaultDefenseAttribute(){return (passiveCharacterEffects() as any).defaultDefenseAttribute || 'des'}
 function characterDefenseAttribute(){return passiveCharacterEffects().defenseAttribute}
+function defaultPvKeyAttribute(){return (typeof characterHasFeature==='function'&&characterHasFeature('dom_da_esperanca'))?'sab':'con'}
+function characterPvKeyAttribute(){
+  const custom = state?.customBaseAttributes?.pv;
+  if (custom && ['for','des','con','int','sab','car'].includes(custom)) return custom;
+  return defaultPvKeyAttribute();
+}
+function defaultLoadKeyAttribute(){return (typeof characterUsesDexterityForLoad==='function'&&characterUsesDexterityForLoad())?'des':'for'}
+function characterLoadKeyAttribute(){
+  const custom = state?.customBaseAttributes?.load;
+  if (custom && ['for','des','con','int','sab','car'].includes(custom)) return custom;
+  return defaultLoadKeyAttribute();
+}
 function characterSizeId(){return characterSizeWithShift(passiveCharacterEffects().sizeShift)}
 function characterSizeWithShift(shift){const order=['Minúsculo','Pequeno','Médio','Grande','Enorme','Colossal'],body=characterRaceBody(),baseId=slug(body.tamanhoId||'medio'),base=order.find(value=>slug(value)===baseId)||'Médio',index=order.indexOf(base);return order[Math.max(0,Math.min(order.length-1,index+shift))]}
 function characterBaseMovement(){const body=characterRaceBody();return body.deslocamentoBase+passiveCharacterEffects().movementBonus}
@@ -2063,9 +2086,14 @@ function activeDistinctionMarkEffects(context={}){
    ?efeitosMarcas(activeIds,context)
    :{skills:{},attributes:{},defense:0,pm:0,movement:0,reductions:[]};
 }
-function skillEffectiveAttribute(id){
+function defaultSkillEffectiveAttribute(id){
  const marks=activeDistinctionMarkEffects();
  return marks.attributes[id]||skillEffectiveAttributeWithoutDistinctions(id);
+}
+function skillEffectiveAttribute(id){
+ const custom=state?.customBaseAttributes?.skills?.[id];
+ if(custom&&['for','des','con','int','sab','car'].includes(custom))return custom;
+ return defaultSkillEffectiveAttribute(id);
 }
 function calculatedSkillTotal(id){
   const attr=skillEffectiveAttribute(id);

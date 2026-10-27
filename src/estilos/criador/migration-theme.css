@@ -1400,10 +1400,10 @@ button[data-item-spend] {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  justify-content: center !important;
-  flex-wrap: nowrap !important;
-  gap: 8px !important;
-  padding: 6px 12px !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 10px 14px !important;
+  padding: 6px 14px !important;
   background: #110d0f !important;
   border: 1px solid #4a252a !important;
   border-radius: 8px !important;
@@ -1413,6 +1413,54 @@ button[data-item-spend] {
   overflow-x: hidden !important; /* Sem barra de rolagem */
   scrollbar-width: none !important;
   flex-shrink: 0 !important;
+}
+
+.phase-nav-hero-summary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Tormenta', 'Cinzel', serif !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  color: var(--gold2, #f5c879) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+.phase-nav-hero-name {
+  color: var(--cream, #f5eee6) !important;
+  font-family: 'Tormenta', 'Cinzel', serif !important;
+  font-weight: 800 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 240px !important;
+}
+
+.phase-nav-hero-sep {
+  color: var(--red2, #ea3948) !important;
+  font-weight: 800 !important;
+}
+
+.phase-nav-hero-meta {
+  color: var(--gold, #e9ad59) !important;
+  font-family: 'Tormenta', 'Cinzel', serif !important;
+  font-weight: 700 !important;
+}
+
+.phase-nav-steps {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 .phase-nav::-webkit-scrollbar {

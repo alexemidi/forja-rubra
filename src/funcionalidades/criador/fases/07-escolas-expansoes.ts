@@ -266,71 +266,132 @@ function suraggelHeritage(){return state.identity.raceId==='suraggel'?state.iden
 function suraggelHeritageOption(){const definition=raceById('suraggel')?.habilidades?.selecionadas?.find(choice=>choice.id==='suraggel_heranca_substituta');return optionList(definition||{}).find(option=>choiceId(option)===suraggelHeritage())}
 function suraggelCarryingBonus(){return suraggelHeritage()==='heranca_de_odisseia'?2:0}
 function characterProficiencies(classId=state.identity.classId){
-  const values=[...(classById(classId)?.caracteristicas?.proficiencias||[])];
-  if(classId===state.identity.classId&&suraggelHeritage()==='heranca_de_werra'&&state.identity.raceChoices.suraggel_werra_proficiencia==='armas_marciais')values.push('armas_marciais');
+  const values: string[] = [];
+  const addProf = (id?: string) => {
+    if (id && !values.includes(id)) values.push(id);
+  };
+  const classIds = new Set<string>();
+  if (classId) classIds.add(classId);
+  if (state?.identity?.classId) classIds.add(state.identity.classId);
+  for (const cid of classIds) {
+    for (const p of (classById(cid)?.caracteristicas?.proficiencias || [])) {
+      addProf(p);
+    }
+  }
+  const rId = state?.identity?.raceId || '';
+  if (rId === 'kliren') addProf('armas_de_fogo');
+  if (rId === 'hobgoblin') addProf('armas_marciais');
+  if (rId === 'anao') {
+    ['machado_de_batalha', 'machado_de_guerra', 'machado_anao', 'machado_taurico', 'martelo_de_guerra', 'marreta', 'picareta'].forEach(addProf);
+  }
+  if (rId === 'elfo_do_mar') {
+    ['arpao', 'rede', 'tridente'].forEach(addProf);
+  }
+  if(classId===state.identity.classId&&suraggelHeritage()==='heranca_de_werra'){
+    if(state.identity.raceChoices.suraggel_werra_proficiencia==='armas_marciais') addProf('armas_marciais');
+    if(state.identity.raceChoices.suraggel_werra_proficiencia==='duas_armas_exoticas') addProf('armas_exoticas');
+  }
   const std = typeof selectedStandardOrigin === 'function' ? selectedStandardOrigin() : null;
   const reg = typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin() : null;
   const isUbaneri = std?.nome === 'Andarilho Ubaneri' || reg?.nome === 'Andarilho Ubaneri' || state.origin?.regional === 'Andarilho Ubaneri' || state.origin?.standard === 'Andarilho Ubaneri' || state.origin?.regional === 'andarilho_ubaneri';
-  if(isUbaneri && !values.includes('escudos')) values.push('escudos');
+  if(isUbaneri) addProf('escudos');
   const isDesertor = std?.nome === 'Desertor da Supremacia' || reg?.nome === 'Desertor da Supremacia' || state.origin?.standard === 'desertor_da_supremacia' || state.origin?.regional === 'desertor_da_supremacia' || state.origin?.regional === 'Desertor da Supremacia';
   if(isDesertor){
-    if(!values.includes('escudos')) values.push('escudos');
-    if(!values.includes('espada_bastarda')) values.push('espada_bastarda');
-    if(!values.includes('armas_exoticas:espada_bastarda')) values.push('armas_exoticas:espada_bastarda');
+    addProf('escudos');
+    addProf('espada_bastarda');
+    addProf('armas_exoticas:espada_bastarda');
   }
   const isGuardiaoGlacial = std?.nome === 'Guardião Glacial' || reg?.nome === 'Guardião Glacial' || state.origin?.standard === 'guardiao_glacial' || state.origin?.regional === 'guardiao_glacial';
   if(isGuardiaoGlacial){
-    if(!values.includes('arco_longo')) values.push('arco_longo');
-    if(!values.includes('machado_de_batalha')) values.push('machado_de_batalha');
+    addProf('arco_longo');
+    addProf('machado_de_batalha');
   }
   const isLegionario = std?.nome === 'Legionário' || reg?.nome === 'Legionário' || state.origin?.standard === 'legionario' || state.origin?.regional === 'legionario';
   if(isLegionario){
-    if(!values.includes('gladio')) values.push('gladio');
-    if(!values.includes('armas_exoticas:gladio')) values.push('armas_exoticas:gladio');
-    if(!values.includes('escudos')) values.push('escudos');
+    addProf('gladio');
+    addProf('armas_exoticas:gladio');
+    addProf('escudos');
   }
   const isLenhadorTollon = std?.nome === 'Lenhador de Tollon' || reg?.nome === 'Lenhador de Tollon' || state.origin?.standard === 'lenhador_de_tollon' || state.origin?.regional === 'lenhador_de_tollon';
   if(isLenhadorTollon){
-    if(!values.includes('machadinha')) values.push('machadinha');
-    if(!values.includes('machado_de_batalha')) values.push('machado_de_batalha');
+    addProf('machadinha');
+    addProf('machado_de_batalha');
   }
   const isNitamuraniano = std?.nome === 'Nitamuraniano' || reg?.nome === 'Nitamuraniano' || state.origin?.standard === 'nitamuraniano' || state.origin?.regional === 'nitamuraniano';
   if(isNitamuraniano){
-    if(!values.includes('katana')) values.push('katana');
-    if(!values.includes('armas_exoticas:katana')) values.push('armas_exoticas:katana');
-    if(!values.includes('arco_longo')) values.push('arco_longo');
+    addProf('katana');
+    addProf('armas_exoticas:katana');
+    addProf('arco_longo');
   }
   const isProcurado = std?.nome === 'Procurado: Vivo ou Morto' || reg?.nome === 'Procurado: Vivo ou Morto' || state.origin?.standard === 'procurado_vivo_ou_morto' || state.origin?.regional === 'procurado_vivo_ou_morto';
   if(isProcurado){
-    if(!values.includes('armas_de_fogo')) values.push('armas_de_fogo');
+    addProf('armas_de_fogo');
   }
   // Proficiências do poder geral "Proficiência"
   if (state?.powers?.general) {
     state.powers.general.forEach((pId, idx) => {
-      if (pId === 'proficiencia') {
-        const c = state.powers.generalChoices?.[idx];
-        if (c && !values.includes(c)) values.push(c);
+      if (pId === 'proficiencia' || pId === 'geral:proficiencia') {
+        addProf(state.powers.generalChoices?.[idx]);
+      }
+      if (pId === 'tradicao_de_ayrelynn' || pId === 'geral:tradicao_de_ayrelynn') {
+        addProf('armas_de_fogo');
       }
     });
   }
   if (state?.powers?.originGeneral) {
     Object.entries(state.powers.originGeneral).forEach(([bId, pId]) => {
-      if (pId === 'proficiencia') {
-        const c = state.powers.originGeneralChoices?.[bId];
-        if (c && !values.includes(c)) values.push(c);
+      if (pId === 'proficiencia' || pId === 'geral:proficiencia') {
+        addProf(state.powers.originGeneralChoices?.[bId]);
+      }
+      if (pId === 'tradicao_de_ayrelynn' || pId === 'geral:tradicao_de_ayrelynn') {
+        addProf('armas_de_fogo');
       }
     });
   }
   const originHasDirectProf = (state?.origin?.benefits || []).some(id => id === 'power:proficiencia' || id.endsWith(':proficiencia') || id === 'proficiencia');
   if (originHasDirectProf) {
-    const c = state.origin?.proficiencyChoice || state.powers?.originGeneralChoices?.['power:proficiencia'];
-    if (c && !values.includes(c)) values.push(c);
+    addProf(state.origin?.proficiencyChoice || state.powers?.originGeneralChoices?.['power:proficiencia']);
+  }
+  const checkPowerProficiencyGrant = (powerId?: string, choice?: string) => {
+    const pid = String(powerId || '');
+    if (!pid) return;
+    if ((pid === 'proficiencia' || pid === 'geral:proficiencia') && choice) {
+      addProf(choice);
+    }
+    if (pid === 'inventor_couraceiro' || pid === 'couraceiro' || pid.endsWith(':couraceiro')) {
+      addProf('armaduras_pesadas');
+      addProf('escudos');
+    }
+    if (pid === 'inventor_armeiro' || pid === 'armeiro' || pid.endsWith(':armeiro')) {
+      addProf('armas_marciais');
+    }
+    if (pid === 'inventor_balistica' || pid === 'balistica' || pid.endsWith(':balistica')) {
+      addProf('armas_marciais');
+      addProf('armas_de_fogo');
+    }
+    if (pid === 'bucaneiro_pistoleiro' || pid === 'pistoleiro' || pid.endsWith(':pistoleiro') || pid === 'tradicao_de_ayrelynn' || pid === 'geral:tradicao_de_ayrelynn' || pid.includes('pistoleiro_de_smokestone')) {
+      addProf('armas_de_fogo');
+    }
+    if (pid === 'samurai_daisho' || pid === 'daisho' || pid.endsWith(':daisho')) {
+      addProf('wakizashi');
+      addProf('armas_exoticas:wakizashi');
+    }
+    if (pid.includes('conjurador_encouracado')) {
+      addProf('armaduras_pesadas');
+    }
+    if (pid.includes('arsenal_arcano')) {
+      addProf('armas_marciais');
+    }
+  };
+  if (state?.powers?.cosmopolitaPower) {
+    checkPowerProficiencyGrant(state.powers.cosmopolitaPower, state.progression?.[0]?.powerChoice);
+  }
+  if (state?.powers?.futuraLendaClassPower) {
+    checkPowerProficiencyGrant(state.powers.futuraLendaClassPower, '');
   }
   if (Array.isArray(state?.progression)) {
     state.progression.forEach(row => {
-      if (row?.powerId === 'proficiencia' && row.powerChoice) {
-        if (!values.includes(row.powerChoice)) values.push(row.powerChoice);
-      }
+      checkPowerProficiencyGrant(row?.powerId, row?.powerChoice);
     });
   }
   return [...new Set(values)];

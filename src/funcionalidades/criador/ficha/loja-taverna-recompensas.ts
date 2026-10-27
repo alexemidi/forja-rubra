@@ -629,22 +629,26 @@ function switchFinalSheetView(targetView,navigationOnly=false){
   let arsenalContainer=document.getElementById('arsenalViewContainer');
   let grimoireContainer=document.getElementById('grimoireViewContainer');
   let tavernContainer=document.getElementById('tavernViewContainer');
+  let baseAttrsContainer=document.getElementById('baseAttributesViewContainer');
 
-  if(!sheetContainer||!arsenalContainer||!grimoireContainer||!tavernContainer){
+  if(!sheetContainer||!arsenalContainer||!grimoireContainer||!tavernContainer||!baseAttrsContainer){
     root.innerHTML='<div id="sheetViewContainer" class="sheet-view-section"></div>'
       + '<div id="arsenalViewContainer" class="sheet-view-section" hidden style="display:none;"></div>'
       + '<div id="grimoireViewContainer" class="sheet-view-section" hidden style="display:none;"></div>'
-      + '<div id="tavernViewContainer" class="sheet-view-section" hidden style="display:none;"></div>';
+      + '<div id="tavernViewContainer" class="sheet-view-section" hidden style="display:none;"></div>'
+      + '<div id="baseAttributesViewContainer" class="sheet-view-section" hidden style="display:none;"></div>';
     sheetContainer=document.getElementById('sheetViewContainer');
     arsenalContainer=document.getElementById('arsenalViewContainer');
     grimoireContainer=document.getElementById('grimoireViewContainer');
     tavernContainer=document.getElementById('tavernViewContainer');
+    baseAttrsContainer=document.getElementById('baseAttributesViewContainer');
   }
 
   const isSheet=targetView==='sheet'||!targetView;
   const isShop=targetView==='shop'||targetView==='workshop';
   const isGrimoire=targetView==='grimoire';
   const isTavern=targetView==='tavern';
+  const isBaseAttrs=targetView==='base-attributes';
 
   sheetContainer.hidden=!isSheet;
   sheetContainer.style.display=isSheet?'block':'none';
@@ -658,11 +662,16 @@ function switchFinalSheetView(targetView,navigationOnly=false){
   tavernContainer.hidden=!isTavern;
   tavernContainer.style.display=isTavern?'block':'none';
 
+  baseAttrsContainer.hidden=!isBaseAttrs;
+  baseAttrsContainer.style.display=isBaseAttrs?'block':'none';
+
   if(isSheet){
     if(!navigationOnly||sheetRenderedOwner!==state||sheetRenderedRevision!==characterDataRevision||!sheetContainer.firstChild){
       sheetContainer.innerHTML=renderCharacterDetails();
       sheetRenderedOwner=state;sheetRenderedRevision=characterDataRevision;
     }
+  }else if(isBaseAttrs){
+    baseAttrsContainer.innerHTML=typeof renderBaseAttributesPage==='function'?renderBaseAttributesPage():'';
   }else if(isShop){
     const isWorkshop=targetView==='workshop';
     arsenalShopOpen=!isWorkshop;

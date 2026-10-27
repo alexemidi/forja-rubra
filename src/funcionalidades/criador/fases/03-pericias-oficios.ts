@@ -167,7 +167,10 @@ function generalPowerEligibility(power, exceptId=''){
   const proficiencies=typeof characterProficiencies==='function'?characterProficiencies():cls?.caracteristicas?.proficiencias||[];
   if(/proficiência com armaduras pesadas/i.test(requirements)&&!proficiencies.includes('armaduras_pesadas'))addReason(reasons,'Requer proficiência com armaduras pesadas.');
   if(/proficiência com escudos/i.test(requirements)&&!proficiencies.includes('escudos'))addReason(reasons,'Requer proficiência com escudos.');
-  if(/proficiência com a arma/i.test(requirements)&&!proficiencies.some(item=>/^armas_/.test(item)))addReason(reasons,'Requer proficiência com a arma escolhida.');
+  if(/proficiência com armas marciais/i.test(requirements)&&!proficiencies.includes('armas_marciais'))addReason(reasons,'Requer proficiência com armas marciais.');
+  if(/proficiência com armas de fogo/i.test(requirements)&&!proficiencies.includes('armas_de_fogo'))addReason(reasons,'Requer proficiência com armas de fogo.');
+  if(/proficiência com armas exóticas/i.test(requirements)&&!proficiencies.some(item=>item==='armas_exoticas'||String(item).startsWith('armas_exoticas:')))addReason(reasons,'Requer proficiência com armas exóticas.');
+  if(/proficiência com a arma/i.test(requirements)&&!proficiencies.some(item=>/^armas_/.test(item))&&!cls)addReason(reasons,'Requer proficiência com a arma escolhida.');
   const raceText=raceAbilityText(),classText=classAbilityText();
   if(/arma natural fornecida/i.test(requirements)&&!/arma natural|mordida|chifres|garras|cauda/i.test(raceText))addReason(reasons,'Requer uma arma natural fornecida pela raça.');
   if(/possuir asas/i.test(requirements)&&!/asas|voo|voar/i.test(raceText))addReason(reasons,'Requer asas.');
@@ -179,7 +182,7 @@ function generalPowerEligibility(power, exceptId=''){
     const required=requiredOtherPowerCount(requirements,category),amount=selectedGeneralPowers(power.id).filter(item=>item.categoria===category).length;
     if(required&&amount<required)addReason(reasons,'Requer '+required+' outro(s) '+POWER_CATEGORY_LABEL[category].toLowerCase()+'.');
   }
-  const candidates=DATA.generalPowers.filter(candidate=>candidate.id!==power.id&&normalized.includes(slug(candidate.nome))).sort((a,b)=>b.nome.length-a.nome.length);
+  const candidates=DATA.generalPowers.filter(candidate=>candidate.id!==power.id&&candidate.id!=='proficiencia'&&slug(candidate.nome)!=='proficiencia'&&normalized.includes(slug(candidate.nome))).sort((a,b)=>b.nome.length-a.nome.length);
   const unique=[];candidates.forEach(candidate=>{if(!unique.some(other=>slug(other.nome).includes(slug(candidate.nome))))unique.push(candidate)});
   if(unique.length){
     const hasOr=/\bou\b/i.test(requirements);

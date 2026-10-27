@@ -1048,6 +1048,7 @@ function renderCharacterToolbar(){
     actions.push(['sheet', 'Ver ficha pronta']);
   }
   actions.push(
+    ['base-attributes', 'Atributos Base'],
     ['grimoire', 'Grimório'],
     ['shop', 'Loja'],
     ['tavern', 'Taverna'],
@@ -1057,7 +1058,7 @@ function renderCharacterToolbar(){
   return '<details class="sheet-menu"><summary class="button" aria-label="Menu do personagem">Menu</summary><nav aria-label="Ações do personagem">'+actions.map(([action,label])=>'<button class="button" type="button" data-sheet-action="'+action+'">'+label+'</button>').join('')+'</nav></details>';
 }
 function syncSheetHeadingMenu(){
-  const names={shop:'Loja',tavern:'Taverna',workshop:'Oficinas',grimoire:'Grimório'};
+  const names={shop:'Loja',tavern:'Taverna',workshop:'Oficinas',grimoire:'Grimório','base-attributes':'Atributos Base'};
   const label=names[state.sheetView];
   const gSource = typeof spellState === 'function' ? spellState().grimoireSource : '';
   const isWorkshopCraft = ['potion','scroll','tattoo','engenhoca'].includes(gSource);

@@ -75,33 +75,29 @@ test('Origem Cosmopolita - Liberação da Fase de Progressão no Nível 1 e Regr
     'origem-cosmopolita.ts não deve registrar cosmopolita como subestágio da Fase 6'
   );
 
-  // 7. Checar filtros da Fase de Progressão na ordem correta
+  // 7. Checar filtros da Fase de Progressão unificados com a Fase de Poderes
   assert.ok(
-    browserCode.includes('data-filter="all">Todos os poderes</button>'),
-    'O drawer deve conter Todos os poderes'
+    browserCode.includes('data-filter="all">Todos</button>'),
+    'O drawer deve conter o filtro Todos igual à Fase de Poderes'
   );
   assert.ok(
-    browserCode.includes('data-filter="class">Poderes de classe</button>'),
-    'O drawer deve conter Poderes de classe'
+    browserCode.includes('Poderes de \' + esc(c.nome) + \'</button>'),
+    'O drawer deve exibir Poderes de {Classe} para cada classe elegível'
   );
   assert.ok(
-    browserCode.includes('data-filter="general">Poderes gerais</button>'),
-    'O drawer deve conter Poderes gerais'
+    browserCode.includes("{ id: 'combate', label: 'Combate' }"),
+    'O drawer deve conter o filtro Combate'
   );
   assert.ok(
-    browserCode.includes('data-filter="combate">Combate</button>'),
-    'O drawer deve conter subfiltro Combate'
+    browserCode.includes("{ id: 'destino', label: 'Destino' }"),
+    'O drawer deve conter o filtro Destino'
   );
   assert.ok(
-    browserCode.includes('data-filter="destino">Destino</button>'),
-    'O drawer deve conter subfiltro Destino'
+    browserCode.includes("{ id: 'magia', label: 'Magia' }"),
+    'O drawer deve conter o filtro Magia'
   );
   assert.ok(
-    browserCode.includes('data-filter="magia">Magia</button>'),
-    'O drawer deve conter subfiltro Magia'
-  );
-  assert.ok(
-    browserCode.includes('data-filter="locked">Indisponíveis</button>'),
-    'O drawer deve conter o último filtro Indisponíveis'
+    browserCode.includes("{ id: 'ver_tudo', label: 'Ver tudo' }"),
+    'O drawer deve conter o filtro Ver tudo igual à Fase de Poderes'
   );
 });

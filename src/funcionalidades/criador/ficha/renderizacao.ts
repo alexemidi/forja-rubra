@@ -161,7 +161,7 @@ function renderSheetSkillRows(order){
 
   const skillRecords = [...SKILLS, ...officeIdsToDisplay.map(id=>[id,skillDisplayName(id),'int'])].map(([id,name,baseAttr])=>[id,name,baseAttr,skillEffectiveAttribute(id)]);
   const seenSkills = new Set();
-  return skillRecords.sort((a,b)=>(order==='attribute'?ATTRS.findIndex(x=>x[0]===a[2])-ATTRS.findIndex(x=>x[0]===b[2]):0)||a[1].localeCompare(b[1],'pt-BR')).filter(([id])=>!seenSkills.has(id)&&seenSkills.add(id)).map(([id,name,baseAttr,effectiveAttr])=>{
+  return skillRecords.sort((a,b)=>(order==='attribute'?ATTRS.findIndex(x=>x[0]===a[3])-ATTRS.findIndex(x=>x[0]===b[3]):0)||a[1].localeCompare(b[1],'pt-BR')).filter(([id])=>!seenSkills.has(id)&&seenSkills.add(id)).map(([id,name,baseAttr,effectiveAttr])=>{
     const isOficio = String(id).startsWith('oficio:') || id === 'oficio';
     const isTrained = trained.has(id) || (isOficio && temArtesaoCriativo);
     const passiveBonus = Number(passives.skillBonuses?.[id] || 0);
@@ -1190,8 +1190,10 @@ function updateSheetEquipmentAndDefenseContent(){
   const defVal = preview.querySelector('.sheet-defense-value strong');
   const defSpan = preview.querySelector('.sheet-defense-value span');
   const defAttrKey = typeof characterDefenseAttribute === 'function' ? characterDefenseAttribute() : 'des';
-  const hasDefAttr = defAttrKey && defAttrKey !== 'nenhum' && defAttrKey !== 'none';
-  const defAttrLabel = hasDefAttr ? defAttrKey.toUpperCase() : '0';
+  const isNoneDef = !defAttrKey || defAttrKey === 'nenhum' || defAttrKey === 'none';
+  const effectiveDefAttr = isNoneDef ? 'des' : defAttrKey;
+  const defAttrMod = isNoneDef ? 0 : Number(attrs[effectiveDefAttr] || 0);
+  const defAttrLabel = `${defAttrMod} ${effectiveDefAttr.toUpperCase()}`;
   if(defVal) defVal.textContent = previewDefense;
   if(defSpan) defSpan.textContent = 'Base 10 + ' + defAttrLabel + ' + ' + armorStats.defense + ' de armadura + ' + shieldStats.defense + ' de escudo + ' + Number(passives.defenseBonus || 0) + ' bônus' + (manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '');
   
@@ -1884,6 +1886,24 @@ function sheetVitalControls(maximum){
     ? 'Edição indisponível durante o Planejamento. Use o botão [Editar Planos] acima.'
     : 'Editar Ficha';
 
+  const scrollIcon = window.IconesForja ? window.IconesForja.get('scroll', 'sheet-action-icon-svg') : '<svg class="forja-svg sheet-action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path></svg>';
+  const slidersIcon = window.IconesForja ? window.IconesForja.get('sliders', 'icon-sm') : '';
+  const isSteppers = Boolean(state.attrSteppersActive);
+  const isMestre = Boolean(state.isMasterMode || state.mestreMode || state.attrStepMaster);
+  const attrToggleHtml = `
+    <div class="sheet-vitals-attr-toggle-wrap" style="position:absolute;top:10px;left:14px;z-index:2;display:flex;align-items:center;gap:6px;">
+      <button type="button" class="sheet-attr-edit-toggle-btn ${isSteppers ? 'active' : ''}" data-action="toggle-attr-steppers" title="Ajustar modificadores nos atributos">
+        ${slidersIcon}
+        <span>${isSteppers ? 'Concluir' : 'Alterar'}</span>
+      </button>
+      ${isMestre && isSteppers ? `
+        <button type="button" class="button small" data-action="toggle-attr-master-mode" style="font-size:0.72rem;padding:2px 6px;background:#27272a;border:1px solid #dc2626;color:#fca5a5;cursor:pointer" title="Alternar entre modo permanente do mestre e temporário">
+          Modo Mestre: ${state.attrStepMode === 'temp' ? 'Temporário' : 'Permanente'}
+        </button>
+      ` : ''}
+    </div>
+  `;
+
   const vitalsActionsHtml = `
     <div class="sheet-vitals-actions-row">
       ${canHaveDistinction ? `
@@ -1898,7 +1918,7 @@ function sheetVitalControls(maximum){
         </button>
       ` : ''}
       <button type="button" class="sheet-action-icon-btn sheet-planning-btn" data-sheet-action="open-planning" title="Planejamento de Níveis (Simulação de Progressão Futura)" aria-label="Planejamento de Níveis" style="border-color:#d9a84e66;color:#e8cb83;">
-        <svg class="forja-svg sheet-action-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        ${scrollIcon}
       </button>
       <button type="button" class="sheet-action-icon-btn sheet-level-up-btn ${levelUpDisabled ? 'is-disabled' : ''}" data-sheet-action="level-up" ${levelUpDisabled} title="${levelUpTitle}" style="${levelUpStyle}">
         ${upIcon}
@@ -1924,6 +1944,7 @@ function sheetVitalControls(maximum){
   `;
 
   return '<section class="sheet-preview-vitals">' +
+    attrToggleHtml +
     '<div class="sheet-vitals-grid">' +
       ring('pv','PV','#16a34a','Dano','Curar') +
       ring('pm','PM','#0284c7','Gasto','Recuperar') +
@@ -3013,6 +3034,8 @@ function renderSheetActionBar(mode = 'full'){
   const bookIcon = window.IconesForja ? window.IconesForja.get('book', 'sheet-action-btn-icon') : '';
   const shopIcon = window.IconesForja ? window.IconesForja.get('store', 'sheet-action-btn-icon') : '';
   const condIcon = window.IconesForja ? window.IconesForja.get('alert-triangle', 'sheet-action-btn-icon') : '';
+  const scrollNavIcon = window.IconesForja ? window.IconesForja.get('scroll', 'sheet-action-btn-icon') : '<svg class="forja-svg sheet-action-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+  const slidersNavIcon = window.IconesForja ? window.IconesForja.get('sliders', 'sheet-action-btn-icon') : '';
   const printIcon = '<svg class="forja-svg sheet-action-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>';
 
   const quickNav = `
@@ -3022,8 +3045,12 @@ function renderSheetActionBar(mode = 'full'){
         <span>Grimório</span>
       </button>
       <button type="button" class="sheet-action-btn sheet-quick-nav-btn" data-sheet-action="open-planning" title="Planejamento de Progressão por Níveis">
-        <svg class="forja-svg sheet-action-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        ${scrollNavIcon}
         <span>Planejamento</span>
+      </button>
+      <button type="button" class="sheet-action-btn sheet-quick-nav-btn" data-sheet-action="base-attributes" title="Abrir Página de Atributos Base">
+        ${slidersNavIcon}
+        <span>Atributos Base</span>
       </button>
       <button type="button" class="sheet-action-btn sheet-quick-nav-btn" data-sheet-action="shop" title="Abrir Arsenal &amp; Loja">
         ${shopIcon}
@@ -3364,22 +3391,16 @@ function renderCharacterDetails(){
           </div>
         `).join('')}
       </section>
-      <div class="sheet-attr-bottom-bar" style="display:flex;align-items:center;justify-content:flex-start;gap:8px;margin-top:8px;padding-left:2px;">
-        <button type="button" class="sheet-attr-edit-toggle-btn ${isSteppers ? 'active' : ''}" data-action="toggle-attr-steppers" title="Ajustar modificadores nos atributos">
-          ${slidersIcon}
-          <span>${isSteppers ? 'Concluir' : 'Alterar'}</span>
-        </button>
-        ${isMestre && isSteppers ? `
-          <button type="button" class="button small" data-action="toggle-attr-master-mode" style="font-size:0.75rem;padding:3px 8px;background:#27272a;border:1px solid #dc2626;color:#fca5a5;cursor:pointer" title="Alternar entre modo permanente do mestre e temporário">
-            Modo Mestre: ${state.attrStepMode === 'temp' ? 'Temporário' : 'Permanente'}
-          </button>
-        ` : ''}
-      </div>
     </div>
   ` + sheetVitalControls(stats);
   
   const manualDef = Number(state?.tempManualBonuses?.defense || 0);
   const equipmentDefense=armorStats.defense+shieldStats.defense,previewDefense=stats.defense+equipmentDefense+manualDef;
+  const defAttrKey = typeof characterDefenseAttribute === 'function' ? characterDefenseAttribute() : 'des';
+  const isNoneDef = !defAttrKey || defAttrKey === 'nenhum' || defAttrKey === 'none';
+  const effectiveDefAttr = isNoneDef ? 'des' : defAttrKey;
+  const defAttrMod = isNoneDef ? 0 : Number(attrs[effectiveDefAttr] || 0);
+  const defAttrLabel = `${defAttrMod} ${effectiveDefAttr.toUpperCase()}`;
   const armorName = armor ? esc(getSheetItemDisplayName(armorEntry, catalog)) : '<span class="sheet-preview-empty">Nenhuma armadura equipada</span>';
   const shieldName = shield ? esc(getSheetItemDisplayName(shieldEntry, catalog)) : '<span class="sheet-preview-empty">Nenhum escudo equipado</span>';
   const defenseRows='<tr><td><strong>Armadura</strong></td><td>'+armorName+'</td><td>'+(armor?'+'+armorStats.defense:'—')+'</td><td>'+(armor?(armorStats.penalty?armorStats.penalty:'0'):'—')+'</td><td>'+(armor?(armor.categoriaId==='pesada'||armor.armadura?.categoriaId==='pesada'?'Pesada':'Leve'):'—')+'</td><td>'+(armor?Number(armor.espacos||0)+' esp.':'—')+'</td></tr><tr><td><strong>Escudo</strong></td><td>'+shieldName+'</td><td>'+(shield?'+'+shieldStats.defense:'—')+'</td><td>'+(shield?(shieldStats.penalty?shieldStats.penalty:'0'):'—')+'</td><td>'+(shield?(shield.categoriaId==='pesado'||shield.escudo?.categoriaId==='pesado'?'Pesado':'Leve'):'—')+'</td><td>'+(shield?Number(shield.espacos||0)+' esp.':'—')+'</td></tr>';
@@ -3388,7 +3409,7 @@ function renderCharacterDetails(){
   const rdHtml = rdSummary ? '<p class="sheet-defense-rd">' + renderSheetReductionText(rdSummary) + '</p>' : '';
 
   
-  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+((characterDefenseAttribute()&&characterDefenseAttribute()!=='nenhum'&&characterDefenseAttribute()!=='none')?characterDefenseAttribute().toUpperCase():'0')+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><div class="sheet-attacks-heading" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--border)"><h3 style="margin:0;display:flex;align-items:center;gap:6px">'+sheetHeadingIcon('sword')+'Ataques</h3><button type="button" class="button small" data-sheet-action="edit-attacks" title="Editar e personalizar ataques" style="font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1;cursor:pointer">Editar Ataques</button></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
+  const left='<div class="sheet-preview-main">'+attributes+'<div class="sheet-preview-lower"><section class="sheet-preview-box"><div class="sheet-defense-heading"><h3>'+sheetHeadingIcon('shield')+'Defesa</h3><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div><div class="sheet-defense-value"><strong>'+previewDefense+'</strong><span>Base 10 + '+defAttrLabel+ ' + '+armorStats.defense+' de armadura + '+shieldStats.defense+' de escudo + '+Number(passives.defenseBonus||0)+' bônus'+(manualDef ? ' + ' + (manualDef > 0 ? '+' : '') + manualDef + ' temporário' : '')+'</span></div>'+defenseEquipmentTable+rdHtml+renderSheetPartnersBlock()+'</section><section class="sheet-preview-box"><div class="sheet-conditions-heading"><h3>Condições</h3>'+(window.ForjaCondicoes?window.ForjaCondicoes.renderLine():'')+'</div>'+renderSheetConditions()+'<p>Tamanho: '+esc(characterSizeId())+' · Deslocamento: '+sheetMovement()+' m</p></section></div>'+'<section class="sheet-preview-box"><div class="sheet-attacks-heading" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--border)"><h3 style="margin:0;display:flex;align-items:center;gap:6px">'+sheetHeadingIcon('sword')+'Ataques</h3><button type="button" class="button small" data-sheet-action="edit-attacks" title="Editar e personalizar ataques" style="font-size:0.65rem;padding:2px 8px;min-height:22px;height:22px;line-height:1;cursor:pointer">Editar Ataques</button></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table attacks"><thead><tr><th>Arma</th><th>Teste</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th></tr></thead><tbody>'+attackRows+'</tbody></table></div></section></div>',skills='<aside class="sheet-preview-box sheet-preview-skills"><div class="sheet-skills-heading"><h3>Perícias</h3><div style="display:flex;gap:4px;align-items:center"><button class="button small sheet-skill-order" data-sheet-skill-order type="button" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer;margin:0">'+(state.sheetSkillOrder==='attribute'?'Atributo + A–Z':'A–Z')+'</button><button type="button" class="button small" data-vital-action="open-temp-bonuses" title="Bônus temporários de Defesa e Perícias" style="font-size:0.62rem;padding:2px 6px;min-height:20px;height:20px;line-height:1;cursor:pointer">Bônus temp.</button></div></div><div class="sheet-preview-table-wrap"><table class="sheet-preview-table"><thead><tr><th>Total</th><th>Perícia</th><th>Atr.</th><th>Treino</th><th>Bônus</th></tr></thead><tbody>'+skillRows+'</tbody></table></div></aside>';
   const wornEntries=[],carriedEntries=[],seenTraje=new Set();
   for(const entry of inventory){
     if(/traje_de_viaj/i.test(entry?.itemId)||/traje_de_viaj/i.test(entry?.displayName)||/traje_de_viaj/i.test(entry?.itemName)){
@@ -4399,7 +4420,7 @@ function openLevelClassModal(){
   setTimeout(()=>select.focus(),20);
 }
 (()=>{const style=document.createElement('style');style.textContent='.progression-level-row{transition:opacity .24s,transform .24s,border-color .2s,background .2s}.progression-level-row.active{border-color:#d9a84e77;background:#d9a84e05}.progression-level-row.is-leaving{opacity:0;transform:translateY(-14px) scale(.985)}.progression-level-row.is-arriving{animation:progressionArrive .32s ease-out}@keyframes progressionArrive{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}.progression-level-summary{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}.progression-level-summary>strong{padding:3px 7px;border-radius:5px;background:#d9a84e10;color:#e8cb83;font-size:.64rem}.progression-expand{margin-left:auto;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#151c28;color:var(--muted);font-size:.62rem;cursor:pointer}.progression-ability-details{margin-top:8px;border-top:1px solid var(--border);padding-top:7px}.progression-ability-details summary{color:var(--muted);font-size:.64rem;cursor:pointer}.progression-ability-details .ability-list{margin-top:8px}.progression-source-filters{margin-top:12px}.progression-attribute-calculator{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:10px;margin-top:11px}.progression-attribute-column{display:grid;gap:7px;align-content:start}.progression-attribute-head,.progression-attribute-row{display:grid;grid-template-columns:minmax(110px,1fr) 120px;gap:8px;align-items:center}.progression-attribute-head{padding:0 10px;color:var(--dim);font-size:.55rem;font-weight:800;text-align:center;text-transform:uppercase}.progression-attribute-row{min-height:55px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#0d121a}.progression-attribute-row>strong{text-align:center;color:var(--gold2);font:700 .72rem Cinzel}.progression-attribute-row.active{border-color:#d9a84e;box-shadow:inset 3px 0 var(--gold)}.progression-total-control{display:grid;grid-template-columns:32px 52px 32px;justify-content:center}.progression-total-control button{border:1px solid var(--border);background:#171e2a;color:var(--text);font-size:1rem;cursor:pointer}.progression-total-control button:first-child{border-radius:6px 0 0 6px}.progression-total-control button:last-child{border-radius:0 6px 6px 0}.progression-total-control button:disabled{opacity:.25;cursor:default}.progression-total-control output{display:grid;place-items:center;min-height:42px;border-block:1px solid var(--border);font-size:1rem;font-weight:800}.racial-power-heading{margin-top:12px;color:#9fd4f2!important}.racial-power-list .power-row{border-left-color:#5ba9d8}.progression-special-grant-box{margin-top:9px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#141b26}.progression-special-grant-box.is-complete{border-color:#45c58b66;background:#45c58b0f}.progression-special-grant-box.is-pending{border-color:#d9a84e66;background:#d9a84e0f}@media(max-width:700px){.progression-attribute-calculator{grid-template-columns:1fr}.progression-attribute-head,.progression-attribute-row{grid-template-columns:minmax(90px,1fr) 116px}.progression-expand{width:100%;margin-left:0}}';document.head?.appendChild(style)})();
-(()=>{const style=document.createElement('style');style.textContent='.sheet-preview-alignment-age{display:grid;grid-template-columns:1.75fr 1fr;gap:12px;align-items:center}.sheet-preview{display:grid;gap:12px}.sheet-preview-identity{display:grid;grid-template-columns:1.3fr 1.1fr repeat(4,1fr);gap:1px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--border);width:100%;box-sizing:border-box;margin-bottom:2px}.sheet-preview-identity>*{min-width:0;padding:12px 16px;background:#111824;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sheet-preview-identity strong{color:var(--gold2);font-family:Cinzel,serif;font-size:1rem;display:block;margin-top:3px}.sheet-preview-identity small{color:#94a3b8;font-size:0.72rem;letter-spacing:0.6px;text-transform:uppercase;display:block}.sheet-preview-identity span{color:var(--muted);font-size:0.72rem;letter-spacing:0.5px}.sheet-attributes-block{position:relative;margin-top:10px;margin-bottom:12px}.sheet-attr-top-bar,.sheet-attr-bottom-bar{display:flex;align-items:center;justify-content:flex-start;margin-top:8px;padding-left:2px}.sheet-attr-edit-toggle-btn{background:#111824;border:1px solid #334155;color:#94a3b8;font-size:0.65rem;padding:3px 8px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;line-height:1}.sheet-attr-edit-toggle-btn:hover{background:#1e293b;color:#f8fafc;border-color:#d9a84e}.sheet-attr-edit-toggle-btn.active{background:rgba(217,168,78,0.15);color:#e8cb83;border-color:#d9a84e}.sheet-preview-attributes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px;padding:0;width:100%;box-sizing:border-box}.sheet-preview-attributes .sheet-attr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--border);border-radius:8px;background:#111824;position:relative;padding:6px 4px;box-sizing:border-box;transition:min-height 0.2s ease,border-color 0.15s ease}.sheet-attr-main-content{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}.sheet-attr-main-content small{color:var(--dim,#94a3b8);font-size:0.58rem;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}.sheet-attr-main-content strong{color:var(--gold2,#f59e0b);font-size:1.25rem;line-height:1.2}.sheet-attr-stepper-btn{display:none;align-items:center;justify-content:center;width:100%;max-width:54px;height:20px;border-radius:4px;border:1px solid rgba(217,168,78,0.35);background:rgba(217,168,78,0.12);color:#e8cb83;font-size:0.85rem;font-weight:700;cursor:pointer;line-height:1;padding:0;margin:0;transition:all 0.15s ease;user-select:none}.sheet-attr-stepper-btn:hover{background:#d9a84e;color:#0b0f17;border-color:#d9a84e}.sheet-attr-stepper-btn.btn-attr-down{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.12);color:#fca5a5}.sheet-attr-stepper-btn.btn-attr-down:hover{background:#dc2626;color:#ffffff;border-color:#ef4444}.steppers-active .sheet-attr-stepper-btn{display:flex}.steppers-active .sheet-attr-card{min-height:98px;justify-content:space-between;border-color:rgba(217,168,78,0.4)}.sheet-vitals-conditions-wrap{margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.sheet-vitals-conditions-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.sheet-vitals-actions-row{display:flex;align-items:center;gap:8px;margin-left:auto}.sheet-action-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;border-radius:6px;background:#151c28;border:1px solid #28364b;color:#94a3b8;cursor:pointer;transition:all 0.2s ease;padding:0;line-height:1}.sheet-action-icon-btn:hover{background:#1e2a3c;border-color:#60a5fa;color:#f8fafc;transform:translateY(-1px)}.sheet-action-icon-btn.sheet-level-up-btn{background:rgba(220,38,38,0.18);border-color:#ef4444;color:#fca5a5}.sheet-action-icon-btn.sheet-level-up-btn:hover{background:rgba(220,38,38,0.38);border-color:#f87171;color:#ffffff}.sheet-action-icon-btn.sheet-distinction-btn{background:rgba(217,168,78,0.18);border-color:#d9a84e;color:#e8cb83;text-decoration:none}.sheet-action-icon-btn.sheet-distinction-btn:hover{background:rgba(217,168,78,0.38);border-color:#f5d78e;color:#ffffff}.sheet-action-icon-btn.is-disabled,.sheet-action-icon-btn:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}.sheet-action-icon-btn svg,.sheet-action-icon-btn .forja-svg{width:16px;height:16px}.sheet-vitals-conditions-wrap .sheet-conditions-line{background:transparent;border:none;padding:0}.sheet-preview-middle{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(330px,.75fr);gap:12px;align-items:start}.sheet-preview-main,.sheet-preview-lower{display:grid;gap:12px}.sheet-preview-lower{grid-template-columns:minmax(280px,1.15fr) 0.85fr}.sheet-preview-box{border:1px solid var(--border);border-radius:9px;background:#0d121a;overflow:hidden}.sheet-preview-box>h3{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--gold2);font:700 .72rem Cinzel;text-transform:uppercase}.sheet-preview-box>p,.sheet-preview-box>.tag-row{margin:10px}.sheet-preview-table-wrap{overflow:auto}.sheet-preview-table{width:100%;border-collapse:collapse;font-size:.63rem}.sheet-preview-table th,.sheet-preview-table td{padding:7px 8px;border-bottom:1px solid #293446;text-align:left;white-space:nowrap}.sheet-preview-table td{color:var(--muted)}.sheet-preview-table tr.trained td{color:var(--text);background:transparent}.sheet-preview-table tr.attr-band-a td{background:rgba(255,255,255,0.018)}.sheet-preview-table tr.attr-band-b td{background:rgba(0,0,0,0.22)}.sheet-preview-table .skill-total{color:var(--gold2);font-weight:800;text-align:center}.sheet-preview-table.defense-equipment td strong{color:var(--gold2)}.sheet-preview-table.defense-equipment td{padding:6px 8px;font-size:.62rem}.sheet-preview-skills{position:sticky;top:118px;margin-top:0}.sheet-preview-skills .sheet-preview-table-wrap{max-height:670px}.sheet-preview-skills .sheet-preview-table,.sheet-preview-skills .sheet-preview-table th,.sheet-preview-skills .sheet-preview-table td,.sheet-preview-skills .sheet-preview-table tr td,.sheet-preview-skills .sheet-preview-table tr.trained td,.sheet-preview-skills .sheet-preview-table .skill-total,.sheet-preview-skills .sheet-preview-table .skill-name,.sheet-preview-skills .sheet-preview-table .skill-attr,.sheet-preview-skills .sheet-preview-table .skill-train,.sheet-preview-skills .sheet-preview-table .skill-bonus{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif!important;font-variant-numeric:tabular-nums lining-nums;color:#ffffff!important}.sheet-preview-skills .sheet-preview-table th{color:#ffffff!important;font-size:.72rem!important;font-weight:700!important;letter-spacing:.4px;border-bottom:1px solid #334155!important}.sheet-preview-skills .sheet-preview-table td{color:#ffffff!important;font-size:.72rem!important;border-bottom:1px solid #1f2937!important}.sheet-preview-skills .sheet-preview-table .skill-total{color:#ffffff!important;font-weight:700!important;font-size:.8rem!important;text-align:center!important}.sheet-preview-skills .sheet-preview-table tr.trained td{color:#ffffff!important;font-weight:600!important}.sheet-preview-skills .skill-untrained-x{font-family:\"Comic Sans MS\",\"Comic Sans\",cursive,sans-serif!important;font-weight:700!important;font-size:.95rem!important;color:#ffffff!important;line-height:1!important;display:inline-block!important;text-align:center!important}.sheet-preview-skills .skill-star-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;line-height:1!important;color:#ffffff!important}.sheet-preview-skills .skill-star-icon .skill-star-svg{width:14px!important;height:14px!important;display:block!important}.sheet-preview-skills .skill-star-icon.filled{color:#ffffff!important;opacity:1!important}.sheet-preview-skills .skill-star-icon.unfilled{color:#ffffff!important;opacity:.55!important}.sheet-preview-empty{text-align:center!important;color:var(--dim)!important}.sheet-defense-value{display:flex;align-items:center;gap:10px;padding:12px}.sheet-defense-value strong{font-size:2.2rem;color:var(--gold2)}.sheet-defense-value span{color:var(--muted);font-size:.62rem}.sheet-preview-equipment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--border)}.sheet-preview-equipment>div{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;background:#111824}.sheet-preview-equipment strong{font-size:.66rem;color:var(--text)}.sheet-preview-equipment span{color:var(--dim);font-size:.58rem}.sheet-preview-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.sheet-preview-extras h4{margin-bottom:8px;color:var(--gold2);font:700 .68rem Cinzel}@media(max-width:920px){.sheet-preview-identity{grid-template-columns:repeat(3,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important}.sheet-preview-middle{grid-template-columns:1fr}.sheet-preview-skills{position:static;margin-top:12px}.sheet-preview-lower{grid-template-columns:1fr}.sheet-preview-extras{grid-template-columns:1fr}}@media(max-width:760px){.sheet-preview-alignment-age{grid-template-columns:1fr}.sheet-preview-alignment-age>div{flex:1 1 auto!important;max-width:none!important}}@media(max-width:560px){.sheet-preview-identity{grid-template-columns:repeat(2,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px}.sheet-preview-attributes .sheet-attr-card{min-height:56px;padding:4px 2px}.sheet-preview-equipment{grid-template-columns:1fr}}';document.head?.appendChild(style)})();
+(()=>{const style=document.createElement('style');style.textContent='.sheet-preview-alignment-age{display:grid;grid-template-columns:1.75fr 1fr;gap:12px;align-items:center}.sheet-preview{display:grid;gap:12px}.sheet-preview-identity{display:grid;grid-template-columns:1.3fr 1.1fr repeat(4,1fr);gap:1px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--border);width:100%;box-sizing:border-box;margin-bottom:2px}.sheet-preview-identity>*{min-width:0;padding:12px 16px;background:#111824;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sheet-preview-identity strong{color:var(--gold2);font-family:Cinzel,serif;font-size:1rem;display:block;margin-top:3px}.sheet-preview-identity small{color:#94a3b8;font-size:0.72rem;letter-spacing:0.6px;text-transform:uppercase;display:block}.sheet-preview-identity span{color:var(--muted);font-size:0.72rem;letter-spacing:0.5px}.sheet-attributes-block{position:relative;margin-top:0!important;margin-bottom:12px}.sheet-attr-top-bar,.sheet-attr-bottom-bar{display:flex;align-items:center;justify-content:flex-start;margin-top:8px;padding-left:2px}.sheet-attr-edit-toggle-btn{background:#111824;border:1px solid #334155;color:#94a3b8;font-size:0.65rem;padding:3px 8px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;line-height:1}.sheet-attr-edit-toggle-btn:hover{background:#1e293b;color:#f8fafc;border-color:#d9a84e}.sheet-attr-edit-toggle-btn.active{background:rgba(217,168,78,0.15);color:#e8cb83;border-color:#d9a84e}.sheet-preview-attributes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px;padding:0;width:100%;box-sizing:border-box}.sheet-preview-attributes .sheet-attr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--border);border-radius:8px;background:#111824;position:relative;padding:6px 4px;box-sizing:border-box;transition:min-height 0.2s ease,border-color 0.15s ease}.sheet-attr-main-content{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}.sheet-attr-main-content small{color:var(--dim,#94a3b8);font-size:0.58rem;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}.sheet-attr-main-content strong{color:var(--gold2,#f59e0b);font-size:1.25rem;line-height:1.2}.sheet-attr-stepper-btn{display:none;align-items:center;justify-content:center;width:100%;max-width:54px;height:20px;border-radius:4px;border:1px solid rgba(217,168,78,0.35);background:rgba(217,168,78,0.12);color:#e8cb83;font-size:0.85rem;font-weight:700;cursor:pointer;line-height:1;padding:0;margin:0;transition:all 0.15s ease;user-select:none}.sheet-attr-stepper-btn:hover{background:#d9a84e;color:#0b0f17;border-color:#d9a84e}.sheet-attr-stepper-btn.btn-attr-down{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.12);color:#fca5a5}.sheet-attr-stepper-btn.btn-attr-down:hover{background:#dc2626;color:#ffffff;border-color:#ef4444}.steppers-active .sheet-attr-stepper-btn{display:flex}.steppers-active .sheet-attr-card{min-height:98px;justify-content:space-between;border-color:rgba(217,168,78,0.4)}.sheet-vitals-conditions-wrap{margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.sheet-vitals-conditions-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.sheet-vitals-actions-row{display:flex;align-items:center;gap:8px;margin-left:auto}.sheet-action-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;border-radius:6px;background:#151c28;border:1px solid #28364b;color:#94a3b8;cursor:pointer;transition:all 0.2s ease;padding:0;line-height:1}.sheet-action-icon-btn:hover{background:#1e2a3c;border-color:#60a5fa;color:#f8fafc;transform:translateY(-1px)}.sheet-action-icon-btn.sheet-level-up-btn{background:rgba(220,38,38,0.18);border-color:#ef4444;color:#fca5a5}.sheet-action-icon-btn.sheet-level-up-btn:hover{background:rgba(220,38,38,0.38);border-color:#f87171;color:#ffffff}.sheet-action-icon-btn.sheet-distinction-btn{background:rgba(217,168,78,0.18);border-color:#d9a84e;color:#e8cb83;text-decoration:none}.sheet-action-icon-btn.sheet-distinction-btn:hover{background:rgba(217,168,78,0.38);border-color:#f5d78e;color:#ffffff}.sheet-action-icon-btn.is-disabled,.sheet-action-icon-btn:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}.sheet-action-icon-btn svg,.sheet-action-icon-btn .forja-svg{width:16px;height:16px}.sheet-vitals-conditions-wrap .sheet-conditions-line{background:transparent;border:none;padding:0}.sheet-preview-middle{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(330px,.75fr);gap:12px;align-items:start}.sheet-preview-main,.sheet-preview-lower{display:grid;gap:12px}.sheet-preview-lower{grid-template-columns:minmax(280px,1.15fr) 0.85fr}.sheet-preview-box{border:1px solid var(--border);border-radius:9px;background:#0d121a;overflow:hidden}.sheet-preview-box>h3{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--gold2);font:700 .72rem Cinzel;text-transform:uppercase}.sheet-preview-box>p,.sheet-preview-box>.tag-row{margin:10px}.sheet-preview-table-wrap{overflow:auto}.sheet-preview-table{width:100%;border-collapse:collapse;font-size:.63rem}.sheet-preview-table th,.sheet-preview-table td{padding:7px 8px;border-bottom:1px solid #293446;text-align:left;white-space:nowrap}.sheet-preview-table td{color:var(--muted)}.sheet-preview-table tr.trained td{color:var(--text);background:transparent}.sheet-preview-table tr.attr-band-a td{background:rgba(255,255,255,0.018)}.sheet-preview-table tr.attr-band-b td{background:rgba(0,0,0,0.22)}.sheet-preview-table .skill-total{color:var(--gold2);font-weight:800;text-align:center}.sheet-preview-table.defense-equipment td strong{color:var(--gold2)}.sheet-preview-table.defense-equipment td{padding:6px 8px;font-size:.62rem}.sheet-preview-skills{position:sticky;top:118px;margin-top:0}.sheet-preview-skills .sheet-preview-table-wrap{max-height:670px}.sheet-preview-skills .sheet-preview-table,.sheet-preview-skills .sheet-preview-table th,.sheet-preview-skills .sheet-preview-table td,.sheet-preview-skills .sheet-preview-table tr td,.sheet-preview-skills .sheet-preview-table tr.trained td,.sheet-preview-skills .sheet-preview-table .skill-total,.sheet-preview-skills .sheet-preview-table .skill-name,.sheet-preview-skills .sheet-preview-table .skill-attr,.sheet-preview-skills .sheet-preview-table .skill-train,.sheet-preview-skills .sheet-preview-table .skill-bonus{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif!important;font-variant-numeric:tabular-nums lining-nums;color:#ffffff!important}.sheet-preview-skills .sheet-preview-table th{color:#ffffff!important;font-size:.72rem!important;font-weight:700!important;letter-spacing:.4px;border-bottom:1px solid #334155!important}.sheet-preview-skills .sheet-preview-table td{color:#ffffff!important;font-size:.72rem!important;border-bottom:1px solid #1f2937!important}.sheet-preview-skills .sheet-preview-table .skill-total{color:#ffffff!important;font-weight:700!important;font-size:.8rem!important;text-align:center!important}.sheet-preview-skills .sheet-preview-table tr.trained td{color:#ffffff!important;font-weight:600!important}.sheet-preview-skills .skill-untrained-x{font-family:\"Comic Sans MS\",\"Comic Sans\",cursive,sans-serif!important;font-weight:700!important;font-size:.95rem!important;color:#ffffff!important;line-height:1!important;display:inline-block!important;text-align:center!important}.sheet-preview-skills .skill-star-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;line-height:1!important;color:#ffffff!important}.sheet-preview-skills .skill-star-icon .skill-star-svg{width:14px!important;height:14px!important;display:block!important}.sheet-preview-skills .skill-star-icon.filled{color:#ffffff!important;opacity:1!important}.sheet-preview-skills .skill-star-icon.unfilled{color:#ffffff!important;opacity:.55!important}.sheet-preview-empty{text-align:center!important;color:var(--dim)!important}.sheet-defense-value{display:flex;align-items:center;gap:10px;padding:12px}.sheet-defense-value strong{font-size:2.2rem;color:var(--gold2)}.sheet-defense-value span{color:var(--muted);font-size:.62rem}.sheet-preview-equipment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--border)}.sheet-preview-equipment>div{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;background:#111824}.sheet-preview-equipment strong{font-size:.66rem;color:var(--text)}.sheet-preview-equipment span{color:var(--dim);font-size:.58rem}.sheet-preview-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.sheet-preview-extras h4{margin-bottom:8px;color:var(--gold2);font:700 .68rem Cinzel}@media(max-width:920px){.sheet-preview-identity{grid-template-columns:repeat(3,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important}.sheet-preview-middle{grid-template-columns:1fr}.sheet-preview-skills{position:static;margin-top:12px}.sheet-preview-lower{grid-template-columns:1fr}.sheet-preview-extras{grid-template-columns:1fr}}@media(max-width:760px){.sheet-preview-alignment-age{grid-template-columns:1fr}.sheet-preview-alignment-age>div{flex:1 1 auto!important;max-width:none!important}}@media(max-width:560px){.sheet-preview-identity{grid-template-columns:repeat(2,1fr)}.sheet-preview-attributes{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px}.sheet-preview-attributes .sheet-attr-card{min-height:56px;padding:4px 2px}.sheet-preview-equipment{grid-template-columns:1fr}}';document.head?.appendChild(style)})();
 const phaseCompleteBeforeProgression = typeof phaseIsComplete !== 'undefined' ? phaseIsComplete : (() => true);
 const missingBeforeProgression = typeof missingChoices !== 'undefined' ? missingChoices : (() => []);
 const validationBeforeProgression = typeof validationMessage !== 'undefined' ? validationMessage : (() => '');
@@ -4715,4 +4736,301 @@ document.addEventListener('click', (event) => {
 
 if(typeof window !== 'undefined'){
   window.openPlanningModal = openPlanningModal;
+}
+
+function renderBaseAttributesPage(){
+  ensureProgression();
+  const attrs = typeof finalAttrs === 'function' ? finalAttrs(true) : {};
+  const stats = typeof progressionStats === 'function' ? progressionStats() : { pv: 0, pm: 0, defense: 10 };
+  const load = typeof sheetInventoryLoad === 'function' ? sheetInventoryLoad() : { limit: 10, maximum: 20 };
+  const halfLevel = Math.floor(Math.max(1, Number(state.identity?.plannedLevel) || 1) / 2);
+  const custom = state.customBaseAttributes || {};
+  const customSkills = custom.skills || {};
+
+  const defPvAttr = typeof defaultPvKeyAttribute === 'function' ? defaultPvKeyAttribute() : 'con';
+  const curPvAttr = typeof characterPvKeyAttribute === 'function' ? characterPvKeyAttribute() : defPvAttr;
+
+  const defDefAttr = typeof defaultDefenseAttribute === 'function' ? defaultDefenseAttribute() : 'des';
+  const passives = typeof passiveCharacterEffects === 'function' ? passiveCharacterEffects() : { defenseAttribute: 'des' };
+  const curDefAttr = passives.defenseAttribute || defDefAttr || 'des';
+
+  const defLoadAttr = typeof defaultLoadKeyAttribute === 'function' ? defaultLoadKeyAttribute() : 'for';
+  const curLoadAttr = typeof characterLoadKeyAttribute === 'function' ? characterLoadKeyAttribute() : defLoadAttr;
+
+  const progClasses = Array.from(new Set((state?.progression || []).map(r => r.classId).filter(Boolean)));
+  const firstCasterClass = progClasses.find(cid => typeof defaultSpellKeyAttribute === 'function' && Boolean(defaultSpellKeyAttribute(cid))) || progClasses[0] || state?.identity?.classId || 'arcanista';
+  const defSpellAttr = (typeof defaultSpellKeyAttribute === 'function' ? defaultSpellKeyAttribute(firstCasterClass) : null) || 'int';
+  const curSpellAttr = (custom.spellKey && ['for','des','con','int','sab','car'].includes(custom.spellKey)) ? custom.spellKey : defSpellAttr;
+  const spellMod = Number(attrs[curSpellAttr] || 0);
+  const hasRecruta = (typeof characterHasFeature === 'function' && characterHasFeature('recruta_arcano')) ||
+    slug(state.origin?.regional || '') === 'recruta_arcano' || slug(state.origin?.standard || '') === 'recruta_arcano' ||
+    (state.origin?.benefits || []).some(b => slug(b).includes('recruta_arcano'));
+  const currentSpellCd = 10 + halfLevel + spellMod + (hasRecruta ? 1 : 0);
+
+  const hasAnyCustom = Boolean(
+    (custom.pv && custom.pv !== defPvAttr) ||
+    (custom.defense && custom.defense !== defDefAttr) ||
+    (custom.load && custom.load !== defLoadAttr) ||
+    (custom.spellKey && custom.spellKey !== defSpellAttr) ||
+    Object.keys(customSkills).some(k => customSkills[k] && customSkills[k] !== (typeof defaultSkillEffectiveAttribute === 'function' ? defaultSkillEffectiveAttribute(k) : ''))
+  );
+
+  const attrOptionsHtml = (selectedKey, defaultKey, includeNone = false) => {
+    const list = [...ATTRS];
+    if(includeNone) list.push(['nenhum', 'Nenhum']);
+    return list.map(([id, label]) => {
+      const mod = id === 'nenhum' ? 0 : Number(attrs[id] || 0);
+      const sign = mod >= 0 ? '+' + mod : String(mod);
+      const isDef = id === defaultKey;
+      const suffix = id === 'nenhum' ? '' : ` (${sign})`;
+      return `<option value="${esc(id)}" ${id === selectedKey ? 'selected' : ''}>${esc(id.toUpperCase())} — ${esc(label)}${suffix}${isDef ? ' [Padrão]' : ''}</option>`;
+    }).join('');
+  };
+
+  const trained = new Set(typeof allTrainedSkills === 'function' ? allTrainedSkills() : []);
+  const officeIds = [...trained].filter(id => String(id).startsWith('oficio:'));
+  const skillRecords = [
+    ...SKILLS,
+    ...officeIds.map(id => [id, typeof skillDisplayName === 'function' ? skillDisplayName(id) : id, 'int'])
+  ];
+  const seenSkills = new Set();
+  const uniqueSkills = skillRecords.filter(([id]) => !seenSkills.has(id) && seenSkills.add(id)).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+
+  const coreCards = [
+    {
+      key: 'pv',
+      title: 'Escalonamento de Vida (PV)',
+      subtitle: 'Atributo somado aos Pontos de Vida iniciais e a cada nível de personagem.',
+      defaultAttr: defPvAttr,
+      currentAttr: curPvAttr,
+      statLabel: `PV Máximo Atual: ${stats.pv}`,
+      includeNone: false
+    },
+    {
+      key: 'defense',
+      title: 'Atributo de Defesa',
+      subtitle: 'Atributo somado na Defesa base do personagem (Base 10 + Atributo + Armadura + Escudo + Bônus).',
+      defaultAttr: defDefAttr,
+      currentAttr: curDefAttr,
+      statLabel: `Defesa Base: ${stats.defense} (${curDefAttr === 'nenhum' ? 'Sem atributo' : (Number(attrs[curDefAttr] || 0) >= 0 ? '+' : '') + Number(attrs[curDefAttr] || 0) + ' ' + curDefAttr.toUpperCase()})`,
+      includeNone: true
+    },
+    {
+      key: 'load',
+      title: 'Limite de Carga',
+      subtitle: 'Atributo que define a capacidade de carga na mochila (10 + 2 por ponto de atributo positivo).',
+      defaultAttr: defLoadAttr,
+      currentAttr: curLoadAttr,
+      statLabel: `Limite Atual: ${load.limit} esp. (Máx. ${load.maximum})`,
+      includeNone: false
+    },
+    {
+      key: 'spellKey',
+      title: 'CD de Magias & Soma nos PM',
+      subtitle: 'Atributo-chave usado para calcular a CD das magias (10 + ½ nível + atributo) e somado no total de PM.',
+      defaultAttr: defSpellAttr,
+      currentAttr: curSpellAttr,
+      statLabel: `CD Magias: ${currentSpellCd} · PM Máximo: ${stats.pm}`,
+      includeNone: false
+    }
+  ];
+
+  const slidersIcon = window.IconesForja ? window.IconesForja.get('sliders', 'icon-sm') : '';
+  const refreshIcon = window.IconesForja ? window.IconesForja.get('refresh', 'icon-sm') : '';
+  const backIcon = window.IconesForja ? window.IconesForja.get('arrow-left', 'icon-sm') : '';
+
+  return `
+    <div class="base-attributes-page" style="max-width:1180px;margin:0 auto;padding:12px 4px 36px;color:var(--cream,#f5eee6);">
+      <section class="sheet-preview-box" style="padding:16px 20px;margin-bottom:16px;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line,#4a252a);padding-bottom:14px;margin-bottom:14px;">
+          <div>
+            <h2 style="margin:0;font-family:'Cinzel',serif;font-size:1.25rem;color:var(--gold2,#f5c879);display:flex;align-items:center;gap:8px;">
+              ${slidersIcon}
+              <span>Atributos Base da Ficha</span>
+            </h2>
+            <p style="margin:4px 0 0;font-size:0.84rem;color:var(--muted,#c9b2aa);">
+              Visualize e altere qual atributo-chave está ligado a cada mecânica e perícia de <strong>${esc(state.identity?.characterName || 'seu personagem')}</strong>.
+            </p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="button" data-action="reset-base-attributes" ${hasAnyCustom ? '' : 'disabled'} style="background:#2a1215;border:1px solid #c51f2c;color:#f5eee6;font-weight:700;padding:8px 14px;border-radius:6px;cursor:${hasAnyCustom ? 'pointer' : 'not-allowed'};opacity:${hasAnyCustom ? '1' : '0.55'};display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;">
+              ${refreshIcon}
+              <span>Voltar à Configuração Padrão</span>
+            </button>
+            <button type="button" class="button primary" data-sheet-action="sheet" style="background:#c51f2c;border:1px solid #ea3948;color:#ffffff;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;">
+              ${backIcon}
+              <span>Voltar à Ficha</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;">
+          ${ATTRS.map(([id, name]) => {
+            const val = Number(attrs[id] || 0);
+            const sign = val >= 0 ? '+' + val : String(val);
+            return `
+              <div style="background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);border-radius:8px;padding:8px 10px;text-align:center;">
+                <div style="font-size:0.7rem;color:var(--muted,#c9b2aa);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">${esc(id.toUpperCase())} · ${esc(name)}</div>
+                <div style="font-size:1.15rem;font-weight:800;color:var(--gold2,#f5c879);margin-top:2px;font-family:'Cinzel',serif;">${sign}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </section>
+
+      <section class="sheet-preview-box" style="padding:16px 20px;margin-bottom:16px;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
+        <h3 style="margin:0 0 12px;padding:0 0 8px;border-bottom:1px solid var(--line,#4a252a);font-family:'Cinzel',serif;font-size:1rem;color:var(--gold2,#f5c879);">
+          Atributos-Chave Principais (Vida, Defesa, Carga e Magias)
+        </h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
+          ${coreCards.map(card => {
+            const isModified = card.currentAttr !== card.defaultAttr;
+            return `
+              <div class="base-attr-card" style="background:var(--panel2,#181114);border:1px solid ${isModified ? '#c51f2c' : 'var(--line,#4a252a)'};border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+                <div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <strong style="font-size:0.92rem;color:var(--cream,#f5eee6);">${esc(card.title)}</strong>
+                    <span style="font-size:0.68rem;padding:2px 6px;border-radius:4px;background:${isModified ? '#3b1219' : '#1f1619'};border:1px solid ${isModified ? '#c51f2c' : 'var(--line,#4a252a)'};color:${isModified ? '#f5c879' : 'var(--muted,#c9b2aa)'};font-weight:700;">
+                      Padrão: ${esc(card.defaultAttr.toUpperCase())}
+                    </span>
+                  </div>
+                  <p style="margin:6px 0 0;font-size:0.76rem;color:var(--muted,#c9b2aa);line-height:1.35;">${esc(card.subtitle)}</p>
+                </div>
+                <div>
+                  <label class="field" style="display:block;margin-bottom:6px;">
+                    <span style="font-size:0.72rem;color:var(--gold,#e9ad59);font-weight:700;display:block;margin-bottom:4px;">Atributo Vinculado:</span>
+                    <select class="select" data-base-attr-core="${esc(card.key)}" style="width:100%;background:#090708;border:1px solid var(--line,#4a252a);color:var(--cream,#f5eee6);padding:6px 10px;border-radius:6px;font-size:0.84rem;font-weight:600;">
+                      ${attrOptionsHtml(card.currentAttr, card.defaultAttr, card.includeNone)}
+                    </select>
+                  </label>
+                  <div style="font-size:0.76rem;color:var(--gold2,#f5c879);font-weight:700;text-align:right;">
+                    ${esc(card.statLabel)}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </section>
+
+      <section class="sheet-preview-box" style="padding:16px 20px;background:var(--panel,#110d0f);border:1px solid var(--line,#4a252a);border-radius:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line,#4a252a);">
+          <h3 style="margin:0;padding:0;border:none;font-family:'Cinzel',serif;font-size:1rem;color:var(--gold2,#f5c879);">
+            Atributos-Chave das Perícias
+          </h3>
+          <span style="font-size:0.78rem;color:var(--muted,#c9b2aa);">
+            Altere o atributo-chave de qualquer perícia individualmente para esta ficha.
+          </span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;">
+          ${uniqueSkills.map(([skillId, skillName]) => {
+            const defAttr = typeof defaultSkillEffectiveAttribute === 'function' ? defaultSkillEffectiveAttribute(skillId) : 'int';
+            const effAttr = typeof skillEffectiveAttribute === 'function' ? skillEffectiveAttribute(skillId) : defAttr;
+            const isMod = effAttr !== defAttr;
+            const total = typeof calculatedSkillTotal === 'function' ? calculatedSkillTotal(skillId) : 0;
+            const totalStr = total >= 0 ? '+' + total : String(total);
+            const isTrained = trained.has(skillId);
+            return `
+              <div class="base-attr-skill-row" style="background:var(--panel2,#181114);border:1px solid ${isMod ? '#c51f2c' : 'var(--line,#4a252a)'};border-radius:6px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div style="min-width:0;flex:1;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <strong style="font-size:0.82rem;color:var(--cream,#f5eee6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(skillName)}">${esc(skillName)}</strong>
+                    <span style="font-size:0.76rem;font-weight:800;color:var(--gold2,#f5c879);">${esc(totalStr)}</span>
+                  </div>
+                  <div style="font-size:0.68rem;color:var(--muted,#c9b2aa);">
+                    Padrão: <strong>${esc(defAttr.toUpperCase())}</strong>${isTrained ? ' · Treinada' : ''}
+                  </div>
+                </div>
+                <select class="select" data-base-attr-skill="${esc(skillId)}" aria-label="Atributo base de ${esc(skillName)}" style="width:110px;background:#090708;border:1px solid var(--line,#4a252a);color:var(--cream,#f5eee6);padding:4px 6px;border-radius:5px;font-size:0.78rem;font-weight:700;">
+                  ${ATTRS.map(([aid]) => {
+                    const m = Number(attrs[aid] || 0);
+                    const s = m >= 0 ? '+' + m : String(m);
+                    return `<option value="${esc(aid)}" ${aid === effAttr ? 'selected' : ''}>${esc(aid.toUpperCase())} (${s})</option>`;
+                  }).join('')}
+                </select>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+document.addEventListener('change', (event) => {
+  const target = event.target as HTMLElement;
+  if(!target) return;
+  const coreKey = target.getAttribute?.('data-base-attr-core');
+  if(coreKey && ['pv', 'defense', 'load', 'spellKey'].includes(coreKey)){
+    const val = (target as HTMLSelectElement).value;
+    state.customBaseAttributes = state.customBaseAttributes || {};
+    const defMap: Record<string, string> = {
+      pv: typeof defaultPvKeyAttribute === 'function' ? defaultPvKeyAttribute() : 'con',
+      defense: typeof defaultDefenseAttribute === 'function' ? defaultDefenseAttribute() : 'des',
+      load: typeof defaultLoadKeyAttribute === 'function' ? defaultLoadKeyAttribute() : 'for',
+      spellKey: (() => {
+        const progClasses = Array.from(new Set((state?.progression || []).map(r => r.classId).filter(Boolean)));
+        const firstCasterClass = progClasses.find(cid => typeof defaultSpellKeyAttribute === 'function' && Boolean(defaultSpellKeyAttribute(cid))) || progClasses[0] || state?.identity?.classId || 'arcanista';
+        return (typeof defaultSpellKeyAttribute === 'function' ? defaultSpellKeyAttribute(firstCasterClass) : null) || 'int';
+      })()
+    };
+    if(!val || val === defMap[coreKey]){
+      delete state.customBaseAttributes[coreKey];
+    } else {
+      state.customBaseAttributes[coreKey] = val;
+    }
+    characterDataRevision++;
+    persistNow();
+    if(state.finished && typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
+    const container = document.getElementById('baseAttributesViewContainer');
+    if(container && state.sheetView === 'base-attributes'){
+      container.innerHTML = renderBaseAttributesPage();
+    } else {
+      renderStage();
+    }
+    return;
+  }
+
+  const skillId = target.getAttribute?.('data-base-attr-skill');
+  if(skillId){
+    const val = (target as HTMLSelectElement).value;
+    state.customBaseAttributes = state.customBaseAttributes || {};
+    state.customBaseAttributes.skills = state.customBaseAttributes.skills || {};
+    const defAttr = typeof defaultSkillEffectiveAttribute === 'function' ? defaultSkillEffectiveAttribute(skillId) : 'int';
+    if(!val || val === defAttr){
+      delete state.customBaseAttributes.skills[skillId];
+    } else {
+      state.customBaseAttributes.skills[skillId] = val;
+    }
+    characterDataRevision++;
+    persistNow();
+    if(state.finished && typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
+    const container = document.getElementById('baseAttributesViewContainer');
+    if(container && state.sheetView === 'base-attributes'){
+      container.innerHTML = renderBaseAttributesPage();
+    } else {
+      renderStage();
+    }
+  }
+});
+
+document.addEventListener('click', (event) => {
+  const resetBtn = (event.target as HTMLElement)?.closest?.('[data-action="reset-base-attributes"]');
+  if(!resetBtn) return;
+  event.preventDefault();
+  state.customBaseAttributes = {};
+  characterDataRevision++;
+  persistNow();
+  if(state.finished && typeof saveFinishedCharacter === 'function') saveFinishedCharacter();
+  const container = document.getElementById('baseAttributesViewContainer');
+  if(container && state.sheetView === 'base-attributes'){
+    container.innerHTML = renderBaseAttributesPage();
+  } else {
+    renderStage();
+  }
+  if(typeof toast === 'function') toast('Atributos Base restaurados para a configuração padrão!');
+});
+
+if(typeof window !== 'undefined'){
+  (window as any).renderBaseAttributesPage = renderBaseAttributesPage;
 }

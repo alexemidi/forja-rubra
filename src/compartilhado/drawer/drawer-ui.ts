@@ -141,6 +141,10 @@
             <span class="drawer-item-icon">${icon('shield', 'icon-gold')}</span>
             <span>Regras da Campanha</span>
           </a>
+          <a class="drawer-nav-item" href="javascript:void(0)" data-drawer-action="base-attributes">
+            <span class="drawer-item-icon">${icon('sliders', 'icon-gold')}</span>
+            <span>Atributos Base</span>
+          </a>
           <a class="drawer-nav-item" href="personagens.html">
             <span class="drawer-item-icon">${icon('users', 'icon-gold')}</span>
             <span>Meus Personagens</span>
@@ -246,6 +250,19 @@
               fnRegras(false);
             } else {
               window.location.href = 'criador.html?regras=true';
+            }
+            return;
+          }
+          if (act === 'base-attributes') {
+            e.preventDefault();
+            fechar();
+            if (typeof window.state !== 'undefined' && window.state && typeof window['renderStage'] === 'function') {
+              window.state.sheetView = 'base-attributes';
+              if (typeof window['persist'] === 'function') window['persist']();
+              window['renderStage']();
+              if (typeof window.scrollTo === 'function') window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              window.location.href = 'criador.html?view=base-attributes';
             }
             return;
           }

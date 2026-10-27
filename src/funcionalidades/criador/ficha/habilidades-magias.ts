@@ -292,12 +292,16 @@ function formatSpellSnippetHtml(rawHtml){
 }
 function characterSpellcastingSources(){
   const plan=typeof spellPlan==='function'?spellPlan():null;
-  if(!plan?.classes?.length)return[];
+  const customSpellKey=state?.customBaseAttributes?.spellKey;
   const attrs=finalAttrs(),halfLevel=Math.floor(Math.max(1,Number(state.identity?.plannedLevel)||1)/2),sources=[];
-  for(const clsInfo of plan.classes){
+  const classList=plan?.classes?.length?plan.classes:(customSpellKey&&['for','des','con','int','sab','car'].includes(customSpellKey)?[{classId:state.identity?.classId||'geral',name:(typeof classById==='function'?classById(state.identity?.classId)?.nome:null)||'Magias',type:'arcana'}]:[]);
+  if(!classList.length)return[];
+  for(const clsInfo of classList){
     const classId=clsInfo.classId,cls=classById(classId);
     let attrKey='int';
-    if(classId==='arcanista'){
+    if(customSpellKey&&['for','des','con','int','sab','car'].includes(customSpellKey)){
+      attrKey=customSpellKey;
+    }else if(classId==='arcanista'){
       attrKey=clsInfo.path==='feiticeiro'?'car':'int';
     }else if(classId==='bardo'||classId==='paladino'||classId==='usurpador'){
       attrKey='car';
@@ -466,7 +470,9 @@ function sheetInventoryLoad(){
   const mountAlforjeBonus = (state.partners || []).some(p => (typeof mountGear === 'function' ? mountGear(p) : []).some(e => e.itemId === 'alforje')) ? 10 : 0;
   const tpeelBonus = (typeof hasFamiliarElementalPower === 'function' && hasFamiliarElementalPower() && typeof getSelectedElementalFamiliarId === 'function' && getSelectedElementalFamiliarId() === 'tpeel') ? 2 : 0;
   const mochilaBonus=RegrasMochilas.beneficiosMochilas(mochilasVestidas(),poderesCarga(),finalAttrs());
-  const baseLimit=Math.max(0,10+(mochilaBonus.valor>=0?2*mochilaBonus.valor:mochilaBonus.valor));
+  const customLoadAttr=state?.customBaseAttributes?.load;
+  const effectiveLoadVal=(customLoadAttr&&['for','des','con','int','sab','car'].includes(customLoadAttr))?Number(finalAttrs()[customLoadAttr]||0):mochilaBonus.valor;
+  const baseLimit=Math.max(0,10+(effectiveLoadVal>=0?2*effectiveLoadVal:effectiveLoadVal));
   const bonusSpaces=mochilaBonus.bonus+bonusPoderesCarga()+Math.max(0,Number(suraggelCarryingBonus())||0)+mountAlforjeBonus+tpeelBonus;
   const limit=baseLimit+bonusSpaces;
   return {used,limit,maximum:limit*2,baseLimit,bonusSpaces};

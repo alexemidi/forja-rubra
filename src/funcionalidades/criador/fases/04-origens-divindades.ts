@@ -67,7 +67,7 @@ function renderDeferred(type){if(type==='spells'){const race=raceById(state.iden
 function ensureProgression(){const level=Math.max(1,Math.min(20,Number(state.identity.plannedLevel)||1));state.identity.plannedLevel=level;while(state.progression.length<level)state.progression.push({classId:state.identity.classId,powerId:''});state.progression=state.progression.slice(0,level);const p0=state.progression[0]||{};const cosmoPower=(typeof hasCosmopolita==='function'&&hasCosmopolita())?(p0.powerId||state.powers?.cosmopolitaPower||''):'';state.progression[0]={...p0,classId:state.identity.classId,powerId:cosmoPower}}
 function classLevelAt(index,classId){return RegrasCriacao.nivelClasse(state.progression,index,classId)}
 function powerSlotAt(cls,classLevel){return (cls?.habilidades||[]).some(h=>(h.efeitos||[]).some(e=>e.tipo==='escolha_poder_classe'&&classLevel>=Number(e.nivelInicial||h.nivel||2)&&(e.frequencia==='todo_nivel'||classLevel===Number(e.nivelInicial||h.nivel||2))))}
-function characterSpellKeyAttribute(classId){
+function defaultSpellKeyAttribute(classId){
   if(classId==='arcanista'){
     const path=typeof spellPath==='function'?spellPath():['bruxo','mago','feiticeiro'].find(p=>Object.values(state?.identity?.classChoices||{}).some(val=>(typeof slug==='function'?slug(val):String(val).toLowerCase())===p));
     return path==='feiticeiro'?'car':'int';
@@ -80,17 +80,38 @@ function characterSpellKeyAttribute(classId){
   if(bonus)return bonus.atributo==='atributo_chave_magia'?'int':bonus.atributo;
   return null;
 }
+function characterSpellKeyAttribute(classId){
+  const defKey=defaultSpellKeyAttribute(classId);
+  const customKey=state?.customBaseAttributes?.spellKey;
+  if(customKey&&['for','des','con','int','sab','car'].includes(customKey)){
+    if(defKey)return customKey;
+    const progClasses=Array.from(new Set((state?.progression||[]).map(r=>r.classId).filter(Boolean)));
+    const hasNativeCaster=progClasses.some(cid=>Boolean(defaultSpellKeyAttribute(cid)));
+    if(!hasNativeCaster&&classId===(progClasses[0]||state?.identity?.classId))return customKey;
+  }
+  return defKey;
+}
 
 function renderSummary(){ensureProgression();const attrs=finalAttrs(),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'Não devoto';return panel('Visão geral','<div class="summary-cards"><div class="summary-card"><small>Personagem</small><strong>'+esc(state.identity.characterName||'Sem nome')+'</strong></div><div class="summary-card"><small>Raça</small><strong>'+esc(race?.nome)+'</strong></div><div class="summary-card"><small>Nível</small><strong>'+state.identity.plannedLevel+'</strong></div><div class="summary-card"><small>Devoção</small><strong>'+esc(deity)+'</strong></div><div class="summary-card"><small>PV base</small><strong>'+stats.pv+'</strong></div><div class="summary-card"><small>PM base</small><strong>'+stats.pm+'</strong></div><div class="summary-card"><small>Defesa base</small><strong>'+stats.defense+'</strong></div><div class="summary-card"><small>Origem</small><strong>'+esc(origin?.nome||'—')+'</strong></div></div><div class="attributes" style="margin-top:10px">'+ATTRS.map(([id,name])=>'<div class="attribute-card"><span class="attribute-name">'+esc(name)+'</span><div class="attribute-value" style="margin-top:7px"><strong>'+attrs[id]+'</strong></div></div>').join('')+'</div>')+panel('Progressão e multiclasse','<div class="progression">'+state.progression.map((row,index)=>{const cls=classById(row.classId),classLevel=classLevelAt(index,row.classId),abilities=(cls?.habilidades||[]).filter(h=>Number(h.nivel)===classLevel),slot=index>0&&powerSlotAt(cls,classLevel),powers=DATA.classPowers.filter(p=>(p.classeIds||[]).includes(row.classId));return '<div class="level-row"><div class="level-badge">Nv. '+(index+1)+'</div><label class="field"><span>Classe · nível '+classLevel+' nela</span><select class="select" data-action="progress-class" data-index="'+index+'" '+(index===0?'disabled':'')+'>'+DATA.classes.map(c=>'<option value="'+c.id+'" '+(c.id===row.classId?'selected':'')+'>'+esc(c.nome)+'</option>').join('')+'</select></label><div class="level-content">'+(abilities.length?abilities.map(h=>'<strong>'+esc(h.nome)+'</strong><br>'+esc(h.descricao)+'<br>').join(''):'<span>Nenhuma habilidade fixa cadastrada neste nível de classe.</span>')+(slot?'<label class="field" style="margin-top:8px"><span>Poder de '+esc(cls.nome)+'</span><select class="select" data-action="progress-power" data-index="'+index+'"><option value="">Escolha um poder</option>'+powers.map(p=>'<option value="'+p.id+'" '+(p.id===row.powerId?'selected':'')+'>'+esc(p.nome)+' · '+esc(p.preRequisitosTexto||'sem pré-requisito')+'</option>').join('')+'</select></label>':'')+(row.powerId?'<div class="power-detail">'+esc(powers.find(p=>p.id===row.powerId)?.descricao||'')+'</div>':'')+'</div></div>'}).join('')+'</div><div class="inline-actions" style="margin-top:10px"><button class="button primary" data-action="add-level" type="button" '+(state.identity.plannedLevel>=20?'disabled':'')+'>+ Subir de nível</button></div>','Troque a classe de qualquer nível após o 1º para criar uma multiclasse.')}
 
 function phaseIsComplete(step){if(step===1){const flexOk=requiredRaceChoicesComplete(),classChoices=classChoiceDescriptors(classById(state.identity.classId)),classOk=classChoices.every(x=>state.identity.classChoices[x.id]);return Boolean(state.identity.characterName.trim()&&state.identity.playerName.trim()&&pointSpent()===10&&flexOk&&mandatoryClassSkills().length===(classById(state.identity.classId)?.caracteristicas?.pericias?.fixas||[]).length&&classOk)}if(step===2){if(['golem','golem_desperto'].includes(state.identity.raceId))return true;const isSingleReg=state.origin.mode==='single'&&Boolean(selectedRegionalOrigin());if(isSingleReg)return true;return Boolean(state.origin.standard&&originBenefitsCount()===2&&(state.origin.mode==='single'||state.origin.regional))}if(step===3){const cls=classById(state.identity.classId),dup=mandatoryClassSkills().filter(x=>[...originSkillIds(),...regionalSkillIds()].includes(x)).length;return state.skills.class.length===Number(cls?.caracteristicas?.pericias?.escolhas?.quantidade||0)+dup&&state.skills.int.length===Math.max(0,finalAttrs().int)&&state.skills.race.length===raceSkillSlots()}if(step===4)return racePowerGroups().every(g=>(state.powers.raceGroups[g.id]||[]).length===Number(g.quantity||0))&&state.powers.general.filter(Boolean).length===generalPowerSlots();if(step===5){const rule=devotionRule();if(rule.forced==='none'||state.deity.mode==='none'||state.deity.mode==='pantheon')return true;return Boolean(state.deity.name&&String(state.deity.power||'').split('|').filter(Boolean).length===deityPowerCount())}if(step===6)return true;if(step===7)return true;if(step===8)return true;return false}
 function validationMessage(step,short=false){if(phaseIsComplete(step))return short?'Etapa pronta para continuar.':'Etapa completa.';const messages={1:'Preencha os nomes, gaste os 10 pontos e conclua as escolhas obrigatórias de raça e classe.',2:'Escolha a origem, exatamente dois benefícios e, se necessário, uma origem regional.',3:'Complete todas as quantidades de perícias sem repetir treinos.',4:'Complete as escolhas de poderes raciais e gerais.',5:'Defina uma devoção válida e os poderes concedidos.'};return messages[step]||'Revise as informações desta etapa.'}
+function renderNavHeroSummaryHtml(){
+  const charName = (state?.identity?.characterName || '').trim() || 'Sem nome';
+  const raceName = (typeof raceById === 'function' ? raceById(state?.identity?.raceId)?.nome : '') || 'Raça';
+  const className = (typeof classById === 'function' ? classById(state?.identity?.classId)?.nome : '') || 'Classe';
+  return '<div class="phase-nav-hero-summary">' +
+    '<span class="phase-nav-hero-name">' + esc(charName) + '</span>' +
+    '<span class="phase-nav-hero-sep">·</span>' +
+    '<span class="phase-nav-hero-meta">' + esc(raceName) + ' · ' + esc(className) + '</span>' +
+  '</div>';
+}
 function renderNav(){
   const nav=document.getElementById('phaseNav');
   if(!nav)return;
   const isLevelUp = Boolean(state.isLevelingUp);
   const visibleSteps=PHASES.map((p,i)=>i+1).filter(s=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(s)));
-  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+PHASES.map((phase,index)=>{
+  const stepsHtml=PHASES.map((phase,index)=>{
     const number=index+1;
     if(typeof shouldSkipPhase==='function'&&shouldSkipPhase(number))return '';
     const visualIdx=visibleSteps.indexOf(number);
@@ -101,6 +122,7 @@ function renderNav(){
     const labelHtml=isActive?'<span class="phase-label">'+esc(phase[0])+'</span>':'';
     return '<button class="phase-button '+(isActive?'active ':'collapsed-phase ')+(done?'done ':'')+(isLocked?'locked-phase ':'')+'" data-step="'+number+'" '+(isLocked?'disabled title="Bloqueado durante avanço de nível"':'title="'+esc(phase[0])+'"')+'><span class="phase-number">'+(isLocked?'#':visualNum)+'</span>'+labelHtml+'<span class="phase-state"></span></button>';
   }).join('');
+  nav.innerHTML='<div class="phase-nav-title">'+(isLevelUp?'Subida de nível':'Etapas')+'</div>'+renderNavHeroSummaryHtml()+'<div class="phase-nav-steps">'+stepsHtml+'</div>';
   const activeBtn=nav.querySelector('.phase-button.active');
   if(activeBtn&&typeof activeBtn.scrollIntoView==='function'){
     activeBtn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});

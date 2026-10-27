@@ -66,7 +66,7 @@ function renderSheetStage(navigationOnly=false){
       state.sheetView=state.sheetView||'sheet';
     }
     if(!state.finished || state.isEditingFinishedSheet){
-      if(state.sheetView==='grimoire'||state.sheetView==='shop'||state.sheetView==='tavern'||state.sheetView==='workshop'){
+      if(state.sheetView==='grimoire'||state.sheetView==='shop'||state.sheetView==='tavern'||state.sheetView==='workshop'||state.sheetView==='base-attributes'){
         document.body?.classList.remove('character-sheet-ready');
         document.body?.classList.toggle('spell-stage',state.sheetView==='grimoire');
         document.body?.classList.toggle('arsenal-stage',state.sheetView==='shop'||state.sheetView==='workshop');
@@ -81,6 +81,9 @@ function renderSheetStage(navigationOnly=false){
         } else if(state.sheetView==='tavern'){
           kickerText = 'Estalagem & Serviços';
           titleText = 'Taverna de Arton';
+        } else if(state.sheetView==='base-attributes'){
+          kickerText = 'Configuração da Ficha';
+          titleText = 'Atributos Base';
         } else if(state.sheetView==='workshop'){
           const secKey = state.workshopSection || 'artesao';
           // @ts-ignore
@@ -91,7 +94,7 @@ function renderSheetStage(navigationOnly=false){
         }
         const stageHeading = document.querySelector('.stage-heading') as HTMLElement;
         if(stageHeading){
-          const hideHeading = state.sheetView === 'grimoire';
+          const hideHeading = state.sheetView === 'grimoire' || state.sheetView === 'base-attributes';
           stageHeading.style.display = hideHeading ? 'none' : '';
           stageHeading.hidden = hideHeading;
         }
@@ -146,7 +149,7 @@ function renderSheetStage(navigationOnly=false){
     }
     const stageHeading=document.querySelector('.stage-heading') as HTMLElement;
     const isSheetMain = state.sheetView==='sheet' || !state.sheetView;
-    const hideHeading = isSheetMain || state.sheetView==='grimoire';
+    const hideHeading = isSheetMain || state.sheetView==='grimoire' || state.sheetView==='base-attributes';
     if(stageHeading){
       stageHeading.style.display = hideHeading ? 'none' : '';
       stageHeading.hidden = hideHeading;
@@ -159,6 +162,9 @@ function renderSheetStage(navigationOnly=false){
     } else if(state.sheetView==='tavern'){
       kickerText = 'Estalagem & Serviços';
       titleText = 'Taverna de Arton';
+    } else if(state.sheetView==='base-attributes'){
+      kickerText = 'Configuração da Ficha';
+      titleText = 'Atributos Base';
     } else if(state.sheetView==='workshop'){
       const secKey = state.workshopSection || 'artesao';
       // @ts-ignore

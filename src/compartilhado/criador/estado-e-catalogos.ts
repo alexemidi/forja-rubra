@@ -114,6 +114,7 @@ function loadState(){
         characterStorage.salvar(STORAGE_KEY,loaded);
         return loaded;
       }
+      const viewParam=params.get('view');
       const charId=params.get('id');
       if(charId){
         if(window.history?.replaceState){
@@ -124,9 +125,25 @@ function loadState(){
         const found=Array.isArray(roster)?roster.find(h=>h.id===charId):null;
         if(found?.snapshot){
           const loaded=applyTableRulesToState(migratePersistedState(found.snapshot), urlTableRules);
+          if(viewParam==='base-attributes'){
+            loaded.sheetView='base-attributes';
+          }
           characterStorage.salvar(STORAGE_KEY,loaded);
           return loaded;
         }
+      }
+      if(viewParam==='base-attributes'){
+        if(window.history?.replaceState){
+          const cleanUrl=window.location.pathname+(window.location.hash||'');
+          window.history.replaceState(null,'',cleanUrl);
+        }
+        const loaded=migratePersistedState(characterStorage.ler(STORAGE_KEY,defaultState));
+        if(urlTableRules){
+          applyTableRulesToState(loaded, urlTableRules);
+        }
+        loaded.sheetView='base-attributes';
+        characterStorage.salvar(STORAGE_KEY,loaded);
+        return loaded;
       }
     }
     const loaded = migratePersistedState(characterStorage.ler(STORAGE_KEY,defaultState));

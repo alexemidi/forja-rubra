@@ -27,6 +27,13 @@ document.addEventListener('click',async event=>{
       if(typeof openPlanningModal==='function') openPlanningModal();
       return;
     }
+    if(action==='base-attributes'){
+      if(!state.finished) state.previousCreationStep = state.step;
+      state.sheetView = 'base-attributes';
+      persistNavigationNow();
+      renderStage({navigationOnly:true});
+      return;
+    }
     if(action==='edit-attacks'){
       if(typeof openEditAttacksModal==='function') openEditAttacksModal();
       return;

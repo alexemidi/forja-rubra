@@ -60,6 +60,12 @@ function cosmopolitaClassPowerEligibility(power, classId, classLevel){
   }
 
   const ownedNames = new Set((typeof ownedPowerNames === 'function' ? [...ownedPowerNames()] : []).map(slug));
+  const rawReqText = String(power.preRequisitosTexto || '');
+  const profs = typeof characterProficiencies === 'function' ? characterProficiencies(classId) : (classById(classId)?.caracteristicas?.proficiencias || []);
+  if (/proficiência com armaduras pesadas/i.test(rawReqText) && !profs.includes('armaduras_pesadas')) reasons.push('Requer proficiência com armaduras pesadas.');
+  if (/proficiência com escudos/i.test(rawReqText) && !profs.includes('escudos')) reasons.push('Requer proficiência com escudos.');
+  if (/proficiência com armas marciais/i.test(rawReqText) && !profs.includes('armas_marciais')) reasons.push('Requer proficiência com armas marciais.');
+  if (/proficiência com armas de fogo/i.test(rawReqText) && !profs.includes('armas_de_fogo')) reasons.push('Requer proficiência com armas de fogo.');
   const text = slug(power.preRequisitosTexto || '');
   for (const candidate of (DATA.classPowers || []).filter(item => (item.classeIds || []).includes(classId))) {
     if (candidate.id !== power.id && text.includes(slug(candidate.nome)) && !ownedNames.has(slug(candidate.nome))) {

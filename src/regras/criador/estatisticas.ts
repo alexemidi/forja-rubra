@@ -1,7 +1,8 @@
 function baseProgressionStats(){
   ensureProgression();
   const baseAttrs=finalAttrs(false),attrs=finalAttrs(true),first=classById(state.progression[0].classId);
-  const conAttr=(typeof characterHasFeature==='function'&&characterHasFeature('dom_da_esperanca'))?Number(baseAttrs.sab||0):Number(baseAttrs.con||0);
+  const pvAttrKey=typeof characterPvKeyAttribute==='function'?characterPvKeyAttribute():((typeof characterHasFeature==='function'&&characterHasFeature('dom_da_esperanca'))?'sab':'con');
+  const conAttr=Number(baseAttrs[pvAttrKey]||0);
   const pv=Number(first?.caracteristicas?.pv?.inicial||0)+conAttr+state.progression.slice(1).reduce((s,row)=>s+Number(classById(row.classId)?.caracteristicas?.pv?.porNivel||0)+conAttr,0);
   let pm=state.progression.reduce((s,row)=>s+Number(classById(row.classId)?.caracteristicas?.pm?.porNivel||0),0);
   for(const classId of new Set(state.progression.map(row=>row.classId))){
@@ -31,7 +32,8 @@ function progressionStats(){
   if(chosen.has('melancolico'))result.pm-=level;
   if(state.levelTraining&&(state.levelTraining.pv||state.levelTraining.pm)&&level<20){
     const baseAttrs=finalAttrs(false);
-    const conAttr=(typeof characterHasFeature==='function'&&characterHasFeature('dom_da_esperanca'))?Number(baseAttrs.sab||0):Number(baseAttrs.con||0);
+    const pvAttrKey=typeof characterPvKeyAttribute==='function'?characterPvKeyAttribute():((typeof characterHasFeature==='function'&&characterHasFeature('dom_da_esperanca'))?'sab':'con');
+    const conAttr=Number(baseAttrs[pvAttrKey]||0);
     const defaultCls=state.progression?.[state.progression.length-1]?.classId||state.identity.classId;
     const tBonuses=typeof ForjaUnificada!=='undefined'&&typeof ForjaUnificada.calculateLevelTrainingBonuses==='function'
       ?ForjaUnificada.calculateLevelTrainingBonuses({
