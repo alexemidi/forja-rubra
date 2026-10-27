@@ -179,3 +179,31 @@ test('Visualização Simplificada Reduzida e Grid de 3 Colunas Alinhadas', () =>
   assert.ok(guildCss.includes('repeat(3, minmax(0, 1fr))'), 'Guilda deve usar layout de 3 colunas');
   assert.ok(guildCss.includes('align-items: start !important'), 'Guilda deve alinhar no topo');
 });
+
+test('Padronização Rubra dos Botões de Navegação e Rodapé (Sem Arco-Íris)', () => {
+  const flCss = fs.readFileSync('src/estilos/criador/ficha-legada.css', 'utf8');
+  // 1. Não deve haver botões verdes, azuis ou âmbar no rodapé
+  assert.ok(!flCss.includes('#238636'), 'nextButton não pode mais ter fundo verde #238636');
+  assert.ok(!flCss.includes('#1e3a8a'), 'stepNextButton não pode mais ter fundo azul #1e3a8a');
+  assert.ok(!flCss.includes('#1e293b'), 'stepPrevButton não pode mais ter fundo slate #1e293b');
+  assert.ok(!flCss.includes('#d97706'), 'pendingOrFinishButton não pode mais ter fundo âmbar #d97706');
+
+  // 2. stepPrevButton e stepNextButton devem ter fundo rubro canônico com texto branco
+  assert.ok(flCss.includes('#stepPrevButton.button:not(:disabled){\r\n  background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;') ||
+            flCss.includes('background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;'),
+            'stepPrevButton deve usar o gradiente rubro padronizado');
+
+  // 3. 2.css não deve ter fundo amarelo ou texto dourado destoante para Refazer escolhas
+  const c2Css = fs.readFileSync('src/estilos/criador/2.css', 'utf8');
+  assert.ok(!c2Css.includes('background: rgba(233, 173, 89, 0.14) !important;'), 'Refazer escolhas não deve ter fundo amarelo transparente');
+  assert.ok(c2Css.includes('background: linear-gradient(135deg, var(--forja-red, #c51f2c), #8f121d) !important;'), 'Refazer escolhas deve ter fundo rubro');
+
+  // 4. migration-theme.css deve garantir o padrão uniforme para todos os botões do rodapé
+  const mtCss = fs.readFileSync('src/estilos/criador/migration-theme.css', 'utf8');
+  assert.ok(mtCss.includes('/* Padronização Rubra dos Botões de Ação do Rodapé */'), 'Deve ter a seção de padronização rubra dos botões');
+  assert.ok(mtCss.includes('#previousButton'), 'Deve cobrir #previousButton');
+  assert.ok(mtCss.includes('#skipSimpleChoiceBtn'), 'Deve cobrir #skipSimpleChoiceBtn');
+  assert.ok(mtCss.includes('#stepPrevButton'), 'Deve cobrir #stepPrevButton');
+  assert.ok(mtCss.includes('#redoInitialItemsButton'), 'Deve cobrir #redoInitialItemsButton');
+  assert.ok(mtCss.includes('#cancelEditCharacterButton'), 'Deve cobrir #cancelEditCharacterButton');
+});

@@ -29,7 +29,7 @@ body{background-color:var(--forja-ink)!important;background-image:radial-gradien
 }
 .panel{position:relative;border-color:var(--border)!important;border-radius:0!important;background:linear-gradient(145deg,#1b1215f5,#110d0ff5)!important;box-shadow:0 18px 42px #0004;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}.panel-header{border-color:var(--border)!important;background:#211519!important}.panel-body{background:transparent!important}
 .input,.select,.textarea{min-height:44px;border-color:#583038!important;border-radius:0!important;background:#0d090b!important;color:var(--text)!important}.input:focus,.select:focus,.textarea:focus{border-color:var(--forja-red-hot)!important;box-shadow:0 0 0 3px #ef39451f!important}
-.button,.btn{border-radius:0!important;border-color:#7d3540!important;background:linear-gradient(135deg,var(--forja-red),#8f121d)!important;color:white!important;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}.button.primary{border-color:#ef394588!important;background:linear-gradient(135deg,#d52635,#81121b)!important;color:#fff!important}.button.danger{background:#271216!important;color:#ef9aa2!important}.button:hover{filter:brightness(1.15)}
+.button,.btn{border-radius:0!important;border-color:#7d3540!important;background:linear-gradient(135deg,var(--forja-red),#8f121d)!important;color:white!important;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}.button.primary{border-color:#ef394588!important;background:linear-gradient(135deg,#d52635,#81121b)!important;color:#fff!important}.button.danger{border-color:#7d3540!important;background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d)!important;color:#ffffff!important;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))!important}.button:hover{filter:brightness(1.15)}
 .button.small,.btn.small,.button.is-small,.btn.is-small,.btn-sm,.button-sm,[data-mount-equip-now-btn],[data-mount-equip-close],.sheet-mount-item-btn,.sheet-mount-toggle-btn{min-height:24px!important;height:24px!important;padding:2px 10px!important;font-size:0.72rem!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))!important}
 
 .choice-card,.check-card,.deity-card,.power-row,.deity-power-row,.attribute-matrix-row,.allocation-item,.summary-card,.point-banner,.stage-footer,.power-detail-panel{border-color:#4a252a!important;border-radius:0!important;background:#0d090b!important}.choice-card.selected,.check-card.selected,.deity-card.selected,.power-row.selected,.deity-power-row.selected{border-color:var(--forja-red-hot)!important;background:#8f152224!important;box-shadow:inset 3px 0 var(--forja-red-hot)!important}.ability{border-left-color:var(--forja-red)!important;border-radius:0!important;background:#0e0a0b!important}.tag.gold,.book-tag{border-color:#8d3b46!important;color:var(--forja-gold)!important;background:#c51f2c12!important}.tag.amber{border-color:#d97706aa!important;color:#fbbf24!important;background:#f59e0b1f!important}.matrix-total,.racial-total,.racial-static,.point-banner strong,.summary-card strong{color:var(--forja-gold)!important}.attribute-matrix-row.prereq-unmet{border-color:#ef4444aa!important;box-shadow:inset 3px 0 #ef4444!important}.attribute-matrix-row.prereq-met,.attribute-matrix-row.prereq-highlight:not(.prereq-unmet),.check-card.prereq{border-color:#b37a3f88!important;box-shadow:inset 3px 0 var(--forja-gold)!important}
@@ -2036,3 +2036,64 @@ body.stage-powers-active .stage-footer {
 
 
 
+
+/* Padronização Rubra dos Botões de Ação do Rodapé */
+.footer-actions .button,
+.stage-footer .button,
+#skipSimpleChoiceBtn,
+#redoInitialItemsButton,
+#redoSpellChoicesButton,
+#cancelEditCharacterButton,
+#cancelLevelUpButton,
+#previousButton,
+#stepPrevButton,
+#stepNextButton,
+#nextButton,
+#reviewProgressionButton,
+#teurgistSkipButton {
+  border-radius: 0 !important;
+  border: 1px solid #7d3540 !important;
+  background: linear-gradient(135deg, var(--forja-red, #c51f2c), #8f121d) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
+  box-shadow: 0 2px 8px rgba(143, 18, 29, 0.35) !important;
+  transition: filter 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.footer-actions .button:not(:disabled):hover,
+.stage-footer .button:not(:disabled):hover,
+#skipSimpleChoiceBtn:not(:disabled):hover,
+#redoInitialItemsButton:not(:disabled):hover,
+#redoSpellChoicesButton:not(:disabled):hover,
+#cancelEditCharacterButton:not(:disabled):hover,
+#cancelLevelUpButton:not(:disabled):hover,
+#previousButton:not(:disabled):hover,
+#stepPrevButton:not(:disabled):hover,
+#stepNextButton:not(:disabled):hover,
+#nextButton:not(:disabled):hover,
+#reviewProgressionButton:not(:disabled):hover,
+#teurgistSkipButton:not(:disabled):hover {
+  filter: brightness(1.15) !important;
+  border-color: var(--gold, #e9ad59) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(233, 173, 89, 0.45) !important;
+}
+
+.footer-actions .button:disabled,
+.stage-footer .button:disabled,
+#stepPrevButton:disabled,
+#stepNextButton:disabled,
+#nextButton:disabled,
+#nextButton.is-incomplete {
+  opacity: 0.35 !important;
+  filter: grayscale(1) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  background: var(--surface3, #1a1e28) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--muted, #7c879a) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
+}

@@ -96,17 +96,19 @@ body.arsenal-stage .shell{padding-top:10px!important;padding-bottom:0!important}
 @media(max-width:600px){.sheet-money-load{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 #nextButton.button.primary:not(.is-incomplete):not(:disabled){
-  background:#238636 !important;
-  border-color:#2ea043 !important;
+  background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;
+  border-color:#7d3540 !important;
   color:#ffffff !important;
-  box-shadow:0 0 10px rgba(46,160,67,0.45) !important;
+  box-shadow:0 2px 10px rgba(197,31,44,0.45) !important;
   cursor:pointer !important;
   opacity:1 !important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)) !important;
 }
 #nextButton.button.primary:not(.is-incomplete):not(:disabled):hover{
-  background:#2ea043 !important;
-  border-color:#3fb950 !important;
-  box-shadow:0 0 14px rgba(63,185,80,0.65) !important;
+  filter:brightness(1.15) !important;
+  border-color:var(--gold,#e9ad59) !important;
+  box-shadow:0 0 14px rgba(233,173,89,0.45) !important;
+  color:#ffffff !important;
 }
 #nextButton:disabled,
 #nextButton.is-incomplete,
@@ -134,31 +136,22 @@ body.arsenal-stage .shell{padding-top:10px!important;padding-bottom:0!important}
   transform:none !important;
 }
 
-#pendingOrFinishButton.is-pending{
-  background:#d97706 !important;
-  border-color:#f59e0b !important;
-  color:#ffffff !important;
-  font-weight:700 !important;
-  box-shadow:0 0 10px rgba(245,158,11,0.45) !important;
-  cursor:pointer !important;
-}
-#pendingOrFinishButton.is-pending:hover{
-  background:#b45309 !important;
-  border-color:#d97706 !important;
-  box-shadow:0 0 14px rgba(245,158,11,0.65) !important;
-}
+#pendingOrFinishButton.is-pending,
 #pendingOrFinishButton.is-finish{
-  background:#16a34a !important;
-  border-color:#22c55e !important;
+  background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;
+  border-color:#7d3540 !important;
   color:#ffffff !important;
   font-weight:700 !important;
-  box-shadow:0 0 10px rgba(34,197,94,0.45) !important;
+  box-shadow:0 0 10px rgba(197,31,44,0.45) !important;
   cursor:pointer !important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)) !important;
 }
+#pendingOrFinishButton.is-pending:hover,
 #pendingOrFinishButton.is-finish:hover{
-  background:#15803d !important;
-  border-color:#16a34a !important;
-  box-shadow:0 0 14px rgba(34,197,94,0.65) !important;
+  filter:brightness(1.15) !important;
+  border-color:var(--gold,#e9ad59) !important;
+  box-shadow:0 0 14px rgba(233,173,89,0.55) !important;
+  color:#ffffff !important;
 }
 
 #nextButton.deity-restricted{
@@ -176,17 +169,18 @@ body.arsenal-stage .shell{padding-top:10px!important;padding-bottom:0!important}
 }
 
 #stepNextButton.button:not(:disabled){
-  background:#1e3a8a !important;
-  border-color:#3b82f6 !important;
-  color:#bfdbfe !important;
-  box-shadow:0 0 10px rgba(59,130,246,0.35) !important;
+  background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;
+  border-color:#7d3540 !important;
+  color:#ffffff !important;
+  box-shadow:0 2px 8px rgba(197,31,44,0.35) !important;
   cursor:pointer !important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)) !important;
 }
 #stepNextButton.button:not(:disabled):hover{
-  background:#2563eb !important;
-  border-color:#60a5fa !important;
+  filter:brightness(1.15) !important;
+  border-color:var(--gold,#e9ad59) !important;
   color:#ffffff !important;
-  box-shadow:0 0 14px rgba(59,130,246,0.55) !important;
+  box-shadow:0 0 14px rgba(233,173,89,0.45) !important;
 }
 #stepNextButton:disabled,
 #stepNextButton.button:disabled{
@@ -199,15 +193,18 @@ body.arsenal-stage .shell{padding-top:10px!important;padding-bottom:0!important}
   cursor:not-allowed !important;
 }
 #stepPrevButton.button:not(:disabled){
-  background:#1e293b !important;
-  border-color:#475569 !important;
-  color:#cbd5e1 !important;
+  background:linear-gradient(135deg,var(--forja-red,#c51f2c),#8f121d) !important;
+  border-color:#7d3540 !important;
+  color:#ffffff !important;
+  box-shadow:0 2px 8px rgba(197,31,44,0.35) !important;
   cursor:pointer !important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px)) !important;
 }
 #stepPrevButton.button:not(:disabled):hover{
-  background:#334155 !important;
-  border-color:#94a3b8 !important;
+  filter:brightness(1.15) !important;
+  border-color:var(--gold,#e9ad59) !important;
   color:#ffffff !important;
+  box-shadow:0 0 14px rgba(233,173,89,0.45) !important;
 }
 #stepPrevButton:disabled,
 #stepPrevButton.button:disabled{

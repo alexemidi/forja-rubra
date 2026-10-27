@@ -10,20 +10,21 @@ html{background:#09090d}body{background:radial-gradient(ellipse at 8% 0%,#681a30
 [data-action="spell-redo"],
 .btn-redo-choices,
 body:has(#redoInitialItemsButton:not([hidden])) #redoInitialItemsButton {
-  background: rgba(233, 173, 89, 0.14) !important;
-  border: 1px solid var(--gold, #dfb666) !important;
-  color: var(--gold2, #f3d99c) !important;
-  font-weight: 600 !important;
+  background: linear-gradient(135deg, var(--forja-red, #c51f2c), #8f121d) !important;
+  border: 1px solid #7d3540 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
   transition: all 0.2s ease !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
 }
 #redoInitialItemsButton:hover,
 #redoSpellChoicesButton:hover,
 [data-action="spell-redo"]:hover,
 .btn-redo-choices:hover {
-  background: var(--gold, #dfb666) !important;
-  color: #110d0f !important;
-  border-color: var(--gold2, #f3d99c) !important;
-  box-shadow: 0 0 12px rgba(223, 182, 102, 0.45) !important;
+  filter: brightness(1.15) !important;
+  border-color: var(--gold, #dfb666) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(233, 173, 89, 0.45) !important;
 }
 .brand h1,
 #stageTitle,

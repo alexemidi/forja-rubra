@@ -292,7 +292,7 @@ function syncInitialItemFooter(){
       skipSimpleBtn.type = 'button';
       skipSimpleBtn.className = 'button secondary-button';
       skipSimpleBtn.textContent = 'Pular escolha →';
-      skipSimpleBtn.style.marginRight = '8px';
+      // uniform flex gap handled by .footer-actions
       skipSimpleBtn.addEventListener('click', () => commitOrAdvanceCurrentChoice(true));
       nextBtn.parentNode.insertBefore(skipSimpleBtn, nextBtn);
     }

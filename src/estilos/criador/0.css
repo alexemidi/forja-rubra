@@ -339,12 +339,16 @@
   background: #7c6dfa33;
 }
 .teurgist-footer-choice {
-  border-color: #7c6dfa99;
-  background: #7c6dfa20;
-  color: #d9d4ff;
+  background: linear-gradient(135deg, var(--forja-red, #c51f2c), #8f121d) !important;
+  border-color: #7d3540 !important;
+  color: #ffffff !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
 }
 .teurgist-footer-choice:hover {
-  background: #7c6dfa38;
+  filter: brightness(1.15) !important;
+  border-color: var(--gold, #dfb666) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(233, 173, 89, 0.45) !important;
 }
 .button-retro-teurgist {
   font-size: 0.68rem;
