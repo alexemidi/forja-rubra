@@ -233,7 +233,7 @@ function generalPowerSlotSourceText(index){
   const raceSlots=typeof raceGeneralPowerSlots==='function'?raceGeneralPowerSlots():(typeof generalPowerSlots==='function'?generalPowerSlots():0);
   const race=raceById(state.identity.raceId);
   if(index<raceSlots){
-    return 'Poder geral da raça ('+(race?.nome||'Raça')+')';
+    return 'Raça: '+(race?.nome||'Raça');
   }
   const originChoices=typeof originChoicePowerList==='function'?originChoicePowerList():[];
   const originRelIndex=index-raceSlots;
@@ -241,12 +241,12 @@ function generalPowerSlotSourceText(index){
     const stdOrigin=selectedStandardOrigin();
     const req=originChoices[originRelIndex];
     const catLabel=req?.category?(POWER_CATEGORY_LABEL[req.category]||req.category):'Poder Geral';
-    return 'Poder de '+(catLabel.replace('Poderes de ','').replace('Poderes da ',''))+' da origem ('+(stdOrigin?.nome||'Origem')+')';
+    return 'Origem: '+(stdOrigin?.nome||'Origem');
   }
   const baseCount = raceSlots + originChoices.length;
   const agePowers = Number(state.age?.enabled && ['adulto','maduro','velho','anciao'].includes(state.age?.band) && (state.age?.complications||[]).length > 0 ? 1 : 0);
   if(index >= baseCount && index < baseCount + agePowers){
-    return 'Idade (Já Vi Coisas)';
+    return 'Idade: Já Vi Coisas';
   }
   const indActive = Boolean(state.complicacoesIndividual || state.regrasCampanha?.complicacoes || state.regrasCampanha?.complicacaoIndividual);
   if(indActive && Array.isArray(state.generalComplications)){
@@ -268,14 +268,14 @@ function generalPowerSlotSourceText(index){
       const compList = typeof GENERAL_COMPLICATIONS !== 'undefined' ? GENERAL_COMPLICATIONS : (typeof window !== 'undefined' ? (window as any).GENERAL_COMPLICATIONS : []);
       const compItem = Array.isArray(compList) ? compList.find((c: any) => c[0] === compId) : null;
       const compName = compItem ? compItem[1] : (COMP_NAME_MAP[compId] || (compId ? compId.replace(/_/g, ' ') : 'Complicação'));
-      return 'Complicação (' + compName + ')';
+      return 'Complicação: ' + compName;
     }
   }
   if(state.age?.enabled&&state.age?.band){
-    return 'Poder geral da idade ('+state.age.band+')';
+    return 'Idade: '+state.age.band;
   }
   if(state.complicacoesIndividual || (state.regrasCampanha?.complicacoes && (state.age?.complications||[]).length > 0)){
-    return 'Poder geral por complicação permanente';
+    return 'Complicação permanente';
   }
   return 'Poder geral adicional';
 }
@@ -316,7 +316,7 @@ function renderGeneralPowerBrowser(slots){
   const hasNext=Boolean(state.powers.general[currentSlot])&&currentSlot<slots-1;
   const hiddenNavBar='<div class="sequential-power-nav" style="display:none"><button type="button" data-action="general-power-prev" '+(hasPrev?'':'disabled')+'>Anterior</button>Fonte: '+esc(sourceText)+'<button type="button" data-action="general-power-next" '+(hasNext?'':'disabled')+'>Próximo</button></div>';
   const slotIndicator = slots > 1
-    ? '<div style="font-size:0.8rem;color:var(--gold2);font-weight:700;margin-bottom:8px">Poder ' + (currentSlot + 1) + ' de ' + slots + ' <span style="font-weight:400;color:var(--muted)">(Fonte: ' + esc(sourceText) + ')</span></div>'
+    ? '<div style="font-size:0.8rem;color:var(--gold2);font-weight:700;margin-bottom:8px">Poder ' + (currentSlot + 1) + ' de ' + slots + ' <span style="font-weight:400;color:var(--muted)">· ' + esc(sourceText) + '</span></div>'
     : '';
 
   const POWER_CATEGORIES_LIST = [
