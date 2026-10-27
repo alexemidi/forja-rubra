@@ -607,7 +607,8 @@ function selectedCharacterFeatures(){
         benefitNames: benefitNames
       }, 'origin');
     }
-    if((state.origin.mode==='dual' || !origin) && !isChildCharacter()){
+    const isChild = typeof isChildCharacter === 'function' ? isChildCharacter() : false;
+    if((state.origin.mode==='dual' || !origin) && !isChild){
       const regional=typeof selectedRegionalOrigin==='function'?selectedRegionalOrigin():null;
       if(regional){
         if(slug(regional.nome)==='duplo_feerico'||regional.nome==='Duplo Feérico'){
