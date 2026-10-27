@@ -288,6 +288,11 @@ function syncPartnersFromChoices(){
     fam.benefit = opt ? opt.description : 'Escolha entre Parceiro Adepto Iniciante, Aquin\'ne, T\'peel, Pakk ou Terrier.';
   } else {
     state.partners = state.partners.filter(p => p.id !== 'familiar_elemental');
+    if (state.partnerChoices) {
+      delete state.partnerChoices.familiarElementalType;
+      delete state.partnerChoices.familiarElementalName;
+    }
+    if (state.deity) state.deity.familiarElementalChoice = '';
   }
 }
 

@@ -522,7 +522,7 @@ function grantedPowerData(name){
   return DATA.generalPowers.find(power=>power.categoria==='concedido'&&slug(power.nome)===normalized)||DATA.generalPowers.find(power=>power.categoria==='concedido'&&slug(power.nome)===aliases[normalized]);
 }
 function deityPowerValues(){return String(state.deity.power||'').split('|').slice(0,deityPowerCount())}
-function setDeityPower(index,value){const values=deityPowerValues();while(values.length<deityPowerCount())values.push('');values[index]=value;state.deity.power=values.join('|')}
+function setDeityPower(index,value){const values=deityPowerValues();while(values.length<deityPowerCount())values.push('');values[index]=value;state.deity.power=values.join('|');if(typeof syncPartnersFromChoices==='function')syncPartnersFromChoices()}
 function allGrantedPowerNames(){return [...new Set(DATA.deities.flatMap(deity=>deity.poderes_concedidos||[]))].sort((a,b)=>a.localeCompare(b,'pt-BR'))}
 function grantedPowerPairs(deity=null){
   let godList = deity ? [deity] : DATA.deities;

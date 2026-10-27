@@ -959,6 +959,11 @@ window.addEventListener('message',event=>{
     return;
   }
   if(message.type==='scroll-items')window.scrollBy({top:Number(message.delta)||0,behavior:'auto'});
+  if(message.type==='scroll-to-top'){
+    window.scrollTo({top:0,behavior:'smooth'});
+    const grid=document.getElementById('itemsGrid');
+    if(grid)grid.scrollTo?.({top:0,behavior:'smooth'});
+  }
   if(message.type==='commit-choice'||message.type==='finalize'){
     const m = document.getElementById('purchaseUpgradeModal');
     if(m && typeof closeModal === 'function') closeModal(m);

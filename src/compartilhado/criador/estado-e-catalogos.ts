@@ -783,8 +783,12 @@ function characterHasPartnerChoices(){
   if (stdSlug.includes('recruta_da_fenix') || regSlug.includes('recruta_da_fenix')) return true;
   if ((state.origin?.benefits || []).includes('unique:antigo_mestre')) return true;
   if ((state.origin?.benefits || []).includes('unique:amigo_especial')) return true;
-  if (hasFamiliarElementalPower()) return true;
-  if (Array.isArray(state.partners) && state.partners.length > 0) return true;
+  if (typeof syncPartnersFromChoices === 'function') {
+    syncPartnersFromChoices();
+  }
+  if (typeof hasFamiliarElementalPower === 'function' && hasFamiliarElementalPower()) return true;
+  const knownGeneratedIds = new Set(['alikunha', 'antigo_mestre', 'amigo_especial', 'um_com_os_kami', 'tumarkhan', 'irmao_cavalo', 'grifo_iniciante', 'familiar_elemental']);
+  if (Array.isArray(state.partners) && state.partners.filter(p => p && !knownGeneratedIds.has(p.id)).length > 0) return true;
   return false;
 }
 function shouldSkipPhase(step){

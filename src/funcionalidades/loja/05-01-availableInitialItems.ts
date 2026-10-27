@@ -118,6 +118,15 @@ function availableInitialItems(){
     if(choiceCats?.length)results=results.filter(item=>choiceCats.includes(item.categoriaId));
   }
   if(effectiveChoice?.combat)results=results.filter(item=>item.arma?.combateId===effectiveChoice.combat);
+  if(state.combat && state.combat !== 'todos') {
+    results = results.filter(item => item.arma && (item.arma.combateId === state.combat || (state.combat === 'corpo_a_corpo' && item.arma.combateId === 'corpo_a_corpo_e_distancia') || (state.combat === 'distancia' && item.arma.combateId === 'corpo_a_corpo_e_distancia')));
+  }
+  if(state.grip && state.grip !== 'todos') {
+    results = results.filter(item => item.arma && item.arma.empunhaduraId === state.grip);
+  }
+  if(state.category && state.category !== 'todos' && !choiceCats?.length) {
+    results = results.filter(item => item.categoriaId === state.category);
+  }
   if(effectiveChoice?.damageTypes?.length)results=results.filter(item=>item.arma&&(item.arma.tipoDanoIds||[]).some(d=>effectiveChoice.damageTypes.includes(d)));
   if(effectiveChoice?.dwarfWeaponOnly)results=results.filter(item=>/machado|machadinha|martelo|marreta|picareta/i.test(item.nome||''));
   if(effectiveChoice?.maxPrice!=null&&Number.isFinite(Number(effectiveChoice.maxPrice)))results=results.filter(item=>Number(item.preco?.valor||0)<=Number(effectiveChoice.maxPrice));

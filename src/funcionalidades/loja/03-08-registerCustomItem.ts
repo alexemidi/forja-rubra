@@ -854,4 +854,35 @@ syncInspirationModeUI();
 persistCharacterProfiles();
 syncCharacterUI();
 syncCartUI();
+
+function initCardViewModeToggle() {
+  const normalBtn = document.getElementById('cardModeNormalBtn');
+  const compactBtn = document.getElementById('cardModeCompactBtn');
+  const grid = document.getElementById('itemsGrid');
+  if (!normalBtn || !compactBtn) return;
+
+  function setMode(mode, persist = true) {
+    const isCompact = mode === 'compact';
+    normalBtn?.classList.toggle('active', !isCompact);
+    normalBtn?.setAttribute('aria-pressed', String(!isCompact));
+    compactBtn?.classList.toggle('active', isCompact);
+    compactBtn?.setAttribute('aria-pressed', String(isCompact));
+    if (grid) grid.classList.toggle('compact-cards', isCompact);
+    document.body.classList.toggle('compact-cards-mode', isCompact);
+    if (persist) {
+      try { localStorage.setItem('forja_card_view_mode', mode); } catch (_) {}
+    }
+  }
+
+  let saved = 'detailed';
+  try {
+    saved = localStorage.getItem('forja_card_view_mode') || 'detailed';
+  } catch (_) {}
+  setMode(saved, false);
+
+  normalBtn.addEventListener('click', function() { setMode('detailed'); });
+  compactBtn.addEventListener('click', function() { setMode('compact'); });
+}
+initCardViewModeToggle();
+
 if (typeof arsenalInitialState === 'undefined') setView('catalog');

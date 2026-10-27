@@ -250,14 +250,10 @@ function syncInitialItemFooter(){
   const previous=document.getElementById('previousButton');
   const plan=typeof initialItemPlan==='function'?initialItemPlan():[];
   if(previous){
+    previous.textContent = '← Voltar';
     if(state.isLevelingUp){
-      const hasSpells = typeof characterHasSpellChoices === 'function' && characterHasSpellChoices();
-      previous.textContent = hasSpells ? '← Voltar para Magias' : '← Voltar para Poderes de Classe';
       previous.hidden = false;
       previous.disabled = false;
-    } else {
-      const previousStep=[7,6,5,4,3,2,1].find(step=>!(typeof shouldSkipPhase==='function'&&shouldSkipPhase(step)));
-      previous.textContent='← Voltar para '+(PHASES[previousStep-1]?.[0]||'etapa anterior');
     }
   }
   if(stepPrev)stepPrev.textContent='← Escolha anterior';
@@ -332,8 +328,25 @@ function syncInitialItemFooter(){
   if(unresolved)unresolved.innerHTML=saved.unresolved?.length?'<div class="warning-box"><strong>Itens que exigem uma escolha:</strong><br>'+esc(saved.unresolved.join(' · '))+'</div>':'';
 }
 function unclaimedAutomaticGrants(){const saved=arsenalState();return automaticStartingGrants().filter(grant=>!saved.grants[grant.id])}
+function scrollInitialItemsToTop(){
+  try {
+    const frame = (document.getElementById('arsenalIframe') || document.querySelector('iframe')) as HTMLIFrameElement | null;
+    if (frame) {
+      if (frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'scroll-to-top' }, '*');
+        try { frame.contentWindow.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
+      }
+      const rect = frame.getBoundingClientRect();
+      if (rect.top < 0 || rect.top > window.innerHeight) {
+        frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  } catch (_) {}
+}
 function finalizeInitialItems(){document.getElementById('nextButton').disabled=true;sendArsenal('finalize',{operationId:'finalize:'+arsenalState().ruleSignature,automaticGrants:unclaimedAutomaticGrants(),finalize:true})}
-function advanceInitialItemChoice(){const saved=arsenalState();saved.pending=null;saved.choiceIndex++;if(!currentItemChoice())finalizeInitialItems();else{persistNow();renderStage()}}
+function advanceInitialItemChoice(){const saved=arsenalState();saved.pending=null;saved.choiceIndex++;if(!currentItemChoice())finalizeInitialItems();else{persistNow();renderStage();scrollInitialItemsToTop()}}
 async function commitOrAdvanceCurrentChoice(skipChoice = false){
   const saved=arsenalState(),choice=currentItemChoice();
   if(!choice){finalizeInitialItems();return}
@@ -485,6 +498,7 @@ function acceptArsenalOperation(message){
   sendArsenal('operation-result',{...tx.result,operationId:message.operationId,ok:true,storage:tx.arsenal.storage,context:arsenalInitialData()});
   syncInitialItemFooter();
   if(typeof renderStage==='function')renderStage();
+  if(typeof scrollInitialItemsToTop==='function')scrollInitialItemsToTop();
 }
 
 document.addEventListener('click',async event=>{

@@ -222,6 +222,34 @@
     cursor: pointer;
   }
   .search-mode-button.active { color: #f4d795; border-color: var(--gold); background: var(--gold-soft); }
+  .card-view-mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface-2);
+    min-height: 38px;
+  }
+  .card-view-mode-toggle .card-mode-btn {
+    min-height: 36px;
+    border: none;
+    border-radius: 0;
+    padding: 7px 12px;
+    font-size: 0.69rem;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+  .card-view-mode-toggle .card-mode-btn:hover {
+    color: var(--cream, #f5eee6);
+  }
+  .card-view-mode-toggle .card-mode-btn.active {
+    color: #f4d795;
+    background: var(--gold-soft, rgba(233, 173, 89, 0.18));
+    font-weight: 800;
+  }
   .debug-mode-button.active { color: #ffb5b5; border-color: #df6b6b99; background: #df6b6b1b; }
   .advanced-filters-button {
     max-width: 310px;
@@ -574,6 +602,55 @@
   }
   .expand-item-button:hover { border-color: #91a6c3; background: #242c3d; color: #e2ecf7; }
   .expand-item-button .expand-arrow { font-size: .75rem; line-height: 1; }
+
+  /* -------------------------------------------------------------
+     Modo Simplificado / Reduzido de Cards (Armas, Escudos, Armaduras)
+     ------------------------------------------------------------- */
+  .items-grid.compact-cards .item-card,
+  body.compact-cards-mode .items-grid .item-card {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .items-grid.compact-cards .item-card .card-header,
+  body.compact-cards-mode .items-grid .item-card .card-header {
+    padding: 10px 14px 8px;
+  }
+  .items-grid.compact-cards .item-card .badges,
+  body.compact-cards-mode .items-grid .item-card .badges {
+    display: none !important;
+  }
+  .items-grid.compact-cards .item-card .stat-price,
+  .items-grid.compact-cards .item-card .stat-spaces,
+  .items-grid.compact-cards .item-card .stat-combat,
+  .items-grid.compact-cards .item-card .stat-attr,
+  body.compact-cards-mode .items-grid .item-card .stat-price,
+  body.compact-cards-mode .items-grid .item-card .stat-spaces,
+  body.compact-cards-mode .items-grid .item-card .stat-combat,
+  body.compact-cards-mode .items-grid .item-card .stat-attr {
+    display: none !important;
+  }
+  .items-grid.compact-cards .item-card .item-stats,
+  body.compact-cards-mode .items-grid .item-card .item-stats {
+    padding: 7px 12px;
+    gap: 6px 14px;
+    justify-content: flex-start;
+  }
+  .items-grid.compact-cards .item-card .item-card-detail .card-body,
+  body.compact-cards-mode .items-grid .item-card .item-card-detail .card-body {
+    display: none !important;
+  }
+  .items-grid.compact-cards .item-card .expand-item-button,
+  body.compact-cards-mode .items-grid .item-card .expand-item-button {
+    display: none !important;
+  }
+  .items-grid.compact-cards .item-card .properties-row,
+  body.compact-cards-mode .items-grid .item-card .properties-row {
+    padding: 7px 12px 3px;
+  }
+  .items-grid.compact-cards .item-card .card-actions,
+  body.compact-cards-mode .items-grid .item-card .card-actions {
+    padding: 7px 12px 10px !important;
+  }
   .acquire-button {
     height: 36px;
     min-height: 36px;

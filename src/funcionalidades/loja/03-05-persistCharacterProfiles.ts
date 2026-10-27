@@ -60,39 +60,41 @@ function statTile(label, value) {
 
 function itemStats(item) {
   const stats = [];
-  stats.push(formatPrice(item));
-  stats.push(formatSpaces(item.espacos) + ' esp.');
+  stats.push({ val: formatPrice(item), cls: 'stat-price' });
+  stats.push({ val: formatSpaces(item.espacos) + ' esp.', cls: 'stat-spaces' });
 
   if (item.tipo === 'arma' && item.arma) {
     const damage = item.arma.dano && item.arma.dano.principal || '—';
     const alternatives = item.arma.dano && Array.isArray(item.arma.dano.alternativas) ? item.arma.dano.alternativas.filter(Boolean) : [];
-    stats.push(alternatives.length ? damage + ' / ' + alternatives.join(' / ') : damage);
-    stats.push(formatCritical(item.arma.critico));
-    stats.push(GRIP_LABELS[item.arma.empunhaduraId] || humanize(item.arma.empunhaduraId));
-    stats.push(COMBAT_LABELS[item.arma.combateId] || humanize(item.arma.combateId));
-    stats.push((item.arma.tipoDanoIds || []).map(function(value) { return DAMAGE_LABELS[value] || humanize(value); }).join(' / ') || '—');
-    stats.push(RANGE_LABELS[item.arma.alcanceId] || (item.arma.alcanceId ? humanize(item.arma.alcanceId) : '—'));
+    stats.push({ val: alternatives.length ? damage + ' / ' + alternatives.join(' / ') : damage, cls: 'stat-damage' });
+    stats.push({ val: formatCritical(item.arma.critico), cls: 'stat-critical' });
+    stats.push({ val: GRIP_LABELS[item.arma.empunhaduraId] || humanize(item.arma.empunhaduraId), cls: 'stat-grip' });
+    stats.push({ val: COMBAT_LABELS[item.arma.combateId] || humanize(item.arma.combateId), cls: 'stat-combat' });
+    stats.push({ val: (item.arma.tipoDanoIds || []).map(function(value) { return DAMAGE_LABELS[value] || humanize(value); }).join(' / ') || '—', cls: 'stat-damage-type' });
+    stats.push({ val: RANGE_LABELS[item.arma.alcanceId] || (item.arma.alcanceId ? humanize(item.arma.alcanceId) : '—'), cls: 'stat-range' });
   } else if (item.tipo === 'armadura' && item.armadura) {
-    stats.push('Def. +' + Number(item.armadura.defesa || 0));
-    stats.push('Pen. ' + (Number(item.armadura.penalidade || 0) <= 0 ? Number(item.armadura.penalidade || 0) : '-' + Number(item.armadura.penalidade || 0)));
+    stats.push({ val: 'Def. +' + Number(item.armadura.defesa || 0), cls: 'stat-defense' });
+    stats.push({ val: 'Pen. ' + (Number(item.armadura.penalidade || 0) <= 0 ? Number(item.armadura.penalidade || 0) : '-' + Number(item.armadura.penalidade || 0)), cls: 'stat-penalty' });
     const isLeve = item.armadura.categoriaId === 'leve' || item.categoriaId === 'leve' || Boolean(item.armadura.usaDestrezaNaDefesa);
-    stats.push(isLeve ? 'Soma Atributo de Defesa' : 'NÃO Soma Atributo de Defesa');
+    stats.push({ val: isLeve ? 'Soma Atributo de Defesa' : 'NÃO Soma Atributo de Defesa', cls: 'stat-attr' });
   } else if (item.tipo === 'escudo' && item.escudo) {
-    stats.push('Def. +' + Number(item.escudo.bonusDefesa || 0));
-    stats.push('Pen. ' + (Number(item.escudo.penalidade || 0) <= 0 ? Number(item.escudo.penalidade || 0) : '-' + Number(item.escudo.penalidade || 0)));
+    stats.push({ val: 'Def. +' + Number(item.escudo.bonusDefesa || 0), cls: 'stat-defense' });
+    stats.push({ val: 'Pen. ' + (Number(item.escudo.penalidade || 0) <= 0 ? Number(item.escudo.penalidade || 0) : '-' + Number(item.escudo.penalidade || 0)), cls: 'stat-penalty' });
     if (item.escudo.ataque) {
-      stats.push(item.escudo.ataque.dano && (item.escudo.ataque.dano.texto || item.escudo.ataque.dano.principal) || '—');
-      stats.push(formatCritical(item.escudo.ataque.critico));
+      stats.push({ val: item.escudo.ataque.dano && (item.escudo.ataque.dano.texto || item.escudo.ataque.dano.principal) || '—', cls: 'stat-damage' });
+      stats.push({ val: formatCritical(item.escudo.ataque.critico), cls: 'stat-critical' });
     }
   } else {
     const slots = item.equipamento && Array.isArray(item.equipamento.slotsPermitidos) ? Array.from(new Set(item.equipamento.slotsPermitidos.map(function(value) {
       return SLOT_LABELS[value] || humanize(value);
     }))) : [];
-    if (slots.length) stats.push(slots.join(' / '));
-    if (item.equipamento && item.equipamento.itemVestido) stats.push('Item vestido');
+    if (slots.length) stats.push({ val: slots.join(' / '), cls: 'stat-slot' });
+    if (item.equipamento && item.equipamento.itemVestido) stats.push({ val: 'Item vestido', cls: 'stat-worn' });
   }
-  return stats.map(function(val) {
-    return '<span class="item-stat-val">' + escapeHtml(val == null || val === '' ? '—' : String(val)) + '</span>';
+  return stats.map(function(entry) {
+    const val = typeof entry === 'object' && entry !== null ? entry.val : entry;
+    const cls = typeof entry === 'object' && entry !== null && entry.cls ? ' ' + entry.cls : '';
+    return '<span class="item-stat-val' + cls + '">' + escapeHtml(val == null || val === '' ? '—' : String(val)) + '</span>';
   }).join('');
 }
 

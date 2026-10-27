@@ -17,6 +17,10 @@
       </div>
       <button class="search-mode-button" id="nameOnlySearchButton" type="button" aria-pressed="false">Busca relacionada</button>
       <button class="search-mode-button advanced-filters-button" id="advancedFiltersButton" type="button" aria-expanded="false" aria-controls="advancedFiltersContent">Filtros avançados</button>
+      <div class="card-view-mode-toggle" id="cardViewModeToggle" role="group" aria-label="Visualização dos cards">
+        <button class="search-mode-button card-mode-btn active" id="cardModeNormalBtn" type="button" data-mode="detailed" aria-pressed="true" title="Visualização completa">Normal</button>
+        <button class="search-mode-button card-mode-btn" id="cardModeCompactBtn" type="button" data-mode="compact" aria-pressed="false" title="Visualização simplificada">Simplificada</button>
+      </div>
       <label class="sort-control"><span class="sort-label">Ordenar</span><select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
         <option value="name">Nome: A–Z</option>
         <option value="price-asc">Menor preço</option>
