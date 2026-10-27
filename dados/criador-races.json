@@ -4134,7 +4134,7 @@
                 "sab": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Sabedoria +1. Espreitador: Você recebe visão no escuro e +2 em Percepção e Vontade. Garras: Você tem duas armas naturais de garra (1d6 corte). Sapiência: Pode lançar uma magia de 1 círculo de adivinhação à escolha (Sabedoria).",
+              "descricao": "• Espreitador: Você recebe visão no escuro e +2 em Percepção e Vontade.\n• Garras: Você tem duas armas naturais de garra (dano 1d6, crítico x2, corte), uma em cada mão. Uma vez por rodada, quando usa a ação agredir para atacar com uma arma, você pode gastar 1 PM para fazer um ataque corpo a corpo extra com uma das garras, desde que ela esteja livre e não tenha sido usada para atacar neste turno. Como alternativa, se tiver habilidades que exijam uma arma secundária (como Estilo de Duas Armas), você pode usá-las com suas garras.\n• Sapiência: Você pode lançar uma magia de 1º círculo de adivinhação a sua escolha (atributo-chave Sabedoria). Caso aprenda novamente essa magia, seu custo diminui em –1 PM.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4157,7 +4157,7 @@
                 "sab": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Sabedoria +1. Destemor: Você recebe +2 em dano e testes de resistência contra criaturas maiores que você. Faro: Olfato apurado. Mordida: Arma natural 1d6.",
+              "descricao": "• Destemor: Você recebe +2 em rolagens de dano e em testes de resistência contra criaturas maiores que você.\n• Faro: Você tem olfato apurado. Contra inimigos em alcance curto que não possa ver, você não fica desprevenido e camuflagem total lhe causa apenas 20% de chance de falha.\n• Mordida: Você possui uma arma natural de mordida (dano 1d6, crítico x2, perfuração). Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com a mordida.",
               "efeitos": [
                 {
                   "tipo": "sentido_especial",
@@ -4172,7 +4172,7 @@
                 "int": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Inteligência +1. Agarra-me Se Puderes: Deslocamento 12m e visão na penumbra. Esperteza Vulpina: +2 em duas perícias de Inteligência ou Carisma. Faro: Olfato apurado.",
+              "descricao": "• Agarra-me Se Puderes: Seu deslocamento é 12m (em vez de 9m) e você tem visão na penumbra.\n• Esperteza Vulpina: Você recebe +2 em duas perícias originalmente baseadas em Inteligência ou Carisma, a sua escolha.\n• Faro: Você tem olfato apurado. Contra inimigos em alcance curto que não possa ver, você não fica desprevenido e camuflagem total lhe causa apenas 20% de chance de falha.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4191,7 +4191,7 @@
                 "int": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Inteligência +1. Arborícola: Deslocamento de escalada 6m e +2 em Furtividade. Constritor: +2 em testes para agarrar e dano contra agarrados. Instintos Traiçoeiros: Visão no escuro, +2 em Diplomacia e na CD de seus efeitos mentais.",
+              "descricao": "• Arborícola: Você recebe deslocamento de escalada 6m e +2 em Furtividade.\n• Constritor: Você recebe +2 em testes para agarrar e em rolagens de dano contra criaturas que estiver agarrando.\n• Instintos Traiçoeiros: Você recebe visão no escuro e +2 em Diplomacia e na CD de seus efeitos mentais.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4214,7 +4214,7 @@
                 "for": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Força +1. Chifres: Arma natural 1d6. Faro: Olfato apurado. Marrada Impressionante: +2 em investida e empurrar, pode usar Força em Intimidação.",
+              "descricao": "• Chifres: Você possui uma arma natural de chifres (dano 1d6, crítico x2, perfuração). Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com os chifres.\n• Faro: Você tem olfato apurado. Contra inimigos em alcance curto que não possa ver, você não fica desprevenido e camuflagem total lhe causa apenas 20% de chance de falha.\n• Marrada Impressionante: Você recebe +2 em ataques em investida e em testes para empurrar, e pode usar Força como atributo-chave de Intimidação (em vez de Carisma).",
               "efeitos": [
                 {
                   "tipo": "sentido_especial",
@@ -4229,7 +4229,7 @@
                 "des": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Destreza +1. Patas Ligeiras: Deslocamento 12m, investida/corrida não precisa ser em linha reta. Pé de Coelho: Gasta 1 PM para rolar dois dados em perícia de Destreza. Senso de Preservação: Visão na penumbra, +2 em Percepção e Reflexos.",
+              "descricao": "• Patas Ligeiras: Seu deslocamento é 12m e, quando faz uma investida ou um teste de Atletismo para correr, você não precisa percorrer uma linha reta.\n• Pé de Coelho: Quando faz um teste de uma perícia baseada em Destreza (exceto testes de ataque), você pode gastar 1 PM para rolar dois dados e usar o melhor resultado.\n• Senso de Preservação: Você recebe visão na penumbra e +2 em Percepção e Reflexos.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4252,7 +4252,7 @@
                 "con": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Constituição +1. Mordida Poderosa: Arma natural 1d6 (+2 agarrar). Predador Aquático: Natação 6m, +1 Defesa, +2 Furtividade. Surto Reptiliano: 1 PM para ação de movimento adicional.",
+              "descricao": "• Mordida Poderosa: Você possui uma arma natural de mordida (dano 1d6, crítico x2, perfuração), com a qual recebe +2 em testes de agarrar. Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com a mordida.\n• Predador Aquático: Você tem deslocamento de natação 6m e recebe +1 na Defesa e +2 em Furtividade.\n• Surto Reptiliano: Uma vez por cena, você pode gastar 1 PM para realizar uma ação de movimento adicional em seu turno.",
               "efeitos": [
                 {
                   "tipo": "bonus_defesa",
@@ -4274,7 +4274,7 @@
                 "car": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Carisma +1. As Muitas Vidas de um Gato: Soma Carisma em Constituição para estabilizar, em Acrobacia e reduz queda em 3d6. Garras: Duas armas naturais de garra (1d6 corte). Sentidos Felinos: Visão na penumbra, +2 em Furtividade e Percepção.",
+              "descricao": "• As Muitas Vidas de um Gato: Você soma seu Carisma em testes de Constituição para estabilizar sangramento e em Acrobacia e, se estiver consciente em uma queda, reduz o dano dela em 3d6.\n• Garras: Você tem duas armas naturais de garra (dano 1d6, crítico x2, corte), uma em cada mão. Uma vez por rodada, quando usa a ação agredir para atacar com uma arma, você pode gastar 1 PM para fazer um ataque corpo a corpo extra com uma das garras, desde que ela esteja livre e não tenha sido usada para atacar neste turno. Como alternativa, se tiver habilidades que exijam uma arma secundária (como Estilo de Duas Armas), você pode usá-las com suas garras.\n• Sentidos Felinos: Você recebe visão na penumbra e +2 em Furtividade e Percepção.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4297,7 +4297,7 @@
                 "for": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Força +1. Mordida: Arma natural 1d8. Rugido Imponente: 1 PM para -2 dano inimigos (alcance curto). Sentidos da Realeza: Visão na penumbra, +2 em Intimidação e Percepção.",
+              "descricao": "• Mordida: Você possui uma arma natural de mordida (dano 1d8, crítico x2, perfuração). Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com a mordida.\n• Rugido Imponente: Você pode gastar uma ação de movimento e 1 PM para emitir um rugido assustador. Todos os inimigos em alcance curto sofrem -2 em rolagens de dano por 1 rodada. Medo.\n• Sentidos da Realeza: Você recebe visão na penumbra e +2 em Intimidação e Percepção.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4320,7 +4320,7 @@
                 "car": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Carisma +1. Faro: Olfato apurado. Mordida: Arma natural 1d6. Táticas de Matilha: +2 dano e margem de ameaça contra flanqueados.",
+              "descricao": "• Faro: Você tem olfato apurado. Contra inimigos em alcance curto que não possa ver, você não fica desprevenido e camuflagem total lhe causa apenas 20% de chance de falha.\n• Mordida: Você possui uma arma natural de mordida (dano 1d6, crítico x2, perfuração). Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com a mordida.\n• Táticas de Matilha: Você recebe +2 nas rolagens de dano e na margem de ameaça em ataques contra oponentes que esteja flanqueando.",
               "efeitos": [
                 {
                   "tipo": "sentido_especial",
@@ -4335,7 +4335,7 @@
                 "des": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Destreza +1. Asas: Pairar/voar (12m). Criatura da Noite: Visão no escuro, +2 em Furtividade e Percepção. Ecolocalização: 1 PM para percepção às cegas.",
+              "descricao": "• Asas: Você pode pairar a 1,5m do chão com deslocamento 9m. Isso permite que você ignore terreno difícil e o torna imune a dano por queda (a menos que esteja inconsciente). Se não estiver usando armadura pesada, você pode gastar 1 PM por rodada para voar com deslocamento de 12m. Você precisa de espaço para abrir suas asas; quando paira ou voa, ocupa o espaço de uma criatura de uma categoria de tamanho maior que a sua.\n• Criatura da Noite: Você recebe visão no escuro e +2 em Furtividade e Percepção.\n• Ecolocalização: Você pode gastar 1 PM para receber percepção às cegas em alcance médio por 1 rodada.",
               "efeitos": [
                 {
                   "tipo": "visao",
@@ -4358,7 +4358,7 @@
                 "con": 1
               },
               "atributosFlexiveis": null,
-              "descricao": "Constituição +1. Abraço de Urso: Tamanho Grande e usa Constituição em Intimidação. Faro: Olfato apurado. Mordida: Arma natural 1d8.",
+              "descricao": "• Abraço de Urso: Você é Grande e pode usar Constituição como atributo-chave de Intimidação (em vez de Carisma).\n• Faro: Você tem olfato apurado. Contra inimigos em alcance curto que não possa ver, você não fica desprevenido e camuflagem total lhe causa apenas 20% de chance de falha.\n• Mordida: Você possui uma arma natural de mordida (dano 1d8, crítico x2, perfuração). Uma vez por rodada, quando usa a ação agredir para atacar com outra arma, pode gastar 1 PM para fazer um ataque corpo a corpo extra com a mordida.",
               "efeitos": [
                 {
                   "tipo": "sentido_especial",

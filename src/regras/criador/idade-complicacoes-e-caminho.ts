@@ -640,7 +640,14 @@ const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterF
         const chosenPwr = agePwrId ? powerById(agePwrId) : null;
         const chosenName = chosenPwr ? chosenPwr.nome : '';
         const title = chosenName ? ('Idade/' + power.nome + '(' + chosenName + ')') : power.nome;
-        const desc = chosenPwr ? (power.descricao + '\n\n• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : power.descricao;
+        const ageCompList = (state.age.complications || []).map(cId => {
+          const compData = (typeof COMPLICATIONS !== 'undefined' ? COMPLICATIONS : []).find(c => c[0] === cId)
+            || (typeof GENERAL_COMPLICATIONS !== 'undefined' ? GENERAL_COMPLICATIONS : []).find(c => c[0] === cId);
+          return compData ? ('• ' + compData[1] + ': ' + compData[2]) : '';
+        }).filter(Boolean);
+        const powerLine = chosenPwr ? ('• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : '';
+        const descParts = [power.descricao, ...ageCompList, powerLine].filter(Boolean);
+        const desc = descParts.join('\n\n');
         const effects = [...(power.efeitos || []), ...(chosenPwr?.efeitos || [])];
         features.push({
           ...power,
@@ -652,9 +659,16 @@ const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterF
           source: 'age'
         });
       } else {
+        const ageCompList = (state.age.complications || []).map(cId => {
+          const compData = (typeof COMPLICATIONS !== 'undefined' ? COMPLICATIONS : []).find(c => c[0] === cId)
+            || (typeof GENERAL_COMPLICATIONS !== 'undefined' ? GENERAL_COMPLICATIONS : []).find(c => c[0] === cId);
+          return compData ? ('• ' + compData[1] + ': ' + compData[2]) : '';
+        }).filter(Boolean);
+        const desc = [power.descricao, ...ageCompList].filter(Boolean).join('\n\n');
         features.push({
           ...power,
           nome: power.nome,
+          descricao: desc,
           source: 'age'
         });
       }
@@ -670,7 +684,9 @@ const baseSelectedCharacterFeatures=selectedCharacterFeatures;selectedCharacterF
       const chosenPwr = chosenId ? powerById(chosenId) : null;
       const chosenName = chosenPwr ? chosenPwr.nome : '';
       const title = chosenName ? ('Complicações/' + c[1] + '(' + chosenName + ')') : ('Complicações/' + c[1]);
-      const desc = chosenPwr ? (c[2] + '\n\n• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : c[2];
+      const compLine = '• ' + c[1] + ': ' + c[2];
+      const pwrLine = chosenPwr ? ('• ' + chosenPwr.nome + ': ' + chosenPwr.descricao) : '';
+      const desc = pwrLine ? (compLine + '\n\n' + pwrLine) : compLine;
       const effects = chosenPwr?.efeitos || [];
       features.push({
         id: c[0],

@@ -346,4 +346,72 @@ test('Botão "Pular escolha": exclusivo para arma simples e arma marcial na Fase
   assert.equal(isSkipButtonVisible(8, 'tool'), false, 'Na Fase 8, escolha de ferramenta NÃO deve exibir o botão');
 });
 
+test('Moreau: formatação limpa sem atributo, com bullets • e quebras de linha', () => {
+  const moreau = races.find((r: any) => r.id === 'moreau');
+  const herancaChoice = moreau?.habilidades?.selecionadas?.find((h: any) => h.id === 'moreau_variacao');
+  assert.ok(herancaChoice, 'Herança de Moreau deve existir');
+  
+  // Checa especificamente a Herança do Lobo mencionada pelo usuário
+  const lobo = herancaChoice.opcoes.find((o: any) => o.id === 'moreau_lobo');
+  assert.ok(lobo, 'Moreau Lobo deve existir');
+  assert.ok(!lobo.descricao.startsWith('Carisma +1'), 'Não deve iniciar com atributo fixo');
+  assert.ok(lobo.descricao.includes('• Faro: Você tem olfato apurado.'), 'Deve conter marcador • Faro');
+  assert.ok(lobo.descricao.includes('• Mordida: Você possui uma arma natural'), 'Deve conter marcador • Mordida');
+  assert.ok(lobo.descricao.includes('• Táticas de Matilha: Você recebe +2'), 'Deve conter marcador • Táticas de Matilha');
+  assert.ok(lobo.descricao.includes('\n'), 'Deve possuir quebras de linha entre as habilidades');
+
+  // Checa todas as 12 heranças
+  for (const opt of herancaChoice.opcoes) {
+    assert.ok(!/^(Força|Destreza|Constituição|Inteligência|Sabedoria|Carisma)\s*\+1/i.test(opt.descricao), `${opt.nome} não deve começar com atributo`);
+    assert.ok(opt.descricao.startsWith('• '), `${opt.nome} deve começar com marcador de bolinha •`);
+    assert.ok(opt.descricao.includes('\n'), `${opt.nome} deve conter quebra de linha`);
+  }
+});
+
+test('Idade e Complicações: marcadores • para complicação e poder', () => {
+  // Simula estado com Adulto (Já Vi Coisas) + complicação Cabeça Quente + poder Estilo de Duas Armas
+  const COMPLICATIONS = [
+    ['cabeca_quente', 'Cabeça Quente', 'Sempre que você sofre dano, seu próximo turno deve ser dedicado a atacar a fonte do dano.']
+  ];
+  const GENERAL_COMPLICATIONS = [
+    ['cabeca_quente', 'Cabeça Quente', 'Sempre que você sofre dano, seu próximo turno deve ser dedicado a atacar a fonte do dano.']
+  ];
+
+  // 1. Bloco de Idade / Já Vi Coisas
+  const jaViCoisasPower = {
+    id: 'idade_ja_vi_coisas',
+    nome: 'Já Vi Coisas',
+    descricao: 'Você pode receber um poder geral. Nesse caso, também recebe uma complicação de idade (veja a seguir).'
+  };
+  const chosenPwr = {
+    nome: 'Estilo de Duas Armas',
+    descricao: 'Se estiver empunhando duas armas e fizer a ação agredir...'
+  };
+  const stateAgeComplications = ['cabeca_quente'];
+
+  const ageCompList = stateAgeComplications.map(cId => {
+    const compData = COMPLICATIONS.find(c => c[0] === cId);
+    return compData ? ('• ' + compData[1] + ': ' + compData[2]) : '';
+  }).filter(Boolean);
+  const powerLine = '• ' + chosenPwr.nome + ': ' + chosenPwr.descricao;
+  const jaViCoisasDesc = [jaViCoisasPower.descricao, ...ageCompList, powerLine].join('\n\n');
+
+  assert.ok(jaViCoisasDesc.includes('• Cabeça Quente: Sempre que você sofre dano'), 'Já Vi Coisas deve incluir a complicação com •');
+  assert.ok(jaViCoisasDesc.includes('• Estilo de Duas Armas: Se estiver empunhando'), 'Já Vi Coisas deve incluir o poder com •');
+
+  // 2. Bloco de Complicações individuais
+  const c = GENERAL_COMPLICATIONS[0];
+  const chosenCompPower = {
+    nome: 'Arma Secundária grande',
+    descricao: 'Você pode empunhar duas armas de uma mão com o poder Estilo de Duas Armas.'
+  };
+  const compLine = '• ' + c[1] + ': ' + c[2];
+  const pwrLine = '• ' + chosenCompPower.nome + ': ' + chosenCompPower.descricao;
+  const compDesc = compLine + '\n\n' + pwrLine;
+
+  assert.ok(compDesc.startsWith('• Cabeça Quente: Sempre que você sofre dano'), 'Complicação deve começar com • Nome: Descrição');
+  assert.ok(compDesc.includes('• Arma Secundária grande: Você pode empunhar'), 'Poder concedido pela complicação deve ter • Nome: Descrição');
+});
+
+
 

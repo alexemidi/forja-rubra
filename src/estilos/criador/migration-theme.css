@@ -2016,5 +2016,11 @@ body.stage-powers-active .stage-footer {
   flex-shrink: 0 !important;
 }
 
+.choice-card p,
+.sheet-feature p {
+  white-space: pre-line !important;
+}
+
+
 
 
