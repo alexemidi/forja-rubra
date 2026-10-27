@@ -279,37 +279,86 @@ function generalPowerSlotSourceText(index){
   }
   return 'Poder geral adicional';
 }
-function renderGeneralPowerBrowser(slots){
-  const currentSlot=Math.max(0,Math.min(slots-1,Number(state.powers.activeSlot||0)));
+function getGeneralPowerListContent(searchQueryOverride?: string) {
+  const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 1;
+  const currentSlot = Math.max(0, Math.min(slots - 1, Number(state.powers.activeSlot || 0)));
   const slotReq = typeof originPowerSlotRequirement === 'function' ? originPowerSlotRequirement(currentSlot) : null;
   const initialCategory = slotReq?.category ? (slotReq.category === 'combate_ou_tormenta' ? 'combate' : slotReq.category) : 'all';
-  const category=state.powers.categoryFilter||initialCategory,status=state.powers.statusFilter||'available';
-  const otherChosenIds=(state.powers.general||[]).filter((id,i)=>i!==currentSlot&&Boolean(id));
+
+  const searchInput = (typeof document !== 'undefined') ? document.getElementById('generalPowerSearch') as HTMLInputElement | null : null;
+  const rawQuery = (typeof searchQueryOverride === 'string')
+    ? searchQueryOverride
+    : (searchInput ? searchInput.value : String(state.powers.searchQuery || ''));
+  const query = slug(rawQuery.trim());
+  const isSearching = Boolean(query);
+
+  const baseCategory = state.powers.categoryFilter || initialCategory;
+  const baseStatus = state.powers.statusFilter || 'available';
+
+  const category = isSearching ? 'all' : baseCategory;
+  const status = isSearching ? 'all' : baseStatus;
+  const isAllCat = category === 'all';
+
+  const otherChosenIds = (state.powers.general || []).filter((id, i) => i !== currentSlot && Boolean(id));
   const currentSlotPowerId = state.powers.general[currentSlot] || '';
   const currentSlotPower = currentSlotPowerId ? powerById(currentSlotPowerId) : null;
   const currentSlotPowerNameSlug = currentSlotPower ? slug(currentSlotPower.nome) : '';
   const owned = ownedPowerNames(currentSlotPowerId);
 
-  const entries=DATA.generalPowers.filter(power=>{
+  const entries = DATA.generalPowers.filter(power => {
     if (otherChosenIds.includes(power.id)) return false;
     const isCurrent = power.id === currentSlotPowerId || (currentSlotPowerNameSlug && slug(power.nome) === currentSlotPowerNameSlug);
     if (!isCurrent && (owned.has(slug(power.nome)) || owned.has(power.id))) return false;
-    return category==='all'||power.categoria===category;
-  }).map(power=>{
-    const verdict=generalPowerEligibility(power, currentSlotPowerId);
-    return {power, verdict, status: verdict.ok ? 'available' : 'locked'};
+    if (category !== 'all' && power.categoria !== category) return false;
+    if (isSearching) {
+      const matchName = slug(power.nome).includes(query);
+      const matchPrereq = slug(power.preRequisitosTexto || '').includes(query);
+      const matchId = slug(power.id).includes(query);
+      const matchDesc = slug(power.descricao || '').includes(query);
+      return matchName || matchPrereq || matchId || matchDesc;
+    }
+    return true;
+  }).map(power => {
+    const verdict = generalPowerEligibility(power, currentSlotPowerId);
+    return { power, verdict, status: verdict.ok ? 'available' : 'locked' };
   });
 
-  const visible=entries.filter(entry=>{
-    if(status==='available') return entry.status==='available';
-    if(status==='locked') return entry.status==='locked';
+  const visible = entries.filter(entry => {
+    if (status === 'available') return entry.status === 'available';
+    if (status === 'locked') return entry.status === 'locked';
     return true;
   });
 
-  let preview=state.powers.previewId?powerById(state.powers.previewId):null;
-  if(preview&&!entries.some(entry=>entry.power.id===preview.id)){preview=null;state.powers.previewId=''}
+  const availableRows = (status === 'locked') ? '' : renderPowerRows(visible, 'available', isAllCat);
+  const lockedRows = (status === 'available') ? '' : renderPowerRows(visible, 'locked', isAllCat);
 
-  const previewEntry=preview?entries.find(entry=>entry.power.id===preview.id):null;
+  let emptyHtml = '';
+  if (!availableRows && !lockedRows) {
+    if (isSearching) {
+      emptyHtml = '<div class="empty">Nenhum poder encontrado para "' + esc(rawQuery.trim()) + '".</div>';
+    } else {
+      emptyHtml = '<div class="empty">Nenhum poder corresponde aos filtros.</div>';
+    }
+  }
+
+  const html = (availableRows ? availableRows : '') +
+    (lockedRows ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedRows : '') +
+    emptyHtml;
+
+  return { html, entries, rawQuery };
+}
+
+function renderGeneralPowerBrowser(slots){
+  const currentSlot=Math.max(0,Math.min(slots-1,Number(state.powers.activeSlot||0)));
+  const slotReq = typeof originPowerSlotRequirement === 'function' ? originPowerSlotRequirement(currentSlot) : null;
+  const initialCategory = slotReq?.category ? (slotReq.category === 'combate_ou_tormenta' ? 'combate' : slotReq.category) : 'all';
+  const category=state.powers.categoryFilter||initialCategory,status=state.powers.statusFilter||'available';
+  const currentSlotPowerId = state.powers.general[currentSlot] || '';
+
+  const { html: listHtml, entries, rawQuery } = getGeneralPowerListContent();
+
+  let preview=state.powers.previewId?powerById(state.powers.previewId):null;
+  const previewEntry=preview ? (entries.find(entry=>entry.power.id===preview.id) || { power: preview, verdict: generalPowerEligibility(preview, currentSlotPowerId), status: 'available' }) : null;
   const selectedPowerId=state.powers.general[currentSlot],isSelected=preview&&selectedPowerId===preview.id;
   const sourceText=generalPowerSlotSourceText(currentSlot);
   const hasPrev=currentSlot>0;
@@ -363,21 +412,16 @@ function renderGeneralPowerBrowser(slots){
     '</div>' +
   '</aside>';
 
-  const isAllCat = category === 'all';
-  const availableRows = (status === 'locked') ? '' : renderPowerRows(visible, 'available', isAllCat);
-  const lockedRows = (status === 'available') ? '' : renderPowerRows(visible, 'locked', isAllCat);
   const list = '<div>' +
     '<div class="power-search-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
       '<button type="button" class="power-filter-trigger-btn ' + (isDrawerOpen ? 'active' : '') + '" data-action="toggle-power-filters" title="Abrir menu de filtros">' +
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>' +
         '<span>Filtros' + (category !== 'all' || status === 'all' ? ' •' : '') + '</span>' +
       '</button>' +
-      '<input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…" style="margin-bottom:0;flex:1;">' +
+      '<input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…" value="' + esc(rawQuery) + '" autocomplete="off" spellcheck="false" style="margin-bottom:0;flex:1;">' +
     '</div>' +
     '<div class="power-list">' +
-      (availableRows ? availableRows : '') +
-      (lockedRows ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedRows : '') +
-      (!availableRows && !lockedRows ? '<div class="empty">Nenhum poder corresponde aos filtros.</div>' : '') +
+      listHtml +
     '</div>' +
   '</div>';
 
@@ -441,56 +485,20 @@ function renderGeneralPowerBrowser(slots){
   '</div>';
 }
 
-function fastUpdatePowerList(){
+function fastUpdatePowerList(queryOverride?: string){
   const listContainer = document.querySelector('.power-list');
   if(!listContainer) {
     if(typeof renderStage === 'function') renderStage();
     return;
   }
-  const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 1;
-  const currentSlot = Math.max(0, Math.min(slots - 1, Number(state.powers.activeSlot || 0)));
-  const slotReq = typeof originPowerSlotRequirement === 'function' ? originPowerSlotRequirement(currentSlot) : null;
-  const initialCategory = slotReq?.category ? (slotReq.category === 'combate_ou_tormenta' ? 'combate' : slotReq.category) : 'all';
-  const category = state.powers.categoryFilter || initialCategory, status = state.powers.statusFilter || 'available';
-  const otherChosenIds = (state.powers.general || []).filter((id, i) => i !== currentSlot && Boolean(id));
-  const currentSlotPowerId = state.powers.general[currentSlot] || '';
-  const currentSlotPower = currentSlotPowerId ? powerById(currentSlotPowerId) : null;
-  const currentSlotPowerNameSlug = currentSlotPower ? slug(currentSlotPower.nome) : '';
-  const owned = ownedPowerNames(currentSlotPowerId);
-
-  const entries = DATA.generalPowers.filter(power => {
-    if (otherChosenIds.includes(power.id)) return false;
-    const isCurrent = power.id === currentSlotPowerId || (currentSlotPowerNameSlug && slug(power.nome) === currentSlotPowerNameSlug);
-    if (!isCurrent && (owned.has(slug(power.nome)) || owned.has(power.id))) return false;
-    return category === 'all' || power.categoria === category;
-  }).map(power => {
-    const verdict = generalPowerEligibility(power, currentSlotPowerId);
-    return { power, verdict, status: verdict.ok ? 'available' : 'locked' };
-  });
-
-  const visible = entries.filter(entry => {
-    if (status === 'available') return entry.status === 'available';
-    if (status === 'locked') return entry.status === 'locked';
-    return true;
-  });
-
-  const isAllCat = category === 'all';
-  const availableRows = (status === 'locked') ? '' : renderPowerRows(visible, 'available', isAllCat);
-  const lockedRows = (status === 'available') ? '' : renderPowerRows(visible, 'locked', isAllCat);
-
-  listContainer.innerHTML = (availableRows ? availableRows : '') +
-    (lockedRows ? '<div class="power-status locked" style="margin:11px 0 8px">Pré-requisitos pendentes</div>' + lockedRows : '') +
-    (!availableRows && !lockedRows ? '<div class="empty">Nenhum poder corresponde aos filtros.</div>' : '');
-
-  const searchInput = document.getElementById('generalPowerSearch') as HTMLInputElement | null;
-  const query = searchInput ? slug(searchInput.value) : '';
-  if (query) {
-    listContainer.querySelectorAll('.power-row').forEach((row: any) => {
-      row.classList.toggle('hidden', Boolean(query && !row.dataset.search?.includes(query)));
-    });
+  const { html } = getGeneralPowerListContent(queryOverride);
+  listContainer.innerHTML = html;
+  if(typeof (globalThis as any).positionPowerDetail === 'function'){
+    (globalThis as any).positionPowerDetail();
   }
 }
 (globalThis as any).fastUpdatePowerList = fastUpdatePowerList;
+(globalThis as any).getGeneralPowerListContent = getGeneralPowerListContent;
 
 renderPowers=function(){
   const groups=racePowerGroups(),slots=generalPowerSlots();let html='';

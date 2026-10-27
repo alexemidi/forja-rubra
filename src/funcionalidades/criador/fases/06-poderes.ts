@@ -132,7 +132,25 @@ renderDeity=function(){
   return mode+renderFundamentalistTogglePanel()+panel('Escolha pelo poder concedido',slotbar+godFilterBar+'<div class="deity-choice-layout">'+list+renderDeityPowerDetail(state.deity.previewPower,state.deity.previewDeity)+'</div>','Selecionados: '+values.filter(Boolean).length+'/'+count);
 };
 
-function bindPowerSearch(){const input=document.getElementById('generalPowerSearch');if(input)input.addEventListener('input',()=>{const query=slug(input.value);document.querySelectorAll('.power-row').forEach(row=>row.classList.toggle('hidden',query&&!row.dataset.search.includes(query)))})}
+function bindPowerSearch(){
+  const input = document.getElementById('generalPowerSearch') as HTMLInputElement | null;
+  if(!input) return;
+  const currentQuery = (state.powers?.searchQuery ?? (typeof powerBrowserUI !== 'undefined' ? (powerBrowserUI as any).query : '')) || '';
+  if(currentQuery && !input.value){
+    input.value = currentQuery;
+  }
+  const onInput = () => {
+    const raw = input.value;
+    if(state.powers) state.powers.searchQuery = raw;
+    if(typeof powerBrowserUI !== 'undefined') (powerBrowserUI as any).query = raw;
+    const fn = (globalThis as any).fastUpdatePowerList;
+    if(typeof fn === 'function') fn();
+    if(typeof (globalThis as any).positionPowerDetail === 'function') (globalThis as any).positionPowerDetail();
+  };
+  input.removeEventListener('input', (input as any)._powerSearchHandler);
+  (input as any)._powerSearchHandler = onInput;
+  input.addEventListener('input', onInput);
+}
 function bindDeityPowerSearch(){
   const input=document.getElementById('deityPowerSearch');if(!input)return;
   const filter=()=>{const query=slug(input.value);deitySearchQuery=input.value;let visible=0;document.querySelectorAll('.deity-power-row').forEach(row=>{const matches=!query||row.dataset.search.includes(query);row.classList.toggle('hidden',!matches);if(matches)visible++});document.getElementById('deitySearchEmpty').hidden=visible>0};
@@ -398,6 +416,10 @@ document.addEventListener('click',event=>{
   }
   if(action==='power-filter-category'){
     const val = button.dataset.value || 'all';
+    state.powers.searchQuery = '';
+    const searchInput = document.getElementById('generalPowerSearch') as HTMLInputElement | null;
+    if(searchInput) searchInput.value = '';
+    if(typeof (globalThis as any).powerBrowserUI !== 'undefined') (globalThis as any).powerBrowserUI.query = '';
     if(val === 'ver_tudo'){
       state.powers.categoryFilter = 'all';
       state.powers.statusFilter = 'all';

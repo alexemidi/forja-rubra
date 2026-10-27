@@ -120,12 +120,6 @@ function revealPowerDetail(){
 const bindPowerSearchBeforeFlow=bindPowerSearch;
 bindPowerSearch=function(){
   bindPowerSearchBeforeFlow();
-  const input=document.getElementById('generalPowerSearch');
-  if(input){
-    input.value=powerBrowserUI.query;
-    const filter=()=>{const query=slug(input.value);document.querySelectorAll('.power-row').forEach(row=>row.classList.toggle('hidden',Boolean(query&&!row.dataset.search.includes(query))));positionPowerDetail()};
-    input.addEventListener('input',()=>{powerBrowserUI.query=input.value;filter()});filter();
-  }
   positionPowerDetail();
 };
 window.addEventListener('resize',positionPowerDetail);
@@ -137,8 +131,12 @@ const locateBeforeCreationFlow=locateMissingChoice;
 locateMissingChoice=function(selector,smooth=true){
   if(!selector?.includes('power-select'))return locateBeforeCreationFlow(selector,smooth);
   // A preview is already a selection: direct the user to the missing confirmation.
-  powerBrowserUI.query='';const input=document.getElementById('generalPowerSearch');if(input)input.value='';
-  document.querySelectorAll('.power-row').forEach(row=>row.classList.remove('hidden'));positionPowerDetail();
+  powerBrowserUI.query='';
+  if (state?.powers) state.powers.searchQuery = '';
+  const input=document.getElementById('generalPowerSearch') as HTMLInputElement | null;
+  if(input) input.value='';
+  if (typeof (globalThis as any).fastUpdatePowerList === 'function') (globalThis as any).fastUpdatePowerList();
+  positionPowerDetail();
   const button=document.querySelector(selector);if(!button)return;
   button.scrollIntoView({behavior:smooth?'smooth':'auto',block:'center'});button.classList.add('validation-target');
   setTimeout(()=>{button.classList.remove('validation-target');button.focus({preventScroll:true})},smooth?450:0);

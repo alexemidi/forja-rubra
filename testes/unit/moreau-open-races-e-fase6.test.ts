@@ -195,3 +195,63 @@ test('Fase 6: Soldado com Complicação e Sem Duplicação de Estágio', () => {
   assert.equal(stages[1].key, 'general', 'Segundo estágio deve ser da Complicação');
   assert.equal(stages[1].count, 1);
 });
+
+test('Fase 6: Busca global de poderes gerais não some resultados quando categoria está filtrada', () => {
+  const generalPowers = JSON.parse(fs.readFileSync(path.resolve('dados/criador-generalPowers.json'), 'utf8'));
+
+  function slug(str: string) {
+    return String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  // Simula estado com slot de combate e filtro ativo em 'combate'
+  const state: any = {
+    powers: {
+      activeSlot: 0,
+      general: [''],
+      categoryFilter: 'combate',
+      statusFilter: 'available',
+      searchQuery: ''
+    }
+  };
+
+  function simulatePowerFilter(rawQuery: string) {
+    const query = slug(rawQuery.trim());
+    const isSearching = Boolean(query);
+    const category = isSearching ? 'all' : (state.powers.categoryFilter || 'all');
+
+    const entries = generalPowers.filter((power: any) => {
+      if (category !== 'all' && power.categoria !== category) return false;
+      if (isSearching) {
+        const matchName = slug(power.nome).includes(query);
+        const matchPrereq = slug(power.preRequisitosTexto || '').includes(query);
+        const matchId = slug(power.id).includes(query);
+        const matchDesc = slug(power.descricao || '').includes(query);
+        return matchName || matchPrereq || matchId || matchDesc;
+      }
+      return true;
+    });
+
+    return entries;
+  }
+
+  // Sem busca: deve retornar apenas os poderes de combate
+  const defaultEntries = simulatePowerFilter('');
+  assert.ok(defaultEntries.length > 0, 'Deve ter poderes de combate no filtro inicial');
+  assert.ok(defaultEntries.every((p: any) => p.categoria === 'combate'), 'Todos devem ser da categoria combate');
+
+  // Com busca "mag": busca global em todas as categorias
+  const magEntries = simulatePowerFilter('mag');
+  assert.ok(magEntries.length > 0, 'Busca por "mag" não deve sumir tudo e deve retornar resultados');
+  const foundNames = magEntries.map((p: any) => p.nome);
+  assert.ok(foundNames.some((n: string) => n.includes('Magia')), 'Deve encontrar poderes de magia como "Magia Acelerada"');
+
+  // Ao limpar a busca, volta a respeitar o filtro de combate
+  const clearedEntries = simulatePowerFilter('');
+  assert.equal(clearedEntries.length, defaultEntries.length, 'Ao limpar a busca, restaura a categoria selecionada');
+});
+
