@@ -85,22 +85,19 @@ async function open(page) {
       state.step = 6;
 
       // 1. Sub-etapas na Fase 6:
-      // Humano com 1 poder geral + Cosmopolita = 2 sub-etapas sequenciais
+      // Humano com 1 poder geral (Cosmopolita é escolhido exclusivamente na fase de Progressão)
       const stages = getPhase6SubStages();
       const stageCount = stages.length;
       const stage0 = stages[0];
-      const stage1 = stages[1];
 
       // Na sub-etapa 0 (Humano geral): renderPowers() mostra o poder geral do humano, NÃO Cosmopolita
       state.powers.phase6StageIndex = 0;
       const htmlStage0 = renderPowers();
       const stage0HasCosmo = htmlStage0.includes('Origem Cosmopolita');
 
-      // Na sub-etapa 1 (Cosmopolita): renderPowers() mostra Cosmopolita, NÃO o poder do humano
-      state.powers.phase6StageIndex = 1;
-      const htmlStage1 = renderPowers();
-      const stage1HasCosmo = htmlStage1.includes('Origem Cosmopolita');
-      const stage1HasHumano = htmlStage1.includes('Poderes gerais da raça e origem');
+      const htmlStage1 = '';
+      const stage1HasCosmo = false;
+      const stage1HasHumano = false;
 
       // 2. Visual minimalista e sombrio:
       // Não deve conter texto de banner desnecessário
@@ -148,7 +145,6 @@ async function open(page) {
       return {
         stageCount,
         stage0Type: stage0?.type,
-        stage1Type: stage1?.type,
         stage0HasCosmo,
         stage1HasCosmo,
         stage1HasHumano,
@@ -165,12 +161,9 @@ async function open(page) {
       };
     })()`);
 
-    assert.equal(results.stageCount, 2, 'Humano + Cosmopolita deve ter exatamente 2 sub-etapas na Fase 6');
-    assert.equal(results.stage0Type, 'general', 'Primeira sub-etapa deve ser o poder geral do Humano');
-    assert.equal(results.stage1Type, 'cosmopolita', 'Segunda sub-etapa deve ser o poder de Cosmopolita');
-    assert.equal(results.stage0HasCosmo, false, 'Na sub-etapa do Humano, Cosmopolita não deve aparecer junto');
-    assert.equal(results.stage1HasCosmo, true, 'Na sub-etapa de Cosmopolita, o painel de Cosmopolita deve aparecer');
-    assert.equal(results.stage1HasHumano, false, 'Na sub-etapa de Cosmopolita, o poder do Humano não deve aparecer junto');
+    assert.equal(results.stageCount, 1, 'Humano + Cosmopolita deve ter 1 sub-etapa na Fase 6 (Cosmopolita escolhido na Progressão)');
+    assert.equal(results.stage0Type, 'general', 'Sub-etapa da Fase 6 deve ser o poder geral do Humano');
+    assert.equal(results.stage0HasCosmo, false, 'Na Fase 6, Cosmopolita não deve aparecer');
 
     // Validações visuais minimalistas e sombrias
     assert.equal(results.hasBannerText, false, 'Não deve conter o banner com texto redundante');

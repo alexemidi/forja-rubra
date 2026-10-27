@@ -737,7 +737,7 @@ document.addEventListener('click',event=>{
  }
  const id=target.dataset.mountRemoveGear;
  if(id){
-  const inv=characterInventory(),i=inv.findIndex((e,i)=>matchEquipmentEntry(e,i,id)),e=inv[i];if(!e)return;
+  const inv=characterInventory(),i=inv.findIndex((e,i)=>typeof matchEquipmentEntry==='function'?matchEquipmentEntry(e,i,id):(typeof (globalThis as any).matchEquipmentEntry==='function'?(globalThis as any).matchEquipmentEntry(e,i,id):equipEntryId(e,i)===id)),e=inv[i];if(!e)return;
   if(e.itemId==='sela'&&mountGear(p).some(e=>e.itemId==='alforje')){toast('Retire o alforje antes da sela.');return;}
   delete e.mountPartnerId;
   saveMountChange(inv);

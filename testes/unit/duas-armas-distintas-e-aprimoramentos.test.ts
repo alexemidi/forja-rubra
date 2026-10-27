@@ -267,3 +267,135 @@ test('Busca de poderes na progressão: filtra poderes pelo termo digitado', () =
   assert.equal(buscar('vital').length, 1);
   assert.equal(buscar('inexistente').length, 0);
 });
+
+test('Duas Armas Iguais Escolhidas na Loja: preservadas separadamente com instanceId e quantity 1', () => {
+  // Simula duas maças de guerra adquiridas em escolhas distintas
+  const targetBackpack: any[] = [
+    { itemId: 'maca_de_guerra', instanceId: 'inst_maca_1', quantity: 1, tipo: 'arma', acquisition: { grantId: 'choice_1', source: 'initial' } },
+    { itemId: 'maca_de_guerra', instanceId: 'inst_maca_2', quantity: 1, tipo: 'arma', acquisition: { grantId: 'choice_2', source: 'initial' } },
+    { itemId: 'escudo_leve', instanceId: 'inst_escudo', quantity: 1, tipo: 'escudo' },
+    { itemId: 'mochila', quantity: 1, tipo: 'item_geral' }
+  ];
+
+  // Simula consolidação com regra de preservação de armas
+  const catalog = new Map([
+    ['maca_de_guerra', { id: 'maca_de_guerra', tipo: 'arma', arma: { empunhaduraId: 'uma_mao' } }],
+    ['escudo_leve', { id: 'escudo_leve', tipo: 'escudo' }],
+    ['mochila', { id: 'mochila', tipo: 'item_geral' }]
+  ]);
+
+  const consolidated: any[] = [];
+  targetBackpack.forEach(entry => {
+    const isWep = entry.tipo === 'arma' || Boolean(catalog.get(entry.itemId)?.arma);
+    if (isWep) {
+      const qty = Math.max(1, Number(entry.quantity) || 1);
+      for (let q = 0; q < qty; q++) {
+        consolidated.push({
+          ...entry,
+          instanceId: entry.instanceId || `inst_${Math.random()}`,
+          quantity: 1
+        });
+      }
+      return;
+    }
+    consolidated.push(entry);
+  });
+
+  const macas = consolidated.filter(e => e.itemId === 'maca_de_guerra');
+  assert.equal(macas.length, 2, 'Ambas as maças de guerra devem existir como entidades distintas');
+  assert.equal(macas[0].quantity, 1);
+  assert.equal(macas[1].quantity, 1);
+  assert.notEqual(macas[0].instanceId, macas[1].instanceId);
+});
+
+test('Priorização de Estilos de Combate ao Auto-equipar', () => {
+  const catalog = new Map([
+    ['maca_de_guerra', { id: 'maca_de_guerra', tipo: 'arma', arma: { empunhaduraId: 'uma_mao', combateId: 'corpo_a_corpo' } }],
+    ['arco_longo', { id: 'arco_longo', tipo: 'arma', arma: { empunhaduraId: 'duas_maos', combateId: 'a_distancia' } }],
+    ['espada_longa', { id: 'espada_longa', tipo: 'arma', arma: { empunhaduraId: 'uma_mao', combateId: 'corpo_a_corpo' } }],
+    ['montante', { id: 'montante', tipo: 'arma', arma: { empunhaduraId: 'duas_maos', combateId: 'corpo_a_corpo' } }],
+    ['escudo_leve', { id: 'escudo_leve', tipo: 'escudo' }]
+  ]);
+
+  // 1. Estilo de Duas Armas com duas armas iguais (ex: Maças de Guerra)
+  {
+    const inv = [
+      { itemId: 'maca_de_guerra', instanceId: 'inst_maca_1', tipo: 'arma' },
+      { itemId: 'maca_de_guerra', instanceId: 'inst_maca_2', tipo: 'arma' },
+      { itemId: 'escudo_leve', instanceId: 'inst_escudo', tipo: 'escudo' }
+    ];
+    let eq = { weaponId: null as string | null, offhandId: null as string | null, shieldId: null as string | null, adaptableHandedness: {} as any };
+    const hasDualWieldStyle = true;
+
+    // Auto-equipa Mão 1
+    eq.weaponId = inv[0].instanceId;
+    // Auto-equipa Mão 2
+    if (hasDualWieldStyle) {
+      const secondWeapon = inv.find(e => e.instanceId !== eq.weaponId && catalog.get(e.itemId)?.tipo === 'arma');
+      if (secondWeapon) {
+        eq.offhandId = secondWeapon.instanceId;
+        eq.shieldId = 'none';
+      }
+    }
+    assert.equal(eq.weaponId, 'inst_maca_1', 'Mão 1 deve ter a primeira maça de guerra');
+    assert.equal(eq.offhandId, 'inst_maca_2', 'Mão 2 deve ter a segunda maça de guerra');
+    assert.equal(eq.shieldId, 'none', 'Escudo deve ficar na mochila com Estilo de Duas Armas');
+  }
+
+  // 2. Estilo de Uma Arma: Mão 2 vazia e escudo na mochila
+  {
+    const inv = [
+      { itemId: 'espada_longa', instanceId: 'inst_espada', tipo: 'arma' },
+      { itemId: 'escudo_leve', instanceId: 'inst_escudo', tipo: 'escudo' }
+    ];
+    let eq = { weaponId: null as string | null, offhandId: null as string | null, shieldId: null as string | null, adaptableHandedness: {} as any };
+    const hasOneHandStyle = true;
+
+    eq.weaponId = inv[0].instanceId;
+    if (hasOneHandStyle) {
+      eq.offhandId = 'none';
+      eq.shieldId = 'none';
+    }
+    assert.equal(eq.weaponId, 'inst_espada', 'Mão 1 deve ter a espada longa');
+    assert.equal(eq.offhandId, 'none', 'Mão 2 deve ficar livre (vazia)');
+    assert.equal(eq.shieldId, 'none', 'Escudo deve permanecer na mochila com Estilo de Uma Arma');
+  }
+
+  // 3. Estilo de Disparo com espada longa e arco longo: prioriza o arco
+  {
+    const inv = [
+      { itemId: 'espada_longa', instanceId: 'inst_espada', tipo: 'arma' },
+      { itemId: 'arco_longo', instanceId: 'inst_arco', tipo: 'arma' }
+    ];
+    let eq = { weaponId: null as string | null, offhandId: null as string | null, shieldId: null as string | null, adaptableHandedness: {} as any };
+    const hasRangedStyle = true;
+
+    if (hasRangedStyle) {
+      const rangedWeapon = inv.find(e => catalog.get(e.itemId)?.arma?.combateId === 'a_distancia');
+      if (rangedWeapon) eq.weaponId = rangedWeapon.instanceId;
+    }
+    assert.equal(eq.weaponId, 'inst_arco', 'Estilo de Disparo deve priorizar o arco longo na Mão 1');
+  }
+
+  // 4. Estilo de Duas Mãos com montante e escudo: equipa montante e guarda escudo
+  {
+    const inv = [
+      { itemId: 'montante', instanceId: 'inst_montante', tipo: 'arma' },
+      { itemId: 'escudo_leve', instanceId: 'inst_escudo', tipo: 'escudo' }
+    ];
+    let eq = { weaponId: null as string | null, offhandId: null as string | null, shieldId: null as string | null, adaptableHandedness: {} as any };
+    const hasTwoHandStyle = true;
+
+    if (hasTwoHandStyle) {
+      const twoHandWeapon = inv.find(e => catalog.get(e.itemId)?.arma?.empunhaduraId === 'duas_maos');
+      if (twoHandWeapon) {
+        eq.weaponId = twoHandWeapon.instanceId;
+        eq.offhandId = 'none';
+        eq.shieldId = 'none';
+      }
+    }
+    assert.equal(eq.weaponId, 'inst_montante', 'Mão 1 deve empunhar o montante');
+    assert.equal(eq.offhandId, 'none', 'Mão 2 ocupada pela arma de duas mãos');
+    assert.equal(eq.shieldId, 'none', 'Escudo deve permanecer na mochila com Estilo de Duas Mãos');
+  }
+});

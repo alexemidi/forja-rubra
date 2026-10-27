@@ -2608,6 +2608,27 @@ function consolidateBackpackList(list) {
   });
   const consolidated = [];
   target.forEach(entry => {
+    if (!entry) return;
+    const it = itemById.get(entry.itemId);
+    const isWeapon = Boolean((it && (it.tipo === 'arma' || it.arma)) || entry.tipo === 'arma' || entry.arma);
+    if (isWeapon) {
+      const qty = Math.max(1, Number(entry.quantity) || 1);
+      const addGrants = entry.acquisition?.additionalGrantIds || [];
+      for (let q = 0; q < qty; q++) {
+        const assignedGrant = (q === 0) ? entry.acquisition?.grantId : (addGrants[q - 1] || entry.acquisition?.grantId);
+        consolidated.push({
+          ...entry,
+          instanceId: (q === 0 && entry.instanceId) ? entry.instanceId : createInstanceId(),
+          quantity: 1,
+          acquisition: {
+            ...entry.acquisition,
+            grantId: assignedGrant,
+            additionalGrantIds: undefined
+          }
+        });
+      }
+      return;
+    }
     const options = typeof normalizeItemOptions === 'function' ? normalizeItemOptions(entry.itemId, entry.options) : (entry.options || {});
     const optKey = typeof itemOptionsKey === 'function' ? itemOptionsKey(entry.itemId, options) : JSON.stringify(options);
     const imps = JSON.stringify(entry.improvements || []);

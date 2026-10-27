@@ -22,10 +22,16 @@ function consolidateInventoryEntries(backpack){
           instId = (entry.instanceId ? `${entry.instanceId}_sub_${q}` : null) || ('inst_wep_' + (entry.itemId || 'weapon') + '_' + (entry.acquisition?.operationId || entry.acquisition?.grantId || 'base') + '_' + q);
         }
         usedWeaponIds.add(instId);
+        const assignedGrant = (q === 0) ? entry.acquisition?.grantId : (addGrants[q - 1] || `${entry.acquisition?.grantId || 'grant'}_copy_${q}`);
         weapons.push({
           ...entry,
           instanceId: instId,
-          quantity: 1
+          quantity: 1,
+          acquisition: {
+            ...entry.acquisition,
+            grantId: assignedGrant,
+            additionalGrantIds: undefined
+          }
         });
       }
     } else {
@@ -52,8 +58,20 @@ function inventoryProfile(){
     });
   }
   const beforeJson = JSON.stringify(profile.backpack || []);
+  profile.backpack=consolidateInventoryEntries(profile.backpack);
   const seenGrants=new Set();
+  const seenWeaponInstances=new Set();
   profile.backpack=(profile.backpack||[]).filter(item=>{
+    if(!item)return false;
+    const cat = typeof getEquipmentCatalog === 'function' ? getEquipmentCatalog() : null;
+    const isWep = item.tipo === 'arma' || Boolean(item.arma) || cat?.get?.(item.itemId)?.tipo === 'arma' || Boolean(cat?.get?.(item.itemId)?.arma);
+    if(isWep){
+      if(item.instanceId){
+        if(seenWeaponInstances.has(item.instanceId))return false;
+        seenWeaponInstances.add(item.instanceId);
+      }
+      return true;
+    }
     const grant=item.acquisition?.grantId;
     if(!grant)return true;
     if(item.acquisition?.source !== 'initial')return true;
@@ -62,7 +80,6 @@ function inventoryProfile(){
     for(const extra of item.acquisition?.additionalGrantIds||[])seenGrants.add(extra);
     return true;
   });
-  profile.backpack=consolidateInventoryEntries(profile.backpack);
   const afterJson = JSON.stringify(profile.backpack || []);
   if(beforeJson !== afterJson && profiles.profiles){const index=profiles.profiles.findIndex(item=>item.id===profile.id);if(index>=0)profiles.profiles[index]=profile;saved.storage[ARSENAL_PROFILES_KEY]=JSON.stringify(profiles)}
   const eq=typeof equipmentState==='function'?equipmentState():{},catalog=typeof getEquipmentCatalog==='function'?getEquipmentCatalog():new Map();

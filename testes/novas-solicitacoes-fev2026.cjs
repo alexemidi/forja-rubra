@@ -92,9 +92,9 @@ async function open(page) {
 
       // 4. Rodapé da Fase 6 (Próximo Poder vs Avançar)
       state.step = 6;
+      state.identity.raceId = 'golem';
       state.powers.phase6StageIndex = 0;
       state.origin.mode = 'dual';
-      state.origin.regional = 'Cosmopolita';
       renderStage();
       const nextBtn = document.getElementById('nextButton');
       const stepNextBtn = document.getElementById('stepNextButton');
@@ -103,7 +103,6 @@ async function open(page) {
 
       // Subetapa final da Fase 6
       state.powers.phase6StageIndex = 1;
-      state.powers.cosmopolitaPower = 'combate_estilo_de_duas_armas';
       renderStage();
       const finalHasNextBtnVisible = nextBtn.hidden === false && nextBtn.textContent.includes('Avançar');
       const finalHasStepNextHidden = stepNextBtn.hidden === true;

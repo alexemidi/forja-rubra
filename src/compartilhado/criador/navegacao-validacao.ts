@@ -2092,8 +2092,9 @@ document.addEventListener('click', event => {
     const active = typeof progressionActivePowerIndex === 'function' ? progressionActivePowerIndex() : 0;
     const row = state.progression?.[active];
     if (row?.drawerOpen) {
-      const isTrigger = (event.target as HTMLElement)?.closest?.('[data-action="toggle-progression-filters"]');
-      const isDrawer = (event.target as HTMLElement)?.closest?.('.power-filters-drawer');
+      const target = event && (event.target || event.srcElement);
+      const isTrigger = target && typeof target.closest === 'function' ? target.closest('[data-action="toggle-progression-filters"]') : null;
+      const isDrawer = target && typeof target.closest === 'function' ? target.closest('.power-filters-drawer') : null;
       if (!isTrigger && !isDrawer) {
         row.drawerOpen = false;
         const drawer = document.querySelector('.class-power-browser .power-filters-drawer') || document.querySelector('.power-filters-drawer');

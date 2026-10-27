@@ -3,7 +3,12 @@ document.addEventListener('click',event=>{
   event.preventDefault();event.stopImmediatePropagation();
   const action=btn.dataset.equipAction,rawId=btn.dataset.entryId,eq=equipmentState();
   const inventory=characterInventory();
-  const entryIndex=inventory.findIndex((e,i)=>(typeof matchEquipmentEntry==='function'?matchEquipmentEntry(e,i,rawId):equipEntryId(e,i)===rawId));
+  const matchEntry = (e, i, target) => {
+    if (typeof matchEquipmentEntry === 'function') return matchEquipmentEntry(e, i, target);
+    if (typeof globalThis.matchEquipmentEntry === 'function') return globalThis.matchEquipmentEntry(e, i, target);
+    return (e?.instanceId && e.instanceId === target) || (typeof equipEntryId === 'function' ? equipEntryId(e, i) === target : e?.itemId === target);
+  };
+  const entryIndex=inventory.findIndex((e,i)=>matchEntry(e,i,rawId));
   const entry=entryIndex>=0?inventory[entryIndex]:null;
   const id=entry?equipEntryId(entry,entryIndex):rawId;
 
@@ -55,20 +60,18 @@ document.addEventListener('click',event=>{
   }
 
   if(action==='equip-shield'){
-    // Se a Mão 1 tem arma adaptável em duas mãos, adapta para 1 mão para liberar a Mão 2 para o escudo
-    if(eq.weaponId && eq.weaponId !== 'none'){
-      const wepEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
+    if(typeof equippedWeaponBlocksShield === 'function' && equippedWeaponBlocksShield()){
+      const wepEntry = eq.weaponId && eq.weaponId !== 'none' ? inventory.find((e, i) => matchEntry(e, i, eq.weaponId)) : null;
       const itemCatalog = typeof getEquipmentCatalog === 'function' ? getEquipmentCatalog() : null;
       const wepItem = itemCatalog?.get ? itemCatalog.get(wepEntry?.itemId) : (DATA.pdfItems || []).find(it => it.id === wepEntry?.itemId);
       const isAdaptable = Boolean(wepItem?.arma?.propriedadesIds?.includes('adaptavel') || wepItem?.arma?.empunhaduraId === 'adaptavel');
-      const isStrictTwoHanded = !isAdaptable && (wepItem?.arma?.empunhaduraId === 'duas_maos' || (wepItem?.arma?.propriedadesIds || []).includes('duas_maos'));
-      if(isAdaptable){
+      if (isAdaptable && (!eq.offhandId || eq.offhandId === 'none')) {
         eq.adaptableHandedness = { ...eq.adaptableHandedness, [eq.weaponId]: 'uma_mao' };
-      }else if(isStrictTwoHanded){
-        eq.weaponId = 'none';
+      } else {
+        toast('As duas mãos estão ocupadas. Guarde um item antes de equipar o escudo.');
+        return;
       }
     }
-    // Se a Mão 2 já tem um item empunhado, guarda na mochila para equipar o escudo
     if(eq.offhandId && eq.offhandId !== 'none'){
       eq.offhandId = 'none';
     }

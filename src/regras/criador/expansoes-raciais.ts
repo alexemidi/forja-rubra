@@ -326,7 +326,7 @@ function equipmentState(){
   if(eq.armorId===undefined)eq.armorId=null;
   if(eq.shieldId===undefined)eq.shieldId=null;
   if(eq.weaponId===undefined)eq.weaponId=null;
-  if(eq.offhandId===undefined)eq.offhandId='none';
+  if(eq.offhandId===undefined)eq.offhandId=null;
   if(eq.trailerId===undefined)eq.trailerId=null;
   if(eq.backpackId===undefined)eq.backpackId=null;
   if(!Array.isArray(eq.wornIds))eq.wornIds=[];

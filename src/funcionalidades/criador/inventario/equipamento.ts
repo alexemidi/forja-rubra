@@ -36,6 +36,7 @@ function matchEquipmentEntry(entry, index, targetId) {
   }
   return false;
 }
+(globalThis as any).matchEquipmentEntry = matchEquipmentEntry;
 
 /**
  * Auto-equipa os itens padrão na primeira visualização da ficha ou limpa referências obsoletas.
@@ -64,6 +65,11 @@ function initEquipmentState(){
     const hasOneHandStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_uma_arma');
     const hasWeaponAndShieldStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_arma_e_escudo');
     const hasRangedStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_disparo');
+    const hasBigOffhand = typeof characterHasFeature === 'function' && (
+      characterHasFeature('arma_secundaria_grande') ||
+      characterHasFeature('arma_maior') ||
+      characterHasFeature('arma_secundaria')
+    );
 
     // Auto-equipa arma seguindo a hierarquia e estilo de combate
     if(eq.weaponId===null||eq.weaponId===undefined){
@@ -78,6 +84,18 @@ function initEquipmentState(){
         weaponEntry = inventory.find((e, i) => {
           const item = catalog.get(e.itemId);
           return (item?.tipo === 'arma' || e.tipo === 'arma') && (item?.arma?.empunhaduraId === 'duas_maos' || (item?.arma?.propriedadesIds || []).includes('adaptavel'));
+        });
+      }
+      if (!weaponEntry && hasOneHandStyle) {
+        weaponEntry = inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && (item?.arma?.empunhaduraId === 'uma_mao' || item?.arma?.empunhaduraId === 'leve' || (item?.arma?.propriedadesIds || []).includes('adaptavel'));
+        });
+      }
+      if (!weaponEntry && hasDualWieldStyle) {
+        weaponEntry = inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.empunhaduraId !== 'duas_maos';
         });
       }
       if (!weaponEntry) {
@@ -101,11 +119,17 @@ function initEquipmentState(){
       if(wepItem?.arma?.empunhaduraId==='duas_maos'){
         isTwoHanded=true;
       }else if((wepItem?.arma?.propriedadesIds||[]).includes('adaptavel')){
-        if(eq.adaptableHandedness[eq.weaponId]==='duas_maos'){
+        if(hasTwoHandStyle){
+          eq.adaptableHandedness[eq.weaponId]='duas_maos';
+          isTwoHanded=true;
+        }else if(hasOneHandStyle||hasDualWieldStyle||hasWeaponAndShieldStyle){
+          delete eq.adaptableHandedness[eq.weaponId];
+          isTwoHanded=false;
+        }else if(eq.adaptableHandedness[eq.weaponId]==='duas_maos'){
           isTwoHanded=true;
         }else if(!eq.adaptableHandedness[eq.weaponId]){
           const hasShieldOrOffhand = (eq.offhandId && eq.offhandId !== 'none') || (eq.shieldId && eq.shieldId !== 'none');
-          if(!hasShieldOrOffhand && !hasOneHandStyle){
+          if(!hasShieldOrOffhand){
             eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
             isTwoHanded = true;
           }
@@ -122,7 +146,7 @@ function initEquipmentState(){
     if (hasTwoHandStyle && eq.weaponId && eq.weaponId !== 'none') {
       const wepEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
       const wepItem = wepEntry ? catalog.get(wepEntry.itemId) : null;
-      if ((wepItem?.arma?.propriedadesIds || []).includes('adaptavel')) {
+      if (wepItem?.arma?.empunhaduraId === 'duas_maos' || (wepItem?.arma?.propriedadesIds || []).includes('adaptavel')) {
         eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
         isTwoHanded = true;
         eq.offhandId = 'none';
@@ -130,26 +154,39 @@ function initEquipmentState(){
       }
     }
 
-    // Auto-equipa segunda arma SOMENTE se não for de duas mãos e offhandId ainda não tiver sido inicializado (null ou undefined), nunca se for 'none'!
-    if (!isTwoHanded && hasDualWieldStyle && eq.weaponId && eq.weaponId !== 'none' && (eq.offhandId === null || eq.offhandId === undefined)) {
-      const secondWeapon = inventory.find((e, i) => {
-        const id = equipEntryId(e, i);
-        if (id === eq.weaponId) return false;
-        const item = catalog.get(e.itemId);
-        return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.empunhaduraId !== 'duas_maos';
-      });
-      if (secondWeapon) {
-        eq.offhandId = equipEntryId(secondWeapon, inventory.indexOf(secondWeapon));
-        eq.shieldId = 'none';
-      }
-    }
-
+    // Se tem Estilo de Uma Arma: Mão 2 VAZIA (mesmo tendo escudo no inventário, o escudo fica na mochila)
     if (hasOneHandStyle && eq.weaponId && eq.weaponId !== 'none') {
       eq.offhandId = 'none';
       eq.shieldId = 'none';
       if (eq.adaptableHandedness[eq.weaponId] === 'duas_maos') {
         delete eq.adaptableHandedness[eq.weaponId];
         isTwoHanded = false;
+      }
+    }
+
+    // Identificar se há uma segunda arma no inventário
+    const findSecondWeapon = () => {
+      return inventory.find((e, i) => {
+        const id = equipEntryId(e, i);
+        if (id === eq.weaponId || matchEquipmentEntry(e, i, eq.weaponId)) return false;
+        const item = catalog.get(e.itemId);
+        if (item?.tipo !== 'arma' && e.tipo !== 'arma') return false;
+        if (item?.arma?.empunhaduraId === 'duas_maos') return false;
+        return true;
+      });
+    };
+
+    // Se tem Estilo de Duas Armas OU se pegou duas armas iguais sem estilo de uma arma/escudo/duas mãos:
+    const twoEqualWeapons = !hasOneHandStyle && !hasTwoHandStyle && !hasWeaponAndShieldStyle && inventory.filter(e => {
+      const item = catalog.get(e.itemId);
+      return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.empunhaduraId !== 'duas_maos';
+    }).length >= 2;
+
+    if (!isTwoHanded && (hasDualWieldStyle || twoEqualWeapons) && eq.weaponId && eq.weaponId !== 'none' && (eq.offhandId === null || eq.offhandId === undefined || eq.offhandId === 'none')) {
+      const secondWeapon = findSecondWeapon();
+      if (secondWeapon) {
+        eq.offhandId = equipEntryId(secondWeapon, inventory.indexOf(secondWeapon));
+        eq.shieldId = 'none';
       }
     }
 
@@ -161,26 +198,34 @@ function initEquipmentState(){
       }
     }
 
-    if(eq.offhandId&&eq.offhandId!=='none'){
-      const offEntry=inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.offhandId));
-      if(offEntry) eq.offhandId=equipEntryId(offEntry,inventory.indexOf(offEntry));
-      else eq.offhandId='none';
+    if (eq.offhandId && eq.offhandId !== 'none') {
+      const offEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.offhandId));
+      if (offEntry) {
+        eq.offhandId = equipEntryId(offEntry, inventory.indexOf(offEntry));
+        eq.shieldId = 'none';
+      } else {
+        eq.offhandId = 'none';
+      }
     }
-    if(eq.offhandId&&eq.offhandId!=='none')eq.shieldId='none';
 
     // Auto-equipa escudo se permitido
-    if(isTwoHanded || (eq.offhandId && eq.offhandId !== 'none')){
-      if(eq.shieldId&&eq.shieldId!=='none')eq.shieldId='none';
-    }else if(eq.shieldId===null||eq.shieldId===undefined){
-      const shieldEntry=inventory.find((e,i)=>catalog.get(e.itemId)?.tipo==='escudo'||e.tipo==='escudo'||e.escudo||e.attachedItem?.tipo==='escudo');
-      if(shieldEntry)eq.shieldId=equipEntryId(shieldEntry,inventory.indexOf(shieldEntry));
-    }else if(eq.shieldId!=='none'){
-      const shieldEntry=inventory.find((e,i)=>matchEquipmentEntry(e,i,eq.shieldId));
-      if(shieldEntry){
-        eq.shieldId=equipEntryId(shieldEntry,inventory.indexOf(shieldEntry));
-      }else{
-        eq.shieldId=null;
+    if (isTwoHanded || hasOneHandStyle || (eq.offhandId && eq.offhandId !== 'none')) {
+      if (eq.shieldId && eq.shieldId !== 'none') eq.shieldId = 'none';
+    } else if (eq.shieldId === null || eq.shieldId === undefined) {
+      const shieldEntry = inventory.find((e, i) => catalog.get(e.itemId)?.tipo === 'escudo' || e.tipo === 'escudo' || e.escudo || e.attachedItem?.tipo === 'escudo');
+      if (shieldEntry) eq.shieldId = equipEntryId(shieldEntry, inventory.indexOf(shieldEntry));
+      else eq.shieldId = 'none';
+    } else if (eq.shieldId !== 'none') {
+      const shieldEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.shieldId));
+      if (shieldEntry) {
+        eq.shieldId = equipEntryId(shieldEntry, inventory.indexOf(shieldEntry));
+      } else {
+        eq.shieldId = 'none';
       }
+    }
+
+    if (eq.offhandId === null || eq.offhandId === undefined) {
+      eq.offhandId = 'none';
     }
 
     // Auto-equipa traje
