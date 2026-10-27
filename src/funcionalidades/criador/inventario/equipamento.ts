@@ -47,6 +47,26 @@ function initEquipmentState(){
   try{
     const eq=equipmentState(),catalog=getEquipmentCatalog(),inventory=characterInventory();
 
+    // Desmembrar armas, armaduras e escudos com quantidade > 1 em entradas individuais de quantidade 1
+    for (let i = inventory.length - 1; i >= 0; i--) {
+      const e = inventory[i];
+      if (!e) continue;
+      const catItem = catalog.get(e.itemId);
+      const isIndivEquip = (catItem?.tipo === 'arma' || catItem?.tipo === 'armadura' || catItem?.tipo === 'escudo' || e.tipo === 'arma' || e.tipo === 'armadura' || e.tipo === 'escudo') && !catItem?.municao && catItem?.tipo !== 'municao' && e.tipo !== 'municao';
+      if (isIndivEquip && Number(e.quantity || 1) > 1) {
+        const total = Number(e.quantity);
+        e.quantity = 1;
+        if (!e.instanceId) e.instanceId = 'inst_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7) + '_' + i;
+        for (let k = 1; k < total; k++) {
+          inventory.push({
+            ...e,
+            quantity: 1,
+            instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7) + '_' + i + '_' + k
+          });
+        }
+      }
+    }
+
     // Auto-equipa armadura se ainda não houver armadura selecionada (nem guardada com 'none')
     if(eq.armorId===null||eq.armorId===undefined){
       const armorEntry=inventory.find((e,i)=>catalog.get(e.itemId)?.tipo==='armadura'||e.tipo==='armadura'||e.armadura||e.attachedItem?.tipo==='armadura');
@@ -146,11 +166,19 @@ function initEquipmentState(){
     if (hasTwoHandStyle && eq.weaponId && eq.weaponId !== 'none') {
       const wepEntry = inventory.find((e, i) => matchEquipmentEntry(e, i, eq.weaponId));
       const wepItem = wepEntry ? catalog.get(wepEntry.itemId) : null;
-      if (wepItem?.arma?.empunhaduraId === 'duas_maos' || (wepItem?.arma?.propriedadesIds || []).includes('adaptavel')) {
-        eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
+      if (wepItem?.arma?.empunhaduraId === 'duas_maos') {
         isTwoHanded = true;
         eq.offhandId = 'none';
         eq.shieldId = 'none';
+      } else if ((wepItem?.arma?.propriedadesIds || []).includes('adaptavel')) {
+        if (!eq.adaptableHandedness[eq.weaponId]) {
+          eq.adaptableHandedness[eq.weaponId] = 'duas_maos';
+        }
+        if (eq.adaptableHandedness[eq.weaponId] === 'duas_maos') {
+          isTwoHanded = true;
+          eq.offhandId = 'none';
+          eq.shieldId = 'none';
+        }
       }
     }
 
@@ -182,7 +210,7 @@ function initEquipmentState(){
       return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.empunhaduraId !== 'duas_maos';
     }).length >= 2;
 
-    if (!isTwoHanded && (hasDualWieldStyle || twoEqualWeapons) && eq.weaponId && eq.weaponId !== 'none' && (eq.offhandId === null || eq.offhandId === undefined || eq.offhandId === 'none')) {
+    if (!isTwoHanded && (hasDualWieldStyle || twoEqualWeapons) && eq.weaponId && eq.weaponId !== 'none' && (eq.offhandId === null || eq.offhandId === undefined)) {
       const secondWeapon = findSecondWeapon();
       if (secondWeapon) {
         eq.offhandId = equipEntryId(secondWeapon, inventory.indexOf(secondWeapon));
@@ -191,8 +219,10 @@ function initEquipmentState(){
     }
 
     if (hasWeaponAndShieldStyle && !isTwoHanded) {
-      eq.offhandId = 'none';
-      if (eq.shieldId === null || eq.shieldId === undefined || eq.shieldId === 'none') {
+      if (eq.offhandId === null || eq.offhandId === undefined) {
+        eq.offhandId = 'none';
+      }
+      if (eq.shieldId === null || eq.shieldId === undefined) {
         const shieldEntry = inventory.find((e, i) => catalog.get(e.itemId)?.tipo === 'escudo' || e.tipo === 'escudo' || e.escudo || e.attachedItem?.tipo === 'escudo');
         if (shieldEntry) eq.shieldId = equipEntryId(shieldEntry, inventory.indexOf(shieldEntry));
       }
@@ -512,6 +542,7 @@ function renderEquipmentPanel(){
   };
 
   const assignedSlotIndices = new Set<number>();
+  const equippedCountByIndex = new Map<number, number>();
   const findEntryForSlot = (targetId: string | null | undefined): number => {
     if (!targetId || targetId === 'none') return -1;
     let idx = inventory.findIndex((e: any, i: number) => !assignedSlotIndices.has(i) && (e.instanceId === targetId || equipEntryId(e, i) === targetId));
@@ -521,33 +552,34 @@ function renderEquipmentPanel(){
     return idx;
   };
 
-  const weaponIdx = findEntryForSlot(eq.weaponId);
-  if (weaponIdx >= 0) assignedSlotIndices.add(weaponIdx);
+  const registerSlot = (targetId: string | null | undefined): number => {
+    const idx = findEntryForSlot(targetId);
+    if (idx >= 0) {
+      assignedSlotIndices.add(idx);
+      equippedCountByIndex.set(idx, (equippedCountByIndex.get(idx) || 0) + 1);
+    }
+    return idx;
+  };
 
-  const offhandIdx = (eq.offhandId && eq.offhandId !== 'none') ? findEntryForSlot(eq.offhandId) : -1;
-  if (offhandIdx >= 0) assignedSlotIndices.add(offhandIdx);
-
-  const shieldIdx = (eq.shieldId && eq.shieldId !== 'none') ? findEntryForSlot(eq.shieldId) : -1;
-  if (shieldIdx >= 0) assignedSlotIndices.add(shieldIdx);
-
-  const armorIdx = (eq.armorId && eq.armorId !== 'none') ? findEntryForSlot(eq.armorId) : -1;
-  if (armorIdx >= 0) assignedSlotIndices.add(armorIdx);
-
-  const trailerIdx = (eq.trailerId && eq.trailerId !== 'none') ? findEntryForSlot(eq.trailerId) : -1;
-  if (trailerIdx >= 0) assignedSlotIndices.add(trailerIdx);
+  const weaponIdx = registerSlot(eq.weaponId);
+  const offhandIdx = (eq.offhandId && eq.offhandId !== 'none') ? registerSlot(eq.offhandId) : -1;
+  const shieldIdx = (eq.shieldId && eq.shieldId !== 'none') ? registerSlot(eq.shieldId) : -1;
+  const armorIdx = (eq.armorId && eq.armorId !== 'none') ? registerSlot(eq.armorId) : -1;
+  const trailerIdx = (eq.trailerId && eq.trailerId !== 'none') ? registerSlot(eq.trailerId) : -1;
 
   if (Array.isArray(eq.wornIds)) {
     for (const wId of eq.wornIds) {
       if (!wId || wId === 'none') continue;
-      const wIdx = findEntryForSlot(wId);
-      if (wIdx >= 0) assignedSlotIndices.add(wIdx);
+      registerSlot(wId);
     }
   }
 
   const isEntryEquipped = (entry: any, i: number) => {
     if (!entry) return false;
     if (typeof mountAssignmentActive === 'function' && mountAssignmentActive(entry)) return true;
-    return assignedSlotIndices.has(i);
+    const totalQty = Number(entry.quantity || 1);
+    const eqQty = equippedCountByIndex.get(i) || 0;
+    return eqQty >= totalQty;
   };
 
   const groupedMap = new Map(), seenTraje = new Set();
@@ -565,9 +597,11 @@ function renderEquipmentPanel(){
     const item = catalog.get(entry.itemId) || entry;
     const name = itemName(entry);
     const key = `${name}|${entry.itemId}|${JSON.stringify(entry.improvements||[])}|${JSON.stringify(entry.enchantments||[])}`;
+    const eqQty = equippedCountByIndex.get(i) || 0;
+    const availableQty = Math.max(1, Number(entry.quantity || 1) - eqQty);
     if (groupedMap.has(key)) {
       const grp = groupedMap.get(key);
-      grp.totalQuantity += Number(entry.quantity || 1);
+      grp.totalQuantity += availableQty;
       grp.entries.push(entry);
     } else {
       const id = equipEntryId(entry, i);
@@ -575,7 +609,7 @@ function renderEquipmentPanel(){
         entry,
         item,
         id,
-        totalQuantity: Number(entry.quantity || 1),
+        totalQuantity: availableQty,
         entries: [entry]
       });
     }

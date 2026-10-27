@@ -399,3 +399,82 @@ test('Priorização de Estilos de Combate ao Auto-equipar', () => {
     assert.equal(eq.shieldId, 'none', 'Escudo deve permanecer na mochila com Estilo de Duas Mãos');
   }
 });
+
+test('Guardar item da Mão 2 na mochila: mantém Mão 2 vazia e exibe item na mochila sem re-equipar', () => {
+  const inv = [
+    { itemId: 'maca_de_guerra', instanceId: 'inst_maca_1', displayName: 'Maça de Guerra', tipo: 'arma', quantity: 1 },
+    { itemId: 'maca_de_guerra', instanceId: 'inst_maca_2', displayName: 'Maça de Guerra', tipo: 'arma', quantity: 1 },
+    { itemId: 'escudo_pesado', instanceId: 'inst_escudo_1', displayName: 'Escudo Pesado', tipo: 'escudo', quantity: 1 }
+  ];
+
+  const catalog = new Map<string, any>([
+    ['maca_de_guerra', { id: 'maca_de_guerra', nome: 'Maça de Guerra', tipo: 'arma', arma: { empunhaduraId: 'uma_mao' } }],
+    ['escudo_pesado', { id: 'escudo_pesado', nome: 'Escudo Pesado', tipo: 'escudo' }]
+  ]);
+
+  let eq = {
+    weaponId: null as string | null,
+    offhandId: null as string | null,
+    shieldId: null as string | null,
+    adaptableHandedness: {} as Record<string, string>
+  };
+
+  // Simulação de initEquipmentState no início:
+  // Auto-equipa Mão 1
+  eq.weaponId = inv[0].instanceId;
+  // Auto-equipa Mão 2 com a segunda arma igual
+  const twoEqualWeapons = inv.filter(e => catalog.get(e.itemId)?.tipo === 'arma').length >= 2;
+  if (twoEqualWeapons && (eq.offhandId === null || eq.offhandId === undefined)) {
+    const secondWeapon = inv.find(e => e.instanceId !== eq.weaponId && catalog.get(e.itemId)?.tipo === 'arma');
+    if (secondWeapon) {
+      eq.offhandId = secondWeapon.instanceId;
+      eq.shieldId = 'none';
+    }
+  }
+
+  assert.equal(eq.weaponId, 'inst_maca_1');
+  assert.equal(eq.offhandId, 'inst_maca_2');
+  assert.equal(eq.shieldId, 'none');
+
+  // Jogador clica em "Guardar item da Mão 2 na mochila"
+  const resStore = RegrasEquipamento.aplicar(eq, 'store-offhand', 'inst_maca_2', {});
+  assert.equal(resStore.alterado, true);
+  assert.equal(resStore.message, 'Item guardado na mochila.');
+  eq = resStore.equipment;
+  assert.equal(eq.offhandId, 'none', 'Mão 2 deve ser marcada como none');
+
+  // Agora simula o ciclo de renderização subsequente (initEquipmentState):
+  // Não pode re-equipar se eq.offhandId === 'none'
+  if (twoEqualWeapons && (eq.offhandId === null || eq.offhandId === undefined)) {
+    eq.offhandId = 'inst_maca_2'; // Não deve entrar aqui!
+  }
+  assert.equal(eq.offhandId, 'none', 'Mão 2 deve permanecer none após o ciclo de renderização');
+
+  // Simula o filtro da mochila:
+  const assignedSlotIndices = new Set<number>();
+  const equippedCountByIndex = new Map<number, number>();
+  const registerSlot = (targetId: string | null) => {
+    if (!targetId || targetId === 'none') return -1;
+    const idx = inv.findIndex((e, i) => !assignedSlotIndices.has(i) && (e.instanceId === targetId));
+    if (idx >= 0) {
+      assignedSlotIndices.add(idx);
+      equippedCountByIndex.set(idx, (equippedCountByIndex.get(idx) || 0) + 1);
+    }
+    return idx;
+  };
+
+  registerSlot(eq.weaponId);
+  if (eq.offhandId && eq.offhandId !== 'none') registerSlot(eq.offhandId);
+  if (eq.shieldId && eq.shieldId !== 'none') registerSlot(eq.shieldId);
+
+  const backpackEntries = inv.filter((e, i) => {
+    const eqQty = equippedCountByIndex.get(i) || 0;
+    return (Number(e.quantity || 1) - eqQty) > 0;
+  });
+
+  // A segunda maça de guerra DEVE estar na mochila agora!
+  assert.equal(backpackEntries.some(e => e.instanceId === 'inst_maca_2'), true, 'A segunda maça deve constar na mochila');
+  assert.equal(backpackEntries.some(e => e.instanceId === 'inst_maca_1'), false, 'A primeira maça continua equipada e NÃO deve estar na mochila');
+  assert.equal(backpackEntries.some(e => e.instanceId === 'inst_escudo_1'), true, 'O escudo permanece na mochila');
+});
+
