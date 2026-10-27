@@ -797,6 +797,7 @@ function shouldSkipPhase(step){
   if (step === 7) return !characterHasSpellChoices();
   if (step === 9) return !characterHasPartnerChoices();
   if (step === 10) {
+    if (typeof hasCosmopolita === 'function' && hasCosmopolita()) return false;
     const plannedLevel = Number(state.identity?.plannedLevel || 1);
     return plannedLevel <= 1;
   }

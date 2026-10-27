@@ -312,6 +312,9 @@ function getGeneralPowerListContent(searchQueryOverride?: string) {
     if (category !== 'all' && power.categoria !== category) return false;
     if (isSearching) {
       const matchName = slug(power.nome).includes(query);
+      if (!state.powers.searchRelated) {
+        return matchName;
+      }
       const matchPrereq = slug(power.preRequisitosTexto || '').includes(query);
       const matchId = slug(power.id).includes(query);
       const matchDesc = slug(power.descricao || '').includes(query);
@@ -412,19 +415,38 @@ function renderGeneralPowerBrowser(slots){
     '</div>' +
   '</aside>';
 
+  const isRelated = Boolean(state.powers.searchRelated);
+  const searchPlaceholder = isRelated
+    ? 'Buscar por nome, texto ou pré-requisito…'
+    : 'Buscar pelo nome do poder…';
+
   const list = '<div>' +
     '<div class="power-search-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
       '<button type="button" class="power-filter-trigger-btn ' + (isDrawerOpen ? 'active' : '') + '" data-action="toggle-power-filters" title="Abrir menu de filtros">' +
         '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>' +
         '<span>Filtros' + (category !== 'all' || status === 'all' ? ' •' : '') + '</span>' +
       '</button>' +
-      '<input class="input search" id="generalPowerSearch" placeholder="Pesquisar nome ou pré-requisito…" value="' + esc(rawQuery) + '" autocomplete="off" spellcheck="false" style="margin-bottom:0;flex:1;">' +
+      '<input class="input search" id="generalPowerSearch" placeholder="' + esc(searchPlaceholder) + '" value="' + esc(rawQuery) + '" autocomplete="off" spellcheck="false" style="margin-bottom:0;flex:1;">' +
+      '<button type="button" class="power-search-mode-btn ' + (isRelated ? 'active' : '') + '" id="powerRelatedSearchBtn" data-action="toggle-power-related-search" aria-pressed="' + isRelated + '" title="Buscar também dentro da descrição e pré-requisitos dos poderes">' +
+        'Pesquisa relativa' +
+      '</button>' +
     '</div>' +
     '<div class="power-list">' +
       listHtml +
     '</div>' +
   '</div>';
 
+  const detail = renderGeneralPowerDetailHtml(preview, currentSlot, currentSlotPowerId, previewEntry);
+
+  return hiddenNavBar + drawerHtml + '<div class="power-stage-wrapper">' +
+    slotIndicator +
+    '<div class="power-layout-split">' +
+      '<div class="power-main-content"><div class="power-browser">' + list + detail + '</div></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderGeneralPowerDetailHtml(preview: any, currentSlot: number, currentSlotPowerId: string, previewEntry: any) {
   let actions='';
   if(preview&&previewEntry){
     if(previewEntry.verdict.ok){
@@ -463,7 +485,7 @@ function renderGeneralPowerBrowser(slots){
   const catSingular = preview ? (POWER_CATEGORY_SINGULAR[preview.categoria] || preview.categoria) : '';
   const bookName = preview ? ((typeof BOOKS !== 'undefined' && BOOKS[preview.livroOrigemId]) || preview.livroOrigemId || 'Livro Básico') : '';
 
-  const detail=preview?'<aside class="power-detail-panel">' +
+  return preview?'<aside class="power-detail-panel">' +
     '<div class="power-detail-meta">' +
       '<span class="power-meta-cat">'+esc(catSingular)+'</span>' +
       '<span class="power-meta-book">'+esc(bookName)+'</span>' +
@@ -476,14 +498,55 @@ function renderGeneralPowerBrowser(slots){
     masterNotice +
     (actions ? '<div class="power-detail-footer">' + actions + '</div>' : '') +
   '</aside>':'<aside class="power-detail-panel"><div class="empty">Selecione um poder na lista para ver os detalhes e adicioná-lo à sua ficha.</div></aside>';
-
-  return hiddenNavBar + drawerHtml + '<div class="power-stage-wrapper">' +
-    slotIndicator +
-    '<div class="power-layout-split">' +
-      '<div class="power-main-content"><div class="power-browser">' + list + detail + '</div></div>' +
-    '</div>' +
-  '</div>';
 }
+
+function renderGeneralPowerDetail(previewId: string, currentSlotOverride?: number) {
+  const slots = typeof generalPowerSlots === 'function' ? generalPowerSlots() : 1;
+  const currentSlot = currentSlotOverride ?? Math.max(0, Math.min(slots - 1, Number(state.powers.activeSlot || 0)));
+  const currentSlotPowerId = state.powers.general[currentSlot] || '';
+  const preview = previewId ? powerById(previewId) : null;
+  const verdict = preview ? generalPowerEligibility(preview, currentSlotPowerId) : { ok: true, reasons: [] };
+  const previewEntry = preview ? { power: preview, verdict, status: verdict.ok ? 'available' : 'locked' } : null;
+  return renderGeneralPowerDetailHtml(preview, currentSlot, currentSlotPowerId, previewEntry);
+}
+
+function previewGeneralPower(powerId: string, options: { fromKeyboard?: boolean } = {}) {
+  state.powers.previewId = powerId;
+  state.powers.previewPending = false;
+
+  const listContainer = document.querySelector('.power-list');
+  const existingDetail = document.querySelector('.power-detail-panel');
+
+  if (listContainer && existingDetail) {
+    const buttons = listContainer.querySelectorAll('[data-action="power-preview"]');
+    let targetButton: HTMLElement | null = null;
+    buttons.forEach((b: any) => {
+      if (b.dataset.powerId === powerId) {
+        b.classList.add('selected');
+        targetButton = b;
+      } else {
+        b.classList.remove('selected');
+      }
+    });
+
+    const newHtml = renderGeneralPowerDetail(powerId);
+    existingDetail.outerHTML = newHtml;
+
+    if (options.fromKeyboard && targetButton) {
+      targetButton.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    if (typeof (globalThis as any).syncNextButtonState === 'function') {
+      (globalThis as any).syncNextButtonState();
+    }
+    return;
+  }
+
+  if (typeof renderStage === 'function') renderStage();
+}
+(globalThis as any).previewGeneralPower = previewGeneralPower;
+(globalThis as any).renderGeneralPowerDetail = renderGeneralPowerDetail;
+(globalThis as any).renderGeneralPowerDetailHtml = renderGeneralPowerDetailHtml;
 
 function fastUpdatePowerList(queryOverride?: string){
   const listContainer = document.querySelector('.power-list');

@@ -111,3 +111,43 @@ test('Poder Concedido Thwor: Tropas Duyshidakk não pode ficar duplicado', () =>
   assert.equal(deduplicated.length, 1, 'Deve desduplicar para apenas 1 poder');
   assert.equal(deduplicated[0], 'Tropas Duyshidakk');
 });
+
+test('Pesquisa de Poderes Gerais: pesquisa comum busca apenas nome, pesquisa relativa inclui texto', () => {
+  const generalPowers = JSON.parse(fs.readFileSync('dados/criador-generalPowers.json', 'utf8'));
+
+  function slug(str: string) {
+    return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  const query = slug('magia');
+
+  // 1. Pesquisa comum (searchRelated = false): busca apenas no nome
+  const commonResults = generalPowers.filter((power: any) => {
+    return slug(power.nome).includes(query);
+  });
+
+  // "Foco em Magia" deve estar presente
+  assert.ok(commonResults.some((p: any) => slug(p.nome).includes('foco-em-magia')), 'Foco em Magia deve constar na pesquisa comum');
+  // "Barreira Mística" (que só tem 'magia' na descrição) NÃO deve constar na pesquisa comum
+  assert.ok(!commonResults.some((p: any) => p.nome === 'Barreira Mística'), 'Barreira Mística não pode constar na pesquisa comum por nome');
+
+  // 2. Pesquisa relativa (searchRelated = true): busca no nome, pré-requisitos e descrição
+  const relativeResults = generalPowers.filter((power: any) => {
+    const matchName = slug(power.nome).includes(query);
+    const matchPrereq = slug(power.preRequisitosTexto || '').includes(query);
+    const matchId = slug(power.id).includes(query);
+    const matchDesc = slug(power.descricao || '').includes(query);
+    return matchName || matchPrereq || matchId || matchDesc;
+  });
+
+  assert.ok(relativeResults.some((p: any) => slug(p.nome).includes('foco-em-magia')), 'Foco em Magia deve constar na pesquisa relativa');
+  assert.ok(relativeResults.some((p: any) => p.nome === 'Barreira Mística'), 'Barreira Mística deve constar na pesquisa relativa pois possui a palavra no texto');
+  assert.ok(relativeResults.length > commonResults.length, 'Pesquisa relativa deve retornar mais resultados que a pesquisa estrita por nome');
+});
+
+test('Card único de poder não deve esticar no CSS', () => {
+  const migrationCss = fs.readFileSync('src/estilos/criador/migration-theme.css', 'utf8');
+  assert.ok(migrationCss.includes('align-content: start !important;'), 'A lista .power-list deve ter align-content: start para não esticar card único');
+  assert.ok(migrationCss.includes('align-self: start !important;'), 'O card .power-row deve ter align-self: start para manter tamanho padrão');
+  assert.ok(migrationCss.includes('.power-search-mode-btn'), 'O botão de pesquisa relativa deve ter estilização dedicada');
+});

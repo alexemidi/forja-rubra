@@ -1872,6 +1872,39 @@ body.stage-powers-active .panel-body {
   overflow: hidden;
 }
 
+.power-search-mode-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  border: 1px solid #4a252a !important;
+  border-radius: 6px !important;
+  background: #181114 !important;
+  color: var(--muted) !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.power-search-mode-btn:hover {
+  border-color: var(--gold) !important;
+  color: #fff !important;
+  background: #25161b !important;
+}
+
+.power-search-mode-btn.active {
+  background: #74131d !important;
+  color: #f5c879 !important;
+  border-color: var(--gold) !important;
+  box-shadow: inset 0 0 10px rgba(197, 31, 44, 0.25) !important;
+}
+
 .power-list {
   flex: 1 !important;
   min-height: 0 !important;
@@ -1880,6 +1913,15 @@ body.stage-powers-active .panel-body {
   overflow-x: hidden !important;
   padding-right: 6px !important;
   scrollbar-width: thin !important;
+  align-content: start !important;
+  justify-content: stretch !important;
+  grid-auto-rows: min-content !important;
+}
+
+.power-row {
+  align-self: start !important;
+  min-height: 44px !important;
+  height: auto !important;
 }
 
 .power-detail-panel {

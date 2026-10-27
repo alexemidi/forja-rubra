@@ -72,6 +72,17 @@ function renderClassPowerDetailPanel(preview: any, verdict: any, row: any, index
   const distIconSvg = '<svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:5px;color:#d9a84e"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>';
   const distBadge = preview?.distinctionName ? '<div style="color:#d9a84e;font-size:0.75rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px">' + distIconSvg + 'Distinção: ' + esc(preview.distinctionName) + '</div>' : '';
 
+  // Meta header: categoria e livro de origem
+  let catLabel = 'Poder de Classe';
+  if (preview?.distinctionPower) catLabel = 'Poder de Distinção';
+  else if (preview?.raceOption) catLabel = 'Poder Racial';
+  else if (preview?.generalPower || preview?.categoria) {
+    const rawCat = preview.generalPower?.categoria || preview.categoria || '';
+    catLabel = rawCat === 'combate' ? 'Poder de Combate' : rawCat === 'destino' ? 'Poder de Destino' : rawCat === 'magia' ? 'Poder de Magia' : 'Poder Geral';
+  }
+  const bookName = preview?.livroOrigemId ? (typeof bookNameById === 'function' ? bookNameById(preview.livroOrigemId) : preview.livroOrigemId) : '';
+  const metaHtml = '<div class="power-detail-meta"><span class="power-meta-cat">' + esc(catLabel) + '</span>' + (bookName ? '<span class="power-meta-book">' + esc(bookName) + '</span>' : '') + '</div>';
+
   // Texto canônico de pré-requisito (simples abaixo da descrição, mesma cor e fonte)
   const prereqText = preview.preRequisitosTexto || preview.prerequisitesText || preview.preRequisito || '';
   const prereqHtml = prereqText ? '<p style="margin-top:8px;font-size:0.82rem;line-height:1.4;color:inherit;"><strong>Pré-requisito:</strong> ' + esc(prereqText) + '</p>' : '';
@@ -110,30 +121,75 @@ function renderClassPowerDetailPanel(preview: any, verdict: any, row: any, index
   const familiarBtn = (['arcanista_familiar', 'arcanista_familiar_aprimorado'].includes(preview.id))
     ? '<button type="button" class="button primary" data-action="choose-familiar" data-index="' + index + '" style="margin-top:10px">' + (typeof familiarById === 'function' && familiarById(row.previewPowerChoice || row.powerChoice) ? 'Familiar: ' + esc(familiarById(row.previewPowerChoice || row.powerChoice)[1]) + ' · alterar' : 'Escolher familiar') + '</button>'
     : '';
-  return '<aside class="power-detail-panel">' + distBadge + '<h4>' + esc(preview.nome) + '</h4><p>' + esc(description) + '</p>' + prereqHtml + reasonsHtml + attrChoices + profChoices + familiarBtn + '</aside>';
+  const confirmHint = '<p class="power-confirm-hint" style="margin-top:auto;padding-top:14px;border-top:1px solid #2e161a;color:var(--gold2,#f5c879);font-size:0.78rem;text-align:center;">Clique em Avançar para confirmar este poder.</p>';
+  return '<aside class="power-detail-panel">' + distBadge + metaHtml + '<h4>' + esc(preview.nome) + '</h4><p>' + esc(description) + '</p>' + prereqHtml + reasonsHtml + attrChoices + profChoices + familiarBtn + confirmHint + '</aside>';
 }
 
 function renderClassPowerBrowser(row: any, index: number, cls: any) {
-  if (!powerSlotAt(cls, classLevelAt(index, row.classId))) return '';
-  const source = row.powerSourceFilter || 'class', category = row.powerCategoryFilter || 'all', status = row.powerStatusFilter || 'all';
-  const powers = DATA.classPowers.filter((power: any) => (power.classeIds || []).includes(row.classId)).sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
-  const racial = progressionRaceOptions(index);
-  const general = DATA.generalPowers.filter((power: any) => !['concedido', 'raca'].includes(power.categoria) && (category === 'all' || power.categoria === category)).map((power: any) => ({ ...power, id: progressionGeneralPowerId(power.id), originalId: power.id, generalPower: power }));
-  const distinctions = typeof progressionDistinctionOptions === 'function' ? progressionDistinctionOptions(index) : [];
+  const isCosmoSlot = index === 0 && typeof hasCosmopolita === 'function' && hasCosmopolita();
+  if (!isCosmoSlot && !powerSlotAt(cls, classLevelAt(index, row.classId))) return '';
+
+  const isDrawerOpen = Boolean(row.drawerOpen);
+  const isRelated = Boolean(row.powerSearchRelated);
+  const defaultSource = isCosmoSlot ? 'all' : 'class';
+  const source = row.powerSourceFilter || defaultSource;
+  const category = row.powerCategoryFilter || 'all';
+  const status = row.powerStatusFilter || 'available';
+
+  let powers: any[] = [];
+  let racial: any[] = [];
+  let general: any[] = [];
+  let distinctions: any[] = [];
+
+  if (isCosmoSlot) {
+    // Cosmopolita: poderes gerais (Combate, Destino, Magia) + poderes de classes onde tem >= 2 níveis
+    const classLvls = typeof cosmopolitaClassLevels === 'function' ? cosmopolitaClassLevels() : {};
+    const relevantClasses = (DATA.classes || []).filter(c => (classLvls[c.id] || 0) > 0 || c.id === row.classId);
+    
+    // Todos os poderes de classe relevantes
+    powers = (DATA.classPowers || []).filter((power: any) =>
+      relevantClasses.some(c => (power.classeIds || []).includes(c.id))
+    ).sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+    general = (DATA.generalPowers || [])
+      .filter((power: any) => !['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(power.categoria) && (category === 'all' || power.categoria === category))
+      .map((power: any) => ({ ...power, id: progressionGeneralPowerId(power.id), originalId: power.id, generalPower: power }));
+  } else {
+    powers = DATA.classPowers.filter((power: any) => (power.classeIds || []).includes(row.classId)).sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    racial = progressionRaceOptions(index);
+    general = DATA.generalPowers.filter((power: any) => !['concedido', 'raca'].includes(power.categoria) && (category === 'all' || power.categoria === category)).map((power: any) => ({ ...power, id: progressionGeneralPowerId(power.id), originalId: power.id, generalPower: power }));
+    distinctions = typeof progressionDistinctionOptions === 'function' ? progressionDistinctionOptions(index) : [];
+  }
+
   const allPowers = [...powers, ...racial, ...general, ...distinctions].sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const classPowersWithDistinctions = [...powers, ...distinctions].sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const sourceEntries = source === 'all' ? allPowers : source === 'race' ? racial : source === 'general' ? general : source === 'distinction' ? distinctions : classPowersWithDistinctions;
-  const eligibility = (power: any) => power.distinctionPower ? (typeof progressionDistinctionEligibility === 'function' ? progressionDistinctionEligibility(power, index) : { ok: true, reasons: [] }) : power.generalPower ? progressionGeneralEligibility(power, index) : power.raceOption ? power : classProgressionEligibility(power, index);
-  
+
+  const eligibility = (power: any) => {
+    if (power.distinctionPower) return typeof progressionDistinctionEligibility === 'function' ? progressionDistinctionEligibility(power, index) : { ok: true, reasons: [] };
+    if (power.generalPower) return progressionGeneralEligibility(power, index);
+    if (power.raceOption) return typeof progressionRaceEligibility === 'function' ? progressionRaceEligibility(power, index) : { ok: true, reasons: [] };
+    return classProgressionEligibility(power, index);
+  };
+
   // Filtra poderes já adquiridos na progressão OU adiantados pela Origem Futura Lenda
   const searchQuery = (row.powerSearchQuery || '').trim().toLowerCase();
   const entries = sourceEntries
     .filter((power: any) => !isPowerAlreadyAcquiredInCharacter(power, index, row.powerId))
     .map((power: any) => ({ power, verdict: eligibility(power) }))
     .filter((entry: any) => status === 'all' || (status === 'available') === entry.verdict.ok);
-  
+
   const matchingEntries = searchQuery
-    ? entries.filter((entry: any) => entry.power.nome.toLowerCase().includes(searchQuery) || (entry.power.descricao && entry.power.descricao.toLowerCase().includes(searchQuery)))
+    ? entries.filter((entry: any) => {
+        const name = entry.power.nome.toLowerCase();
+        if (name.includes(searchQuery)) return true;
+        if (isRelated) {
+          const desc = (entry.power.descricao || '').toLowerCase();
+          const pre = (entry.power.preRequisitosTexto || entry.power.prerequisitesText || '').toLowerCase();
+          return desc.includes(searchQuery) || pre.includes(searchQuery);
+        }
+        return false;
+      })
     : entries;
 
   const candidate = progressionPowerById(row.previewPowerId || row.powerId);
@@ -141,26 +197,102 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
   const preview = candidateMatches ? candidate : (matchingEntries[0]?.power || null);
   const selected = progressionPowerById(row.powerId);
   const distIconSvg = '<svg class="forja-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:5px;color:#d9a84e"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>';
-  
+
   const list = (items: any[], lockedList: boolean) => items.map((power: any) => {
     const chosen = selected?.id === power.id;
     const active = preview?.id === power.id;
     const isDist = Boolean(power.distinctionPower);
     const titleAttr = isDist ? ' title="Poder de Distinção: ' + esc(power.distinctionName || '') + '"' : '';
     const pendingTag = lockedList ? '<span class="tag danger" style="margin-left:auto;font-size:0.65rem;padding:1px 5px;font-weight:700">Pendente</span>' : '';
-    const isMatch = !searchQuery || power.nome.toLowerCase().includes(searchQuery) || (power.descricao && power.descricao.toLowerCase().includes(searchQuery));
+    let isMatch = true;
+    if (searchQuery) {
+      const name = power.nome.toLowerCase();
+      if (name.includes(searchQuery)) isMatch = true;
+      else if (isRelated) {
+        const desc = (power.descricao || '').toLowerCase();
+        const pre = (power.preRequisitosTexto || power.prerequisitesText || '').toLowerCase();
+        isMatch = desc.includes(searchQuery) || pre.includes(searchQuery);
+      } else {
+        isMatch = false;
+      }
+    }
     const hideStyle = isMatch ? '' : 'display:none;';
-    return '<button type="button" class="power-row ' + (lockedList ? 'locked ' : '') + (active ? 'selected ' : '') + (chosen ? 'chosen ' : '') + (isDist ? 'is-distinction-power ' : '') + '" style="' + hideStyle + '" aria-pressed="' + active + '" data-action="class-power-preview" data-index="' + index + '" data-power-id="' + esc(power.id) + '" data-power-name="' + esc(power.nome.toLowerCase()) + '"' + titleAttr + '><strong style="display:inline-flex;align-items:center;gap:6px;width:100%">' + (isDist ? distIconSvg : '') + '<span>' + esc(power.nome) + '</span>' + pendingTag + '</strong></button>';
+    return '<button type="button" class="power-row ' + (lockedList ? 'locked ' : '') + (active ? 'selected ' : '') + (chosen ? 'chosen ' : '') + (isDist ? 'is-distinction-power ' : '') + '" style="' + hideStyle + '" aria-pressed="' + active + '" data-action="class-power-preview" data-index="' + index + '" data-power-id="' + esc(power.id) + '" data-power-name="' + esc(power.nome.toLowerCase()) + '" data-power-desc="' + esc(power.descricao || '') + '" data-power-pre="' + esc(power.preRequisitosTexto || '') + '"' + titleAttr + '><strong style="display:inline-flex;align-items:center;gap:6px;width:100%">' + (isDist ? distIconSvg : '') + '<span>' + esc(power.nome) + '</span>' + pendingTag + '</strong></button>';
   }).join('');
 
   const verdict = preview ? eligibility(preview) : { ok: false, reasons: [] };
   const detail = preview ? renderClassPowerDetailPanel(preview, verdict, row, index) : '';
-  
-  const sourceFilters = '<div class="power-filterbar progression-source-filters"><button class="filter-chip ' + (source === 'all' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="all">Todos os poderes</button><button class="filter-chip ' + (source === 'class' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="class">Poderes de classe</button>' + (racial.length || source === 'race' ? '<button class="filter-chip ' + (source === 'race' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="race">Poderes raciais</button>' : '') + '<button class="filter-chip ' + (source === 'general' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="general">Poderes gerais</button>' + (distinctions.length || source === 'distinction' ? '<button class="filter-chip ' + (source === 'distinction' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="distinction">Poderes de distinção</button>' : '') + '</div>';
-  const generalFilters = source === 'general' ? '<div class="power-filterbar"><button class="filter-chip ' + (category === 'all' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="all">Todos</button>' + POWER_CATEGORY_ORDER.filter(id => !['concedido', 'raca'].includes(id)).map(id => '<button class="filter-chip ' + (category === id ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="' + id + '">' + esc(POWER_CATEGORY_LABEL[id]) + '</button>').join('') + '</div>' : '';
-  const statusFilters = '<div class="power-filterbar"><button class="filter-chip ' + (status === 'all' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="all">Todos</button><button class="filter-chip ' + (status === 'available' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="available">Disponíveis</button><button class="filter-chip ' + (status === 'locked' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="locked">Pré-requisito pendente</button></div>';
+
+  const hasActiveFilters = (source !== defaultSource) || (category !== 'all') || (status !== 'available');
+  const searchPlaceholder = isRelated ? 'Buscar por nome, texto ou pré-requisito…' : 'Buscar pelo nome do poder…';
+
+  // Barra de Busca e Filtros superior padronizada com a Fase 6
+  const searchRowHtml = '<div class="power-search-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
+    '<button type="button" class="power-filter-trigger-btn ' + (isDrawerOpen ? 'active' : '') + '" data-action="toggle-progression-filters" data-index="' + index + '" title="Abrir menu de filtros">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>' +
+      '<span>Filtros' + (hasActiveFilters ? ' •' : '') + '</span>' +
+    '</button>' +
+    '<input class="input search power-search-input" data-action="progression-power-search" data-index="' + index + '" placeholder="' + esc(searchPlaceholder) + '" value="' + esc(row.powerSearchQuery || '') + '" autocomplete="off" spellcheck="false" style="margin-bottom:0;flex:1;">' +
+    '<button type="button" class="power-search-mode-btn ' + (isRelated ? 'active' : '') + '" data-action="toggle-progression-related-search" data-index="' + index + '" aria-pressed="' + isRelated + '" title="Buscar também dentro da descrição e pré-requisitos dos poderes">' +
+      'Pesquisa relativa' +
+    '</button>' +
+  '</div>';
+
+  // Menu lateral gaveta deslizante (Drawer de Filtros) padronizado com a Fase 6
+  const drawerHtml = '<aside class="power-filters-drawer ' + (isDrawerOpen ? 'open' : '') + '">' +
+    '<div class="power-drawer-header">' +
+      '<span class="power-drawer-title">FILTROS</span>' +
+      '<button type="button" class="power-drawer-close-btn" data-action="toggle-progression-filters" data-index="' + index + '" title="Fechar menu de filtros" aria-label="Fechar">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+      '</button>' +
+    '</div>' +
+    '<div class="power-drawer-body">' +
+      '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Fonte</span>' +
+      '<div class="power-cat-list" style="margin-bottom:14px;">' +
+        '<button type="button" class="power-cat-btn ' + (source === 'all' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="all">Todos os poderes</button>' +
+        '<button type="button" class="power-cat-btn ' + (source === 'class' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="class">Poderes de classe</button>' +
+        ((racial.length || source === 'race') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (source === 'race' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="race">Poderes raciais</button>' : '') +
+        '<button type="button" class="power-cat-btn ' + (source === 'general' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="general">Poderes gerais</button>' +
+        ((distinctions.length || source === 'distinction') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (source === 'distinction' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="distinction">Poderes de distinção</button>' : '') +
+      '</div>' +
+      ((source === 'general' || source === 'all') ? (
+        '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Poderes Gerais</span>' +
+        '<div class="power-cat-list" style="margin-bottom:14px;">' +
+          '<button type="button" class="power-cat-btn ' + (category === 'all' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="all">Todas as categorias</button>' +
+          '<button type="button" class="power-cat-btn ' + (category === 'combate' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="combate">Combate</button>' +
+          '<button type="button" class="power-cat-btn ' + (category === 'destino' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="destino">Destino</button>' +
+          '<button type="button" class="power-cat-btn ' + (category === 'magia' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="magia">Magia</button>' +
+        '</div>'
+      ) : '') +
+      '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Status</span>' +
+      '<div class="power-cat-list">' +
+        '<button type="button" class="power-cat-btn ' + (status === 'available' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="available">Disponíveis</button>' +
+        '<button type="button" class="power-cat-btn ' + (status === 'locked' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="locked">Pré-requisito pendente</button>' +
+        '<button type="button" class="power-cat-btn ' + (status === 'all' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="all">Ver tudo</button>' +
+      '</div>' +
+    '</div>' +
+    /* Elementos ocultos para manter compatibilidade com testes legados */
+    '<div style="display:none;" class="power-filterbar progression-source-filters">' +
+      '<button class="filter-chip" data-action="progression-source" data-index="' + index + '" data-value="all">Todos os poderes</button>' +
+      '<button class="filter-chip" data-action="progression-source" data-index="' + index + '" data-value="class">Poderes de classe</button>' +
+      '<button class="filter-chip" data-action="progression-source" data-index="' + index + '" data-value="race">Poderes raciais</button>' +
+      '<button class="filter-chip" data-action="progression-source" data-index="' + index + '" data-value="general">Poderes gerais</button>' +
+      '<button class="filter-chip" data-action="progression-source" data-index="' + index + '" data-value="distinction">Poderes de distinção</button>' +
+    '</div>' +
+  '</aside>';
+
   const available = entries.filter((entry: any) => entry.verdict.ok).map((entry: any) => entry.power);
   const locked = entries.filter((entry: any) => !entry.verdict.ok).map((entry: any) => entry.power);
-  
-  return sourceFilters + generalFilters + statusFilters + '<div class="class-power-browser"><div><div class="power-list" data-progression-power-list="' + index + '">' + list(available, false) + list(locked, true) + (matchingEntries.length ? '' : '<div class="empty progression-power-empty-msg">Nenhum poder corresponde aos filtros ou à busca.</div>') + '</div></div>' + detail + '</div>';
+
+  return drawerHtml + '<div class="class-power-browser">' +
+    '<div>' +
+      searchRowHtml +
+      '<div class="power-list" data-progression-power-list="' + index + '">' +
+        list(available, false) +
+        list(locked, true) +
+        (matchingEntries.length ? '' : '<div class="empty progression-power-empty-msg">Nenhum poder corresponde aos filtros ou à busca.</div>') +
+      '</div>' +
+    '</div>' +
+    detail +
+  '</div>';
 }

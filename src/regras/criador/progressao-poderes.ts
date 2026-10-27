@@ -36,6 +36,18 @@ function ecclesiasticalAuthorityDescription(power){
 }
 function classProgressionEligibility(power,index){
   if(!power)return{ok:false,reasons:['Poder não encontrado.']};
+  const isCosmoSlot = index === 0 && typeof hasCosmopolita === 'function' && hasCosmopolita();
+  if (isCosmoSlot) {
+    if (['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(power.categoria)) {
+      return { ok: false, reasons: ['Origem Cosmopolita não permite poderes concedidos, raciais ou da Tormenta.'] };
+    }
+    const classLvls = typeof cosmopolitaClassLevels === 'function' ? cosmopolitaClassLevels() : {};
+    const targetClassId = (power.classeIds && power.classeIds[0]) || state.progression[index]?.classId || state.identity?.classId;
+    const currentClassLvl = classLvls[targetClassId] || 0;
+    if (currentClassLvl < 2) {
+      return { ok: false, reasons: ['Requer pelo menos 2º nível na classe para a Origem Cosmopolita.'] };
+    }
+  }
   const row=state.progression[index] || { classId: state.identity.classId, powerId: '' };
   const classLevel=typeof classLevelAt==='function'?classLevelAt(index,row.classId):(index+1);
   const requirements=parsePowerRequirements(power),reasons=[];
@@ -91,4 +103,4 @@ function classProgressionEligibility(power,index){
 }
 const ownedPowerNamesBeforeProgression=ownedPowerNames;
 ownedPowerNames=function(exceptId=''){const values=ownedPowerNamesBeforeProgression(exceptId);for(const row of state.progression||[]){const power=progressionGeneralPowerById(row.powerId);if(power&&power.originalId!==exceptId)values.add(slug(power.nome))}return values};
-function progressionGeneralEligibility(power,index){const original=power?.generalPower||power,verdict=generalPowerEligibility(original),reasons=[...verdict.reasons];if(!powerAllowsRepeat(original)&&state.progression.some((row,rowIndex)=>rowIndex!==index&&progressionGeneralPowerById(row.powerId)?.originalId===original?.id))addReason(reasons,'Este poder já foi escolhido em outro nível.');return{ok:reasons.length===0,reasons}}
+function progressionGeneralEligibility(power,index){const original=power?.generalPower||power;const isCosmoSlot=index===0&&typeof hasCosmopolita==='function'&&hasCosmopolita();if(isCosmoSlot&&['concedido','tormenta','raca','grupo','escolhido_dos_deuses'].includes(original.categoria)){return{ok:false,reasons:['Origem Cosmopolita não permite poderes concedidos, raciais ou da Tormenta.']}}const verdict=generalPowerEligibility(original),reasons=[...verdict.reasons];if(!powerAllowsRepeat(original)&&state.progression.some((row,rowIndex)=>rowIndex!==index&&progressionGeneralPowerById(row.powerId)?.originalId===original?.id))addReason(reasons,'Este poder já foi escolhido em outro nível.');return{ok:reasons.length===0,reasons}}

@@ -361,6 +361,29 @@ document.addEventListener('click',event=>{
     return;
   }
   if(action==='skill-jump'){document.getElementById(button.dataset.target)?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(action==='toggle-power-related-search'){
+    state.powers.searchRelated = !state.powers.searchRelated;
+    const btn = document.getElementById('powerRelatedSearchBtn');
+    if(btn){
+      btn.classList.toggle('active', state.powers.searchRelated);
+      btn.setAttribute('aria-pressed', String(state.powers.searchRelated));
+    }
+    const input = document.getElementById('generalPowerSearch') as HTMLInputElement | null;
+    if(input){
+      input.placeholder = state.powers.searchRelated
+        ? 'Buscar por nome, texto ou pré-requisito…'
+        : 'Buscar pelo nome do poder…';
+    }
+    const fn = (globalThis as any).fastUpdatePowerList;
+    if(typeof fn === 'function') fn();
+    return;
+  }
+  if(action==='power-preview'){
+    if(typeof (globalThis as any).previewGeneralPower==='function'){
+      (globalThis as any).previewGeneralPower(button.dataset.powerId);
+      return;
+    }
+  }
   if(action==='power-preview'||action==='power-select'){
     const id=button.dataset.powerId, pwr=powerById(id), verdict=generalPowerEligibility(pwr);
     state.powers.previewId=id;

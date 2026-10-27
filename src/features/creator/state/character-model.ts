@@ -67,6 +67,7 @@ export function defaultState(): CharacterState {
       sidebarCollapsed: false,
       previewId: '',
       activeSlot: 0,
+      searchRelated: false,
     },
     deity: {
       mode: '',

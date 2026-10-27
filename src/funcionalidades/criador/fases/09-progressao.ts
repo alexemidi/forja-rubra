@@ -68,8 +68,11 @@ function previewProgressionPower(index, powerId, options = {}) {
 }
 function progressionLevelIndices(){
   const total = Math.max(1, Number(state.identity?.plannedLevel) || (state.progression || []).length || 1);
-  if(total <= 1) return [];
-  return Array.from({ length: total - 1 }, (_, i) => i + 1);
+  const indices = total <= 1 ? [] : Array.from({ length: total - 1 }, (_, i) => i + 1);
+  if (typeof hasCosmopolita === 'function' && hasCosmopolita() && !indices.includes(0)) {
+    indices.unshift(0);
+  }
+  return indices;
 }
 if(typeof window !== 'undefined'){
   (window as any).progressionLevelIndices = progressionLevelIndices;
@@ -291,7 +294,7 @@ function renderProgressionPhase(){
   ensureProgression();
   const activeIndex=progressionActivePowerIndex(),rows=state.progression.map((row,index)=>{
     if(index!==activeIndex)return '';
-    const cls=classById(row.classId),level=classLevelAt(index,row.classId),abilities=(cls?.habilidades||[]).filter(ability=>Number(ability.nivel)===level),selected=progressionPowerById(row.powerId),hasSlot=Boolean(cls && powerSlotAt(cls,level)),active=index===activeIndex;
+    const cls=classById(row.classId),level=classLevelAt(index,row.classId),abilities=(cls?.habilidades||[]).filter(ability=>Number(ability.nivel)===level),selected=progressionPowerById(row.powerId),isCosmoSlot=index===0&&typeof hasCosmopolita==='function'&&hasCosmopolita(),hasSlot=Boolean(cls && powerSlotAt(cls,level))||isCosmoSlot,active=index===activeIndex;
     const isMulticlassLevel1 = index > 0 && level === 1 && !hasSlot;
     const specialSummary=[];
     if(row.classId==='samurai'){
@@ -309,7 +312,7 @@ function renderProgressionPhase(){
       const granted=Boolean(arsenalState().grants?.['class-choice:class-inventor-fabricar-item-superior']);
       if(granted)specialSummary.push('Item Superior (Nv. ' + level + '): Concedido');
     }
-    const summary=[...abilities.filter(ability=>!(level===1&&slug(ability.nome)==='magias')).map(ability=>ability.nome),selected?.nome,...specialSummary].filter(Boolean);
+    const summary=[...(isCosmoSlot?['Origem Regional: Cosmopolita']:[]),...abilities.filter(ability=>!(level===1&&slug(ability.nome)==='magias')).map(ability=>ability.nome),selected?.nome,...specialSummary].filter(Boolean);
     const specialGrantHtml=renderProgressionSpecialGrants(row,index,level);
     const multiclassBoxHtml = isMulticlassLevel1
       ? '<div class="multiclass-first-level-box" style="margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);">' +
@@ -321,11 +324,9 @@ function renderProgressionPhase(){
         '</div>'
       : '';
     const sortedClasses = (DATA.classes || []).slice().sort((a,b)=>a.nome.localeCompare(b.nome, 'pt-BR'));
-    const classFieldHtml = '<label class="field" style="margin:0;flex:1;min-width:200px;"><span>Classe · nível '+level+' nela</span><select class="select" data-action="progress-class" data-index="'+index+'" '+(index===0?'disabled':'')+'>'+sortedClasses.map(option=>'<option value="'+option.id+'" '+(option.id===row.classId?'selected':'')+'>'+esc(option.nome)+'</option>').join('')+'</select></label>';
-    const searchFieldHtml = (active && hasSlot)
-      ? '<div class="field power-search-field" style="margin:0;flex:1;min-width:240px;"><input type="search" class="input power-search-input" data-action="progression-power-search" data-index="'+index+'" placeholder="Buscar poder pelo nome (classe, geral, etc.)..." value="'+esc(row.powerSearchQuery || '')+'" autocomplete="off" style="width:100%;min-height:39px;height:39px;padding:8px 12px;background:var(--panel2,#181114);border:1px solid var(--line,#4a252a);color:var(--cream,#f5eee6);border-radius:6px;font-size:0.85rem;" /></div>'
-      : '';
-    const classAndSearchRow = '<div class="progression-class-and-search" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">' + classFieldHtml + searchFieldHtml + '</div>';
+    const classLabelText = isCosmoSlot ? 'Classe · nível 1 nela (Origem Cosmopolita ativa)' : ('Classe · nível '+level+' nela');
+    const classFieldHtml = '<label class="field" style="margin:0;flex:1;min-width:200px;"><span>'+classLabelText+'</span><select class="select" data-action="progress-class" data-index="'+index+'" '+(index===0?'disabled':'')+'>'+sortedClasses.map(option=>'<option value="'+option.id+'" '+(option.id===row.classId?'selected':'')+'>'+esc(option.nome)+'</option>').join('')+'</select></label>';
+    const classAndSearchRow = '<div class="progression-class-and-search" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">' + classFieldHtml + '</div>';
     return '<section class="level-row progression-level-row '+(active?'active':'collapsed')+'" data-progression-level="'+index+'"><div class="level-badge">Nv. '+(index+1)+'</div><div>'+classAndSearchRow+'<div class="progression-level-summary">'+summary.map(name=>'<strong>'+esc(name)+'</strong>').join('')+'</div>'+(!isMulticlassLevel1 && abilities.length?'<details class="progression-ability-details"><summary>Detalhes das habilidades deste nível</summary><div class="ability-list">'+abilities.map(ability=>abilityHtml(ability)).join('')+'</div></details>':'')+multiclassBoxHtml+specialGrantHtml+(active && hasSlot ? renderClassPowerBrowser(row,index,cls) : '')+'</div></section>';
   }).join('');
   const powerLevelIndices=progressionLevelIndices();

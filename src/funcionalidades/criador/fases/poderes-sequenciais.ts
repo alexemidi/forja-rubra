@@ -313,6 +313,13 @@ document.addEventListener('click',event=>{
     const powerId = button.dataset.powerId;
     state.powers.previewId=powerId;
 
+    if(button.dataset.action==='power-preview'){
+      if(typeof (globalThis as any).previewGeneralPower==='function'){
+        (globalThis as any).previewGeneralPower(powerId);
+        return;
+      }
+    }
+
     if(button.dataset.action==='power-select'){
       const curSlot=Number(state.powers.activeSlot||0);
       const power=typeof powerById==='function'?powerById(powerId):null;
@@ -443,44 +450,32 @@ document.addEventListener('click',event=>{
   }
 },true);
 document.addEventListener('keydown',event=>{
-  if(!['ArrowUp','ArrowDown'].includes(event.key)||/INPUT|TEXTAREA|SELECT/.test((event.target as HTMLElement)?.tagName))return;
+  if(!['ArrowUp','ArrowDown'].includes(event.key))return;
+  const targetEl = event.target as HTMLElement;
+  const isSearchInput = targetEl?.id === 'generalPowerSearch';
+  if(/TEXTAREA|SELECT/.test(targetEl?.tagName) || (targetEl?.tagName === 'INPUT' && !isSearchInput)) return;
+
   if(state.step===6){
-    const buttons=[...document.querySelectorAll('[data-action="power-preview"]')].filter((b: any)=>!b.hidden&&b.style.display!=='none') as HTMLElement[];
-    const at=buttons.findIndex(b=>b.dataset.powerId===state.powers.previewId),next=at+(event.key==='ArrowDown'?1:-1);
-    const target=buttons[at<0?0:Math.max(0,Math.min(buttons.length-1,next))];
+    const list = document.querySelector('.power-list');
+    const buttons=[...(list || document).querySelectorAll('[data-action="power-preview"]')].filter((b: any)=>!b.hidden&&b.style.display!=='none') as HTMLElement[];
+    if(!buttons.length) return;
+    const at=buttons.findIndex(b=>b.dataset.powerId===state.powers.previewId);
+    const direction = event.key === 'ArrowDown' ? 1 : -1;
+    let nextIndex = at + direction;
+    if(at < 0) nextIndex = direction > 0 ? 0 : buttons.length - 1;
+    else nextIndex = Math.max(0, Math.min(buttons.length - 1, nextIndex));
+    const target=buttons[nextIndex];
     if(target){
       event.preventDefault();
       event.stopImmediatePropagation();
       const targetId=target.dataset.powerId;
-      const isDown=event.key==='ArrowDown';
-      state.powers.keyboardDirection = isDown ? 'down' : 'up';
-      target.click();
-      const scrollFn = () => {
-        const newlyRendered = document.querySelector('[data-action="power-preview"][data-power-id="' + targetId + '"]') as HTMLElement;
-        if(newlyRendered){
-          const list = newlyRendered.closest('.power-list') as HTMLElement;
-          if(list){
-            const elRect = newlyRendered.getBoundingClientRect();
-            const listRect = list.getBoundingClientRect();
-            const extraMargin = 85;
-            if(isDown){
-              const overflow = (elRect.bottom + extraMargin) - listRect.bottom;
-              if (overflow > 0) list.scrollTop += overflow;
-              else if (elRect.top < listRect.top) list.scrollTop -= (listRect.top - elRect.top);
-            }else{
-              const overflow = (listRect.top + extraMargin) - elRect.top;
-              if (overflow > 0) list.scrollTop -= overflow;
-              else if (elRect.bottom > listRect.bottom) list.scrollTop += (elRect.bottom - listRect.bottom);
-            }
-          }else{
-            newlyRendered.scrollIntoView?.({behavior:'smooth',block:'nearest'});
-          }
-        }
-      };
-      if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollFn);
-      else setTimeout(scrollFn,16);
+      if(typeof (globalThis as any).previewGeneralPower === 'function'){
+        (globalThis as any).previewGeneralPower(targetId, { fromKeyboard: true });
+      } else {
+        target.click();
+      }
     }
-  }else if(state.step===9){
+  }else if(state.step===10){
     const activeIndex=progressionActivePowerIndex();
     const list=document.querySelector('[data-progression-power-list="'+activeIndex+'"]') as HTMLElement;
     if(!list)return;
@@ -492,30 +487,11 @@ document.addEventListener('keydown',event=>{
       event.preventDefault();
       event.stopImmediatePropagation();
       const targetId=target.dataset.powerId;
-      const isDown=event.key==='ArrowDown';
-      target.click();
-      const scrollFn = () => {
-        const newlyRendered = document.querySelector('[data-action="class-power-preview"][data-power-id="' + targetId + '"]') as HTMLElement;
-        if(newlyRendered){
-          const listEl = newlyRendered.closest('.power-list') as HTMLElement;
-          if(listEl){
-            const elRect = newlyRendered.getBoundingClientRect();
-            const listRect = listEl.getBoundingClientRect();
-            const extraMargin = 85;
-            if(isDown){
-              const overflow = (elRect.bottom + extraMargin) - listRect.bottom;
-              if (overflow > 0) listEl.scrollTop += overflow;
-              else if (elRect.top < listRect.top) listEl.scrollTop -= (listRect.top - elRect.top);
-            }else{
-              const overflow = (listRect.top + extraMargin) - elRect.top;
-              if (overflow > 0) listEl.scrollTop -= overflow;
-              else if (elRect.bottom > listRect.bottom) listEl.scrollTop += (elRect.bottom - listRect.bottom);
-            }
-          }
-        }
-      };
-      if(typeof requestAnimationFrame==='function')requestAnimationFrame(scrollFn);
-      else setTimeout(scrollFn,16);
+      if(typeof (globalThis as any).previewProgressionPower === 'function'){
+        (globalThis as any).previewProgressionPower(activeIndex, targetId, { fromKeyboard: true });
+      } else {
+        target.click();
+      }
     }
   }
 },true);
