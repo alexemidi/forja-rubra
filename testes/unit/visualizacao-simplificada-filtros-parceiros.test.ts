@@ -151,3 +151,28 @@ test('Card único de poder não deve esticar no CSS', () => {
   assert.ok(migrationCss.includes('align-self: start !important;'), 'O card .power-row deve ter align-self: start para manter tamanho padrão');
   assert.ok(migrationCss.includes('.power-search-mode-btn'), 'O botão de pesquisa relativa deve ter estilização dedicada');
 });
+
+test('Visualização Simplificada Reduzida e Layout de Colunas Independentes (Masonry)', () => {
+  // 1. Checar CSS da Loja para column-count e cards sem aspect-ratio forçado
+  const lojaCss0 = fs.readFileSync('src/estilos/loja/0.css', 'utf8');
+  assert.ok(lojaCss0.includes('column-count: 3;'), 'items-grid deve usar layout de 3 colunas');
+  assert.ok(lojaCss0.includes('break-inside: avoid !important;'), 'Cards devem ter break-inside avoid');
+  assert.ok(lojaCss0.includes('aspect-ratio: auto'), 'Cards devem ter aspect-ratio auto para não deixar vão vazio');
+  assert.ok(lojaCss0.includes('.expand-item-button'), 'Botão de ver mais deve estar presente');
+
+  // 2. Checar CSS 3 de equipamento inicial
+  const lojaCss3 = fs.readFileSync('src/estilos/loja/3.css', 'utf8');
+  assert.ok(lojaCss3.includes('column-count:3!important'), 'body.initial-equipment items-grid deve usar 3 colunas');
+  assert.ok(!lojaCss3.includes('body.initial-equipment .item-card{aspect-ratio:1/1!important;min-height:330px!important'), 'Não deve forçar aspect-ratio 1/1 ou min-height 330px no equipamento inicial');
+
+  // 3. Checar modo padrão em 03-08-registerCustomItem.ts
+  const regCode = fs.readFileSync('src/funcionalidades/loja/03-08-registerCustomItem.ts', 'utf8');
+  assert.ok(regCode.includes("saved = localStorage.getItem('forja_card_view_mode') || 'compact';"), 'O modo padrão universal deve ser compact');
+  assert.ok(regCode.includes("'Ver mais'"), 'Botão deve conter o texto "Ver mais"');
+
+  // 4. Checar taverna e guilda
+  const tavCss = fs.readFileSync('src/estilos/taverna/0.css', 'utf8');
+  assert.ok(tavCss.includes('column-count: 3'), 'Taverna deve usar layout de 3 colunas independentes');
+  const guildCss = fs.readFileSync('src/estilos/guilda/0.css', 'utf8');
+  assert.ok(guildCss.includes('column-count: 3'), 'Guilda deve usar layout de 3 colunas independentes');
+});

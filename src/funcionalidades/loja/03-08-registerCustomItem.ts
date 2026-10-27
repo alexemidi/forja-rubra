@@ -161,10 +161,9 @@ itemsGrid.addEventListener('click', function(event) {
     const arrow = button.querySelector('.expand-arrow');
     const text = button.querySelector('.expand-text');
     if (arrow) arrow.textContent = expanded ? '▴' : '▾';
-    if (text) text.textContent = expanded ? 'Recolher' : 'Ver item completo';
-    else button.innerHTML = expanded ? '<span class="expand-arrow">▴</span> <span class="expand-text">Recolher</span>' : '<span class="expand-arrow">▾</span> <span class="expand-text">Ver item completo</span>';
+    if (text) text.textContent = expanded ? 'Recolher' : 'Ver mais';
+    else button.innerHTML = expanded ? '<span class="expand-arrow">▴</span> <span class="expand-text">Recolher</span>' : '<span class="expand-arrow">▾</span> <span class="expand-text">Ver mais</span>';
     button.setAttribute('aria-expanded', String(expanded));
-    if (!expanded) window.scrollTo({ top: card.offsetTop - 100, behavior: 'smooth' });
     return;
   }
   if (button.dataset.action === 'select-inspiration') {
@@ -874,9 +873,9 @@ function initCardViewModeToggle() {
     }
   }
 
-  let saved = 'detailed';
+  let saved = 'compact';
   try {
-    saved = localStorage.getItem('forja_card_view_mode') || 'detailed';
+    saved = localStorage.getItem('forja_card_view_mode') || 'compact';
   } catch (_) {}
   setMode(saved, false);
 

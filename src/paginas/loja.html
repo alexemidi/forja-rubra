@@ -5,7 +5,7 @@
 <title>Loja — Catálogo de Itens</title>
 <link rel="stylesheet" href="src/estilos/loja/0.css">
 <link rel="stylesheet" href="src/estilos/loja/1.css"><noscript><link rel="stylesheet" href="src/estilos/loja/2.css"></noscript><link rel="stylesheet" href="src/estilos/loja/3.css"><script src="src/compartilhado/inicializar.js" defer="" data-page="loja"></script></head>
-<body><div id="forja-loader" class="forja-loader" role="status" aria-live="polite"><div class="forja-loading-eye" aria-hidden="true"></div><p>Preparando sua jornada<small>Abrindo a Forja…</small></p></div>
+<body class="compact-cards-mode"><div id="forja-loader" class="forja-loader" role="status" aria-live="polite"><div class="forja-loading-eye" aria-hidden="true"></div><p>Preparando sua jornada<small>Abrindo a Forja…</small></p></div>
 <nav class="embedded-shop-actions" id="embeddedShopActions"><label><span data-money-label style="display:none"></span> <input data-money type="number" min="0" step="0.01" placeholder="0" aria-label="Dinheiro inicial em tibares" style="display:none"><span data-balance>Saldo disponível: T$ 0</span></label><button type="button" data-shop-view="catalog" class="active">Loja</button><button type="button" data-shop-cart>Carrinho <span data-shop-cart-count>0</span></button><button type="button" data-shop-view="backpack">Mochila</button></nav>
 
 <section class="filters-panel" id="filtersPanel" aria-label="Filtros do catálogo">
@@ -18,8 +18,8 @@
       <button class="search-mode-button" id="nameOnlySearchButton" type="button" aria-pressed="false">Busca relacionada</button>
       <button class="search-mode-button advanced-filters-button" id="advancedFiltersButton" type="button" aria-expanded="false" aria-controls="advancedFiltersContent">Filtros avançados</button>
       <div class="card-view-mode-toggle" id="cardViewModeToggle" role="group" aria-label="Visualização dos cards">
-        <button class="search-mode-button card-mode-btn active" id="cardModeNormalBtn" type="button" data-mode="detailed" aria-pressed="true" title="Visualização completa">Normal</button>
-        <button class="search-mode-button card-mode-btn" id="cardModeCompactBtn" type="button" data-mode="compact" aria-pressed="false" title="Visualização simplificada">Simplificada</button>
+        <button class="search-mode-button card-mode-btn" id="cardModeNormalBtn" type="button" data-mode="detailed" aria-pressed="false" title="Visualização completa">Normal</button>
+        <button class="search-mode-button card-mode-btn active" id="cardModeCompactBtn" type="button" data-mode="compact" aria-pressed="true" title="Visualização simplificada">Simplificada</button>
       </div>
       <label class="sort-control"><span class="sort-label">Ordenar</span><select class="sort-select" id="sortSelect" aria-label="Ordenar itens">
         <option value="name">Nome: A–Z</option>
@@ -60,7 +60,7 @@
       <span><strong>Escolha uma inspiração.</strong> Pesquise ou filtre o catálogo e use o botão azul do item desejado.</span>
       <button class="secondary-button inspiration-cancel-button" id="cancelInspirationButton" type="button">Cancelar inspiração</button>
     </div>
-    <div class="items-grid" id="itemsGrid"></div>
+    <div class="items-grid compact-cards" id="itemsGrid"></div>
     <div class="empty-state" id="emptyState">
       <h3>Nenhum item encontrado</h3>
       <p>Tente remover algum filtro ou buscar por outro termo.</p>

@@ -1329,7 +1329,7 @@ function workshopBackpackCardHtml(entry) {
     (typeof itemStatsHtmlBlock === 'function' ? itemStatsHtmlBlock(item) : ('<div class="item-stats">' + itemStats(item) + '</div>')) +
     upgradesBanner +
     '<div class="item-card-detail">' + propertiesHtml(item) + '<div class="card-body">' + body + '</div>' + specificMagicHtml(entry, item) + '</div>' +
-    '<div class="card-overlay"><button class="expand-item-button" type="button" data-action="toggle-item" aria-expanded="false"><span class="expand-arrow">▾</span> <span class="expand-text">Ver item completo</span></button>' +
+    '<div class="card-overlay"><button class="expand-item-button" type="button" data-action="toggle-item" aria-expanded="false"><span class="expand-arrow">▾</span> <span class="expand-text">Ver mais</span></button>' +
     '<div class="card-actions" style="display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;gap:6px !important;width:100% !important;padding:8px 12px 10px !important;box-sizing:border-box !important;">' + buttons + '</div></div>' +
   '</article>';
 

@@ -365,28 +365,54 @@
   .inspiration-bar strong { color: #d9edfb; }
   .inspiration-cancel-button { flex: 0 0 auto; border-color: #5ba9d866; color: #a9dcff; }
   .items-grid, .workshop-backpack-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: stretch;
-    gap: 16px;
+    display: block !important;
+    column-count: 3;
+    column-gap: 16px;
   }
   @media (max-width: 1100px) {
     .items-grid, .workshop-backpack-cards-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-count: 2;
     }
   }
   @media (max-width: 680px) {
     .items-grid, .workshop-backpack-cards-grid {
-      grid-template-columns: 1fr;
+      column-count: 1;
     }
+  }
+
+  .items-grid > .item-card,
+  .items-grid > article,
+  .workshop-backpack-cards-grid > .item-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .items-grid > .workshop-backpack-section,
+  .items-grid > .workshop-divider,
+  .items-grid > .catalog-header,
+  .items-grid > [data-load-more],
+  .items-grid > .empty,
+  .items-grid > .branch-picker-card,
+  .items-grid > .samurai-katana-choice-card,
+  .items-grid > .aristocrata-katana-choice-card,
+  .items-grid > .budget-grant-bar {
+    column-span: all !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
   }
 
   .item-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    aspect-ratio: 1 / 1;
-    min-height: 330px;
+    aspect-ratio: auto;
+    min-height: 0;
+    height: auto;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -397,7 +423,7 @@
   .item-card.expanded {
     aspect-ratio: auto;
     height: auto;
-    min-height: 330px;
+    min-height: 0;
     max-height: none;
     overflow: visible;
   }
@@ -604,29 +630,35 @@
   .expand-item-button .expand-arrow { font-size: .75rem; line-height: 1; }
 
   /* -------------------------------------------------------------
-     Modo Simplificado / Reduzido de Cards (Armas, Escudos, Armaduras)
+     Modo Simplificado / Reduzido de Cards (Armas, Escudos, Armaduras, Itens Gerais)
      ------------------------------------------------------------- */
   .items-grid.compact-cards .item-card,
-  body.compact-cards-mode .items-grid .item-card {
+  body.compact-cards-mode .items-grid .item-card,
+  .item-card {
     min-height: 0 !important;
     height: auto !important;
+    aspect-ratio: auto !important;
   }
   .items-grid.compact-cards .item-card .card-header,
   body.compact-cards-mode .items-grid .item-card .card-header {
     padding: 10px 14px 8px;
   }
-  .items-grid.compact-cards .item-card .badges,
-  body.compact-cards-mode .items-grid .item-card .badges {
+  .items-grid.compact-cards .item-card:not(.expanded) .badges,
+  body.compact-cards-mode .items-grid .item-card:not(.expanded) .badges {
     display: none !important;
   }
-  .items-grid.compact-cards .item-card .stat-price,
-  .items-grid.compact-cards .item-card .stat-spaces,
-  .items-grid.compact-cards .item-card .stat-combat,
-  .items-grid.compact-cards .item-card .stat-attr,
-  body.compact-cards-mode .items-grid .item-card .stat-price,
-  body.compact-cards-mode .items-grid .item-card .stat-spaces,
-  body.compact-cards-mode .items-grid .item-card .stat-combat,
-  body.compact-cards-mode .items-grid .item-card .stat-attr {
+  .items-grid.compact-cards .item-card[data-type="arma"]:not(.expanded) .stat-price,
+  .items-grid.compact-cards .item-card[data-type="arma"]:not(.expanded) .stat-spaces,
+  .items-grid.compact-cards .item-card[data-type="arma"]:not(.expanded) .stat-combat,
+  .items-grid.compact-cards .item-card[data-type="armadura"]:not(.expanded) .stat-price,
+  .items-grid.compact-cards .item-card[data-type="armadura"]:not(.expanded) .stat-spaces,
+  .items-grid.compact-cards .item-card[data-type="armadura"]:not(.expanded) .stat-attr,
+  body.compact-cards-mode .items-grid .item-card[data-type="arma"]:not(.expanded) .stat-price,
+  body.compact-cards-mode .items-grid .item-card[data-type="arma"]:not(.expanded) .stat-spaces,
+  body.compact-cards-mode .items-grid .item-card[data-type="arma"]:not(.expanded) .stat-combat,
+  body.compact-cards-mode .items-grid .item-card[data-type="armadura"]:not(.expanded) .stat-price,
+  body.compact-cards-mode .items-grid .item-card[data-type="armadura"]:not(.expanded) .stat-spaces,
+  body.compact-cards-mode .items-grid .item-card[data-type="armadura"]:not(.expanded) .stat-attr {
     display: none !important;
   }
   .items-grid.compact-cards .item-card .item-stats,
@@ -635,21 +667,52 @@
     gap: 6px 14px;
     justify-content: flex-start;
   }
-  .items-grid.compact-cards .item-card .item-card-detail .card-body,
-  body.compact-cards-mode .items-grid .item-card .item-card-detail .card-body {
+  .items-grid.compact-cards .item-card:not(.expanded) .item-card-detail .card-body,
+  body.compact-cards-mode .items-grid .item-card:not(.expanded) .item-card-detail .card-body {
     display: none !important;
   }
   .items-grid.compact-cards .item-card .expand-item-button,
-  body.compact-cards-mode .items-grid .item-card .expand-item-button {
-    display: none !important;
+  body.compact-cards-mode .items-grid .item-card .expand-item-button,
+  .item-card .expand-item-button {
+    display: inline-flex !important;
   }
   .items-grid.compact-cards .item-card .properties-row,
   body.compact-cards-mode .items-grid .item-card .properties-row {
-    padding: 7px 12px 3px;
+    padding: 6px 12px 2px;
+  }
+  .items-grid.compact-cards .item-card:not(.expanded) .card-overlay,
+  body.compact-cards-mode .items-grid .item-card:not(.expanded) .card-overlay {
+    margin-top: 4px !important;
   }
   .items-grid.compact-cards .item-card .card-actions,
   body.compact-cards-mode .items-grid .item-card .card-actions {
-    padding: 7px 12px 10px !important;
+    padding: 6px 12px 8px !important;
+  }
+  .items-grid .item-card.expanded,
+  body.compact-cards-mode .items-grid .item-card.expanded {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .items-grid .item-card.expanded .item-card-detail .card-body,
+  body.compact-cards-mode .items-grid .item-card.expanded .item-card-detail .card-body {
+    display: block !important;
+    padding: 8px 12px 10px;
+  }
+  .items-grid .item-card.expanded .badges,
+  body.compact-cards-mode .items-grid .item-card.expanded .badges {
+    display: flex !important;
+  }
+  .items-grid .item-card.expanded .stat-price,
+  .items-grid .item-card.expanded .stat-spaces,
+  .items-grid .item-card.expanded .stat-combat,
+  .items-grid .item-card.expanded .stat-attr,
+  body.compact-cards-mode .items-grid .item-card.expanded .stat-price,
+  body.compact-cards-mode .items-grid .item-card.expanded .stat-spaces,
+  body.compact-cards-mode .items-grid .item-card.expanded .stat-combat,
+  body.compact-cards-mode .items-grid .item-card.expanded .stat-attr {
+    display: inline-flex !important;
   }
   .acquire-button {
     height: 36px;

@@ -286,7 +286,7 @@ function buildItemCard(originalItem) {
     categoryBadgeHtml + magicBadge + originBadge + debugBadge + books + '</div></div>' +
     itemStatsHtmlBlock(item) + itemChoiceFieldsHtml(originalItem, options) +
     '<div class="item-card-detail">' + propertiesHtml(item) + '<div class="card-body">' + body + '</div>' + specificMagicHtml({ improvements: [], enchantments: [], quantity: 1 }, item) + '</div>' +
-    '<div class="card-overlay"><button class="expand-item-button" type="button" data-action="toggle-item" aria-expanded="false"><span class="expand-arrow">▾</span> <span class="expand-text">Ver item completo</span></button>' +
+    '<div class="card-overlay"><button class="expand-item-button" type="button" data-action="toggle-item" aria-expanded="false"><span class="expand-arrow">▾</span> <span class="expand-text">Ver mais</span></button>' +
     '<div class="card-actions">' + primaryAction + acquisitionStatus + '</div></div></article>';
 }
 
