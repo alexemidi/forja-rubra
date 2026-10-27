@@ -52,6 +52,21 @@ if(typeof window !== 'undefined'){
 }
 
 document.addEventListener('click',event=>{
+  if(state.step===10){
+    const isTrigger=(event.target as HTMLElement)?.closest?.('[data-action="toggle-progression-filters"]');
+    const isDrawer=(event.target as HTMLElement)?.closest?.('.power-filters-drawer');
+    if(!isTrigger&&!isDrawer){
+      const activeIdx=typeof progressionActivePowerIndex==='function'?progressionActivePowerIndex():0;
+      const r=state.progression?.[activeIdx];
+      if(r&&r.drawerOpen){
+        r.drawerOpen=false;
+        const drawer=document.querySelector('.power-filters-drawer');
+        const trigger=document.querySelector('.power-filter-trigger-btn');
+        if(drawer)drawer.classList.remove('open');
+        if(trigger)trigger.classList.remove('active');
+      }
+    }
+  }
   const button=event.target.closest?.('[data-action]');
   if(!button)return;
   if(button.dataset.action==='toggle-progression-filters'){
@@ -85,6 +100,9 @@ document.addEventListener('click',event=>{
     setTimeout(()=>document.querySelectorAll('.progression-level-row')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),30);
   }else if(button.dataset.action==='progression-filter'){
     const f=String(button.dataset.filter||'');
+    row.powerSearchQuery='';
+    const searchInput=document.querySelector('[data-action="progression-power-search"][data-index="'+index+'"]') as HTMLInputElement | null;
+    if(searchInput)searchInput.value='';
     if(f==='all'){
       row.powerSourceFilter='all';
       row.powerCategoryFilter='all';

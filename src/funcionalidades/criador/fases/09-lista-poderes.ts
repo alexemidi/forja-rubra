@@ -117,7 +117,7 @@ function renderClassPowerDetailPanel(preview: any, verdict: any, row: any, index
       + '</select>'
       + '</div>';
   }
-  const reasonsHtml = verdict?.reasons?.length ? '<div class="power-status locked" style="margin-top:8px">' + esc(verdict.reasons.join(' ')) + '</div>' : '';
+  const reasonsHtml = verdict?.reasons?.length ? '<div class="power-status locked" style="display:block;margin-top:8px">' + esc(verdict.reasons.join(' ')) + '</div>' : '';
   const familiarBtn = (['arcanista_familiar', 'arcanista_familiar_aprimorado'].includes(preview.id))
     ? '<button type="button" class="button primary" data-action="choose-familiar" data-index="' + index + '" style="margin-top:10px">' + (typeof familiarById === 'function' && familiarById(row.previewPowerChoice || row.powerChoice) ? 'Familiar: ' + esc(familiarById(row.previewPowerChoice || row.powerChoice)[1]) + ' · alterar' : 'Escolher familiar') + '</button>'
     : '';
@@ -170,13 +170,13 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
   let distinctions: any[] = [];
 
   if (isCosmoSlot) {
-    // Cosmopolita: poderes gerais (Combate, Destino, Magia) + poderes de classes onde tem >= 2 níveis
+    // Cosmopolita: poderes de classes onde tem >= 2 níveis + poderes gerais
     powers = (DATA.classPowers || []).filter((power: any) =>
       availableClasses.some((c: any) => (power.classeIds || []).includes(c.id))
     ).sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
-
+    racial = progressionRaceOptions(index);
     general = (DATA.generalPowers || [])
-      .filter((power: any) => !['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(power.categoria) && (category === 'all' || power.categoria === category))
+      .filter((power: any) => (category === 'all' && status !== 'all' ? !['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(power.categoria) : (category === 'all' ? true : power.categoria === category)))
       .map((power: any) => ({ ...power, id: progressionGeneralPowerId(power.id), originalId: power.id, generalPower: power }));
   } else {
     const classIdsForPowers = availableClasses.length ? availableClasses.map((c: any) => c.id) : [row.classId];
@@ -330,25 +330,18 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
     return '<button type="button" class="power-cat-btn ' + (isBtnActive ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="' + esc(filterVal) + '">Poderes de ' + esc(c.nome) + '</button>';
   }).join('');
 
-  const generalCategories = isCosmoSlot
-    ? [
-        { id: 'combate', label: 'Combate' },
-        { id: 'destino', label: 'Destino' },
-        { id: 'magia', label: 'Magia' },
-        { id: 'ver_tudo', label: 'Ver tudo' }
-      ]
-    : [
-        { id: 'combate', label: 'Combate' },
-        { id: 'destino', label: 'Destino' },
-        { id: 'magia', label: 'Magia' },
-        { id: 'concedido', label: 'Poderes Concedidos' },
-        { id: 'tormenta', label: 'Tormenta' },
-        { id: 'raca', label: 'Raça' },
-        { id: 'grupo', label: 'Grupo' },
-        { id: 'escolhido_dos_deuses', label: 'Escolhido dos Deuses' },
-        ...(distinctions.length ? [{ id: 'distinction', label: 'Poderes de Distinção' }] : []),
-        { id: 'ver_tudo', label: 'Ver tudo' }
-      ];
+  const generalCategories = [
+    { id: 'combate', label: 'Combate' },
+    { id: 'destino', label: 'Destino' },
+    { id: 'magia', label: 'Magia' },
+    { id: 'concedido', label: 'Poderes Concedidos' },
+    { id: 'tormenta', label: 'Tormenta' },
+    { id: 'raca', label: 'Raça' },
+    { id: 'grupo', label: 'Grupo' },
+    { id: 'escolhido_dos_deuses', label: 'Escolhido dos Deuses' },
+    ...(distinctions.length ? [{ id: 'distinction', label: 'Poderes de Distinção' }] : []),
+    { id: 'ver_tudo', label: 'Ver tudo' }
+  ];
 
   const categoryButtonsHtml = generalCategories.map(cat => {
     const isBtnActive = activeFilterKey === cat.id;

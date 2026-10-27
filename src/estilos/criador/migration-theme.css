@@ -1424,7 +1424,7 @@ button[data-item-spend] {
   font-weight: 700 !important;
   letter-spacing: 0.6px !important;
   text-transform: uppercase !important;
-  color: var(--gold2, #f5c879) !important;
+  color: var(--cream, #f5eee6) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -1442,12 +1442,13 @@ button[data-item-spend] {
 }
 
 .phase-nav-hero-sep {
-  color: var(--red2, #ea3948) !important;
+  color: var(--cream, #f5eee6) !important;
   font-weight: 800 !important;
+  opacity: 0.75 !important;
 }
 
 .phase-nav-hero-meta {
-  color: var(--gold, #e9ad59) !important;
+  color: var(--cream, #f5eee6) !important;
   font-family: 'Tormenta', 'Cinzel', serif !important;
   font-weight: 700 !important;
 }
@@ -1710,6 +1711,11 @@ body.stage-powers-active .panel {
   flex-direction: column !important;
   overflow: hidden !important;
   border-radius: 8px !important;
+  clip-path: none !important;
+}
+
+.panel:has(.power-filters-drawer) {
+  clip-path: none !important;
 }
 
 body:has(.power-stage-wrapper) .panel-body,

@@ -97,7 +97,30 @@ test('Origem Cosmopolita - Liberação da Fase de Progressão no Nível 1 e Regr
     'O drawer deve conter o filtro Magia'
   );
   assert.ok(
+    browserCode.includes("{ id: 'concedido', label: 'Poderes Concedidos' }") &&
+    browserCode.includes("{ id: 'tormenta', label: 'Tormenta' }") &&
+    browserCode.includes("{ id: 'raca', label: 'Raça' }") &&
+    browserCode.includes("{ id: 'grupo', label: 'Grupo' }") &&
+    browserCode.includes("{ id: 'escolhido_dos_deuses', label: 'Escolhido dos Deuses' }"),
+    'O drawer deve conter todas as categorias da Fase de Poderes mesmo na Origem Cosmopolita'
+  );
+  assert.ok(
     browserCode.includes("{ id: 'ver_tudo', label: 'Ver tudo' }"),
     'O drawer deve conter o filtro Ver tudo igual à Fase de Poderes'
+  );
+  assert.ok(
+    !browserCode.includes('const generalCategories = isCosmoSlot'),
+    'A lista de categorias no drawer de progressão deve ser idêntica à Fase de Poderes sem restringir opções na Cosmopolita'
+  );
+
+  // 8. Checar que o CSS de .panel não aplica clip-path quando contém .power-filters-drawer e que a cor da raça/classe na barra superior é igual à do nome
+  const cssCode = fs.readFileSync(path.resolve('src/estilos/criador/migration-theme.css'), 'utf8');
+  assert.ok(
+    cssCode.includes('.panel:has(.power-filters-drawer)'),
+    'O CSS deve desativar clip-path em .panel quando contém .power-filters-drawer para não cortar o menu de filtros no topo'
+  );
+  assert.ok(
+    cssCode.includes('.phase-nav-hero-meta {\n  color: var(--cream, #f5eee6) !important;'),
+    'A raça e a classe na barra superior devem ter a mesma cor da fonte do nome do personagem'
   );
 });
