@@ -236,7 +236,11 @@ missingChoices=function(step){return step===8&&!arsenalState().complete?[{title:
 characterPendingChoices=function(){const pending=pendingBeforeArsenal();if(!arsenalState().complete)pending.push({title:'Equipamento inicial',message:'Conclua a fase de itens iniciais.',selector:'[data-step="8"]',step:8});return pending};
 function sendArsenal(type,details={}){document.getElementById('characterArsenal')?.contentWindow?.postMessage({channel:'forja-arsenal-v1',session:arsenalSession,type,...details},'*')}
 function syncInitialItemFooter(){
-  if(state.step!==8)return;
+  if(state.step!==8){
+    const skipSimpleBtn = document.getElementById('skipSimpleChoiceBtn');
+    if(skipSimpleBtn) skipSimpleBtn.hidden = true;
+    return;
+  }
   const saved=arsenalState(),choice=currentItemChoice(),title=saved.complete?'Itens adquiridos':choice?.title||'Equipamento inicial';
   const redoBtn=document.getElementById('redoInitialItemsButton');
   if(redoBtn)redoBtn.hidden=Boolean(state.isLevelingUp);

@@ -255,3 +255,95 @@ test('Fase 6: Busca global de poderes gerais não some resultados quando categor
   assert.equal(clearedEntries.length, defaultEntries.length, 'Ao limpar a busca, restaura a categoria selecionada');
 });
 
+test('Cosmopolita: elegibilidade de poderes para nível 1 (poder geral) e nível 2 na mesma classe (poder de classe)', () => {
+  const generalPowers = JSON.parse(fs.readFileSync(path.resolve('dados/criador-generalPowers.json'), 'utf8'));
+  const classPowers = JSON.parse(fs.readFileSync(path.resolve('dados/criador-classPowers.json'), 'utf8'));
+
+  function slug(str: string) {
+    return String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  // Simula estado do personagem com Cosmopolita no modo single
+  const state: any = {
+    identity: {
+      classId: 'guerreiro',
+      plannedLevel: 1
+    },
+    origin: {
+      mode: 'single',
+      standard: 'Cosmopolita'
+    },
+    progression: []
+  };
+
+  function hasCosmopolita() {
+    const originName = state.origin?.mode === 'dual' ? state.origin?.regional : state.origin?.standard;
+    return slug(originName) === 'cosmopolita';
+  }
+
+  assert.equal(hasCosmopolita(), true, 'hasCosmopolita deve ser true no modo single');
+
+  function cosmopolitaClassLevels() {
+    const levels: Record<string, number> = {};
+    if (Array.isArray(state.progression) && state.progression.length > 0) {
+      for (const row of state.progression) {
+        if (row?.classId) levels[row.classId] = (levels[row.classId] || 0) + 1;
+      }
+    } else if (state.identity?.classId) {
+      const planned = Math.max(1, Number(state.identity.plannedLevel || 1));
+      levels[state.identity.classId] = planned;
+    }
+    return levels;
+  }
+
+  function getEligible(stateObj: any) {
+    const classLvls = cosmopolitaClassLevels();
+    const general = generalPowers.filter((p: any) => !['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(p.categoria));
+    const classesWith2Lvls = Object.entries(classLvls).filter(([_, lvl]) => lvl >= 2).map(([cid]) => cid);
+    const classP = classPowers.filter((cp: any) => classesWith2Lvls.some(cid => (cp.classeIds || []).includes(cid)));
+    return { general, classP, classesWith2Lvls };
+  }
+
+  // Nível 1:
+  state.identity.plannedLevel = 1;
+  state.progression = [];
+  const lvl1 = getEligible(state);
+  assert.equal(lvl1.classesWith2Lvls.length, 0, 'Personagem de nível 1 não possui classe com nível 2');
+  assert.equal(lvl1.classP.length, 0, 'Personagem de nível 1 não pode escolher poderes de classe por Cosmopolita');
+  assert.ok(lvl1.general.length > 0, 'Personagem de nível 1 pode escolher poderes gerais');
+  assert.ok(lvl1.general.every((p: any) => !['concedido', 'tormenta'].includes(p.categoria)), 'Não permite poderes concedidos nem Tormenta');
+
+  // Nível 2 na mesma classe:
+  state.identity.plannedLevel = 2;
+  const lvl2 = getEligible(state);
+  assert.deepEqual(lvl2.classesWith2Lvls, ['guerreiro'], 'Personagem de nível 2 na classe guerreiro tem 2 níveis nela');
+  assert.ok(lvl2.classP.length > 0, 'Personagem de nível 2 em Guerreiro pode escolher poderes de Guerreiro');
+  assert.ok(lvl2.classP.every((cp: any) => (cp.classeIds || []).includes('guerreiro')), 'Todos os poderes de classe são de Guerreiro');
+});
+
+test('Botão "Pular escolha": exclusivo para arma simples e arma marcial na Fase 8 de itens', () => {
+  function isSkipButtonVisible(step: number, choiceId?: string) {
+    if (step !== 8) return false;
+    return choiceId === 'simple' || choiceId === 'martial';
+  }
+
+  // Fase 3 (Origens), como visto na imagem
+  assert.equal(isSkipButtonVisible(3), false, 'Na Fase 3 (Origens), o botão "Pular escolha" NUNCA deve aparecer');
+  // Fase 1, 2, 4, 5, 6, 7, 9, 10
+  for (const s of [1, 2, 4, 5, 6, 7, 9, 10]) {
+    assert.equal(isSkipButtonVisible(s), false, `Na Fase ${s}, o botão "Pular escolha" NUNCA deve aparecer`);
+  }
+  // Fase 8: apenas arma simples e arma marcial
+  assert.equal(isSkipButtonVisible(8, 'simple'), true, 'Na Fase 8, escolha de arma simples deve exibir o botão');
+  assert.equal(isSkipButtonVisible(8, 'martial'), true, 'Na Fase 8, escolha de arma marcial deve exibir o botão');
+  assert.equal(isSkipButtonVisible(8, 'armor'), false, 'Na Fase 8, escolha de armadura NÃO deve exibir o botão');
+  assert.equal(isSkipButtonVisible(8, 'shield'), false, 'Na Fase 8, escolha de escudo NÃO deve exibir o botão');
+  assert.equal(isSkipButtonVisible(8, 'tool'), false, 'Na Fase 8, escolha de ferramenta NÃO deve exibir o botão');
+});
+
+

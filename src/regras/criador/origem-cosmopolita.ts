@@ -4,24 +4,27 @@
 // Você recebe esse poder. Uma vez por aventura, após concluir um descanso (oito horas de sono), pode trocar esse poder por outro."
 
 function hasCosmopolita(){
-  return state.origin?.mode === 'dual' && slug(typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin()?.nome || '' : state.origin?.regional || '') === 'cosmopolita';
+  const reg = typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin() : null;
+  const name = reg?.nome || (state.origin?.mode === 'dual' ? state.origin?.regional : state.origin?.standard) || '';
+  return slug(name) === 'cosmopolita';
 }
 
 function cosmopolitaClassLevels(){
-  const levels = {};
+  const levels: Record<string, number> = {};
   if (Array.isArray(state.progression) && state.progression.length > 0) {
     for (const row of state.progression) {
       if (row?.classId) levels[row.classId] = (levels[row.classId] || 0) + 1;
     }
   } else if (state.identity?.classId) {
-    levels[state.identity.classId] = 1;
+    const planned = Math.max(1, Number(state.identity.plannedLevel || 1));
+    levels[state.identity.classId] = planned;
   }
   return levels;
 }
 
 function cosmopolitaGeneralPowerEligibility(power){
   if (!power) return { ok: false, reasons: ['Poder não encontrado.'] };
-  if (['concedido', 'tormenta', 'raca'].includes(power.categoria)) {
+  if (['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(power.categoria)) {
     return { ok: false, reasons: ['Origem Cosmopolita não permite poderes concedidos, raciais ou da Tormenta.'] };
   }
   const verdict = typeof generalPowerEligibility === 'function' ? generalPowerEligibility(power) : { ok: true, reasons: [] };
@@ -104,9 +107,9 @@ function cosmopolitaEligiblePowers(){
   const currentChosenPowerId = currentChosenKey.startsWith('geral:') ? currentChosenKey.slice(6) : currentChosenKey;
   const ownedNames = new Set((typeof ownedPowerNames === 'function' ? [...ownedPowerNames(currentChosenPowerId)] : []).map(slug));
 
-  // 1. Poderes Gerais (Combate, Destino, Magia, Tormenta)
+  // 1. Poderes Gerais (Combate, Destino, Magia) - exceto Concedidos e Tormenta
   for (const p of DATA.generalPowers || []) {
-    if (['concedido', 'raca'].includes(p.categoria)) continue;
+    if (['concedido', 'tormenta', 'raca', 'grupo', 'escolhido_dos_deuses'].includes(p.categoria)) continue;
     const isCurrent = currentChosenKey === ('geral:' + p.id) || currentChosenKey === p.id;
     if (!isCurrent && ownedNames.has(slug(p.nome))) continue;
     const verdict = cosmopolitaGeneralPowerEligibility(p);
@@ -114,7 +117,7 @@ function cosmopolitaEligiblePowers(){
       ...p,
       cosmopolitaKey: 'geral:' + p.id,
       powerType: 'geral',
-      categoryLabel: p.categoria === 'combate' ? 'Combate' : p.categoria === 'destino' ? 'Destino' : p.categoria === 'magia' ? 'Magia' : p.categoria === 'tormenta' ? 'Tormenta' : 'Geral',
+      categoryLabel: p.categoria === 'combate' ? 'Combate' : p.categoria === 'destino' ? 'Destino' : p.categoria === 'magia' ? 'Magia' : 'Geral',
       originLabel: 'Poder Geral (' + (p.categoria ? (p.categoria.charAt(0).toUpperCase() + p.categoria.slice(1)) : 'Geral') + ')',
       verdict,
       isSelected: isCurrent
@@ -346,7 +349,6 @@ function renderCosmopolitaPowerBrowser(totalStages = 1, currentStageIndex = 0){
     '<button type="button" class="filter-chip ' + (category === 'combate' ? 'active' : '') + '" data-action="cosmopolita-category" data-value="combate">Combate</button>' +
     '<button type="button" class="filter-chip ' + (category === 'destino' ? 'active' : '') + '" data-action="cosmopolita-category" data-value="destino">Destino</button>' +
     '<button type="button" class="filter-chip ' + (category === 'magia' ? 'active' : '') + '" data-action="cosmopolita-category" data-value="magia">Magia</button>' +
-    '<button type="button" class="filter-chip ' + (category === 'tormenta' ? 'active' : '') + '" data-action="cosmopolita-category" data-value="tormenta">Tormenta</button>' +
     classesWith2Levels.map(cid => {
       const cls = typeof classById === 'function' ? classById(cid) : null;
       const cName = cls?.nome || cid;
