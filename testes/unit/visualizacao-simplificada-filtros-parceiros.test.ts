@@ -152,17 +152,18 @@ test('Card único de poder não deve esticar no CSS', () => {
   assert.ok(migrationCss.includes('.power-search-mode-btn'), 'O botão de pesquisa relativa deve ter estilização dedicada');
 });
 
-test('Visualização Simplificada Reduzida e Layout de Colunas Independentes (Masonry)', () => {
-  // 1. Checar CSS da Loja para column-count e cards sem aspect-ratio forçado
+test('Visualização Simplificada Reduzida e Grid de 3 Colunas Alinhadas', () => {
+  // 1. Checar CSS da Loja para 3 colunas e cards sem aspect-ratio forçado
   const lojaCss0 = fs.readFileSync('src/estilos/loja/0.css', 'utf8');
-  assert.ok(lojaCss0.includes('column-count: 3;'), 'items-grid deve usar layout de 3 colunas');
-  assert.ok(lojaCss0.includes('break-inside: avoid !important;'), 'Cards devem ter break-inside avoid');
+  assert.ok(lojaCss0.includes('grid-template-columns: repeat(3, minmax(0, 1fr)) !important;'), 'items-grid deve usar layout de 3 colunas');
+  assert.ok(lojaCss0.includes('align-items: start !important;'), 'items-grid deve alinhar no topo sem forçar esticamento');
   assert.ok(lojaCss0.includes('aspect-ratio: auto'), 'Cards devem ter aspect-ratio auto para não deixar vão vazio');
   assert.ok(lojaCss0.includes('.expand-item-button'), 'Botão de ver mais deve estar presente');
 
   // 2. Checar CSS 3 de equipamento inicial
   const lojaCss3 = fs.readFileSync('src/estilos/loja/3.css', 'utf8');
-  assert.ok(lojaCss3.includes('column-count:3!important'), 'body.initial-equipment items-grid deve usar 3 colunas');
+  assert.ok(lojaCss3.includes('grid-template-columns:repeat(3,minmax(0,1fr))!important'), 'body.initial-equipment items-grid deve usar 3 colunas');
+  assert.ok(lojaCss3.includes('align-items:start!important'), 'body.initial-equipment items-grid deve alinhar no topo');
   assert.ok(!lojaCss3.includes('body.initial-equipment .item-card{aspect-ratio:1/1!important;min-height:330px!important'), 'Não deve forçar aspect-ratio 1/1 ou min-height 330px no equipamento inicial');
 
   // 3. Checar modo padrão em 03-08-registerCustomItem.ts
@@ -172,7 +173,9 @@ test('Visualização Simplificada Reduzida e Layout de Colunas Independentes (Ma
 
   // 4. Checar taverna e guilda
   const tavCss = fs.readFileSync('src/estilos/taverna/0.css', 'utf8');
-  assert.ok(tavCss.includes('column-count: 3'), 'Taverna deve usar layout de 3 colunas independentes');
+  assert.ok(tavCss.includes('repeat(3, minmax(0, 1fr))'), 'Taverna deve usar layout de 3 colunas');
+  assert.ok(tavCss.includes('align-items: start !important'), 'Taverna deve alinhar no topo');
   const guildCss = fs.readFileSync('src/estilos/guilda/0.css', 'utf8');
-  assert.ok(guildCss.includes('column-count: 3'), 'Guilda deve usar layout de 3 colunas independentes');
+  assert.ok(guildCss.includes('repeat(3, minmax(0, 1fr))'), 'Guilda deve usar layout de 3 colunas');
+  assert.ok(guildCss.includes('align-items: start !important'), 'Guilda deve alinhar no topo');
 });
