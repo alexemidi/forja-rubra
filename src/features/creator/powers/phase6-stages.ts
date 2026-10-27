@@ -65,12 +65,7 @@ export function computePhase6SubStages(
   if (typeof ctx.hasDuploFeerico === 'function' && ctx.hasDuploFeerico()) {
     stages.push({ type: 'duplo_feerico', label: 'Duplo Feérico' });
   }
-  if (typeof ctx.hasCosmopolita === 'function' && ctx.hasCosmopolita()) {
-    stages.push({
-      type: 'cosmopolita',
-      label: 'Origem Regional (Cosmopolita)',
-    });
-  }
+  // Cosmopolita escolhe o poder exclusivamente na Fase de Progressão (nível 1)
   if (typeof ctx.hasFuturaLenda === 'function' && ctx.hasFuturaLenda()) {
     stages.push({
       type: 'futura_lenda',

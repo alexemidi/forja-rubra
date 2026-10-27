@@ -83,6 +83,40 @@ document.addEventListener('click',event=>{
     state.progressionCollapsedIndex=closing?index:-1;
     renderStage();
     setTimeout(()=>document.querySelectorAll('.progression-level-row')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),30);
+  }else if(button.dataset.action==='progression-filter'){
+    const f=button.dataset.filter;
+    if(f==='all'){
+      row.powerSourceFilter='all';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='available';
+    }else if(f==='class'){
+      row.powerSourceFilter='class';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='available';
+    }else if(f==='general'){
+      row.powerSourceFilter='general';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='available';
+    }else if(f==='combate'||f==='destino'||f==='magia'||f==='tormenta'){
+      row.powerSourceFilter='general';
+      row.powerCategoryFilter=f;
+      row.powerStatusFilter='available';
+    }else if(f==='race'){
+      row.powerSourceFilter='race';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='available';
+    }else if(f==='distinction'){
+      row.powerSourceFilter='distinction';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='available';
+    }else if(f==='locked'){
+      row.powerSourceFilter='all';
+      row.powerCategoryFilter='all';
+      row.powerStatusFilter='locked';
+    }
+    row.previewPowerId='';
+    row.previewPowerChoice='';
+    renderStage();
   }else if(button.dataset.action==='progression-source'){
     row.powerSourceFilter=button.dataset.value;
     row.previewPowerId='';

@@ -234,9 +234,6 @@ powerMissingChoices=function(){
   if(typeof hasDuploFeerico==='function'&&hasDuploFeerico()&&!selectedDuploFeericoPower()){
     missing.push({title:'Duplo Feérico',message:'Escolha uma habilidade de classe de 1º nível para Duplo Feérico.',selector:'[data-action^="duplo-feerico"]'});
   }
-  if(typeof hasCosmopolita==='function'&&hasCosmopolita()&&!selectedCosmopolitaPower()){
-    missing.push({title:'Origem Cosmopolita',message:'Escolha o poder concedido pela origem Cosmopolita.',selector:'[data-action^="cosmopolita-"]'});
-  }
   if(typeof hasFuturaLenda==='function'&&hasFuturaLenda()&&!selectedFuturaLendaPower()){
     missing.push({title:'Futura Lenda',message:'Escolha um poder de classe de 2º nível para a origem Futura Lenda.',selector:'[data-action^="futura-lenda-"]'});
   }

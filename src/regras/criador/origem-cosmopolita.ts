@@ -160,10 +160,10 @@ function cosmopolitaEligiblePowers(){
 }
 
 function selectedCosmopolitaPower(){
-  const raw = state.powers?.cosmopolitaPower;
+  const raw = state.progression?.[0]?.powerId || state.powers?.cosmopolitaPower;
   if (!raw) return null;
   if (raw.startsWith('geral:')) {
-    const id = raw.slice(6);
+    const id = decodeURIComponent(raw.slice(6));
     const p = (DATA.generalPowers || []).find(item => item.id === id);
     return p ? { ...p, cosmopolitaKey: raw, powerType: 'geral' } : null;
   }
@@ -202,9 +202,7 @@ function getPhase6SubStages(){
   if (typeof hasDuploFeerico === 'function' && hasDuploFeerico()) {
     stages.push({ type: 'duplo_feerico', label: 'Duplo Feérico' });
   }
-  if (typeof hasCosmopolita === 'function' && hasCosmopolita()) {
-    stages.push({ type: 'cosmopolita', label: 'Origem Regional (Cosmopolita)' });
-  }
+  // Cosmopolita escolhe o poder exclusivamente na Fase 10 (Progressão)
   if (typeof hasFuturaLenda === 'function' && hasFuturaLenda()) {
     stages.push({ type: 'futura_lenda', label: 'Origem Regional (Futura Lenda)' });
   }
@@ -1025,10 +1023,3 @@ document.addEventListener('click', event => {
     else if (typeof toast === 'function') toast('Poder de Cosmopolita trocado para ' + chosen.nome + '!');
   }
 });
-
-if (typeof characterHasPowerChoices === 'function') {
-  const baseHasPowerChoices = characterHasPowerChoices;
-  characterHasPowerChoices = function() {
-    return baseHasPowerChoices() || hasCosmopolita();
-  };
-}

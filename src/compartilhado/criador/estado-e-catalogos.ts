@@ -696,10 +696,9 @@ function characterHasPowerChoices(){
   const raceGroups = typeof racePowerGroups === 'function' ? racePowerGroups() : [];
   const originChoices = typeof originGeneralPowerOptions === 'function' ? originGeneralPowerOptions() : [];
   const duplo = typeof hasDuploFeerico === 'function' && hasDuploFeerico();
-  const cosmo = typeof hasCosmopolita === 'function' && hasCosmopolita();
   const futura = typeof hasFuturaLenda === 'function' && hasFuturaLenda();
   const criacao = typeof hasCriacaoDosDeuses === 'function' && hasCriacaoDosDeuses();
-  return genSlots > 0 || raceGroups.some(g => Number(g.quantity || 0) > 0) || originChoices.length > 0 || Boolean(duplo) || Boolean(cosmo) || Boolean(futura) || Boolean(criacao);
+  return genSlots > 0 || raceGroups.some(g => Number(g.quantity || 0) > 0) || originChoices.length > 0 || Boolean(duplo) || Boolean(futura) || Boolean(criacao);
 }
 function characterHasSpellChoices(){
   if (typeof spellPlan !== 'function') return false;

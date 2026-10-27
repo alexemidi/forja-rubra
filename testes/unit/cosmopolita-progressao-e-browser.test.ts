@@ -62,4 +62,46 @@ test('Origem Cosmopolita - Liberação da Fase de Progressão no Nível 1 e Regr
     seqCode.includes('previewProgressionPower(activeIndex, targetId, { fromKeyboard: true })'),
     'A navegação por setas na progressão deve usar previewProgressionPower in-place sem delay'
   );
+
+  // 6. Checar que Cosmopolita NÃO cria etapas na Fase 6 (apenas na progressão)
+  const phase6StagesCode = fs.readFileSync(path.resolve('src/features/creator/powers/phase6-stages.ts'), 'utf8');
+  assert.ok(
+    !phase6StagesCode.includes("stages.push({\n      type: 'cosmopolita'"),
+    'phase6-stages.ts não deve registrar cosmopolita como subestágio da Fase 6'
+  );
+  const cosmoCode = fs.readFileSync(path.resolve('src/regras/criador/origem-cosmopolita.ts'), 'utf8');
+  assert.ok(
+    !cosmoCode.includes("stages.push({ type: 'cosmopolita'"),
+    'origem-cosmopolita.ts não deve registrar cosmopolita como subestágio da Fase 6'
+  );
+
+  // 7. Checar filtros da Fase de Progressão na ordem correta
+  assert.ok(
+    browserCode.includes('data-filter="all">Todos os poderes</button>'),
+    'O drawer deve conter Todos os poderes'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="class">Poderes de classe</button>'),
+    'O drawer deve conter Poderes de classe'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="general">Poderes gerais</button>'),
+    'O drawer deve conter Poderes gerais'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="combate">Combate</button>'),
+    'O drawer deve conter subfiltro Combate'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="destino">Destino</button>'),
+    'O drawer deve conter subfiltro Destino'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="magia">Magia</button>'),
+    'O drawer deve conter subfiltro Magia'
+  );
+  assert.ok(
+    browserCode.includes('data-filter="locked">Indisponíveis</button>'),
+    'O drawer deve conter o último filtro Indisponíveis'
+  );
 });

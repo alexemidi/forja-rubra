@@ -1846,6 +1846,18 @@ body.stage-powers-active .panel-body {
   font-weight: 800 !important;
 }
 
+.power-subcat-btn {
+  font-size: 0.8rem !important;
+  min-height: 32px !important;
+  padding: 6px 12px 6px 16px !important;
+  opacity: 0.92;
+}
+
+.power-subcat-btn:hover,
+.power-subcat-btn.active {
+  opacity: 1;
+}
+
 .power-main-content {
   flex: 1;
   min-height: 0;

@@ -163,7 +163,15 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
 
   const allPowers = [...powers, ...racial, ...general, ...distinctions].sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const classPowersWithDistinctions = [...powers, ...distinctions].sort((a: any, b: any) => a.nome.localeCompare(b.nome, 'pt-BR'));
-  const sourceEntries = source === 'all' ? allPowers : source === 'race' ? racial : source === 'general' ? general : source === 'distinction' ? distinctions : classPowersWithDistinctions;
+  const sourceEntries = (status === 'locked' || source === 'all')
+    ? allPowers
+    : source === 'race'
+      ? racial
+      : source === 'general'
+        ? general
+        : source === 'distinction'
+          ? distinctions
+          : classPowersWithDistinctions;
 
   const eligibility = (power: any) => {
     if (power.distinctionPower) return typeof progressionDistinctionEligibility === 'function' ? progressionDistinctionEligibility(power, index) : { ok: true, reasons: [] };
@@ -177,7 +185,7 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
   const entries = sourceEntries
     .filter((power: any) => !isPowerAlreadyAcquiredInCharacter(power, index, row.powerId))
     .map((power: any) => ({ power, verdict: eligibility(power) }))
-    .filter((entry: any) => status === 'all' || (status === 'available') === entry.verdict.ok);
+    .filter((entry: any) => status === 'all' || (status === 'available' ? entry.verdict.ok : !entry.verdict.ok));
 
   const matchingEntries = searchQuery
     ? entries.filter((entry: any) => {
@@ -223,7 +231,28 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
   const verdict = preview ? eligibility(preview) : { ok: false, reasons: [] };
   const detail = preview ? renderClassPowerDetailPanel(preview, verdict, row, index) : '';
 
-  const hasActiveFilters = (source !== defaultSource) || (category !== 'all') || (status !== 'available');
+  // Determina o filtro ativo unificado
+  const isLocked = status === 'locked';
+  let activeFilterKey = 'class';
+  if (isLocked) {
+    activeFilterKey = 'locked';
+  } else if (source === 'all') {
+    activeFilterKey = 'all';
+  } else if (source === 'class') {
+    activeFilterKey = 'class';
+  } else if (source === 'race') {
+    activeFilterKey = 'race';
+  } else if (source === 'distinction') {
+    activeFilterKey = 'distinction';
+  } else if (source === 'general') {
+    if (category === 'all') {
+      activeFilterKey = 'general';
+    } else {
+      activeFilterKey = category;
+    }
+  }
+
+  const hasActiveFilters = (activeFilterKey !== defaultSource);
   const searchPlaceholder = isRelated ? 'Buscar por nome, texto ou pré-requisito…' : 'Buscar pelo nome do poder…';
 
   // Barra de Busca e Filtros superior padronizada com a Fase 6
@@ -238,7 +267,7 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
     '</button>' +
   '</div>';
 
-  // Menu lateral gaveta deslizante (Drawer de Filtros) padronizado com a Fase 6
+  // Menu lateral gaveta deslizante (Drawer de Filtros) na ordem estrita solicitada pelo usuário
   const drawerHtml = '<aside class="power-filters-drawer ' + (isDrawerOpen ? 'open' : '') + '">' +
     '<div class="power-drawer-header">' +
       '<span class="power-drawer-title">FILTROS</span>' +
@@ -247,28 +276,21 @@ function renderClassPowerBrowser(row: any, index: number, cls: any) {
       '</button>' +
     '</div>' +
     '<div class="power-drawer-body">' +
-      '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Fonte</span>' +
-      '<div class="power-cat-list" style="margin-bottom:14px;">' +
-        '<button type="button" class="power-cat-btn ' + (source === 'all' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="all">Todos os poderes</button>' +
-        '<button type="button" class="power-cat-btn ' + (source === 'class' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="class">Poderes de classe</button>' +
-        ((racial.length || source === 'race') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (source === 'race' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="race">Poderes raciais</button>' : '') +
-        '<button type="button" class="power-cat-btn ' + (source === 'general' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="general">Poderes gerais</button>' +
-        ((distinctions.length || source === 'distinction') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (source === 'distinction' ? 'active' : '') + '" data-action="progression-source" data-index="' + index + '" data-value="distinction">Poderes de distinção</button>' : '') +
-      '</div>' +
-      ((source === 'general' || source === 'all') ? (
-        '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Poderes Gerais</span>' +
-        '<div class="power-cat-list" style="margin-bottom:14px;">' +
-          '<button type="button" class="power-cat-btn ' + (category === 'all' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="all">Todas as categorias</button>' +
-          '<button type="button" class="power-cat-btn ' + (category === 'combate' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="combate">Combate</button>' +
-          '<button type="button" class="power-cat-btn ' + (category === 'destino' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="destino">Destino</button>' +
-          '<button type="button" class="power-cat-btn ' + (category === 'magia' ? 'active' : '') + '" data-action="progression-category" data-index="' + index + '" data-value="magia">Magia</button>' +
-        '</div>'
-      ) : '') +
-      '<span style="font-size:0.75rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;">Status</span>' +
       '<div class="power-cat-list">' +
-        '<button type="button" class="power-cat-btn ' + (status === 'available' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="available">Disponíveis</button>' +
-        '<button type="button" class="power-cat-btn ' + (status === 'locked' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="locked">Pré-requisito pendente</button>' +
-        '<button type="button" class="power-cat-btn ' + (status === 'all' ? 'active' : '') + '" data-action="progression-status" data-index="' + index + '" data-value="all">Ver tudo</button>' +
+        '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'all' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="all">Todos os poderes</button>' +
+        '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'class' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="class">Poderes de classe</button>' +
+        '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'general' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="general">Poderes gerais</button>' +
+        '<div class="power-subcat-group" style="display:flex;flex-direction:column;gap:5px;padding-left:14px;margin:3px 0 6px 0;border-left:2px solid #3d1b22;margin-left:6px;">' +
+          '<button type="button" class="power-cat-btn power-subcat-btn ' + (activeFilterKey === 'combate' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="combate">Combate</button>' +
+          '<button type="button" class="power-cat-btn power-subcat-btn ' + (activeFilterKey === 'destino' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="destino">Destino</button>' +
+          '<button type="button" class="power-cat-btn power-subcat-btn ' + (activeFilterKey === 'magia' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="magia">Magia</button>' +
+          (!isCosmoSlot ? '<button type="button" class="power-cat-btn power-subcat-btn ' + (activeFilterKey === 'tormenta' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="tormenta">Tormenta</button>' : '') +
+        '</div>' +
+        ((racial.length || activeFilterKey === 'race') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'race' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="race">Poderes raciais</button>' : '') +
+        ((distinctions.length || activeFilterKey === 'distinction') && !isCosmoSlot ? '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'distinction' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="distinction">Poderes de distinção</button>' : '') +
+        '<div style="margin-top:12px;border-top:1px solid #3d1b22;padding-top:10px;">' +
+          '<button type="button" class="power-cat-btn ' + (activeFilterKey === 'locked' ? 'active' : '') + '" data-action="progression-filter" data-index="' + index + '" data-filter="locked">Indisponíveis</button>' +
+        '</div>' +
       '</div>' +
     '</div>' +
     /* Elementos ocultos para manter compatibilidade com testes legados */
