@@ -3099,7 +3099,7 @@ function renderSheetActionBar(mode = 'full'){
 
 function renderSimplifiedSheet(isSummary = false){
   ensureProgression();
-  const attrs=finalAttrs(true),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),regional=state.origin.mode==='dual'?selectedRegionalOrigin():null,deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'—',classes=[...new Set(state.progression.map(row=>classById(row.classId)?.nome).filter(Boolean))],inventory=typeof characterInventory==='function'?characterInventory():[],catalog=getPdfItemsCatalog(),passives=passiveCharacterEffects();
+  const attrs=finalAttrs(true),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),regional=selectedRegionalOrigin(),deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'—',classes=[...new Set(state.progression.map(row=>classById(row.classId)?.nome).filter(Boolean))],inventory=typeof characterInventory==='function'?characterInventory():[],catalog=getPdfItemsCatalog(),passives=passiveCharacterEffects();
   const vitals = sheetVitals(stats);
   const alignmentValue = state.identity?.alignment || state.sheetNotes?.alignment || 'Neutro';
   const charName = state.identity?.characterName || 'Herói sem nome';
@@ -3298,7 +3298,7 @@ function renderCharacterDetails(){
   }
   if(typeof syncTavernContractsToSheetNotes==='function')syncTavernContractsToSheetNotes();
   ensureProgression();
-  const attrs=finalAttrs(true),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),regional=state.origin.mode==='dual'?selectedRegionalOrigin():null,deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'—',classes=[...new Set(state.progression.map(row=>classById(row.classId)?.nome).filter(Boolean))],inventory=typeof characterInventory==='function'?characterInventory():[],catalog=getPdfItemsCatalog(),trained=new Set(allTrainedSkills()),passives=passiveCharacterEffects();
+  const attrs=finalAttrs(true),stats=progressionStats(),race=raceById(state.identity.raceId),origin=selectedStandardOrigin(),regional=selectedRegionalOrigin(),deity=state.deity.mode==='devout'?state.deity.name:state.deity.mode==='pantheon'?'Panteão':'—',classes=[...new Set(state.progression.map(row=>classById(row.classId)?.nome).filter(Boolean))],inventory=typeof characterInventory==='function'?characterInventory():[],catalog=getPdfItemsCatalog(),trained=new Set(allTrainedSkills()),passives=passiveCharacterEffects();
   const armorRec = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
   const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
   const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : null);
@@ -3312,7 +3312,9 @@ function renderCharacterDetails(){
   const itemName=entry=>getSheetItemDisplayName(entry,catalog);
   const attackRows=renderSheetAttackRows(inventory, catalog);
   const skillRows=renderSheetSkillRows();
-  const powers=[...(state.progression||[]).map(row=>progressionPowerById(row.powerId)),...selectedGeneralPowers(),...String(state.deity.power||'').split('|').map(name=>DATA.generalPowers.find(power=>power.nome===name))].filter(Boolean),learned=typeof allLearnedSpellIds==='function'?allLearnedSpellIds().map(id=>spellById(id)?.name).filter(Boolean):[];
+  const rawDeityList = Array.from(new Set(String(state.deity.power||'').split('|').map(n => slug(n) === 'trocas_duyshidakk' ? 'Tropas Duyshidakk' : n).filter(Boolean)));
+  const deityPowersFound = rawDeityList.map(name => (typeof grantedPowerData === 'function' ? grantedPowerData(name) : null) || DATA.generalPowers.find(power => power.nome === name || slug(power.nome) === slug(name))).filter(Boolean);
+  const powers=[...(state.progression||[]).map(row=>progressionPowerById(row.powerId)),...selectedGeneralPowers(),...deityPowersFound].filter(Boolean),learned=typeof allLearnedSpellIds==='function'?allLearnedSpellIds().map(id=>spellById(id)?.name).filter(Boolean):[];
   const isMestre = isModoMestreAtivo();
   const mestreBanner = isMestre ? `
     <div style="background:#271214;border:1px solid #dc2626;color:#fecaca;padding:8px 16px;border-radius:6px;margin-bottom:12px;font-size:0.84rem;display:flex;align-items:center;justify-content:space-between">
@@ -3343,7 +3345,8 @@ function renderCharacterDetails(){
   const isEspirito = typeof hasCriacaoDosDeuses === 'function' && hasCriacaoDosDeuses();
   const raceDisplay = isEspirito ? `${race?.nome || '—'} (Espírito)` : (race?.nome || '—');
   const charName = state.identity?.characterName || 'Personagem sem nome';
-  const identity=planningBanner+mestreBanner+'<section class="sheet-preview-identity"><span><small>Personagem</small><strong>'+esc(charName)+'</strong></span><span><small>Jogador</small><strong>'+esc(state.identity.playerName||'Jogador não informado')+'</strong></span><span><small>Raça</small><strong>'+esc(raceDisplay)+'</strong></span><span><small>Origem</small><strong>'+esc([origin?.nome,regional?.nome].filter(Boolean).join(' / ')||'—')+'</strong></span><span><small>Classe</small><strong>'+esc(classes.join(' / ')||'—')+' · nível '+state.identity.plannedLevel+'</strong></span><span><small>Divindade</small><strong>'+esc(deity)+'</strong></span></section>';
+  const originDisplayName = [origin?.nome, regional?.nome].filter(Boolean).join(' / ') || (regional?.nome || origin?.nome || state.origin?.standard || state.origin?.regional || '—');
+  const identity=planningBanner+mestreBanner+'<section class="sheet-preview-identity"><span><small>Personagem</small><strong>'+esc(charName)+'</strong></span><span><small>Jogador</small><strong>'+esc(state.identity.playerName||'Jogador não informado')+'</strong></span><span><small>Raça</small><strong>'+esc(raceDisplay)+'</strong></span><span><small>Origem</small><strong>'+esc(originDisplayName)+'</strong></span><span><small>Classe</small><strong>'+esc(classes.join(' / ')||'—')+' · nível '+state.identity.plannedLevel+'</strong></span><span><small>Divindade</small><strong>'+esc(deity)+'</strong></span></section>';
   
   const slidersIcon = window.IconesForja ? window.IconesForja.get('sliders', 'icon-sm') : '';
   const isSteppers = Boolean(state.attrSteppersActive);

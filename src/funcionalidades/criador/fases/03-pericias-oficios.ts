@@ -517,8 +517,7 @@ function deityAccepts(deity){
   return races.some(name=>['todas','todos'].includes(slug(name))||slug(name)===slug(race?.nome))||classes.some(name=>['todas','todos'].includes(slug(name))||slug(name)===slug(cls?.nome));
 }
 function grantedPowerData(name){
-  // As duas fontes locais usam grafias diferentes para o mesmo poder de Thwor.
-  const aliases={tropas_duyshidakk:'trocas_duyshidakk'},normalized=slug(name);
+  const aliases: Record<string, string>={tropas_duyshidakk:'trocas_duyshidakk',trocas_duyshidakk:'tropas_duyshidakk'},normalized=slug(name);
   return DATA.generalPowers.find(power=>power.categoria==='concedido'&&slug(power.nome)===normalized)||DATA.generalPowers.find(power=>power.categoria==='concedido'&&slug(power.nome)===aliases[normalized]);
 }
 function deityPowerValues(){return String(state.deity.power||'').split('|').slice(0,deityPowerCount())}

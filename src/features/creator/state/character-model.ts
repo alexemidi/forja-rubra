@@ -178,6 +178,10 @@ export function normalizeState(rawState: any): CharacterState {
       ? state.powers.originGeneral
       : {};
   state.deity = Object.assign(d.deity, state.deity || {});
+  if (state.deity?.power) {
+    const pParts = String(state.deity.power).split('|').map(p => (p === 'Troças Duyshidakk' || p === 'trocas_duyshidakk') ? 'Tropas Duyshidakk' : p);
+    state.deity.power = Array.from(new Set(pParts.filter(Boolean))).join('|');
+  }
   state.distinctions =
     state.distinctions && typeof state.distinctions === 'object'
       ? state.distinctions

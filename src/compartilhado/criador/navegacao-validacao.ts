@@ -487,7 +487,8 @@ function selectedCharacterFeatures(){
   const features=[],seen=new Set();
   const add=(feature,source)=>{
     if(!feature||(!feature.id&&!feature.nome))return;
-    const cleanId=slug(feature.id||String(feature.nome||'').split('/').pop());
+    let cleanId=slug(feature.id||String(feature.nome||'').split('/').pop());
+    if(cleanId==='trocas_duyshidakk') cleanId='tropas_duyshidakk';
     if(!cleanId||seen.has(cleanId))return;
     seen.add(cleanId);
     features.push({...feature,source});
@@ -606,7 +607,7 @@ function selectedCharacterFeatures(){
         benefitNames: benefitNames
       }, 'origin');
     }
-    if(state.origin.mode==='dual'&&!isChildCharacter()){
+    if((state.origin.mode==='dual' || !origin) && !isChildCharacter()){
       const regional=typeof selectedRegionalOrigin==='function'?selectedRegionalOrigin():null;
       if(regional){
         if(slug(regional.nome)==='duplo_feerico'||regional.nome==='Duplo Feérico'){
@@ -714,7 +715,12 @@ function selectedCharacterFeatures(){
     }
   }
 
-  for(const name of normalDeityPowers){
+  const seenDeitySlugs = new Set();
+  for(const rawName of normalDeityPowers){
+    const normSlug = slug(rawName) === 'trocas_duyshidakk' ? 'tropas_duyshidakk' : slug(rawName);
+    if(seenDeitySlugs.has(normSlug)) continue;
+    seenDeitySlugs.add(normSlug);
+    const name = normSlug === 'tropas_duyshidakk' ? 'Tropas Duyshidakk' : rawName;
     const matched = (typeof grantedPowerData === 'function' ? grantedPowerData(name) : null) || DATA.generalPowers.find(power=>power.nome===name||slug(power.nome)===slug(name));
     let featObj = matched || {id: slug(name), nome: name, descricao: 'Poder concedido pela divindade.'};
     if(slug(name) === 'familiar_elemental'){

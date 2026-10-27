@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { test } from 'node:test';
 
 test('Filtros de Armas: combate e empunhadura devem filtrar corretamente as armas', () => {
@@ -63,4 +64,50 @@ test('Botão Voltar: deve ser estritamente "← Voltar"', () => {
   previous.textContent = '← Voltar';
   assert.equal(previous.textContent, '← Voltar', 'Texto deve ser estritamente ← Voltar');
   assert.ok(!previous.textContent.includes('Magias'), 'Não deve conter "Magias"');
+});
+
+test('Origem Regional em Modo Single: deve ser exibida no cabeçalho e habilidades da ficha', () => {
+  const mockOrigins = [{ nome: 'Acólito' }];
+  const mockRegionalOrigins = [{ nome: 'Batalhão de Ferro', regiao: 'Yuden' }];
+  const mockState: any = {
+    origin: { mode: 'single', standard: 'Batalhão de Ferro', regional: '', benefits: [] }
+  };
+
+  function selectedStandardOrigin() {
+    return mockOrigins.find(o => o.nome === mockState.origin.standard);
+  }
+
+  function selectedRegionalOrigin() {
+    if (mockState.origin?.mode === 'single') {
+      const reg = mockRegionalOrigins.find(o => o.nome === mockState.origin.standard);
+      if (reg) return reg;
+    }
+    return mockRegionalOrigins.find(o => o.nome === mockState.origin.regional);
+  }
+
+  const origin = selectedStandardOrigin();
+  const regional = selectedRegionalOrigin();
+  const originDisplayName = [origin?.nome, regional?.nome].filter(Boolean).join(' / ') || mockState.origin?.standard || mockState.origin?.regional || '—';
+
+  assert.equal(origin, undefined, 'Não deve ser encontrada em standard origins');
+  assert.ok(regional, 'Deve ser encontrada como origem regional');
+  assert.equal(regional?.nome, 'Batalhão de Ferro');
+  assert.equal(originDisplayName, 'Batalhão de Ferro', 'Nome da origem regional deve aparecer no cabeçalho');
+});
+
+test('Poder Concedido Thwor: Tropas Duyshidakk não pode ficar duplicado', () => {
+  const deities = JSON.parse(fs.readFileSync('dados/criador-deities.json', 'utf8'));
+  const thwor = deities.find((d: any) => d.nome.toLowerCase() === 'thwor');
+  assert.ok(thwor, 'Thwor deve existir no catálogo de divindades');
+  
+  const duyshPowers = thwor.poderes_concedidos.filter((p: string) => p.toLowerCase().includes('duyshidakk'));
+  assert.equal(duyshPowers.length, 1, 'Deve haver exatamente 1 poder Duyshidakk em Thwor');
+  assert.equal(duyshPowers[0], 'Tropas Duyshidakk', 'O nome deve ser o oficial Tropas Duyshidakk');
+
+  // Desduplicação no estado mesmo se ficha antiga tiver ambos
+  const statePowerString = 'Troças Duyshidakk|Tropas Duyshidakk';
+  const parts = statePowerString.split('|').map(p => (p === 'Troças Duyshidakk' || p === 'trocas_duyshidakk') ? 'Tropas Duyshidakk' : p);
+  const deduplicated = Array.from(new Set(parts.filter(Boolean)));
+  assert.equal(deduplicated.length, 1, 'Deve desduplicar para apenas 1 poder');
+  assert.equal(deduplicated[0], 'Tropas Duyshidakk');
 });
