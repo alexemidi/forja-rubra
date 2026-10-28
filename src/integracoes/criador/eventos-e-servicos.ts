@@ -224,6 +224,340 @@ document.addEventListener('click',async event=>{
         toast('Erro ao exportar dados para o Foundry.', 'error');
       }
     }
+    else if(action==='export-roll20'){
+      try {
+        const attrs = typeof finalAttrs === 'function' ? finalAttrs() : {};
+        const stats = typeof progressionStats === 'function' ? progressionStats() : {};
+        const level = Number(state.identity?.plannedLevel) || 1;
+        const race = typeof raceById === 'function' ? raceById(state.identity?.raceId) : null;
+        const origin = typeof selectedStandardOrigin === 'function' ? selectedStandardOrigin() : null;
+        const regional = typeof selectedRegionalOrigin === 'function' ? selectedRegionalOrigin() : null;
+        const originDisplay = [origin?.nome, regional?.nome].filter(Boolean).join(' / ')
+          || origin?.nome
+          || regional?.nome
+          || state.origin?.standard
+          || state.origin?.regional
+          || '';
+        const classes = [...new Set((state.progression || []).map(row => {
+          const characterClass = typeof classById === 'function' ? classById(row.classId) : null;
+          return characterClass?.nome;
+        }).filter(Boolean))];
+        const trainedSkills = new Set(typeof allTrainedSkills === 'function' ? allTrainedSkills() : []);
+        const skillRows = typeof SKILLS !== 'undefined' ? SKILLS : [];
+        const passiveEffects = typeof passiveCharacterEffects === 'function' ? passiveCharacterEffects() : {};
+        const coins = typeof characterCoins === 'function' ? characterCoins() : { ts: 0, to: 0 };
+        const offices = typeof allTrainedOffices === 'function' ? allTrainedOffices() : [];
+        const inventory = typeof characterInventory === 'function' ? characterInventory() : [];
+        const catalogMap = typeof getPdfItemsCatalog === 'function'
+          ? getPdfItemsCatalog()
+          : new Map((Array.isArray(DATA?.pdfItems) ? DATA.pdfItems : []).map(item => [item.id, item]));
+        const catalog = [...catalogMap.values()];
+        const currentSpellPlan = typeof spellPlan === 'function' ? spellPlan() : null;
+        const learnedSpells = typeof allLearnedSpellIds === 'function'
+          ? currentSpellPlan ? allLearnedSpellIds(currentSpellPlan) : allLearnedSpellIds()
+          : [];
+        const spellsByCircle = [1, 2, 3, 4, 5].map(() => []);
+        learnedSpells.forEach(id => {
+          const spell = typeof spellById === 'function' ? spellById(id) : null;
+          const circle = Number(spell?.circulo || spell?.circuloMagia || spell?.circle || 1);
+          if (spell && circle >= 1 && circle <= 5) {
+            const cleanId = String(id).replace(/_/g, '-');
+            const cardHtml = DATA?.spellCards?.[id] || DATA?.spellCards?.[cleanId] || '';
+            spellsByCircle[circle - 1].push(roll20SpellRecord(spell, cardHtml));
+          }
+        });
+        const eqState = typeof equipmentState === 'function' ? equipmentState() : {};
+        const equipments = inventory.map((entry, idx) => {
+          const item = catalog.find(candidate => candidate.id === entry.itemId);
+          const name = typeof getSheetItemDisplayName === 'function'
+            ? getSheetItemDisplayName(entry, catalogMap)
+            : (entry.displayName || entry.nome || entry.itemName || item?.nome || entry.itemId || '');
+          const isExemptBag = typeof mochilaEntryIsenta === 'function' && mochilaEntryIsenta(entry, item);
+          const spaces = isExemptBag
+            ? 0
+            : (entry.espacos ?? entry.equipslot ?? item?.espacos ?? item?.peso ?? item?.weight ?? entry.peso ?? entry.weight ?? 0);
+          const matchFn = typeof matchEquipmentEntry === 'function' ? matchEquipmentEntry : (() => false);
+          const isWornOrEquipped = Boolean(
+            (eqState.armorId && eqState.armorId !== 'none' && matchFn(entry, idx, eqState.armorId)) ||
+            (eqState.shieldId && eqState.shieldId !== 'none' && matchFn(entry, idx, eqState.shieldId)) ||
+            (eqState.trailerId && eqState.trailerId !== 'none' && matchFn(entry, idx, eqState.trailerId)) ||
+            (eqState.weaponId && eqState.weaponId !== 'none' && matchFn(entry, idx, eqState.weaponId)) ||
+            (eqState.offhandId && eqState.offhandId !== 'none' && matchFn(entry, idx, eqState.offhandId)) ||
+            (Array.isArray(eqState.wornIds) && eqState.wornIds.some((wId: string) => wId && wId !== 'none' && matchFn(entry, idx, wId)))
+          );
+          return roll20EquipmentRecord(String(name).trim(), entry.quantity, spaces, isWornOrEquipped);
+        }).filter(entry => entry.equipname);
+        const attackRecords = typeof characterAttackRecords === 'function'
+          ? characterAttackRecords(inventory, catalogMap)
+          : [];
+        const attackOverrides = state.attackOverrides && typeof state.attackOverrides === 'object' ? state.attackOverrides : {};
+        const rangeLabels = { curto: 'Curto', medio: 'Médio', longo: 'Longo', '3m': '3m', '4_5m': '4,5m', cone_de_6m: 'Cone de 6m' };
+        const splitDamage = (damage: unknown) => {
+          const value = String(damage || '').replace(/\s+/g, '');
+          const match = value.match(/^(.+?)([+-]\d+)$/);
+          return {
+            dice: match ? match[1] : value === '—' ? '' : value,
+            modifier: match ? Number(match[2]) : 0
+          };
+        };
+        const attacks = attackRecords.map(({ entry, item }) => {
+          const key = entry?.instanceId || entry?.itemId || item?.id || entry?.displayName || item?.nome || '';
+          const override = attackOverrides[key] || (item?.id ? attackOverrides[item.id] : null) || (entry?.itemId ? attackOverrides[entry.itemId] : null);
+          const equipment = typeof equipmentState === 'function' ? equipmentState() : {};
+          const adaptable = (item?.arma?.propriedadesIds || []).includes('adaptavel');
+          const isMainHand = Boolean(equipment.weaponId && typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, equipment.weaponId));
+          const isOffHand = Boolean(equipment.offhandId && typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, equipment.offhandId));
+          const grip = adaptable
+            ? (isMainHand && typeof equippedWeaponHandedness === 'function'
+              ? equippedWeaponHandedness()
+              : (isMainHand || isOffHand ? equipment.adaptableHandedness?.[isMainHand ? equipment.weaponId : equipment.offhandId] : 'uma_mao') || 'uma_mao')
+            : item?.arma?.empunhaduraId || 'uma_mao';
+          const values = item?.tipo === 'arma' || item?.arma
+            ? (typeof effectiveWeaponStats === 'function'
+              ? effectiveWeaponStats(item, grip, entry)
+              : typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—' })
+            : typeof weaponPassiveStats === 'function' ? weaponPassiveStats(item, entry) : { attack: 0, damage: '—' };
+          const defaultName = typeof getSheetItemDisplayName === 'function'
+            ? getSheetItemDisplayName(entry, catalogMap)
+            : item?.nome || entry?.displayName || 'Arma';
+          const defaultAttack = values.attack >= 0 ? `+${values.attack}` : String(values.attack);
+          const defaultCritical = typeof formatWeaponCritical === 'function'
+            ? formatWeaponCritical(values.critical || item?.arma?.critico)
+            : item?.arma?.critico || '—';
+          const rangeId = item?.arma?.alcanceId || '';
+          const type = (item?.arma?.tipoDanoIds || []).join('/');
+          const name = override?.nome || defaultName;
+          const attack = String(override?.ataque ?? defaultAttack);
+          const damage = splitDamage(override?.dano ?? values.damage ?? '—');
+          const critical = String(override?.critico ?? defaultCritical);
+          const damageType = String(override?.tipoDano ?? type);
+          const range = String(override?.alcance ?? (rangeLabels[rangeId] || rangeId || ''));
+          const extraDice = String(item?.arma?.dano?.dadosExtras || item?.arma?.dano?.extraDice || entry?.dadosExtra || entry?.options?.dadosExtra || '');
+          const skill = values.skill || (item?.arma?.combateId === 'a_distancia' ? 'pontaria' : 'luta');
+          const skillTotal = typeof calculatedSkillTotal === 'function' ? calculatedSkillTotal(skill) : 0;
+          const damageAttribute = values.damageAttribute || null;
+          const attributeModifier = damageAttribute ? Number(attrs[damageAttribute] || 0) : 0;
+          const damageExtra = override?.dano != null && override.dano !== ''
+            ? damage.modifier - attributeModifier
+            : Number(values.damageBonus ?? damage.modifier - attributeModifier);
+          return roll20AttackRecord({
+            name,
+            totalAttack: Number.parseInt(attack, 10) || 0,
+            skillTotal,
+            skill,
+            damageDice: damage.dice,
+            damageExtra,
+            damageAttribute,
+            extraDice,
+            critical,
+            damageType,
+            range,
+            description: item?.textos?.descricao || item?.descricao || ''
+          });
+        }).filter(attack => attack.nomeataque);
+        const customAttacks = (Array.isArray(state.customAttacks) ? state.customAttacks : [])
+          .filter(attack => attack?.nome)
+          .map(attack => {
+            const damage = splitDamage(attack.dano || '—');
+            const extraDice = String(attack.dadosExtra || attack.danoDadosExtra || '');
+            const bonus = String(attack.ataque || '+0');
+            return roll20AttackRecord({
+              name: attack.nome,
+              totalAttack: Number.parseInt(bonus, 10) || 0,
+              skillTotal: 0,
+              skill: attack.pericia,
+              damageDice: damage.dice,
+              damageExtra: damage.modifier,
+              damageAttribute: attack.atributoDano || null,
+              extraDice,
+              critical: String(attack.critico || '20/x2'),
+              damageType: String(attack.tipoDano || ''),
+              range: String(attack.alcance || ''),
+              description: String(attack.descricao || '')
+            });
+          });
+        const defenseAttribute = passiveEffects.defenseAttribute && passiveEffects.defenseAttribute !== 'none' && passiveEffects.defenseAttribute !== 'nenhum'
+          ? passiveEffects.defenseAttribute
+          : 'des';
+        const armorRecord = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
+        const shieldRecord = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
+        const armorStats = armorRecord && typeof armorPassiveStats === 'function'
+          ? armorPassiveStats(armorRecord.item, armorRecord.entry)
+          : { defense: 0, penalty: 0 };
+        const shieldStats = shieldRecord && typeof shieldPassiveStats === 'function'
+          ? shieldPassiveStats(shieldRecord.item, shieldRecord.entry)
+          : { defense: 0, defenseBonus: 0 };
+        const armorBonus = Number(armorStats.defense || 0);
+        const shieldBonus = Number(shieldStats.defense || 0) - Number(shieldStats.defenseBonus || 0);
+        const effectiveDefenseAttribute = typeof characterDefenseAttribute === 'function'
+          ? characterDefenseAttribute()
+          : defenseAttribute;
+        const armorName = armorRecord
+          ? typeof getSheetItemDisplayName === 'function' ? getSheetItemDisplayName(armorRecord.entry, catalogMap) : armorRecord.item?.nome || ''
+          : '';
+        const shieldName = shieldRecord
+          ? typeof getSheetItemDisplayName === 'function' ? getSheetItemDisplayName(shieldRecord.entry, catalogMap) : shieldRecord.item?.nome || ''
+          : '';
+        const manualDefBonus = Number(state?.tempManualBonuses?.defense || 0);
+        const totalSheetDefense = Number(stats.defense || 10) + armorBonus + shieldBonus + manualDefBonus;
+        const defenseFields = roll20DefenseFields({
+          defenseAttribute: effectiveDefenseAttribute || defenseAttribute,
+          totalDefense: totalSheetDefense,
+          attributeBonus: Number(attrs[effectiveDefenseAttribute || defenseAttribute] || 0),
+          dexterityBonus: Number(attrs.des || 0),
+          armorName,
+          armorDefense: armorBonus,
+          armorPenalty: Number(armorStats.penalty || 0),
+          shieldName,
+          shieldDefense: shieldBonus,
+          shieldPenalty: Number(shieldStats.penalty || 0)
+        });
+        const progressionClassIds = [...new Set((state.progression || []).map(row => row.classId).filter(Boolean))];
+        const classKeyAttribute = progressionClassIds
+          .map(classId => typeof characterSpellKeyAttribute === 'function' ? characterSpellKeyAttribute(classId) : null)
+          .find(Boolean);
+        const spellKeyAttribute = currentSpellPlan?.groups.find(group => group.keyAttribute)?.keyAttribute;
+        const keyAttribute = classKeyAttribute || spellKeyAttribute || state.customBaseAttributes?.spellKey || 'int';
+        const characterFeatures = typeof selectedCharacterFeatures === 'function' ? selectedCharacterFeatures() : [];
+        const { abilities, powers } = expandRoll20CharacterFeatures(characterFeatures);
+        const sizeCode = {
+          'Minúsculo': -2,
+          'Pequeno': -1,
+          'Médio': 0,
+          'Grande': 1,
+          'Enorme': 2,
+          'Colossal': 3
+        };
+        const conditions = [
+          'abalado', 'agarrado', 'alquebrado', 'apavorado', 'atordoado', 'caido', 'cego',
+          'confuso', 'debilitado', 'desprevenido', 'doente', 'emchama', 'enfeiticado',
+          'enjoado', 'enreado', 'envenenado', 'esmorecido', 'exausto', 'fascinado',
+          'fatigado', 'fraco', 'frustrado', 'imovel', 'inconsciente', 'indefeso', 'lento',
+          'ofuscado', 'paralizado', 'pasmo', 'petrificacao', 'sangrando', 'surdo',
+          'surpreendido', 'vulneravel'
+        ];
+        const payload: Record<string, unknown> = {
+          isJDA: true,
+          playername: state.identity?.playerName || '',
+          trace: race?.nome || state.identity?.raceId || '',
+          torigin: originDisplay,
+          tlevel: String(level),
+          charnivel: String(level),
+          for: String(attrs.for ?? 0),
+          des: String(attrs.des ?? 0),
+          con: String(attrs.con ?? 0),
+          int: String(attrs.int ?? 0),
+          sab: String(attrs.sab ?? 0),
+          car: String(attrs.car ?? 0),
+          vidatotal: String(stats.pv ?? 0),
+          vida: String(state.vitals?.pv ?? stats.pv ?? 0),
+          vidatemp: String(state.vitals?.pvTempAdventure ?? state.vitals?.pvTempDaily ?? 0),
+          manatotal: String(stats.pm ?? 0),
+          mana: String(state.vitals?.pm ?? stats.pm ?? 0),
+          manatemp: String(state.vitals?.pmTempAdventure ?? state.vitals?.pmTempDaily ?? 0),
+          ...defenseFields,
+          proficiencias: typeof characterProficiencyText === 'function' ? characterProficiencyText() : '',
+          charnotes: [
+            race?.nome ? `Raça: ${race.nome}` : '',
+            originDisplay ? `Origem: ${originDisplay}` : '',
+            classes.length ? `Classe: ${classes.join(' / ')}` : '',
+            learnedSpells.length ? `Atributo-chave: ${keyAttribute.toUpperCase()}` : ''
+          ].filter(Boolean).join(' | '),
+          ts: String(coins.ts ?? 0),
+          to: String(coins.to ?? 0),
+          oficionome: offices[0] || '',
+          oficio2nome: offices[1] || '',
+          divindade: state.deity?.mode === 'pantheon' ? 'Panteão' : state.deity?.name || '',
+          tamanho: String(sizeCode[typeof characterSizeId === 'function' ? characterSizeId() : 'Médio'] ?? 0),
+          deslocamento: String(typeof pdfMovement === 'function' ? pdfMovement() : 9),
+          cdatributo: `@{${keyAttribute}_mod} + @{${['for', 'des', 'con'].includes(keyAttribute) ? 'condicaoperfisico' : 'condicaopermental'}}`,
+          cdequips: '0',
+          cdpoderes: '0',
+          cdoutros: '0',
+          extraslot: '0',
+          rolltemp: '0',
+          ataquetemp: '0',
+          periciatemp: '0',
+          resistemp: '0',
+          danotemp: '0',
+          fortemp: '0',
+          destemp: '0',
+          contemp: '0',
+          inttemp: '0',
+          sabtemp: '0',
+          cartemp: '0',
+          abalado: '0',
+          agarrado: '0',
+          alquebrado: '0',
+          apavorado: '0',
+          atordoado: '0',
+          caido: '0',
+          cego: '0',
+          confuso: '0',
+          debilitado: '0',
+          desprevenido: '0',
+          doente: '0',
+          emchama: '0',
+          enfeiticado: '0',
+          enjoado: '0',
+          enreado: '0',
+          envenenado: '0',
+          esmorecido: '0',
+          exausto: '0',
+          fascinado: '0',
+          fatigado: '0',
+          fraco: '0',
+          frustrado: '0',
+          imovel: '0',
+          inconsciente: '0',
+          indefeso: '0',
+          lento: '0',
+          ofuscado: '0',
+          paralizado: '0',
+          pasmo: '0',
+          petrificacao: '0',
+          sangrando: '0',
+          surdo: '0',
+          surpreendido: '0',
+          vulneravel: '0',
+          attacks: [...attacks, ...customAttacks],
+          abilities,
+          powers,
+          spells1: spellsByCircle[0],
+          spells2: spellsByCircle[1],
+          spells3: spellsByCircle[2],
+          spells4: spellsByCircle[3],
+          spells5: spellsByCircle[4],
+          extraSkills: [],
+          equipments
+        };
+        skillRows.forEach(([id, , defaultAttribute]) => {
+          payload[`${id}_treinada`] = (id === 'oficio' ? offices.length > 0 : trainedSkills.has(id)) ? '1' : '0';
+          const attribute = typeof skillEffectiveAttribute === 'function' ? skillEffectiveAttribute(id) : defaultAttribute;
+          const skillConditions = ['for', 'des'].includes(attribute)
+            ? ' + @{condicaoperfisico} + @{condicaocego}'
+            : attribute === 'con'
+              ? ' + @{condicaoperfisico}'
+              : ' + @{condicaopermental}';
+          payload[`${id}atributo2`] = `@{${attribute}_mod}${skillConditions}`;
+          payload[`${id}outros`] = String(passiveEffects.skillBonuses?.[id] ?? 0);
+        });
+        payload.oficio2_treinada = offices[1] ? '1' : '0';
+        payload.oficio2atributo2 = '@{int_mod} + @{condicaopermental}';
+        payload.oficio2outros = '0';
+        conditions.forEach(condition => { payload[condition] = '0'; });
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (slug(state.identity?.characterName || 'heroi') || 'heroi') + '-roll20-t20.json';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        toast('Ficha exportada no formato T20 do Roll20.');
+      } catch (err) {
+        console.error(err);
+        toast('Erro ao exportar dados para o Roll20.', 'error');
+      }
+    }
     else if(action==='export-pdf'){
       if (typeof exportCharacterPdf === 'function') {
         exportCharacterPdf().catch(error => {

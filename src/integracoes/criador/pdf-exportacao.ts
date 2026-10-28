@@ -101,8 +101,8 @@ async function exportCharacterPdf(){
     });
   for(const rec of remainingWeapons){if(weapons.length<5)weapons.push(rec)}
   weapons.forEach(({entry,item,name},index)=>{const slot=index+1,weapon=weaponPassiveStats(item,entry);pdfSetText(form,'Arma'+slot,name);pdfSetText(form,'Teste'+slot,weapon.attack);pdfSetText(form,'Dano'+slot,weapon.damage);pdfSetText(form,'Crítico'+slot,pdfCritical(weapon.critical||item.arma?.critico));pdfSetText(form,'Tipo'+slot,(item.arma?.tipoDanoIds||[]).map(id=>({corte:'Corte',impacto:'Impacto',perfuracao:'Perfuração'}[id]||id)).join('/'));pdfSetText(form,'Alcance'+slot,item.arma?.alcanceId||'—')});
-  if(armor){pdfSetText(form,'Armadura',armor.name);pdfSetText(form,'DefArmadura',armor.item.armadura?.defesa);pdfSetText(form,'PenArmadura',armor.item.armadura?.penalidade);pdfSetCheck(form,'ArmaduraPesada',armor.item.armadura?.categoriaId==='pesada')}
-  if(shield){pdfSetText(form,'Escudo',shield.name);pdfSetText(form,'DefEscudo',shield.item.escudo?.bonusDefesa);pdfSetText(form,'PenEscudo',shield.item.escudo?.penalidade)}
+  if(armor){const aSt=typeof armorPassiveStats==='function'?armorPassiveStats(armor.item,armor.entry):{defense:armor.item.armadura?.defesa,penalty:armor.item.armadura?.penalidade};pdfSetText(form,'Armadura',armor.name);pdfSetText(form,'DefArmadura',aSt.defense);pdfSetText(form,'PenArmadura',aSt.penalty);pdfSetCheck(form,'ArmaduraPesada',armor.item.armadura?.categoriaId==='pesada')}
+  if(shield){const sSt=typeof shieldPassiveStats==='function'?shieldPassiveStats(shield.item,shield.entry):{defense:shield.item.escudo?.bonusDefesa,penalty:shield.item.escudo?.penalidade};pdfSetText(form,'Escudo',shield.name);pdfSetText(form,'DefEscudo',sSt.defense);pdfSetText(form,'PenEscudo',sSt.penalty)}
   const eq=typeof equipmentState==='function'?equipmentState():{};
   const equippedSet=new Set([eq.armorId,eq.shieldId,eq.trailerId,...(eq.wornIds||[])].filter(Boolean));
   const worn=[],carried=[];

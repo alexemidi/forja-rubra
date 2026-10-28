@@ -213,6 +213,7 @@
       guilda: 'Guilda',
       'resgatar-recompensas': 'Recompensas',
       recompensas: 'Recompensas',
+      grimorio: 'Grimório',
       mapa: 'Mapa'
     };
     if (names[page]) {

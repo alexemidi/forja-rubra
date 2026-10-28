@@ -79,12 +79,16 @@ function configuredWeaponCritical(item,entry){
   if(characterHasFeature('tradicao_de_lin_wu') && (item?.id === 'katana' || /katana/i.test(item?.nome || ''))){
     critical.margem = Math.max(2, critical.margem - 1);
   }
+  if(characterHasFeature('precisao_letal')){
+    critical.margem = Math.max(2, critical.margem - 1);
+  }
   return critical;
 }
 function weaponPassiveStats(item,entry){
   if(!item?.arma)return{skill:'luta',attack:0,damage:'—'};
   const arma=item.arma,isDistance=arma.combateId==='a_distancia',isCaC=!isDistance;
-  const props=arma.propriedadesIds||[],isLight=arma.empunhaduraId==='leve',isAgile=props.includes('agil'),isAdaptable=props.includes('adaptavel'),isThrow=props.includes('arremesso');
+  const props=arma.propriedadesIds||[],isLight=arma.empunhaduraId==='leve',isAgile=props.includes('agil'),isAdaptable=props.includes('adaptavel');
+  const isThrow=props.includes('arremesso')||['azagaia','boleadeira','chakram','arpao','shuriken','rede'].includes(item.id)||/arremesso/i.test(item.textos?.descricao||item.textos?.habilidade||'');
   const isDesbalanceada = props.includes('desbalanceada') || /desbalancead/i.test(item.textos?.habilidade || (item.efeitos||[]).map(e=>e.tipo).join(' ') || arma?.propriedadesIds?.join(' ') || '');
   const trained=new Set(typeof allTrainedSkills==='function'?allTrainedSkills():[]);
   const attrs=typeof finalAttrs==='function'?finalAttrs():{for:0,des:0,con:0,int:0,sab:0,car:0};
@@ -100,10 +104,17 @@ function weaponPassiveStats(item,entry){
   }
   if(typeof activeMountContext==='function'){
     const mount=activeMountContext(false);
-    if(mount){if(isDistance&&!mount.ginete)attack-=2;if(mount.guided&&isCaC&&['cavalo','ponei'].includes(mount.species)&&mount.tier!=='iniciante')attack+=2+RegrasMontarias.bonusArmaduraMontaria(mount.gear);}
+    if(mount){
+      if(isDistance&&!mount.ginete&&!characterHasFeature('ginete'))attack-=2;
+      if(mount.guided&&isCaC&&['cavalo','ponei'].includes(mount.species)&&mount.tier!=='iniciante')attack+=2+RegrasMontarias.bonusArmaduraMontaria(mount.gear);
+      if(characterHasFeature('combate_montado'))attack+=2;
+    }
   }
   if(isCaC&&eligibleForAcuidade){
     attack=attack-str+dex;
+  }
+  if(isDistance&&isThrow&&characterHasFeature('arremesso_potente')&&str>dex){
+    attack=attack-dex+str;
   }
   if(isDistance && characterHasFeature('inventor_balistica')){
     const intMod = Number(attrs.int || 0);
@@ -115,6 +126,8 @@ function weaponPassiveStats(item,entry){
 
   if(isCaC&&characterHasFeature('estilo_de_uma_arma')&&singleWeaponStyleActive(entry))attack+=2;
   if(equipmentState().dualAttack&&characterHasFeature('estilo_de_duas_armas')&&!characterHasFeature('ambidestria'))attack-=2;
+  if(props.includes('alongada')&&characterHasFeature('estilo_de_arma_longa'))attack+=2;
+  if(isThrow&&characterHasFeature('estilo_de_arremesso')&&characterHasFeature('saque_rapido'))attack+=2;
 
   const chosenFoco = (typeof state !== 'undefined' && Array.isArray(state?.progression))
     ? state.progression.filter(r => r.powerId === 'foco_em_arma').map(r => slug(r.powerChoice || r.choice || r.arma || '')).filter(Boolean)
@@ -126,12 +139,14 @@ function weaponPassiveStats(item,entry){
     attack += 1;
   }
 
-  let attrDamage=0;
+  let attrDamage=0,attrDamageAttribute='';
   if(isCaC){
+    attrDamageAttribute=eligibleForAcuidade?'des':'for';
     attrDamage=eligibleForAcuidade?dex:str;
   } else if(isDistance){
-    const hasStrDamage=(item.efeitos||[]).some(e=>e.tipo==='usar_atributo_no_dano'&&e.atributoId==='for')||['arco_longo','funda','balestra','arco_de_guerra'].includes(item.id);
-    if(hasStrDamage)attrDamage=str;
+    const hasStrDamage=(item.efeitos||[]).some(e=>e.tipo==='usar_atributo_no_dano'&&e.atributoId==='for')||['arco_longo','funda','balestra','arco_de_guerra'].includes(item.id)||(isThrow&&!eligibleForAcuidade);
+    if(isThrow&&eligibleForAcuidade){attrDamageAttribute='des';attrDamage=dex}
+    else if(hasStrDamage){attrDamageAttribute='for';attrDamage=str}
   }
 
   let extraDamage=0;
@@ -146,6 +161,39 @@ function weaponPassiveStats(item,entry){
   }
   if(isDistance && !isThrow && characterHasFeature('estilo_de_disparo')){
     extraDamage += characterHasFeature('inventor_balistica') ? Math.max(dex, Number(attrs.int || 0)) : dex;
+  }
+  if(isThrow && characterHasFeature('estilo_de_arremesso')){
+    extraDamage += 2;
+  }
+  if(typeof activeMountContext==='function'){
+    const mount=activeMountContext(false);
+    if(mount&&characterHasFeature('combate_montado'))extraDamage+=2;
+  }
+  if(characterHasFeature('estilo_classico')){
+    const isSword=/espada|florete|cimitarra|sabre|katana|montante|gladio|gládio|rapiera|alfange|espadim|wakizashi|kopesh|claymore/i.test((item.nome||'')+' '+(item.id||''));
+    const hasShield=typeof isShieldEquipped==='function'?isShieldEquipped():Boolean(typeof equippedShieldRecord==='function'&&equippedShieldRecord());
+    if(isSword&&hasShield)extraDamage+=2;
+  }
+  if(isCaC && !isLight && characterHasFeature('estilo_de_duas_maos')){
+    const eq = typeof equipmentState === 'function' ? equipmentState() : {};
+    const eId = entry ? (typeof equipEntryId === 'function' ? equipEntryId(entry) : (entry.instanceId || entry.id || entry.itemId)) : null;
+    const isEquippedInWeapon = Boolean(eId && (eq.weaponId === eId || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.weaponId))));
+    const isEquippedInOffhand = Boolean(eId && (eq.offhandId === eId || (typeof matchEquipmentEntry === 'function' && matchEquipmentEntry(entry, -1, eq.offhandId))));
+    let isUsingTwoHands = arma.empunhaduraId === 'duas_maos';
+    if (isAdaptable) {
+      let handedness = 'uma_mao';
+      if (isEquippedInWeapon) {
+        handedness = (eq.adaptableHandedness && eq.weaponId && eq.adaptableHandedness[eq.weaponId]) || (typeof equippedWeaponHandedness === 'function' ? equippedWeaponHandedness() : 'uma_mao');
+      } else if (isEquippedInOffhand) {
+        handedness = (eq.adaptableHandedness && eq.offhandId && eq.adaptableHandedness[eq.offhandId]) || 'uma_mao';
+      } else if (!entry) {
+        handedness = typeof equippedWeaponHandedness === 'function' ? (equippedWeaponHandedness() || 'duas_maos') : 'duas_maos';
+      }
+      isUsingTwoHands = handedness === 'duas_maos';
+    }
+    if (isUsingTwoHands) {
+      extraDamage += 5;
+    }
   }
   if(item.id==='espadim'&&trained.has('nobreza')){
     extraDamage+=1;
@@ -262,8 +310,10 @@ function weaponPassiveStats(item,entry){
   };
 
   let baseDmg=arma.dano?.principal||'';
-  if (isUnarmed && characterHasFeature('lutador_briga')) {
-    const lutLvl = typeof characterClassLevel === 'function' ? characterClassLevel('lutador') : ((state.progression || []).filter(r => r.classId === 'lutador').length || (state.identity?.classId === 'lutador' ? Number(state.identity?.plannedLevel) || 1 : 0));
+  if (isUnarmed && (characterHasFeature('lutador_briga') || characterHasFeature('estilo_desarmado'))) {
+    const lutLvl = characterHasFeature('lutador_briga')
+      ? (typeof characterClassLevel === 'function' ? characterClassLevel('lutador') : ((state.progression || []).filter(r => r.classId === 'lutador').length || (state.identity?.classId === 'lutador' ? Number(state.identity?.plannedLevel) || 1 : 0)))
+      : 1;
     if (lutLvl >= 17) baseDmg = '2d8';
     else if (lutLvl >= 13) baseDmg = '2d6';
     else if (lutLvl >= 9) baseDmg = '1d10';
@@ -314,7 +364,7 @@ function weaponPassiveStats(item,entry){
     damage=formatDmg(baseDmg,totalBonus);
   }
 
-  return{skill,attack,damage:damage.replace(/\s+/g,''),damageBonus:extraDamage,critical:configuredWeaponCritical(item,entry)};
+  return{skill,attack,damage:damage.replace(/\s+/g,''),damageBonus:extraDamage,damageAttribute:attrDamageAttribute,critical:configuredWeaponCritical(item,entry)};
 }
 
 // Defesa não recebe metade do nível (essa parcela pertence aos testes de perícia).
@@ -909,4 +959,3 @@ function ensureOriginPartners(){
     state.partners = state.partners.filter(p => p.id !== 'grifo_iniciante' && p.origem !== 'Recruta da Fênix');
   }
 }
-

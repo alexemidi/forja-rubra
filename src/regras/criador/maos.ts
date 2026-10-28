@@ -45,8 +45,22 @@ function singleWeaponStyleActive(entry){
   const record=held[0];
   return record.item.tipo==='arma'&&record.item.arma?.combateId!=='a_distancia'&&record.item.id!=='ataque_desarmado'&&record.grip!=='duas_maos'&&(!entry||entry===record.entry||entry.uid&&entry.uid===record.entry.uid||entry.instanceId&&entry.instanceId===record.entry.instanceId||JSON.stringify(entry)===JSON.stringify(record.entry));
 }
+function twoHandedWeaponStyleActive(entry){
+  const held=heldItemRecords();
+  if(held.length!==1)return false;
+  const record=held[0];
+  return record.item.tipo==='arma'&&record.item.arma?.combateId!=='a_distancia'&&record.item.id!=='ataque_desarmado'&&record.grip==='duas_maos'&&record.item.arma?.empunhaduraId!=='leve'&&(!entry||entry===record.entry||entry.uid&&entry.uid===record.entry.uid||entry.instanceId&&entry.instanceId===record.entry.instanceId||JSON.stringify(entry)===JSON.stringify(record.entry));
+}
+function weaponAndShieldStyleActive(){
+  const held=heldItemRecords();
+  if(held.length!==2)return false;
+  const hasWeapon=held.some(r=>r.item?.tipo==='arma'&&r.item.id!=='ataque_desarmado'&&r.grip!=='duas_maos');
+  const hasShield=held.some(r=>r.item?.tipo==='escudo'||Boolean(r.item?.escudo));
+  return hasWeapon&&hasShield;
+}
 function dualWeaponAttackReady(){
   const held=heldItemRecords();
-  return held.length===2&&held.every(r=>r.item.tipo==='arma'&&r.grip!=='duas_maos')&&held.some(r=>r.grip==='leve')&&characterHasFeature('estilo_de_duas_armas');
+  const hasBigOffhand=characterHasFeature('arma_secundaria_grande')||characterHasFeature('arma_maior')||characterHasFeature('arma_secundaria');
+  return held.length===2&&held.every(r=>r.item.tipo==='arma'&&r.grip!=='duas_maos')&&(hasBigOffhand||held.some(r=>r.grip==='leve'))&&characterHasFeature('estilo_de_duas_armas');
 }
 function isOffhandWeaponEquipped(){return heldItemRecords().some(r=>r.id===equipmentState().offhandId)}

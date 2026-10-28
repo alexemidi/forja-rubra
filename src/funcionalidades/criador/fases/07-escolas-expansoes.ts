@@ -297,6 +297,8 @@ function characterProficiencies(classId=state.identity.classId){
   if(isUbaneri) addProf('escudos');
   const isDesertor = std?.nome === 'Desertor da Supremacia' || reg?.nome === 'Desertor da Supremacia' || state.origin?.standard === 'desertor_da_supremacia' || state.origin?.regional === 'desertor_da_supremacia' || state.origin?.regional === 'Desertor da Supremacia';
   if(isDesertor){
+    values.push('escudos');
+    values.push('espada_bastarda');
     addProf('escudos');
     addProf('espada_bastarda');
     addProf('armas_exoticas:espada_bastarda');

@@ -62,9 +62,43 @@ export function isSingleWeaponStyleActive(
   );
 }
 
+export function isTwoHandedWeaponStyleActive(
+  heldRecords: HeldItemRecord[],
+  targetEntry?: any,
+): boolean {
+  if (!Array.isArray(heldRecords) || heldRecords.length !== 1) return false;
+  const record = heldRecords[0];
+  if (record.item.tipo !== 'arma') return false;
+  if (record.item.arma?.combateId === 'a_distancia') return false;
+  if (record.item.id === 'ataque_desarmado') return false;
+  if (record.item.arma?.empunhaduraId === 'leve') return false;
+  if (record.grip !== 'duas_maos') return false;
+  if (!targetEntry) return true;
+  return (
+    targetEntry === record.entry ||
+    Boolean(targetEntry.uid && targetEntry.uid === record.entry?.uid) ||
+    Boolean(targetEntry.instanceId && targetEntry.instanceId === record.entry?.instanceId) ||
+    JSON.stringify(targetEntry) === JSON.stringify(record.entry)
+  );
+}
+
+export function isWeaponAndShieldStyleActive(
+  heldRecords: HeldItemRecord[],
+): boolean {
+  if (!Array.isArray(heldRecords) || heldRecords.length !== 2) return false;
+  const hasWeapon = heldRecords.some(
+    (r) => r.item.tipo === 'arma' && r.item.id !== 'ataque_desarmado' && r.grip !== 'duas_maos',
+  );
+  const hasShield = heldRecords.some(
+    (r) => r.item.tipo === 'escudo' || Boolean(r.item.escudo),
+  );
+  return hasWeapon && hasShield;
+}
+
 export function isDualWeaponAttackReady(
   heldRecords: HeldItemRecord[],
   hasEstiloDuasArmas: boolean,
+  hasArmaSecundariaGrande = false,
 ): boolean {
   if (!hasEstiloDuasArmas || !Array.isArray(heldRecords) || heldRecords.length !== 2) {
     return false;
@@ -72,6 +106,6 @@ export function isDualWeaponAttackReady(
   const allValidWeapons = heldRecords.every(
     (r) => r.item.tipo === 'arma' && r.grip !== 'duas_maos',
   );
-  const hasLightWeapon = heldRecords.some((r) => r.grip === 'leve');
+  const hasLightWeapon = hasArmaSecundariaGrande || heldRecords.some((r) => r.grip === 'leve');
   return allValidWeapons && hasLightWeapon;
 }

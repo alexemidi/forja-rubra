@@ -73,7 +73,9 @@
     .repeat-spell-dialog .repeat-btn.confirm:hover{background:#ea3948}
     @media(min-width:960px){.search-row+.filter-row{column-gap:4px}.school-mode-btn{font-size:10px}.search-row+.filter-row .filter-chip{padding-inline:7px}}
     @media(min-width:601px) and (max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(min-width:1400px){.grid{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}}
     @media(max-width:600px){
+      body.is-mobile-device .grid, body.is-mobile-device .filters-bar { display: block; }
       .filters-bar{padding:8px 10px;background:#110d0f;border-bottom:1px solid #4a252a}
       .main{padding:10px 8px}
       .grid{grid-template-columns:1fr;gap:10px}

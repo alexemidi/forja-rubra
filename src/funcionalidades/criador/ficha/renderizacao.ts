@@ -1174,6 +1174,7 @@ function updateSheetEquipmentAndDefenseContent(){
   const catalog = getPdfItemsCatalog();
   const passives = typeof passiveCharacterEffects === 'function' ? passiveCharacterEffects() : {defenseBonus:0};
   const stats = typeof progressionStats === 'function' ? progressionStats() : {defense:10};
+  const attrs = typeof finalAttrs === 'function' ? finalAttrs() : {};
   const armorRec = typeof equippedArmorRecord === 'function' ? equippedArmorRecord() : null;
   const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
   const armor = armorRec?.item || (typeof equippedArmorItem === 'function' ? equippedArmorItem() : null);
@@ -1664,6 +1665,15 @@ function openTempBonusesModal(){
 function closeTempBonusesModal(){
   const modal = document.getElementById('sheetTempBonusesModal');
   if(modal) modal.style.display = 'none';
+}
+function persistTempBonusChanges(){
+  if(typeof persistNow==='function')persistNow();
+  else if(typeof persist==='function')persist();
+  if(state.finished&&typeof saveFinishedCharacter==='function')saveFinishedCharacter();
+  const heroIdParam=new URLSearchParams(window.location.search).get('id');
+  if(typeof isModoMestreAtivo==='function'&&isModoMestreAtivo()&&heroIdParam&&typeof CampanhaMesa!=='undefined'&&typeof CampanhaMesa.salvarSnapshotHeroi==='function'){
+    CampanhaMesa.salvarSnapshotHeroi(heroIdParam,state);
+  }
 }
 function updateTempBonusesModalUI(){
   const modal = document.getElementById('sheetTempBonusesModal');
@@ -2491,6 +2501,7 @@ document.addEventListener('click',event=>{
     state.tempManualBonuses.defense=(Number(state.tempManualBonuses.defense)||0)+delta;
     updateTempBonusesModalUI();
     if(typeof updateSheetEquipmentAndDefenseOnly==='function')updateSheetEquipmentAndDefenseOnly();
+    persistTempBonusChanges();
     return;
   }
   if(action==='apply-temp-skill'){
@@ -2542,23 +2553,21 @@ document.addEventListener('click',event=>{
       state.masterBonuses = state.masterBonuses || { attrs: {}, skills: {} };
       state.masterBonuses.skills = state.masterBonuses.skills || {};
       for(const id of targetSkillIds){
-        state.masterBonuses.skills[id] = (Number(state.masterBonuses.skills[id]) || 0) + sVal;
+        if(sVal===0)delete state.masterBonuses.skills[id];
+        else state.masterBonuses.skills[id] = (Number(state.masterBonuses.skills[id]) || 0) + sVal;
       }
     } else {
       state.tempManualBonuses = state.tempManualBonuses || { defense: 0, skills: {} };
       state.tempManualBonuses.skills = state.tempManualBonuses.skills || {};
       for(const id of targetSkillIds){
-        state.tempManualBonuses.skills[id] = sVal;
+        if(sVal===0)delete state.tempManualBonuses.skills[id];
+        else state.tempManualBonuses.skills[id] = sVal;
       }
     }
 
     updateTempBonusesModalUI();
     if(typeof updateSheetSkillsOnly==='function')updateSheetSkillsOnly();
-    if(typeof persistNow === 'function') persistNow(); else if(typeof persist === 'function') persist();
-    const heroIdParam = new URLSearchParams(window.location.search).get('id');
-    if(isModoMestreAtivo() && heroIdParam && typeof CampanhaMesa !== 'undefined' && typeof CampanhaMesa.salvarSnapshotHeroi === 'function'){
-      CampanhaMesa.salvarSnapshotHeroi(heroIdParam, state);
-    }
+    persistTempBonusChanges();
     const notify=typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert);
     const sign = sVal >= 0 ? '+' : '';
     notify(`Bônus de ${sign}${sVal} aplicado em ${groupLabel}.`);
@@ -2570,11 +2579,7 @@ document.addEventListener('click',event=>{
       delete state.masterBonuses.skills[sId];
       updateTempBonusesModalUI();
       if(typeof updateSheetSkillsOnly==='function')updateSheetSkillsOnly();
-      if(typeof persistNow === 'function') persistNow(); else if(typeof persist === 'function') persist();
-      const heroIdParam = new URLSearchParams(window.location.search).get('id');
-      if(isModoMestreAtivo() && heroIdParam && typeof CampanhaMesa !== 'undefined' && typeof CampanhaMesa.salvarSnapshotHeroi === 'function'){
-        CampanhaMesa.salvarSnapshotHeroi(heroIdParam, state);
-      }
+      persistTempBonusChanges();
     }
     return;
   }
@@ -2584,14 +2589,16 @@ document.addEventListener('click',event=>{
       delete state.tempManualBonuses.skills[sId];
       updateTempBonusesModalUI();
       if(typeof updateSheetSkillsOnly==='function')updateSheetSkillsOnly();
+      persistTempBonusChanges();
     }
     return;
   }
   if(action==='clear-all-temp'){
-    state.tempManualBonuses={defense:0,skills:{}};
+    state.tempManualBonuses={...state.tempManualBonuses,defense:0,skills:{},attrs:{}};
     updateTempBonusesModalUI();
     if(typeof updateSheetEquipmentAndDefenseOnly==='function')updateSheetEquipmentAndDefenseOnly();
     if(typeof updateSheetSkillsOnly==='function')updateSheetSkillsOnly();
+    persistTempBonusChanges();
     const notify=typeof showToast==='function'?showToast:(typeof toast==='function'?toast:alert);
     notify('Todos os bônus temporários foram zerados.');
     return;
@@ -2716,6 +2723,9 @@ document.addEventListener('input',event=>{
   }
 });
 document.addEventListener('change',event=>{
+  if(event.target?.id==='manualTempDefInput'){
+    persistTempBonusChanges();
+  }
   if(event.target?.id === 'sheetPartnerSelectType' || event.target?.id === 'sheetPartnerSelectTier'){
     const modal = document.getElementById('sheetPartnerAddModal');
     const typeSel = modal?.querySelector('#sheetPartnerSelectType');
@@ -3110,6 +3120,10 @@ function renderSheetActionBar(mode = 'full'){
         <button type="button" class="sheet-action-btn" data-sheet-action="export-foundry" title="Exportar dados estruturados para Foundry VTT">
           ${foundryIcon}
           <span>Exportar para Foundry</span>
+        </button>
+        <button type="button" class="sheet-action-btn" data-sheet-action="export-roll20" title="Exportar ficha no formato da ficha T20 do Roll20">
+          ${foundryIcon}
+          <span>Exportar para Roll20</span>
         </button>
         <button type="button" class="sheet-action-btn" data-sheet-action="switch-to-simplified" title="Ver Ficha Simplificada">
           ${eyeIcon}

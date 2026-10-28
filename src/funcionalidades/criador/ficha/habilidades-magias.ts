@@ -609,7 +609,29 @@ function renderSheetConditions(){
   const slots=sheetConditions(),overloaded=sheetInventoryLoad().used>sheetInventoryLoad().limit;
   return '<div class="sheet-conditions">'+slots.map((selected,index)=>'<select class="select" aria-label="Condição '+(index+1)+'" data-condition-slot="'+index+'" '+(overloaded&&selected==='Sobrecarregado'?'disabled title="Personagem sobrecarregado (penalidade de -3m no movimento e -5 de penalidade de armadura)"':'')+'><option value="">Sem condição</option>'+[...new Set([...(DATA.conditions||[]),selected])].filter(Boolean).map(name=>'<option value="'+esc(name)+'" '+(selected===name?'selected':'')+'>'+esc(name)+'</option>').join('')+'</select>').join('')+'</div>';
 }
-function sheetMovement(){const mount=activeMountContext(false);return Math.max(0,(mount?mount.speed:characterBaseMovement())-(sheetConditions().includes('Sobrecarregado')?3:0))}
+function sheetMovement(){
+  const mount=activeMountContext(false);
+  let move=mount?mount.speed:characterBaseMovement();
+  if(!mount){
+    const armorItem=typeof equippedArmorItem==='function'?equippedArmorItem():null;
+    const isHeavy=armorItem?(armorItem.armadura?.categoriaId==='pesada'||armorItem.categoriaId==='pesada'||armorItem.tipo==='armadura_pesada'):false;
+    if(isHeavy){
+      const race=raceById(state.identity.raceId);
+      const raceNameNorm=String(race?.nome||state.identity.raceId||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const isDwarf=/\bana[o]?\b/.test(raceNameNorm);
+      const hasFanatico=typeof characterHasFeature==='function'&&characterHasFeature('fanatico');
+      const armorId=String(armorItem?.id||'');
+      const isQuitina=armorId.includes('quitina');
+      const isPedra=armorId.includes('pedra');
+      if(!isDwarf&&!hasFanatico&&!isQuitina){
+        if(isPedra)move=Math.floor(move/2);
+        else move-=3;
+      }
+    }
+  }
+  if(sheetConditions().includes('Sobrecarregado'))move-=3;
+  return Math.max(0,move);
+}
 
 function mountRecord(partner){
  const species=RegrasMontarias.especieMontaria([partner.name,partner.nome,partner.type,partner.tipo].filter(Boolean).join(' '));

@@ -81,10 +81,13 @@ function initEquipmentState(){
     }
 
     const hasDualWieldStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_duas_armas');
-    const hasTwoHandStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_duas_maos');
-    const hasOneHandStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_uma_arma');
-    const hasWeaponAndShieldStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_arma_e_escudo');
-    const hasRangedStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_de_disparo');
+    const hasTwoHandStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_duas_maos') || characterHasFeature('defesa_armada') || characterHasFeature('ataque_pesado'));
+    const hasOneHandStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_uma_arma') || characterHasFeature('ataque_preciso'));
+    const hasWeaponAndShieldStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_arma_e_escudo') || characterHasFeature('estilo_classico') || characterHasFeature('ataque_com_escudo') || characterHasFeature('bloqueio_com_escudo'));
+    const hasRangedStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_disparo') || characterHasFeature('arqueiro'));
+    const hasThrowStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_arremesso') || characterHasFeature('arremesso_potente') || characterHasFeature('arremesso_multiplo'));
+    const hasPolearmStyle = typeof characterHasFeature === 'function' && (characterHasFeature('estilo_de_arma_longa') || characterHasFeature('piqueiro') || characterHasFeature('ataque_com_o_cabo'));
+    const hasClassicStyle = typeof characterHasFeature === 'function' && characterHasFeature('estilo_classico');
     const hasBigOffhand = typeof characterHasFeature === 'function' && (
       characterHasFeature('arma_secundaria_grande') ||
       characterHasFeature('arma_maior') ||
@@ -97,7 +100,28 @@ function initEquipmentState(){
       if (hasRangedStyle) {
         weaponEntry = inventory.find((e, i) => {
           const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.combateId === 'a_distancia' && !(item?.arma?.propriedadesIds || []).includes('arremesso');
+        }) || inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
           return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.combateId === 'a_distancia';
+        });
+      }
+      if (!weaponEntry && hasThrowStyle) {
+        weaponEntry = inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && ((item?.arma?.propriedadesIds || []).includes('arremesso') || ['azagaia','boleadeira','chakram','arpao','shuriken','rede'].includes(item?.id));
+        });
+      }
+      if (!weaponEntry && hasPolearmStyle) {
+        weaponEntry = inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && (item?.arma?.propriedadesIds || []).includes('alongada');
+        });
+      }
+      if (!weaponEntry && hasClassicStyle) {
+        weaponEntry = inventory.find((e, i) => {
+          const item = catalog.get(e.itemId);
+          return (item?.tipo === 'arma' || e.tipo === 'arma') && item?.arma?.empunhaduraId !== 'duas_maos' && /espada|florete|cimitarra|sabre|katana|gladio|gládio|rapiera|espadim|wakizashi|kopesh/i.test((item?.nome || '') + ' ' + (item?.id || ''));
         });
       }
       if (!weaponEntry && hasTwoHandStyle) {
@@ -106,7 +130,7 @@ function initEquipmentState(){
           return (item?.tipo === 'arma' || e.tipo === 'arma') && (item?.arma?.empunhaduraId === 'duas_maos' || (item?.arma?.propriedadesIds || []).includes('adaptavel'));
         });
       }
-      if (!weaponEntry && hasOneHandStyle) {
+      if (!weaponEntry && (hasOneHandStyle || hasWeaponAndShieldStyle)) {
         weaponEntry = inventory.find((e, i) => {
           const item = catalog.get(e.itemId);
           return (item?.tipo === 'arma' || e.tipo === 'arma') && (item?.arma?.empunhaduraId === 'uma_mao' || item?.arma?.empunhaduraId === 'leve' || (item?.arma?.propriedadesIds || []).includes('adaptavel'));
@@ -874,7 +898,8 @@ function renderEquipmentPanel(){
     </div>`);
   } else if (shieldRec) {
     const { entry, item } = shieldRec;
-    const def = Number(item?.escudo?.bonusDefesa || 0), pen = item?.escudo?.penalidade || 0;
+    const shieldStats = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(item, entry) : { defense: Number(item?.escudo?.bonusDefesa || 0), penalty: Number(item?.escudo?.penalidade || 0) };
+    const def = shieldStats.defense, pen = shieldStats.penalty;
     equippedSlots.push(`<div class="equip-worn-item">
       <div class="equip-item-label">Mão 2 (Escudo)</div>
       <div class="equip-item-row">
@@ -905,7 +930,8 @@ function renderEquipmentPanel(){
   const armorRec=equippedArmorRecord();
   if(armorRec){
     const {entry,item}=armorRec;
-    const def=Number(item?.armadura?.defesa||0),pen=item?.armadura?.penalidade||0,cat=item?.armadura?.categoriaId||'';
+    const armorStats = typeof armorPassiveStats === 'function' ? armorPassiveStats(item, entry) : { defense: Number(item?.armadura?.defesa || 0), penalty: Number(item?.armadura?.penalidade || 0) };
+    const def=armorStats.defense,pen=armorStats.penalty,cat=item?.armadura?.categoriaId||'';
     const attachedConts = Array.isArray(entry.attachedContraptions) ? entry.attachedContraptions : [];
     let attachedContsHtml = '';
     if (attachedConts.length > 0) {

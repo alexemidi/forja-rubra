@@ -65,7 +65,7 @@
   .stat-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ── FILTROS ── */
-  .site-header, .view-tabs-wrap, #defineSchoolsBtn { display: none !important; }
+  .view-tabs-wrap, #defineSchoolsBtn { display: none !important; }
   .view-tabs-wrap {
     padding: 12px 32px;
     border-bottom: 1px solid var(--border);
@@ -807,4 +807,7 @@
     .catalog-toolbar { align-items: flex-start; }
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .situations-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 1400px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
   }

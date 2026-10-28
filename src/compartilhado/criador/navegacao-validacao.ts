@@ -53,8 +53,9 @@ if(typeof window !== 'undefined'){
 
 document.addEventListener('click',event=>{
   if(state.step===10){
-    const isTrigger=(event.target as HTMLElement)?.closest?.('[data-action="toggle-progression-filters"]');
-    const isDrawer=(event.target as HTMLElement)?.closest?.('.power-filters-drawer');
+    const target = event.target as HTMLElement | null;
+    const isTrigger = target?.closest?.('[data-action="toggle-progression-filters"]');
+    const isDrawer = target?.closest?.('.power-filters-drawer');
     if(!isTrigger&&!isDrawer){
       const activeIdx=typeof progressionActivePowerIndex==='function'?progressionActivePowerIndex():0;
       const r=state.progression?.[activeIdx];
@@ -152,9 +153,7 @@ document.addEventListener('click',event=>{
     row.powerStatusFilter=button.dataset.value;
     row.previewPowerId='';
     renderStage();
-  }else if(button.dataset.action==='class-power-preview'){
-    event.preventDefault();
-    previewProgressionPower(index,button.dataset.powerId,{pageScroll:window.scrollY,listScroll:button.closest?.('.power-list')?.scrollTop});
+  }else if(button.dataset.action==='class-power-preview'){event.preventDefault();previewProgressionPower(index,button.dataset.powerId,{pageScroll:window.scrollY,listScroll:button.closest?.('.power-list')?.scrollTop});
   }else if(button.dataset.action==='class-power-attribute'){
     row.previewPowerChoice=Number(button.dataset.dir)<0?'':button.dataset.attr;
     renderStage();
@@ -1251,6 +1250,38 @@ function calculatePassiveCharacterEffects(){
     addSkill('furtividade', 2);
   }
   if(characterHasFeature('estilo_de_uma_arma')&&singleWeaponStyleActive())result.defenseBonus+=2;
+  if(characterHasFeature('estilo_de_arma_e_escudo')){
+    const isActive=typeof weaponAndShieldStyleActive==='function'
+      ? weaponAndShieldStyleActive()
+      : (typeof heldItemRecords==='function'
+          ? (()=>{const h=heldItemRecords();return h.length===2&&h.some(r=>r.item?.tipo==='arma'&&r.item.id!=='ataque_desarmado'&&r.grip!=='duas_maos')&&h.some(r=>r.item?.tipo==='escudo'||Boolean(r.item?.escudo));})()
+          : Boolean(typeof equippedWeaponRecord==='function'&&equippedWeaponRecord()&&typeof equippedShieldRecord==='function'&&equippedShieldRecord()));
+    if(isActive){
+      result.defenseBonus+=2;
+    }
+  }
+  if(characterHasFeature('defesa_armada')&&typeof twoHandedWeaponStyleActive==='function'&&twoHandedWeaponStyleActive()){
+    result.defenseBonus+=2;
+    addSkill('fortitude',2);
+  }
+  if(characterHasFeature('estilo_classico')){
+    const held=typeof heldItemRecords==='function'?heldItemRecords():[];
+    const hasSwordEquipped=held.some(r=>r.item?.tipo==='arma'&&/espada|florete|cimitarra|sabre|katana|montante|gladio|gládio|rapiera|alfange|espadim|wakizashi|kopesh|claymore/i.test((r.item?.nome||'')+' '+(r.item?.id||'')));
+    const hasShield=typeof isShieldEquipped==='function'?isShieldEquipped():Boolean(typeof equippedShieldRecord==='function'&&equippedShieldRecord());
+    if(hasSwordEquipped&&hasShield){
+      result.defenseBonus+=2;
+    }
+  }
+  if(characterHasFeature('catafractario')&&isWearingHeavyArmor&&typeof activeMountContext==='function'){
+    const mount=activeMountContext(false);
+    if(mount){
+      const tierMap={iniciante:1,veterano:2,mestre:3};
+      result.defenseBonus+=(tierMap[mount.tier]||1);
+    }
+  }
+  if(characterHasFeature('finta_aprimorada')){
+    addSkill('enganacao',2);
+  }
   if(characterHasFeature('inexpugnavel') && isWearingHeavyArmor){
     addSkill('fortitude', 2);
     addSkill('reflexos', 2);
@@ -1303,21 +1334,35 @@ function calculatePassiveCharacterEffects(){
     result.reductions.push({ tipo: 'reducao_dano', danoTipo: 'todos', valor: 5 });
   }
   if(characterHasFeature('cavaleiro_solidez')){
-    const eqShield = typeof equipmentState === 'function' ? equipmentState().shieldId : null;
-    const inv = typeof characterInventory === 'function' ? characterInventory() : [];
-    let shieldDef = 0;
-    for(const entry of inv){
-      const it = (typeof DATA !== 'undefined' && DATA.pdfItems) ? DATA.pdfItems.find(item => item.id === entry.itemId) : null;
-      const isEq = Boolean(entry.isEquipped || entry.equipado || entry.id === eqShield || entry.itemId === eqShield);
-      if(isEq && (entry.tipo === 'escudo' || it?.tipo === 'escudo' || it?.armadura?.categoriaId === 'escudo' || entry.armadura?.categoriaId === 'escudo')){
-        const b = Number(it?.armadura?.bonusDefesa || entry.armadura?.bonusDefesa || (entry.itemId === 'escudo_pesado' ? 2 : 1));
-        if(b > shieldDef) shieldDef = b;
+    const shieldStyleExtra = (characterHasFeature('estilo_de_arma_e_escudo') && (typeof weaponAndShieldStyleActive === 'function' ? weaponAndShieldStyleActive() : Boolean(typeof equippedWeaponRecord === 'function' && equippedWeaponRecord() && typeof equippedShieldRecord === 'function' && equippedShieldRecord()))) ? 2 : 0;
+    const shieldRec = typeof equippedShieldRecord === 'function' ? equippedShieldRecord() : null;
+    if (shieldRec && shieldRec.item) {
+      const st = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(shieldRec.item, shieldRec.entry) : { defense: Number(shieldRec.item?.escudo?.bonusDefesa || 0) };
+      const totalSolidez = st.defense + (st.defense > 0 ? shieldStyleExtra : 0);
+      if (totalSolidez > 0) {
+        addSkill('fortitude', totalSolidez);
+        addSkill('reflexos', totalSolidez);
+        addSkill('vontade', totalSolidez);
       }
-    }
-    if(shieldDef > 0){
-      addSkill('fortitude', shieldDef);
-      addSkill('reflexos', shieldDef);
-      addSkill('vontade', shieldDef);
+    } else {
+      const eqShield = typeof equipmentState === 'function' ? equipmentState().shieldId : null;
+      const inv = typeof characterInventory === 'function' ? characterInventory() : [];
+      let shieldDef = 0;
+      for(const entry of inv){
+        const it = (typeof DATA !== 'undefined' && DATA.pdfItems) ? DATA.pdfItems.find(item => item.id === entry.itemId) : null;
+        const isEq = Boolean(entry.isEquipped || entry.equipado || entry.id === eqShield || entry.itemId === eqShield);
+        if(isEq && (entry.tipo === 'escudo' || it?.tipo === 'escudo' || it?.armadura?.categoriaId === 'escudo' || entry.armadura?.categoriaId === 'escudo')){
+          const st = typeof shieldPassiveStats === 'function' ? shieldPassiveStats(it || entry, entry) : null;
+          const b = st ? st.defense : Number(it?.escudo?.bonusDefesa || it?.armadura?.bonusDefesa || entry.escudo?.bonusDefesa || entry.armadura?.bonusDefesa || (entry.itemId === 'escudo_pesado' ? 2 : 1));
+          if(b > shieldDef) shieldDef = b;
+        }
+      }
+      if(shieldDef > 0){
+        const totalSolidez = shieldDef + shieldStyleExtra;
+        addSkill('fortitude', totalSolidez);
+        addSkill('reflexos', totalSolidez);
+        addSkill('vontade', totalSolidez);
+      }
     }
   }
   // Paladino

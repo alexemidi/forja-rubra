@@ -50,7 +50,13 @@ fs.readFileSync = function(pathArg, options) {
     if (!origExistsSync(pathArg)) {
       const tsPath = pathArg.replace(/\.(m?js)$/, '.ts');
       if (origExistsSync(tsPath)) {
-        return origReadFileSync(tsPath, options);
+        const rawTs = origReadFileSync(tsPath, 'utf8');
+        const transformed = esbuild.transformSync(rawTs, {
+          loader: 'ts',
+          target: 'es2022',
+          sourcefile: tsPath
+        });
+        return transformed.code;
       }
     }
   }
